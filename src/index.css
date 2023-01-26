@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Mona Sans';
+  src: url('/public/fonts/Mona-Sans.woff2') format('woff2');
+  font-weight: 200 900;
+  font-stretch: 75% 125%;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter var';
+  src: url('/public/fonts/Inter.var.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+  font-feature-settings: "ss01", "cv11";
+}
+
+html {
+  scroll-behavior: smooth;
+}
