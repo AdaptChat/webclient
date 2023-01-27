@@ -4,12 +4,14 @@ import {LoginResponse} from "../../types/auth";
 import {createSignal} from "solid-js";
 import Cookies from "js-cookie";
 import {useNavigate} from "@solidjs/router";
+import {Turnstile, TurnstileRef} from "@nerimity/solid-turnstile";
 
 export default function Login() {
   let usernameRef: HTMLInputElement | null = null
   let emailRef: HTMLInputElement | null = null
   let passwordRef: HTMLInputElement | null = null
   let rememberMeRef: HTMLInputElement | null = null
+  let turnstileRef: TurnstileRef | null = null
 
   let [error, setError] = createSignal<string>()
   let [isSubmitting, setIsSubmitting] = createSignal(false)
@@ -31,14 +33,13 @@ export default function Login() {
         const email = emailRef!.value
         const password = passwordRef!.value
 
-        console.debug(turnstile.getResponse('#turnstile'));
-
         let response = await Api.requestNoAuth<LoginResponse>('POST', '/users', {
           json: { username, email, password },
         })
 
         if (!response.ok) {
           setIsSubmitting(false)
+          turnstileRef!.reset()
           setError(response.errorJsonOrThrow().message)
         }
         let { token } = response.ensureOk().jsonOrThrow()
@@ -75,7 +76,12 @@ export default function Login() {
           ref={passwordRef!}
           required
         />
-        <div class="cf-turnstile" id="turnstile" data-sitekey="0x4AAAAAAACKrfJ6GCEBF1ih"></div>
+        <Turnstile
+          ref={turnstileRef}
+          sitekey="0x4AAAAAAACKrfJ6GCEBF1ih"
+          onVerify={(token) => console.debug(token)}
+          autoResetOnExpire={true}
+        />
       </div>
 
       <div class="flex items-center">
