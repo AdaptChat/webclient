@@ -20,6 +20,7 @@ export type Endpoint = `/${string}`
  */
 export interface RequestOptions {
   headers?: Record<string, string>,
+  json?: Record<string, any>,
 }
 
 /**
@@ -68,8 +69,9 @@ export class ApiResponse<T> {
     return this.response.ok
   }
 
-  ensureOk() {
+  ensureOk(): ApiResponse<T> {
     this.$ensureOk = true
+    return this
   }
 
   private throwForError() {
@@ -90,6 +92,10 @@ export class ApiResponse<T> {
       )
     }
     return this.$json
+  }
+
+  errorJsonOrThrow(): { message: string } {
+    return this.jsonOrThrow() as any
   }
 
   textOrThrow(): string {
@@ -131,9 +137,14 @@ export default class Api {
     endpoint: Endpoint,
     options: RequestOptions = {},
   ): Promise<ApiResponse<T>> {
+    let headers = options.headers ?? {}
+    if (options.json)
+      headers['Content-Type'] ??= 'application/json';
+
     let response = await fetch(BASE_URL + endpoint, {
       method,
-      headers: (options.headers ?? {}) as unknown as Headers,
+      headers: headers as unknown as Headers,
+      body: options.json && JSON.stringify(options.json),
     })
     return await ApiResponse.fromResponse<T>(method, endpoint, response)
   }

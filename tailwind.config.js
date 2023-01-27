@@ -7,6 +7,7 @@ module.exports = {
     extend: {
       colors: {
         accent: '#0586ff',
+        link: '#4bd5ff',
       },
       screens: {
         'mobile-xs': { max: '369px' },
