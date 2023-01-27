@@ -31,6 +31,8 @@ export default function Login() {
         const email = emailRef!.value
         const password = passwordRef!.value
 
+        console.debug(turnstile.getResponse('#turnstile'));
+
         let response = await Api.requestNoAuth<LoginResponse>('POST', '/users', {
           json: { username, email, password },
         })
@@ -73,6 +75,7 @@ export default function Login() {
           ref={passwordRef!}
           required
         />
+        <div class="cf-turnstile" id="turnstile" data-sitekey="0x4AAAAAAACKrfJ6GCEBF1ih"></div>
       </div>
 
       <div class="flex items-center">
