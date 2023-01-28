@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import {useNavigate} from "@solidjs/router";
 import {Turnstile, TurnstileRef} from "@nerimity/solid-turnstile";
 
-export default function Login() {
+export default function Register() {
   let usernameRef: HTMLInputElement | null = null
   let emailRef: HTMLInputElement | null = null
   let passwordRef: HTMLInputElement | null = null
@@ -39,7 +39,7 @@ export default function Login() {
 
         if (!response.ok) {
           setIsSubmitting(false)
-          turnstileRef!.reset()
+          turnstileRef?.reset()
           setError(response.errorJsonOrThrow().message)
         }
         let { token } = response.ensureOk().jsonOrThrow()
@@ -76,12 +76,6 @@ export default function Login() {
           ref={passwordRef!}
           required
         />
-        <Turnstile
-          ref={turnstileRef}
-          sitekey="0x4AAAAAAACKrfJ6GCEBF1ih"
-          onVerify={(token) => console.debug(token)}
-          autoResetOnExpire={true}
-        />
       </div>
 
       <div class="flex items-center">
@@ -96,6 +90,14 @@ export default function Login() {
           Remember me
         </label>
       </div>
+
+      <Turnstile
+        ref={turnstileRef!}
+        sitekey={process.env.NODE_ENV === "production" ? "0x4AAAAAAACKrfJ6GCEBF1ih" : "1x00000000000000000000AA"}
+        onVerify={token => console.debug(token)}
+        autoResetOnExpire={true}
+        class="self-center"
+      />
     </Layout>
   )
 }

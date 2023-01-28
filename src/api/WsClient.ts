@@ -1,5 +1,6 @@
 import Api from "./Api";
 import {ReadyEvent, WsEvent} from "../types/ws";
+import ApiCache from "./ApiCache";
 
 /**
  * WebSocket endpoint
@@ -8,21 +9,28 @@ export const WS_CONNECT_URI: string = 'wss://harmony.adapt.chat'
 
 type WsEventHandler = (ws: WsClient, data: any) => any
 export const WsEventHandlers: Record<string, WsEventHandler> = {
+  hello(ws: WsClient, _) {
+    ws.sendIdentify()
+    console.info('[WS] Connected to harmony')
+  },
   ready(ws: WsClient, data: ReadyEvent) {
-    ws.$readyPromiseResolver?.(true)
-  }
+    ws.readyPromiseResolver?.(true)
+    ws.api.cache = ApiCache.fromReadyEvent(data)
+    console.info('[WS] Ready event received from harmony')
+  },
 }
 
 /**
  * Implements a client for harmony (Adapt's websocket).
  */
 export default class WsClient {
-  private api: Api;
+  api: Api;
+  readyPromiseResolver?: (resolver: any) => void;
+
   private connection?: WebSocket;
 
   private pingInterval?: number;
   private shouldKeepAlive: boolean;
-  $readyPromiseResolver?: (resolver: any) => void;
 
   constructor(api: Api) {
     this.api = api
@@ -31,11 +39,10 @@ export default class WsClient {
 
   async initConnection() {
     this.shouldKeepAlive = true
-    this.$readyPromiseResolver = undefined
+    this.readyPromiseResolver = undefined
     this.clearPingInterval()
 
     const connection = new WebSocket(WS_CONNECT_URI)
-    connection.onopen = this.sendIdentify.bind(this)
     connection.onmessage = this.processMessage.bind(this)
     connection.onclose = () => {
       if (this.shouldKeepAlive) {
@@ -44,28 +51,24 @@ export default class WsClient {
       }
     }
 
-    this.pingInterval = setInterval(this.sendPing.bind(this), 15000)
+    this.pingInterval = setInterval(this.sendPing.bind(this), 15000) as unknown as number
     this.connection = connection
   }
 
   async connect() {
     await this.initConnection()
-    await new Promise((resolve) => this.$readyPromiseResolver = resolve)
+    await new Promise((resolve) => this.readyPromiseResolver = resolve)
   }
 
-  private sendIdentify() {
+  sendIdentify() {
     this.connection?.send(JSON.stringify({
-      event: 'identify',
-      data: {
-        token: this.api.token,
-      },
+      op: 'identify',
+      token: this.api.token,
     }))
   }
 
   private sendPing() {
-    this.connection?.send(JSON.stringify({
-      event: 'ping',
-    }))
+    this.connection?.send(JSON.stringify({ op: 'ping' }))
   }
 
   private processMessage(message: MessageEvent) {

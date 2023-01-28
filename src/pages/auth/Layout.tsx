@@ -55,7 +55,7 @@ export default function Layout(props: ParentProps<Props>) {
             </div>
           </Show>
         </div>
-        <form class="mt-8 space-y-6" onSubmit={event => {
+        <form class="flex flex-col mt-8 space-y-6" onSubmit={event => {
           event.preventDefault()
           props.onSubmit(event as any)
         }}>

@@ -1,0 +1,1 @@
+export type Snowflake = number | bigint

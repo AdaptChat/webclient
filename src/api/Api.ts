@@ -1,4 +1,6 @@
 import { createSignal } from "solid-js";
+import WsClient from "./WsClient";
+import ApiCache from "./ApiCache";
 
 /**
  * Adapt REST API endpoint
@@ -115,7 +117,9 @@ export class ApiResponse<T> {
  * API client entrypoint
  */
 export default class Api {
-  token: string;
+  token: string
+  ws?: WsClient
+  cache?: ApiCache
 
   constructor(token: string) {
     this.token = token;
@@ -150,5 +154,27 @@ export default class Api {
   }
 }
 
-export const globalApi = createSignal<Api>()
-export const [getApi, setApi] = globalApi
+const _globalApi = createSignal<Api>()
+export const getApi = _globalApi[0]
+const [confirmedApiAccess, setConfirmedApiAccess] = createSignal(false)
+
+export function setApi(api: Api) {
+  // @ts-ignore
+  if (window) try {
+    Object.defineProperty(window, 'adaptApi', {
+      get: () => {
+        if (!confirmedApiAccess())
+          confirm('Access to the "adaptApi" development/debug variable has been requested. ' +
+            'Press "OK" to confirm access, otherwise press "Cancel" to deny access.\n\n' +
+            'This is used to access the API from the browser console and can be used to gain access to your account. ' +
+            'If you do not know what this is, you should probably press "Cancel".') && setConfirmedApiAccess(true)
+
+        return confirmedApiAccess() ? api : undefined
+      },
+    })
+  } catch (ignored) {}
+
+  _globalApi[1](api)
+}
+
+export const globalApi = [getApi, setApi] as const
