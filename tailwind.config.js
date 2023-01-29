@@ -7,6 +7,7 @@ module.exports = {
     extend: {
       colors: {
         accent: '#0586ff',
+        secondary: '#be3dff',
         link: '#4bd5ff',
       },
       screens: {
@@ -23,5 +24,18 @@ module.exports = {
       ],
     },
   },
-  plugins: [],
+  plugins: [require('daisyui')],
+  daisyui: {
+    themes: [{
+      default: {
+        primary: '#0078e1',
+        secondary: '#be3dff',
+        accent: '#0586ff',
+        neutral: '#3a3a41',
+        '.btn': {
+          'text-transform': 'initial',
+        },
+      },
+    }],
+  }
 }
