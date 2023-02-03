@@ -32,6 +32,9 @@ module.exports = {
         secondary: '#be3dff',
         accent: '#0586ff',
         neutral: '#3a3a41',
+        base: {
+          content: '#ffffff',
+        },
         '.btn': {
           'text-transform': 'initial',
         },

@@ -21,3 +21,13 @@
 html {
   scroll-behavior: smooth;
 }
+
+._toast {
+  border-radius: 0.5rem !important;
+  color: theme("colors.base-content") !important;
+}
+
+._toast div[aria-live="polite"] {
+  margin: 4px 0 4px 10px !important;
+  padding: 2px;
+}

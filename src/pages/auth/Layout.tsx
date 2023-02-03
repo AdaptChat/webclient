@@ -37,7 +37,7 @@ export default function Layout(props: ParentProps<Props>) {
         <div class="text-center">
           <img class="mx-auto h-12 w-auto" src="/banner-white-fg.svg" alt="Adapt" />
           <h2 class="mt-6 text-3xl font-bold font-title">{props.title}</h2>
-          <p class="mt-2 text-sm text-white text-opacity-50">
+          <p class="mt-2 text-sm text-base-content text-opacity-50">
             {props.switchScreenCondition}{' '}
             <A
               href={props.switchScreenHref}

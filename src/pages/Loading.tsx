@@ -13,7 +13,7 @@ export default function Loading() {
     <>
       <div class="w-full h-full flex flex-col items-center justify-center">
         <img src="/adapt.png" alt="Loading..." class="w-[96px] h-[96px] animate-bounce" width="1024" />
-        <p class="font-title text-2xl mt-6 text-white text-opacity-60 animate-pulse">Launching...</p>
+        <p class="font-title text-2xl mt-6 text-base-content text-opacity-60 animate-pulse">Launching...</p>
       </div>
       <p
         class="fixed bottom-16 w-full mx-4 text-center text-gray-400 mt-6 transition-all duration-1000 select-none"

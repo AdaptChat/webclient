@@ -3,6 +3,7 @@ import { Route, Routes } from "@solidjs/router";
 import Api, { getApi, setApi } from "./api/Api";
 import Cookies from 'js-cookie'
 import WsClient from "./api/WsClient";
+import {Toaster} from "solid-toast";
 
 const Login = lazy(() => import('./pages/auth/Login'))
 const Register = lazy(() => import('./pages/auth/Register'))
@@ -37,13 +38,19 @@ const App: Component = () => {
   })
 
   return (
-    <main class="font-sans m-0 w-[100vw] h-[100vh] bg-gray-800 text-white">
+    <main class="font-sans m-0 w-[100vw] h-[100vh] bg-gray-800 text-base-content">
       <Show when={getApi()} keyed={false} fallback={
         <Routes>
           <Route path={["/", "/login"]} component={Login} />
           <Route path="/register" component={Register} />
         </Routes>
       }>
+        <Toaster toastOptions={{
+          className: "_toast",
+          style: {
+            background: "#000000",
+          },
+        }} />
         <Show when={ws()} keyed={false} fallback={Loading}>
           <Routes>
             <Route path="/" component={Home} />

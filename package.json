@@ -25,6 +25,7 @@
     "@solidjs/router": "^0.7.0",
     "cssnano": "^5.1.14",
     "js-cookie": "^3.0.1",
-    "solid-js": "^1.6.6"
+    "solid-js": "^1.6.6",
+    "solid-toast": "^0.4.0"
   }
 }
