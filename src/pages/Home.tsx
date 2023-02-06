@@ -51,10 +51,7 @@ export default function Home() {
   return (
     <Layout>
       <div class="flex flex-col items-center w-full h-full p-8 mobile-xs:p-4 xl:p-12 2xl:p-16 overflow-auto">
-        <div
-          class="flex items-center mobile:justify-center px-8 bg-gray-900 rounded-xl py-12 w-full
-            mobile:flex-col"
-        >
+        <div class="flex items-center mobile:justify-center px-8 bg-gray-900 rounded-xl py-12 w-full mobile:flex-col">
           <img src={api.cache?.clientAvatar} alt="" class="w-24 rounded-lg mr-4" />
           <div class="flex flex-col mobile:items-center">
             <h1 class="text-4xl mobile:text-3xl text-center font-title font-bold">
