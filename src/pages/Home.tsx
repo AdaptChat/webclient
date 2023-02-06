@@ -18,7 +18,7 @@ function StatusSelect(props: StatusIndicatorProps & { label: string }) {
   )
 }
 
-function Card(props: ParentProps<{ title: string }>) {
+export function Card(props: ParentProps<{ title: string }>) {
   return (
     <div
       class="flex flex-col items-center bg-gray-900 rounded-xl p-6 gap-2 flex-grow h-full"

@@ -94,6 +94,10 @@ export default function Layout(props: ParentProps) {
     <div class="w-full h-full overflow-hidden">
       <div class="flex flex-grow w-full h-full mobile:h-[calc(100%-4rem)]">
         <div class="flex flex-col p-2 pr-3 bg-gray-900 h-full overflow-y-auto gap-y-2 hide-scrollbar mobile:hidden">
+          <A href="/" class="opacity-70 hover:opacity-100 transition-opacity duration-300 w-full px-3 pt-3 flex items-center">
+            <img src="/icons/home.svg" alt="Home" class="invert select-none w-5" />
+          </A>
+          <hr class="h-1 bg-gray-800 border-none rounded-full my-2" />
           <For each={Array.from(api.cache!.guilds.values())}>
             {(guild: Guild) => (
               <A href={`/guilds/${guild.id}`}>
