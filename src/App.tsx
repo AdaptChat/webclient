@@ -5,10 +5,14 @@ import Cookies from 'js-cookie'
 import WsClient from "./api/WsClient";
 import {Toaster} from "solid-toast";
 
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/animations/shift-away.css';
+
 const Login = lazy(() => import('./pages/auth/Login'))
 const Register = lazy(() => import('./pages/auth/Register'))
 const Loading = lazy(() => import('./pages/Loading'))
 const Home = lazy(() => import('./pages/Home'))
+const GuildSelect = lazy(() => import('./pages/GuildSelect'))
 
 const App: Component = () => {
   const [ws, setWs] = createSignal<WsClient>()
@@ -54,6 +58,7 @@ const App: Component = () => {
         <Show when={ws()} keyed={false} fallback={Loading}>
           <Routes>
             <Route path="/" component={Home} />
+            <Route path="/select" component={GuildSelect} />
           </Routes>
         </Show>
       </Show>

@@ -50,7 +50,7 @@ export default function Home() {
 
   return (
     <Layout>
-      <div class="flex flex-col items-center h-full p-16 mobile:p-8">
+      <div class="flex flex-col items-center w-full h-full p-8 mobile-xs:p-4 xl:p-12 2xl:p-16 overflow-auto">
         <div
           class="flex items-center mobile:justify-center px-8 bg-gray-900 rounded-xl py-12 w-full
             mobile:flex-col"

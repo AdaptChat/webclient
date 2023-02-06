@@ -1,14 +1,14 @@
 /**
  * Represents a user account.
  *
- * A lot of information is stored in the user's flags, including whether or not the user is a bot
+ * A lot of information is stored in the user's flags, including whether the user is a bot
  * account.
  */
 export interface User {
   /**
    * The snowflake ID of the user.
    */
-  id: number;
+  id: Snowflake;
   /**
    * The username of the user.
    */

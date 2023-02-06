@@ -1,4 +1,5 @@
 const defaultTheme = require('tailwindcss/defaultTheme')
+const plugin = require("tailwindcss/plugin");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -9,6 +10,9 @@ module.exports = {
         accent: '#0586ff',
         secondary: '#be3dff',
         link: '#4bd5ff',
+        base: {
+          content: '#ffffff',
+        },
       },
       screens: {
         'mobile-xs': { max: '369px' },
@@ -24,7 +28,20 @@ module.exports = {
       ],
     },
   },
-  plugins: [require('daisyui')],
+  plugins: [
+    require('daisyui'),
+    plugin(({ addComponents }) => {
+      addComponents({
+        '.hide-scrollbar': {
+          '-ms-overflow-style': 'none',
+          'scrollbar-width': 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          }
+        }
+      })
+    })
+  ],
   daisyui: {
     themes: [{
       default: {
