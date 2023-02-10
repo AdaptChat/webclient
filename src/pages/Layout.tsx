@@ -1,4 +1,4 @@
-import {For, onMount, ParentProps, Show} from "solid-js";
+import {createSignal, For, JSX, onMount, ParentProps, Show} from "solid-js";
 import {getApi} from "../api/Api";
 import type {Guild} from "../types/guild";
 import tippy from "tippy.js"
@@ -87,13 +87,24 @@ function BottomNav({ href, icon, alt }: { href: string, icon: string, alt: strin
   )
 }
 
-export default function Layout(props: ParentProps) {
+interface LayoutProps {
+  sidebar?: () => JSX.Element,
+  title?: string,
+}
+
+export const [showSidebar, setShowSidebar] = createSignal(true)
+
+export default function Layout(props: ParentProps<LayoutProps>) {
   const api = getApi()!
+
+  onMount(() => {
+    if (window.innerWidth < 768) setShowSidebar(false)
+  })
 
   return (
     <div class="w-full h-full overflow-hidden">
       <div class="flex flex-grow w-full h-full mobile:h-[calc(100%-4rem)]">
-        <div class="flex flex-col p-2 pr-3 bg-gray-900 h-full overflow-y-auto gap-y-2 hide-scrollbar mobile:hidden">
+        <div class="flex flex-col p-2 bg-gray-900 h-full overflow-y-auto gap-y-2 hide-scrollbar mobile:hidden">
           <A href="/" class="opacity-70 hover:opacity-100 transition-opacity duration-300 w-full px-3 pt-3 flex items-center">
             <img src="/icons/home.svg" alt="Home" class="invert select-none w-5" />
           </A>
@@ -106,7 +117,40 @@ export default function Layout(props: ParentProps) {
             )}
           </For>
         </div>
-        <div class="flex flex-col items-center w-full">
+        <Show when={props.sidebar && showSidebar()} keyed={false}>
+          <div class="flex flex-col w-64 h-full bg-gray-850 mobile:w-[calc(100%-3rem)]">
+            {props.sidebar!()}
+          </div>
+        </Show>
+        <div
+          classList={{
+            "hidden flex-grow items-center justify-center bg-transparent hover:bg-gray-700 transition-all duration-300 cursor-pointer": true,
+            "mobile:flex": props.sidebar && showSidebar(),
+          }}
+          onClick={() => setShowSidebar(false)}
+        >
+          <img src="/icons/chevron-left.svg" alt="Collapse Sidebar" class="invert w-3 opacity-50" />
+        </div>
+        <div classList={{
+          "flex flex-col items-center": true,
+          "w-[calc(100%-320px)] mobile:hidden": props.sidebar && showSidebar(),
+          "w-[calc(100%-64px)] mobile:w-full": !props.sidebar || !showSidebar(),
+        }}>
+          {props.title && (
+            <div class="flex items-center w-full p-4 bg-gray-900">
+              <button onClick={() => setShowSidebar(prev => !prev)}>
+                <img
+                  src={showSidebar() ? "/icons/chevron-left.svg" : "/icons/chevron-right.svg"}
+                  alt={showSidebar() ? "Collapse Sidebar" : "Show Sidebar"}
+                  class="invert select-none w-3 opacity-30 hover:opacity-60 transition-opacity duration-300
+                    left-3 top-3 z-[9999] mr-4"
+                />
+              </button>
+              <span class="font-bold font-title">
+                {props.title}
+              </span>
+            </div>
+          )}
           {props.children}
         </div>
       </div>

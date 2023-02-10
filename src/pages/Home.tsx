@@ -1,8 +1,9 @@
-import Layout from "./Layout";
+import Layout, {setShowSidebar} from "./Layout";
 import {getApi} from "../api/Api";
 import StatusIndicator, {StatusIndicatorProps} from "../components/StatusIndicator";
 import {toast} from "solid-toast";
 import {ParentProps} from "solid-js";
+import {A} from "@solidjs/router";
 
 function StatusSelect(props: StatusIndicatorProps & { label: string }) {
   return (
@@ -44,12 +45,48 @@ function LearnAdaptSubcard(props: ParentProps<{ title: string }>) {
   )
 }
 
+export function SidebarButton(props: ParentProps<{ href: string, svg?: string, icon?: string }>) {
+  return (
+    <A
+      href={props.href}
+      class="w-full group flex items-center gap-x-3 p-2 rounded-lg hover:bg-gray-700 transition-all duration-200"
+      onClick={() => {
+        if (window.innerWidth < 768) setShowSidebar(false)
+      }}
+    >
+      {props.svg && (
+        <img
+          src={props.svg}
+          alt=""
+          class="w-5 h-5 invert opacity-50 group-hover:opacity-80 select-none transition-all duration-200"
+        />
+      )}
+      {props.icon && <img src={props.icon} alt="" class="w-5 h-5" />}
+      <span class="font-medium text-base-content text-opacity-60 group-hover:text-opacity-80 transition-all duration-200">
+        {props.children}
+      </span>
+    </A>
+  )
+}
+
+export function Sidebar() {
+  const api = getApi()!
+
+  return (
+    <div class="flex flex-col items-center justify-center w-full">
+      <div class="flex flex-col w-full p-2">
+        <SidebarButton href="/" svg="/icons/home.svg">Home</SidebarButton>
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   const api = getApi()!
   const clientUser = api.cache!.clientUser!
 
   return (
-    <Layout>
+    <Layout sidebar={Sidebar} title="Home">
       <div class="flex flex-col items-center w-full h-full p-8 mobile-xs:p-4 xl:p-12 2xl:p-16 overflow-auto">
         <div class="flex items-center mobile:justify-center px-8 bg-gray-900 rounded-xl py-12 w-full mobile:flex-col">
           <img src={api.cache?.clientAvatar} alt="" class="w-24 rounded-lg mr-4" />

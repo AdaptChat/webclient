@@ -13,6 +13,9 @@ module.exports = {
         base: {
           content: '#ffffff',
         },
+        gray: {
+          850: '#19222D',
+        },
       },
       screens: {
         'mobile-xs': { max: '369px' },

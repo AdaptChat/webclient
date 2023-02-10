@@ -1,6 +1,8 @@
-import {ClientUser, User} from "../types/user";
-import {Guild, Member} from "../types/guild";
-import {ReadyEvent} from "../types/ws";
+import type {ClientUser, User} from "../types/user";
+import type {Guild, Member} from "../types/guild";
+import type {ReadyEvent} from "../types/ws";
+import type {Message} from "../types/message";
+import {createSignal, type Signal} from "solid-js";
 
 /**
  * Options when updating guild cache.
@@ -16,10 +18,12 @@ export default class ApiCache {
   clientUser?: ClientUser
   users: Map<number, User>
   guilds: Map<number, Guild>
+  messages: Map<number, Signal<Message[]>>
 
   constructor() {
     this.users = new Map()
     this.guilds = new Map()
+    this.messages = new Map()
   }
 
   static fromReadyEvent(ready: ReadyEvent): ApiCache {
@@ -50,6 +54,15 @@ export default class ApiCache {
 
   avatarOf(userId: number): string | undefined {
     return this.users.get(userId)?.avatar ?? defaultAvatar(userId)
+  }
+
+  useMessageSignal(channelId: number): Signal<Message[]> {
+    let store = this.messages.get(channelId)
+    if (!store) {
+      store = createSignal([])
+      this.messages.set(channelId, store)
+    }
+    return store
   }
 }
 

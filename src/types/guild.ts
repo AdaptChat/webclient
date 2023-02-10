@@ -1,4 +1,5 @@
 import {User} from "./user";
+import {GuildChannel} from "./channel";
 
 /**
  * Represents a guild with partial information, sometimes referred to as a server.
@@ -72,7 +73,7 @@ export interface Guild extends PartialGuild {
   /**
    * A list of resolved channels in the guild.
    */
-  channels?: any // TODO GuildChannel[];
+  channels?: GuildChannel[]
 }
 
 type MaybePartialUser = User | {

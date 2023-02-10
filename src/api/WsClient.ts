@@ -9,7 +9,7 @@ export const WS_CONNECT_URI: string = 'wss://harmony.adapt.chat'
 
 type WsEventHandler = (ws: WsClient, data: any) => any
 export const WsEventHandlers: Record<string, WsEventHandler> = {
-  hello(ws: WsClient, _) {
+  hello(ws, _) {
     ws.sendIdentify()
     console.info('[WS] Connected to harmony')
   },

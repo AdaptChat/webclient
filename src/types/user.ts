@@ -8,7 +8,7 @@ export interface User {
   /**
    * The snowflake ID of the user.
    */
-  id: Snowflake;
+  id: number;
   /**
    * The username of the user.
    */
