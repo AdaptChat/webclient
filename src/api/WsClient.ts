@@ -1,6 +1,7 @@
 import Api from "./Api";
 import {ReadyEvent, WsEvent} from "../types/ws";
 import ApiCache from "./ApiCache";
+import Backoff from "./Backoff";
 
 /**
  * WebSocket endpoint
@@ -24,7 +25,6 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
  * Implements a client for harmony (Adapt's websocket).
  */
 export default class WsClient {
-  api: Api;
   readyPromiseResolver?: (resolver: any) => void;
 
   private connection?: WebSocket;
@@ -32,8 +32,7 @@ export default class WsClient {
   private pingInterval?: number;
   private shouldKeepAlive: boolean;
 
-  constructor(api: Api) {
-    this.api = api
+  constructor(public api: Api) {
     this.shouldKeepAlive = false
   }
 
@@ -46,7 +45,7 @@ export default class WsClient {
     connection.onmessage = this.processMessage.bind(this)
     connection.onclose = () => {
       if (this.shouldKeepAlive) {
-        console.debug('[WS] Connection closed, attempting reconnect...')
+        console.debug('[WS] Connection closed, attempting reconnect in ')
         this.reconnect()
       }
     }

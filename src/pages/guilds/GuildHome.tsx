@@ -6,6 +6,7 @@ import {Card, SidebarButton} from "../Home";
 import {useParams} from "@solidjs/router";
 import {getApi} from "../../api/Api";
 import type {GuildChannel} from "../../types/channel";
+import NotFound from "../NotFound";
 
 export function GuildSidebar() {
   const { guildId } = useParams<{ guildId: string }>()
@@ -38,12 +39,7 @@ export default function GuildHome() {
   const api = getApi()!
   const guild = api.cache!.guilds.get(parseInt(guildId))
 
-  if (!guild)
-    return (
-      <Layout sidebar={GuildSidebar} title="Page not found">
-        <p>Not found</p>
-      </Layout>
-    )
+  if (!guild) return <NotFound sidebar={GuildSidebar} />
 
   return (
     <Layout sidebar={GuildSidebar} title={guild.name}>

@@ -77,3 +77,8 @@ export type GuildChannel = GuildChannelInfo & {
    */
   parent_id?: number,
 }
+
+/**
+ * Represents any channel.
+ */
+export type Channel = GuildChannel

@@ -67,7 +67,7 @@ export type Message = MessageInfo & {
    * Resolved data about the user or member that sent this message.
    * This is only present for new messages that are received.
    */
-  author?: Member | User;
+  author?: Member & User | User;
   /**
    * The text content of this message.
    */

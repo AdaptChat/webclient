@@ -14,6 +14,7 @@ const Loading = lazy(() => import('./pages/Loading'))
 const Home = lazy(() => import('./pages/Home'))
 const GuildSelect = lazy(() => import('./pages/GuildSelect'))
 const GuildHome = lazy(() => import('./pages/guilds/GuildHome'))
+const GuildChannel = lazy(() => import('./pages/guilds/GuildChannel'))
 
 const App: Component = () => {
   const [ws, setWs] = createSignal<WsClient>()
@@ -61,6 +62,7 @@ const App: Component = () => {
             <Route path="/" component={Home} />
             <Route path="/select" component={GuildSelect} />
             <Route path="/guilds/:guildId" component={GuildHome} />
+            <Route path="/guilds/:guildId/:channelId" component={GuildChannel} />
           </Routes>
         </Show>
       </Show>

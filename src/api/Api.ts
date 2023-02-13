@@ -22,6 +22,7 @@ export type Endpoint = `/${string}`
  */
 export interface RequestOptions {
   headers?: Record<string, string>,
+  params?: Record<string, any>,
   json?: Record<string, any>,
 }
 
@@ -29,17 +30,17 @@ export interface RequestOptions {
  * HTTP JSON response that might have errored
  */
 export class ApiResponse<T> {
-  method: RequestMethod
-  endpoint: Endpoint
-  response: Response
   $json?: T
   $text?: string
   $ensureOk: boolean
 
-  private constructor(method: RequestMethod, endpoint: Endpoint, response: Response, json?: T, text?: string) {
-    this.method = method;
-    this.endpoint = endpoint;
-    this.response = response;
+  private constructor(
+    public readonly method: RequestMethod,
+    public readonly endpoint: Endpoint,
+    public response: Response,
+    json?: T,
+    text?: string,
+  ) {
     this.$json = json;
     this.$text = text;
     this.$ensureOk = false;
@@ -117,21 +118,18 @@ export class ApiResponse<T> {
  * API client entrypoint
  */
 export default class Api {
-  token: string
   ws?: WsClient
   cache?: ApiCache
 
-  constructor(token: string) {
-    this.token = token;
-  }
+  constructor(public token: string) {}
 
   request<T = any>(
     method: RequestMethod,
     endpoint: Endpoint,
     options: RequestOptions = {},
   ): Promise<ApiResponse<T>> {
-    if (options.headers)
-      options.headers['Authorization'] ??= this.token;
+    options.headers ??= {}
+    options.headers['Authorization'] ??= this.token
 
     return Api.requestNoAuth(method, endpoint, options)
   }
@@ -144,6 +142,8 @@ export default class Api {
     let headers = options.headers ?? {}
     if (options.json)
       headers['Content-Type'] ??= 'application/json';
+    if (options.params)
+      endpoint += '?' + new URLSearchParams(options.params).toString()
 
     let response = await fetch(BASE_URL + endpoint, {
       method,
