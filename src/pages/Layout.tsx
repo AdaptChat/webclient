@@ -90,6 +90,7 @@ function BottomNav({ href, icon, alt }: { href: string, icon: string, alt: strin
 interface LayoutProps {
   sidebar?: () => JSX.Element,
   title?: string,
+  showBottomNav?: boolean,
 }
 
 export const [showSidebar, setShowSidebar] = createSignal(true)
@@ -103,7 +104,10 @@ export default function Layout(props: ParentProps<LayoutProps>) {
 
   return (
     <div class="w-full h-full overflow-hidden">
-      <div class="flex flex-grow w-full h-full">
+      <div classList={{
+        "flex flex-grow w-full h-full": true,
+        "mobile:h-[calc(100%-4rem)]": props.showBottomNav,
+      }}>
         <div class="flex flex-col p-2 bg-gray-900 h-full overflow-y-auto gap-y-2 hide-scrollbar mobile:hidden">
           <A href="/" class="opacity-70 hover:opacity-100 transition-opacity duration-300 w-full px-3 pt-3 flex items-center">
             <img src="/icons/home.svg" alt="Home" class="invert select-none w-5" />
@@ -156,7 +160,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
       </div>
       <div classList={{
         "btm-nav md:hidden": true,
-        "hidden": !props.sidebar || !showSidebar(),
+        "hidden": !props.showBottomNav && (!props.sidebar || !showSidebar()),
       }}>
         <BottomNav href="/" icon="/icons/home.svg" alt="Home" />
         <BottomNav href="/select" icon="/icons/server.svg" alt="Servers" />

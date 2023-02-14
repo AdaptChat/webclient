@@ -68,11 +68,7 @@ export function humanizeTimestamp(timestamp: number | Date): string {
       day: '2-digit',
     }) + ' at '
 
-  return prefix + timestamp.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  })
+  return prefix + humanizeTime(timestamp)
 }
 
 /**
@@ -86,5 +82,19 @@ export function humanizeDate(timestamp: number | Date): string {
     year: 'numeric',
     month: 'long',
     day: '2-digit',
+  })
+}
+
+/**
+ * Humanizes only the time of a timestamp.
+ */
+export function humanizeTime(timestamp: number | Date): string {
+  if (typeof timestamp === 'number')
+    timestamp = new Date(timestamp)
+
+  return timestamp.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
   })
 }

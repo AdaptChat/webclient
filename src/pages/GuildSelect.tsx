@@ -8,7 +8,7 @@ export default function GuildSelect() {
   const api = getApi()!
 
   return (
-    <Layout>
+    <Layout showBottomNav>
       {/* TODO: Make this into a tab to select between guilds and DM channels */}
       <h1 class="font-title font-bold text-2xl p-3 mt-2">Servers</h1>
       <For each={Array.from(api.cache!.guilds.values())}>

@@ -2,15 +2,19 @@ import {createMemo, createSignal, For, Show} from "solid-js";
 import type {Message} from "../../types/message";
 import {getApi} from "../../api/Api";
 import {type MessageGroup} from "../../api/MessageGrouper";
-import {humanizeTimestamp, snowflakes} from "../../utils";
+import {humanizeTime, humanizeTimestamp, snowflakes} from "../../utils";
 
 export function MessageContent({ message }: { message: Message }) {
   return (
     <span
-      id={`message-${message.id}`}
+      data-message-id={message.id}
       classList={{
         "text-base-content/50": message._nonceState === 'pending',
         "text-error": message._nonceState === 'error',
+        "break-words": true,
+      }}
+      style={{
+        width: "calc(100% - /* base width */ 68px - /* padding */ 8px)",
       }}
     >
       {message.content}
@@ -82,29 +86,38 @@ export default function Chat(props: { channelId: number }) {
             <For each={grouper().groups}>
               {(group: MessageGroup) => {
                 if (group.isDivider) return (
-                  <div class="divider text-base-content/50">{group.content}</div>
+                  <div class="divider text-base-content/50 mx-4">{group.content}</div>
                 )
 
                 const firstMessage = group[0]
                 const author = firstMessage && api.cache!.users.get(firstMessage.author_id!)
                 return (
                   <Show when={group.length >= 1} keyed={false}>
-                    <div class="flex gap-x-2">
-                      <img class="w-10 h-10 mt-1 rounded-full" src={api.cache!.avatarOf(author!.id)} alt="" />
-                      <div class="flex flex-col">
-                        <div class="flex items-end gap-x-2">
+                    <div class="flex flex-col">
+                      <div class="flex flex-col relative pl-[68px] hover:bg-gray-850/60 transition-all duration-200">
+                        <img
+                          class="absolute left-4 w-10 h-10 mt-1 rounded-full"
+                          src={api.cache!.avatarOf(author!.id)}
+                          alt=""
+                        />
+                        <div class="inline">
                           <span class="font-medium">{author!.username}</span>
-                          <span class="text-base-content/50 text-sm">
+                          <span class="text-base-content/50 text-sm ml-2">
                             {humanizeTimestamp(snowflakes.timestamp(firstMessage.id))}
                           </span>
                         </div>
                         <MessageContent message={firstMessage} />
-                        <For each={group}>
-                          {(message: Message, index) => index() > 0 && (
-                            <MessageContent message={message} />
-                          )}
-                        </For>
                       </div>
+                      <For each={group}>
+                        {(message: Message, index) => index() > 0 && (
+                          <div class="group flex items-center hover:bg-gray-850/60 transition-all duration-200">
+                            <span class="w-[68px] invisible text-center group-hover:visible text-xs text-base-content/40">
+                              {humanizeTime(snowflakes.timestamp(message.id))}
+                            </span>
+                            <MessageContent message={message} />
+                          </div>
+                        )}
+                      </For>
                     </div>
                   </Show>
                 )
@@ -117,7 +130,7 @@ export default function Chat(props: { channelId: number }) {
         <div class="flex-grow bg-gray-700 rounded-lg p-2">
           <div
             ref={messageInputRef!}
-            class="empty:before:content-[attr(data-placeholder)] empty:before:text-base-content/50 outline-none"
+            class="empty:before:content-[attr(data-placeholder)] empty:before:text-base-content/50 outline-none break-words"
             contentEditable
             data-placeholder="Send a message..."
             spellcheck={false}
