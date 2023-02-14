@@ -1,4 +1,4 @@
-import {createMemo, createResource, createSignal, For, onMount, Show} from "solid-js";
+import {createMemo, createSignal, For, Show} from "solid-js";
 import type {Message} from "../../types/message";
 import {getApi} from "../../api/Api";
 import {type MessageGroup} from "../../api/MessageGrouper";
@@ -20,8 +20,10 @@ export function MessageContent({ message }: { message: Message }) {
 
 export default function Chat(props: { channelId: number }) {
   const api = getApi()!
+  const [messageInput, setMessageInput] = createSignal('')
   const [loading, setLoading] = createSignal(true)
 
+  const mobile = /Android|webOS|iPhone|iP[ao]d|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   const grouper = createMemo(() => {
     const { grouper, cached } = api.cache!.useChannelMessages(props.channelId)
     setLoading(!cached)
@@ -31,13 +33,46 @@ export default function Chat(props: { channelId: number }) {
     return grouper
   })
 
+  let messageInputRef: HTMLDivElement | null = null
+  let messageAreaRef: HTMLDivElement | null = null
+  const createMessage = async () => {
+    const content = messageInputRef!.textContent!.trim()
+    if (!content) return
+
+    messageInputRef!.innerHTML = ''
+    messageAreaRef!.scrollTo(0, messageAreaRef!.scrollHeight)
+
+    const nonce = snowflakes.fromTimestamp(Date.now()).toString()
+    let mockMessage: Message = {
+      id: nonce,
+      type: 'default',
+      content,
+      author_id: api.cache!.clientUser!.id,
+      nonce,
+      _nonceState: 'pending',
+      ...grouper().nonceDefault,
+    } as any
+
+    const loc = grouper().pushMessage(mockMessage)
+    grouper().nonced.set(nonce, loc)
+
+    try {
+      const json = { content, nonce }
+      await api.request('POST', `/channels/${props.channelId}/messages`, { json })
+        .then(res => res.ensureOk().jsonOrThrow())
+    } catch (e: any) {
+      mockMessage._nonceState = 'error'
+      mockMessage._nonceError = e
+    }
+  }
+
   const fallback = (
     <div>Loading...</div>
   )
 
   return (
     <div class="flex flex-col justify-end w-full h-0 flex-grow">
-      <div class="overflow-auto flex flex-col-reverse pb-4" onScroll={async (event) => {
+      <div ref={messageAreaRef!} class="overflow-auto flex flex-col-reverse pb-4" onScroll={async (event) => {
         if (event.target.scrollTop + event.target.scrollHeight <= event.target.clientHeight) {
           await grouper().fetchMessages()
         }
@@ -78,10 +113,11 @@ export default function Chat(props: { channelId: number }) {
           </Show>
         </div>
       </div>
-      <div class="bg-gray-800 w-full p-4 pt-0">
-        <div class="bg-gray-700 rounded-lg p-2">
+      <div class="flex items-center bg-gray-800 w-full p-4 pt-0">
+        <div class="flex-grow bg-gray-700 rounded-lg p-2">
           <div
-            class="empty:before:content-[attr(data-placeholder)] empty:before:text-base-content/50"
+            ref={messageInputRef!}
+            class="empty:before:content-[attr(data-placeholder)] empty:before:text-base-content/50 outline-none"
             contentEditable
             data-placeholder="Send a message..."
             spellcheck={false}
@@ -89,38 +125,29 @@ export default function Chat(props: { channelId: number }) {
               if (event.shiftKey)
                 return
 
-              if (event.key === 'Enter') {
+              if (event.key === 'Enter' && !mobile) {
                 event.preventDefault()
-                const content = event.currentTarget.textContent!.trim()
-                if (!content) return
-
-                event.currentTarget.innerHTML = ''
-                const nonce = Number(snowflakes.fromTimestamp(Date.now()))
-                let mockMessage: Message = {
-                  id: nonce,
-                  type: 'default',
-                  content,
-                  author_id: api.cache!.clientUser!.id,
-                  nonce: nonce.toString(),
-                  _nonceState: 'pending',
-                  ...grouper().nonceDefault,
-                } as any
-
-                grouper().pushMessage(mockMessage)
-                grouper().nonced.add(nonce)
-
-                try {
-                  const json = { content, nonce: nonce.toString() }
-                  await api.request('POST', `/channels/${props.channelId}/messages`, { json })
-                    .then(res => res.ensureOk().jsonOrThrow())
-                } catch (e: any) {
-                  mockMessage._nonceState = 'error'
-                  mockMessage._nonceError = e
-                }
+                await createMessage()
               }
+            }}
+            onInput={event => {
+              if (mobile) setMessageInput(event.target.textContent!.trim())
             }}
           />
         </div>
+        <button
+          classList={{
+            [
+              "w-10 h-10 flex items-center justify-center rounded-full bg-gray-700 ml-2 hover:bg-accent transition-all"
+              + "duration-200"
+            ]: true,
+            "opacity-50 cursor-not-allowed": !messageInput(),
+            "hidden": !mobile,
+          }}
+          onClick={createMessage}
+        >
+          <img src="/icons/paper-plane-top.svg" alt="Send" class="invert" width={18} height={18} />
+        </button>
       </div>
     </div>
   )

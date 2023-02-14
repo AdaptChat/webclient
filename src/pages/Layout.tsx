@@ -103,7 +103,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
 
   return (
     <div class="w-full h-full overflow-hidden">
-      <div class="flex flex-grow w-full h-full mobile:h-[calc(100%-4rem)]">
+      <div class="flex flex-grow w-full h-full">
         <div class="flex flex-col p-2 bg-gray-900 h-full overflow-y-auto gap-y-2 hide-scrollbar mobile:hidden">
           <A href="/" class="opacity-70 hover:opacity-100 transition-opacity duration-300 w-full px-3 pt-3 flex items-center">
             <img src="/icons/home.svg" alt="Home" class="invert select-none w-5" />
@@ -154,7 +154,10 @@ export default function Layout(props: ParentProps<LayoutProps>) {
           {props.children}
         </div>
       </div>
-      <div class="btm-nav md:hidden">
+      <div classList={{
+        "btm-nav md:hidden": true,
+        "hidden": !props.sidebar || !showSidebar(),
+      }}>
         <BottomNav href="/" icon="/icons/home.svg" alt="Home" />
         <BottomNav href="/select" icon="/icons/server.svg" alt="Servers" />
       </div>

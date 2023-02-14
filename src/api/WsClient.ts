@@ -25,9 +25,8 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
 
     if (data.message.nonce)
       try {
-        const nonce = parseInt(data.message.nonce)
-        if (!isNaN(nonce) && grouper.nonced.has(nonce)) {
-          return grouper.ackNonce(data.message.id)
+        if (grouper.nonced.has(data.message.nonce)) {
+          return grouper.ackNonce(data.message.nonce, data.message)
         }
       } catch (ignored) {}
 

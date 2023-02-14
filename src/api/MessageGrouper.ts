@@ -29,7 +29,7 @@ export default class MessageGrouper {
 
   private offset: number = 0
   private fetchLock: boolean = false
-  nonced: Set<number>
+  nonced: Map<string, [number, number]>
   noMoreMessages: boolean = false
 
   constructor(
@@ -37,13 +37,13 @@ export default class MessageGrouper {
     private readonly channelId: number,
   ) {
     this.groupsSignal = createSignal([])
-    this.nonced = new Set()
+    this.nonced = new Map()
   }
 
   /**
    * Pushes a message into the timestamp.
    */
-  pushMessage(message: Message) {
+  pushMessage(message: Message): [number, number] {
     if (this.currentGroup == null) this.finishGroup()
     const behavior = this.nextMessageBehavior({ message })
 
@@ -55,6 +55,7 @@ export default class MessageGrouper {
       groups[groups.length - 1] = this.currentGroup = [...this.currentGroup!, message]
       return groups
     })
+    return [this.groups.length - 1, this.currentGroup!.length - 1]
   }
 
   /**
@@ -132,7 +133,7 @@ export default class MessageGrouper {
     if (this.groups.at(-1)?.isDivider)
       this.finishGroup()
 
-    this.setGroups(groups)
+    this.setGroups([...groups])
     this.currentGroup = groups.at(-1) as any
   }
 
@@ -197,13 +198,14 @@ export default class MessageGrouper {
   /**
    * Acks the nonce of a message.
    */
-  ackNonce(messageId: number) {
-    this.nonced.delete(messageId)
-    let [groupIndex, messageIndex] = this.findCloseMessageIndex(messageId)
+  ackNonce(nonce: string, message: Message) {
+    const [groupIndex, messageIndex] = this.nonced.get(nonce)!
+    this.nonced.delete(nonce)
 
     this.setGroups(prev => {
       let groups = [...prev]
       let group = [...<Message[]> groups[groupIndex]]
+      Object.assign(group[messageIndex], message)
       group[messageIndex]._nonceState = 'success'
       groups[groupIndex] = group
       return groups
