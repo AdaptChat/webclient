@@ -2,7 +2,7 @@ import {createSignal, For, JSX, onMount, ParentProps, Show} from "solid-js";
 import {getApi} from "../api/Api";
 import type {Guild} from "../types/guild";
 import tippy from "tippy.js"
-import {A, useLocation, useNavigate} from "@solidjs/router";
+import {A, useLocation, useNavigate, useParams} from "@solidjs/router";
 
 interface GuildIconProps {
   guild: Guild,

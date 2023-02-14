@@ -18,6 +18,10 @@
   font-feature-settings: "ss01", "cv11";
 }
 
+:root {
+  scrollbar-color: theme('colors.gray.500') transparent;
+}
+
 html {
   scroll-behavior: smooth;
 }

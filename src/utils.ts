@@ -74,3 +74,17 @@ export function humanizeTimestamp(timestamp: number | Date): string {
     hour12: true,
   })
 }
+
+/**
+ * Humanizes only the date of a timestamp.
+ */
+export function humanizeDate(timestamp: number | Date): string {
+  if (typeof timestamp === 'number')
+    timestamp = new Date(timestamp)
+
+  return timestamp.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: '2-digit',
+  })
+}

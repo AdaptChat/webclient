@@ -1,5 +1,5 @@
 import Api from "./Api";
-import {ReadyEvent, WsEvent} from "../types/ws";
+import {MessageCreateEvent, ReadyEvent, WsEvent} from "../types/ws";
 import ApiCache from "./ApiCache";
 import Backoff from "./Backoff";
 
@@ -16,9 +16,23 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
   },
   ready(ws: WsClient, data: ReadyEvent) {
     ws.readyPromiseResolver?.(true)
-    ws.api.cache = ApiCache.fromReadyEvent(data)
+    ws.api.cache = ApiCache.fromReadyEvent(ws.api, data)
     console.info('[WS] Ready event received from harmony')
   },
+  message_create(ws: WsClient, data: MessageCreateEvent) {
+    let grouper = ws.api.cache?.messages?.get(data.message.channel_id)
+    if (!grouper) return
+
+    if (data.message.nonce)
+      try {
+        const nonce = parseInt(data.message.nonce)
+        if (!isNaN(nonce) && grouper.nonced.has(nonce)) {
+          return grouper.ackNonce(data.message.id)
+        }
+      } catch (ignored) {}
+
+    grouper.pushMessage(data.message)
+  }
 }
 
 /**

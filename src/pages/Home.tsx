@@ -45,7 +45,7 @@ function LearnAdaptSubcard(props: ParentProps<{ title: string }>) {
   )
 }
 
-export function SidebarButton(props: ParentProps<{ href: string, svg?: string, icon?: string }>) {
+export function SidebarButton(props: ParentProps<{ href: string, svg?: string, icon?: string, active?: boolean }>) {
   return (
     <A
       href={props.href}
@@ -58,11 +58,17 @@ export function SidebarButton(props: ParentProps<{ href: string, svg?: string, i
         <img
           src={props.svg}
           alt=""
-          class="w-5 h-5 invert opacity-50 group-hover:opacity-80 select-none transition-all duration-200"
+          classList={{
+            "w-5 h-5 invert opacity-50 group-hover:opacity-80 select-none transition-all duration-200": true,
+            "opacity-100": props.active,
+          }}
         />
       )}
       {props.icon && <img src={props.icon} alt="" class="w-5 h-5" />}
-      <span class="font-medium text-base-content text-opacity-60 group-hover:text-opacity-80 transition-all duration-200">
+      <span classList={{
+        "font-medium text-base-content text-opacity-60 group-hover:text-opacity-80 transition-all duration-200": true,
+        "text-opacity-100": props.active,
+      }}>
         {props.children}
       </span>
     </A>

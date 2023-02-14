@@ -93,4 +93,7 @@ export type Message = MessageInfo & {
    * same nonce will be dispatched by the websocket, indicating that the message was sent.
    */
   nonce?: string;
+
+  _nonceState?: 'pending' | 'success' | 'error';
+  _nonceError?: string;
 }

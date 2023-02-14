@@ -9,7 +9,9 @@ import type {GuildChannel} from "../../types/channel";
 import NotFound from "../NotFound";
 
 export function GuildSidebar() {
-  const { guildId } = useParams<{ guildId: string }>()
+  const { guildId, channelId: channelIdString } = useParams()
+  const channelId = parseInt(channelIdString)
+
   const api = getApi()!
   const guild = api.cache!.guilds.get(parseInt(guildId))
   if (!guild) return
@@ -21,10 +23,14 @@ export function GuildSidebar() {
         <div class="font-title card-title">{guild.name}</div>
       </div>
       <div class="flex flex-col w-full p-2">
-        <SidebarButton href={`/guilds/${guildId}`} svg="/icons/home.svg">Home</SidebarButton>
+        <SidebarButton href={`/guilds/${guildId}`} svg="/icons/home.svg" active={!channelId}>Home</SidebarButton>
         <For each={guild.channels}>
           {(channel: GuildChannel) => (
-            <SidebarButton href={`/guilds/${guildId}/${channel.id}`} svg="/icons/hashtag.svg">
+            <SidebarButton
+              href={`/guilds/${guildId}/${channel.id}`}
+              svg="/icons/hashtag.svg"
+              active={channelId === channel.id}
+            >
               {channel.name}
             </SidebarButton>
           )}

@@ -1,6 +1,7 @@
 import type {Message} from "../types/message";
-import {createSignal, Signal} from "solid-js";
-import {isSameDay, snowflakes} from "../utils";
+import {createSignal, type Signal} from "solid-js";
+import {humanizeDate, isSameDay, snowflakes} from "../utils";
+import type Api from "./Api";
 
 /**
  * A divider between messages.
@@ -13,7 +14,7 @@ export interface MessageDivider {
   content: string
 }
 
-export type MessageGroup = Signal<Message[]> & { isDivider?: false } | MessageDivider
+export type MessageGroup = Message[] & { isDivider?: false } | MessageDivider
 /**
  * Difference in snowflakes within 15 minutes.
  */
@@ -24,22 +25,36 @@ export const SNOWFLAKE_BOUNDARY: number = 235_929_600_000
  */
 export default class MessageGrouper {
   private readonly groupsSignal: Signal<MessageGroup[]>
-  private currentGroupSignal?: Signal<Message[]>
+  private currentGroup?: Message[]
 
-  constructor() {
+  private offset: number = 0
+  private fetchLock: boolean = false
+  nonced: Set<number>
+  noMoreMessages: boolean = false
+
+  constructor(
+    private readonly api: Api,
+    private readonly channelId: number,
+  ) {
     this.groupsSignal = createSignal([])
+    this.nonced = new Set()
   }
 
   /**
    * Pushes a message into the timestamp.
    */
   pushMessage(message: Message) {
-    if (!this.currentGroup) this.finishGroup()
+    if (this.currentGroup == null) this.finishGroup()
     const behavior = this.nextMessageBehavior({ message })
 
     if (behavior)
       this.finishGroup(behavior === true ? undefined : behavior)
-    this.setCurrentGroup!(prev => [...prev, message])
+
+    this.setGroups(prev => {
+      let groups = [...prev]
+      groups[groups.length - 1] = this.currentGroup = [...this.currentGroup!, message]
+      return groups
+    })
   }
 
   /**
@@ -51,7 +66,7 @@ export default class MessageGrouper {
 
     const updateGroupIndex = () => {
       const lastGroup = this.groups[groupIndex]
-      messageIndex = lastGroup.isDivider ? 0 : lastGroup[0].length - 1
+      messageIndex = lastGroup.isDivider ? 0 : lastGroup.length - 1
     }
     updateGroupIndex()
 
@@ -63,7 +78,7 @@ export default class MessageGrouper {
         continue
       }
 
-      const message = group[0]()[messageIndex]
+      const message = group[messageIndex]
       if (message.id <= id) break
 
       if (--messageIndex < 0) {
@@ -84,42 +99,59 @@ export default class MessageGrouper {
    */
   insertMessages(messages: Message[]) {
     if (messages.length === 0) return
-    if (!this.currentGroup) this.finishGroup()
+    if (this.currentGroup == null) this.finishGroup()
 
     let [groupIndex, messageIndex] = this.findCloseMessageIndex(messages[0].id)
     let lastMessage: Message
 
-    if (groupIndex === -1) {
-      let firstMessageGroup = this.groups[0]
+    let groups = this.groups
+    if (groupIndex <= 0) {
+      let firstMessageGroup = groups[0]
       if (firstMessageGroup.isDivider)
-        this.setGroups(prev => [firstMessageGroup = createSignal([]), ...prev])
+        groups = [firstMessageGroup = [], ...groups]
 
-      lastMessage = (<Signal<Message[]>> firstMessageGroup)[0]()[0]
+      lastMessage = (<Message[]> firstMessageGroup)[0]
+      groupIndex = 0
     } else {
-      lastMessage = (<Signal<Message[]>> this.groups[groupIndex])[0]()[messageIndex]
+      lastMessage = (<Message[]> groups[groupIndex])[messageIndex]
     }
 
     for (const message of messages) {
       const behavior = this.nextMessageBehavior({ lastMessage, message })
       if (behavior) {
-        this.setGroups(prev => {
-          prev.splice(++groupIndex, 0, this.currentGroupSignal = createSignal([]))
-          if (behavior !== true) prev.splice(++groupIndex, 0, behavior)
-          messageIndex = -1
-          return prev
-        })
+        if (behavior !== true) groups.splice(++groupIndex, 0, behavior)
+        groups.splice(++groupIndex, 0, [])
+        messageIndex = -1
       }
 
-      // this part was rushed, may be the cause of bugs
-      if (groupIndex >= this.groups.length - 1)
-        this.finishGroup()
-
-      const target = (<Signal<Message[]>> this.groups[groupIndex + 1])
-      target[1](prev => {
-        prev.splice(++messageIndex, 0, message)
-        return prev
-      })
+      const target = <Message[]> groups[groupIndex]
+      target.splice(++messageIndex, 0, message)
+      lastMessage = message
     }
+
+    if (this.groups.at(-1)?.isDivider)
+      this.finishGroup()
+
+    this.setGroups(groups)
+    this.currentGroup = groups.at(-1) as any
+  }
+
+  /**
+   * Fetches messages from the API and inserts into the grouper.
+   */
+  async fetchMessages() {
+    if (this.noMoreMessages || this.fetchLock) return
+
+    this.fetchLock = true
+    const response = await this.api.request<Message[]>('GET', `/channels/${this.channelId}/messages`, {
+      params: { limit: 200, offset: this.offset },
+    })
+    const messages = response.jsonOrThrow()
+    this.offset += messages.length
+    if (messages.length < 200) this.noMoreMessages = true
+
+    this.insertMessages(messages.reverse())
+    this.fetchLock = false
   }
 
   private nextMessageBehavior(
@@ -131,23 +163,17 @@ export default class MessageGrouper {
     lastMessage ??= this.lastMessage
     if (!lastMessage) return false
 
-    if (!isSameDay(snowflakes.timestamp(message.id), snowflakes.timestamp(lastMessage.id)))
-      return { isDivider: true, content: 'TODO' } // TODO
+    let timestamp
+    if (!isSameDay(timestamp = snowflakes.timestamp(message.id), snowflakes.timestamp(lastMessage.id)))
+      return { isDivider: true, content: humanizeDate(timestamp) }
 
-    return message.author?.id !== lastMessage.author?.id
+    return message.author_id !== lastMessage.author_id
       || message.id - lastMessage.id > SNOWFLAKE_BOUNDARY
   }
 
   private get lastMessage() {
-    return this.currentGroup?.[this.currentGroup?.length - 1]
-  }
-
-  private get currentGroup() {
-    return this.currentGroupSignal?.[0]()
-  }
-
-  private get setCurrentGroup() {
-    return this.currentGroupSignal?.[1]
+    const group = <Message[]> this.groups.at(-1)
+    return group.at(-1)
   }
 
   get groups() {
@@ -158,10 +184,36 @@ export default class MessageGrouper {
     return this.groupsSignal[1]
   }
 
+  get nonceDefault(): Partial<Message> {
+    return {
+      channel_id: this.channelId,
+      embeds: [],
+      attachments: [],
+      flags: 0,
+      stars: 0,
+    }
+  }
+
+  /**
+   * Acks the nonce of a message.
+   */
+  ackNonce(messageId: number) {
+    this.nonced.delete(messageId)
+    let [groupIndex, messageIndex] = this.findCloseMessageIndex(messageId)
+
+    this.setGroups(prev => {
+      let groups = [...prev]
+      let group = [...<Message[]> groups[groupIndex]]
+      group[messageIndex]._nonceState = 'success'
+      groups[groupIndex] = group
+      return groups
+    })
+  }
+
   private finishGroup(divider?: MessageDivider) {
     this.setGroups(prev => {
       if (divider) prev.push(divider)
-      return [...prev, this.currentGroupSignal = createSignal([])]
+      return [...prev, this.currentGroup = []]
     })
   }
 }
