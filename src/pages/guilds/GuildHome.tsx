@@ -1,47 +1,10 @@
-import {Guild} from "../../types/guild";
 import Layout from "../Layout";
-import StatusIndicator from "../../components/StatusIndicator";
-import {createMemo, For, Show} from "solid-js";
-import {Card, SidebarButton} from "../Home";
+import {Show} from "solid-js";
+import {Card,} from "../Home";
 import {useParams} from "@solidjs/router";
 import {getApi} from "../../api/Api";
-import type {GuildChannel} from "../../types/channel";
 import NotFound from "../NotFound";
-
-export function GuildSidebar() {
-  const { guildId } = useParams()
-  const channelId = createMemo(() => {
-    const { channelId } = useParams()
-    return parseInt(channelId)
-  })
-
-  const api = getApi()!
-  const guild = api.cache!.guilds.get(parseInt(guildId))
-  if (!guild) return
-
-  return (
-    <div class="flex flex-col items-center justify-center w-full">
-      <div class="card m-2 p-3 border border-2 border-base-content/10">
-        {guild.icon && <figure><img src={guild.icon} alt="" /></figure>}
-        <div class="font-title card-title">{guild.name}</div>
-      </div>
-      <div class="flex flex-col w-full p-2">
-        <SidebarButton href={`/guilds/${guildId}`} svg="/icons/home.svg" active={!channelId()}>Home</SidebarButton>
-        <For each={guild.channels}>
-          {(channel: GuildChannel) => (
-            <SidebarButton
-              href={`/guilds/${guildId}/${channel.id}`}
-              svg="/icons/hashtag.svg"
-              active={channelId() === channel.id}
-            >
-              {channel.name}
-            </SidebarButton>
-          )}
-        </For>
-      </div>
-    </div>
-  )
-}
+import GuildSidebar from "../../components/guilds/GuildSidebar";
 
 export default function GuildHome() {
   const { guildId } = useParams<{ guildId: string }>()
