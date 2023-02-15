@@ -27,7 +27,7 @@ export default class MessageGrouper {
   private readonly groupsSignal: Signal<MessageGroup[]>
   private currentGroup?: Message[]
 
-  private offset: number = 0
+  private fetchBefore?: number
   private fetchLock: boolean = false
   nonced: Map<string, [number, number]>
   noMoreMessages: boolean = false
@@ -141,16 +141,20 @@ export default class MessageGrouper {
    * Fetches messages from the API and inserts into the grouper.
    */
   async fetchMessages() {
-    if (this.noMoreMessages || this.fetchLock) return
+    if (this.noMoreMessages || this.fetchLock)
+      return
 
     this.fetchLock = true
-    const response = await this.api.request<Message[]>('GET', `/channels/${this.channelId}/messages`, {
-      params: { limit: 200, offset: this.offset },
-    })
-    const messages = response.jsonOrThrow()
-    this.offset += messages.length
-    if (messages.length < 200) this.noMoreMessages = true
+    const params: Record<string, any> = { limit: 200 }
+    if (this.fetchBefore != null)
+      params.before = this.fetchBefore
 
+    const response = await this.api.request<Message[]>('GET', `/channels/${this.channelId}/messages`, { params })
+    const messages = response.jsonOrThrow()
+
+    this.fetchBefore = messages.at(-1)?.id
+    if (messages.length < 200)
+      this.noMoreMessages = true
     this.insertMessages(messages.reverse())
     this.fetchLock = false
   }
