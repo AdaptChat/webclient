@@ -16,13 +16,18 @@ const GuildSelect = lazy(() => import('./pages/GuildSelect'))
 const GuildHome = lazy(() => import('./pages/guilds/GuildHome'))
 const GuildChannel = lazy(() => import('./pages/guilds/GuildChannel'))
 
-function RedirectingLogin() {
+const RedirectingLogin = lazy(async () => {
   const redirectTo = useLocation().pathname
+  if (Cookies.get('token') != null)
+    await new Promise(resolve => setTimeout(resolve, 500))
 
-  return (
-    <Navigate href="/login" state={{ redirectTo }} />
-  )
-}
+  return {
+    default: () => {
+      Cookies.remove('token')
+      return <Navigate href="/login" state={{redirectTo}} />
+    }
+  }
+})
 
 const App: Component = () => {
   const [ws, setWs] = createSignal<WsClient>()
