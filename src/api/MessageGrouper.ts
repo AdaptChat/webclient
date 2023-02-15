@@ -150,7 +150,7 @@ export default class MessageGrouper {
       params.before = this.fetchBefore
 
     const response = await this.api.request<Message[]>('GET', `/channels/${this.channelId}/messages`, { params })
-    const messages = response.jsonOrThrow()
+    const messages = response.ensureOk().jsonOrThrow()
 
     this.fetchBefore = messages.at(-1)?.id
     if (messages.length < 200)
