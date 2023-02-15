@@ -18,13 +18,21 @@ export function MessageContent({ message }: { message: Message }) {
       }}
     >
       {message.content}
+      <Show when={message._nonceError} keyed={false}>
+        <span class="flex">
+          {message._nonceError}
+        </span>
+      </Show>
     </span>
   )
 }
 
 export default function Chat(props: { channelId: number }) {
   const api = getApi()!
+
   const [messageInput, setMessageInput] = createSignal('')
+  const [messageInputFocused, setMessageInputFocused] = createSignal(false)
+  const [messageInputFocusTimeout, setMessageInputFocusTimeout] = createSignal<number | null>(null)
   const [loading, setLoading] = createSignal(true)
 
   const mobile = /Android|webOS|iPhone|iP[ao]d|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
@@ -43,6 +51,7 @@ export default function Chat(props: { channelId: number }) {
     const content = messageInputRef!.textContent!.trim()
     if (!content) return
 
+    setMessageInput('')
     messageInputRef!.innerHTML = ''
     messageAreaRef!.scrollTo(0, messageAreaRef!.scrollHeight)
 
@@ -67,6 +76,7 @@ export default function Chat(props: { channelId: number }) {
     } catch (e: any) {
       mockMessage._nonceState = 'error'
       mockMessage._nonceError = e
+      throw e
     }
   }
 
@@ -138,7 +148,7 @@ export default function Chat(props: { channelId: number }) {
               if (event.shiftKey)
                 return
 
-              if (event.key === 'Enter' && !mobile) {
+              if (event.key === 'Enter' && (!mobile || event.ctrlKey || event.metaKey)) {
                 event.preventDefault()
                 await createMessage()
               }
@@ -146,18 +156,34 @@ export default function Chat(props: { channelId: number }) {
             onInput={event => {
               if (mobile) setMessageInput(event.target.textContent!.trim())
             }}
+            onFocus={() => {
+              const timeout = messageInputFocusTimeout()
+              if (timeout)
+                clearTimeout(timeout)
+
+              setMessageInputFocused(true)
+            }}
+            onBlur={() => setMessageInputFocusTimeout(
+              setTimeout(() => setMessageInputFocused(false), 100) as any
+            )}
           />
         </div>
         <button
           classList={{
             [
-              "w-10 h-10 flex items-center justify-center rounded-full bg-gray-700 ml-2 hover:bg-accent transition-all"
-              + "duration-200"
+              "w-10 h-10 flex items-center justify-center rounded-full bg-gray-700 ml-2 transition-all duration-200"
             ]: true,
             "opacity-50 cursor-not-allowed": !messageInput(),
+            "hover:bg-accent": !!messageInput(),
             "hidden": !mobile,
           }}
-          onClick={createMessage}
+          onClick={async () => {
+            // Focus back if it was focused before
+            if (messageInputFocused())
+              messageInputRef!.focus()
+
+            await createMessage()
+          }}
         >
           <img src="/icons/paper-plane-top.svg" alt="Send" class="invert" width={18} height={18} />
         </button>
