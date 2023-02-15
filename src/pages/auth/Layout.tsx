@@ -27,6 +27,7 @@ export interface Props {
   submitLabel: string;
   submitLabelProgressive: string;
   isSubmitting: boolean;
+  redirectTo: string;
   onSubmit(event: SubmitEvent & { target: HTMLFormElement }): void | Promise<void>;
 }
 
@@ -42,6 +43,7 @@ export default function Layout(props: ParentProps<Props>) {
             <A
               href={props.switchScreenHref}
               class="font-medium text-link text-opacity-80 hover:text-opacity-100 transition-all"
+              state={{ redirectTo: props.redirectTo }}
             >
               {props.switchScreenLabel}
             </A>

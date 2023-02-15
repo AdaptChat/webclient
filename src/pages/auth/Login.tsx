@@ -3,7 +3,7 @@ import Api, {setApi} from "../../api/Api";
 import {LoginResponse} from "../../types/auth";
 import {createSignal} from "solid-js";
 import Cookies from "js-cookie";
-import {useNavigate} from "@solidjs/router";
+import {useLocation, useNavigate} from "@solidjs/router";
 
 export default function Login() {
   let emailRef: HTMLInputElement | null = null
@@ -12,6 +12,8 @@ export default function Login() {
 
   let [error, setError] = createSignal<string>()
   let [isSubmitting, setIsSubmitting] = createSignal(false)
+
+  const redirectTo = useLocation<{ redirectTo: string }>().state?.redirectTo ?? "/"
   const navigate = useNavigate()
 
   return (
@@ -24,6 +26,7 @@ export default function Login() {
       submitLabel="Sign in"
       submitLabelProgressive="Signing in..."
       isSubmitting={isSubmitting()}
+      redirectTo={redirectTo}
       onSubmit={async () => {
         setIsSubmitting(true)
         const email = emailRef!.value
@@ -40,7 +43,7 @@ export default function Login() {
         let { token } = response.ensureOk().jsonOrThrow()
         if (rememberMeRef!.checked) Cookies.set("token", token);
         setApi(new Api(token))
-        navigate("/")
+        navigate(redirectTo)
       }}
     >
       <div class="flex flex-col -space-y-px rounded-md shadow-sm box-border overflow-hidden gap-[3px]">

@@ -3,7 +3,7 @@ import Api, {setApi} from "../../api/Api";
 import {LoginResponse} from "../../types/auth";
 import {createSignal} from "solid-js";
 import Cookies from "js-cookie";
-import {useNavigate} from "@solidjs/router";
+import {useLocation, useNavigate} from "@solidjs/router";
 import {Turnstile, TurnstileRef} from "@nerimity/solid-turnstile";
 
 export default function Register() {
@@ -15,6 +15,8 @@ export default function Register() {
 
   let [error, setError] = createSignal<string>()
   let [isSubmitting, setIsSubmitting] = createSignal(false)
+
+  const redirectTo = useLocation<{ redirectTo: string }>().state?.redirectTo ?? "/"
   const navigate = useNavigate()
 
   return (
@@ -27,6 +29,7 @@ export default function Register() {
       submitLabel="Register"
       submitLabelProgressive="Registering..."
       isSubmitting={isSubmitting()}
+      redirectTo={redirectTo}
       onSubmit={async () => {
         setIsSubmitting(true)
         const username = usernameRef!.value
@@ -45,7 +48,7 @@ export default function Register() {
         let { token } = response.ensureOk().jsonOrThrow()
         if (rememberMeRef!.checked) Cookies.set("token", token);
         setApi(new Api(token))
-        navigate("/")
+        navigate(redirectTo)
       }}
     >
       <div class="flex flex-col -space-y-px rounded-md shadow-sm box-border overflow-hidden gap-[3px]">

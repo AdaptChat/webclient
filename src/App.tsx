@@ -1,5 +1,5 @@
 import {type Component, createEffect, createSignal, lazy, onMount, onCleanup, Show} from 'solid-js';
-import {Navigate, Route, Routes} from "@solidjs/router";
+import {Navigate, Route, Routes, useLocation} from "@solidjs/router";
 import Api, { getApi, setApi } from "./api/Api";
 import Cookies from 'js-cookie'
 import WsClient from "./api/WsClient";
@@ -15,6 +15,14 @@ const Home = lazy(() => import('./pages/Home'))
 const GuildSelect = lazy(() => import('./pages/GuildSelect'))
 const GuildHome = lazy(() => import('./pages/guilds/GuildHome'))
 const GuildChannel = lazy(() => import('./pages/guilds/GuildChannel'))
+
+function RedirectingLogin() {
+  const redirectTo = useLocation().pathname
+
+  return (
+    <Navigate href="/login" state={{ redirectTo }} />
+  )
+}
 
 const App: Component = () => {
   const [ws, setWs] = createSignal<WsClient>()
@@ -49,7 +57,7 @@ const App: Component = () => {
         <Routes>
           <Route path={["/", "/login"]} component={Login} />
           <Route path="/register" component={Register} />
-          <Route path="*" element={<Navigate href="login" />} />
+          <Route path="*" component={RedirectingLogin} />
         </Routes>
       }>
         <Toaster toastOptions={{
