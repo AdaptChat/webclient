@@ -1,7 +1,7 @@
 import {Guild} from "../../types/guild";
 import Layout from "../Layout";
 import StatusIndicator from "../../components/StatusIndicator";
-import {For, Show} from "solid-js";
+import {createMemo, For, Show} from "solid-js";
 import {Card, SidebarButton} from "../Home";
 import {useParams} from "@solidjs/router";
 import {getApi} from "../../api/Api";
@@ -9,8 +9,11 @@ import type {GuildChannel} from "../../types/channel";
 import NotFound from "../NotFound";
 
 export function GuildSidebar() {
-  const { guildId, channelId: channelIdString } = useParams()
-  const channelId = parseInt(channelIdString)
+  const { guildId } = useParams()
+  const channelId = createMemo(() => {
+    const { channelId } = useParams()
+    return parseInt(channelId)
+  })
 
   const api = getApi()!
   const guild = api.cache!.guilds.get(parseInt(guildId))
@@ -23,13 +26,13 @@ export function GuildSidebar() {
         <div class="font-title card-title">{guild.name}</div>
       </div>
       <div class="flex flex-col w-full p-2">
-        <SidebarButton href={`/guilds/${guildId}`} svg="/icons/home.svg" active={!channelId}>Home</SidebarButton>
+        <SidebarButton href={`/guilds/${guildId}`} svg="/icons/home.svg" active={!channelId()}>Home</SidebarButton>
         <For each={guild.channels}>
           {(channel: GuildChannel) => (
             <SidebarButton
               href={`/guilds/${guildId}/${channel.id}`}
               svg="/icons/hashtag.svg"
-              active={channelId === channel.id}
+              active={channelId() === channel.id}
             >
               {channel.name}
             </SidebarButton>
