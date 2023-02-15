@@ -84,6 +84,7 @@ export default function Register() {
           name="remember-me"
           type="checkbox"
           class="h-4 w-4 rounded border-gray-400 text-accent focus:ring-accent"
+          checked
           ref={rememberMeRef!}
         />
         <label for="remember-me" class="ml-2 block text-sm">

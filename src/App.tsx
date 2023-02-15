@@ -1,5 +1,5 @@
 import {type Component, createEffect, createSignal, lazy, onMount, onCleanup, Show} from 'solid-js';
-import { Route, Routes } from "@solidjs/router";
+import {Navigate, Route, Routes} from "@solidjs/router";
 import Api, { getApi, setApi } from "./api/Api";
 import Cookies from 'js-cookie'
 import WsClient from "./api/WsClient";
@@ -49,6 +49,7 @@ const App: Component = () => {
         <Routes>
           <Route path={["/", "/login"]} component={Login} />
           <Route path="/register" component={Register} />
+          <Route path="*" element={<Navigate href="login" />} />
         </Routes>
       }>
         <Toaster toastOptions={{
