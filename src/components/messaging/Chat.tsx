@@ -76,7 +76,7 @@ export default function Chat(props: { channelId: number }) {
 
   return (
     <div class="flex flex-col justify-end w-full h-0 flex-grow">
-      <div ref={messageAreaRef!} class="overflow-auto flex flex-col-reverse pb-4" onScroll={async (event) => {
+      <div ref={messageAreaRef!} class="overflow-auto flex flex-col-reverse pb-6" onScroll={async (event) => {
         if (event.target.scrollTop + event.target.scrollHeight <= event.target.clientHeight) {
           await grouper().fetchMessages()
         }
