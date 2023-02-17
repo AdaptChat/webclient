@@ -7,6 +7,7 @@ import {Toaster} from "solid-toast";
 
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/shift-away.css';
+import {ModalContainer} from "./components/ui/Modal";
 
 const Login = lazy(() => import('./pages/auth/Login'))
 const Register = lazy(() => import('./pages/auth/Register'))
@@ -57,7 +58,7 @@ const App: Component = () => {
   })
 
   return (
-    <main class="font-sans m-0 w-[100vw] h-[100vh] bg-gray-800 text-base-content">
+    <main class="relative font-sans m-0 w-[100vw] h-[100vh] bg-gray-800 text-base-content">
       <Show when={getApi()} keyed={false} fallback={
         <Routes>
           <Route path={["/", "/login"]} component={Login} />

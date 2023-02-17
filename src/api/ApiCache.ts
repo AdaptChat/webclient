@@ -22,12 +22,14 @@ export default class ApiCache {
   guilds: Map<number, Guild>
   channels: Map<number, Channel>
   messages: Map<number, MessageGrouper>
+  inviteCodes: Map<number, string>
 
   constructor(private readonly api: Api) {
     this.users = new Map()
     this.guilds = new Map()
     this.channels = new Map()
     this.messages = new Map()
+    this.inviteCodes = new Map()
   }
 
   static fromReadyEvent(api: Api, ready: ReadyEvent): ApiCache {
