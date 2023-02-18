@@ -7,13 +7,12 @@ import {Toaster} from "solid-toast";
 
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/shift-away.css';
-import {ModalContainer} from "./components/ui/Modal";
 
 const Login = lazy(() => import('./pages/auth/Login'))
 const Register = lazy(() => import('./pages/auth/Register'))
 const Loading = lazy(() => import('./pages/Loading'))
 const Home = lazy(() => import('./pages/Home'))
-const GuildSelect = lazy(() => import('./pages/GuildSelect'))
+const GuildSelect = lazy(() => import('./pages/guilds/GuildSelect'))
 const GuildHome = lazy(() => import('./pages/guilds/GuildHome'))
 const GuildChannel = lazy(() => import('./pages/guilds/GuildChannel'))
 

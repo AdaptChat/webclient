@@ -14,7 +14,7 @@ export default function Modal({ get, set, children }: ParentProps<{ get: Accesso
       onClick={(event) => event.currentTarget == event.target && set(false)}
     >
       <div classList={{
-        "relative bg-gray-800 p-6 rounded-lg transition-all duration-200": true,
+        "relative bg-gray-800 p-6 rounded-lg transition-all duration-200 mx-2": true,
         "scale-50": !get(),
         "scale-100": get(),
       }}>
@@ -30,5 +30,14 @@ export default function Modal({ get, set, children }: ParentProps<{ get: Accesso
         {children}
       </div>
     </div>
+  )
+}
+
+export function ModalTemplate({ title, children }: ParentProps<{ title: string }>) {
+  return (
+    <>
+      <h1 class="text-3xl font-title font-bold text-center">{title}</h1>
+      {children}
+    </>
   )
 }

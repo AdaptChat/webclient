@@ -2,6 +2,7 @@ import type {Guild} from "../../types/guild";
 import {getApi} from "../../api/Api";
 import {createEffect, createSignal} from "solid-js";
 import {toast} from "solid-toast";
+import {ModalTemplate} from "../ui/Modal";
 
 export default function GuildInviteModal({ guild }: { guild: Guild }) {
   let inputRef: HTMLInputElement | null = null
@@ -27,8 +28,7 @@ export default function GuildInviteModal({ guild }: { guild: Guild }) {
   })
 
   return (
-    <>
-      <h1 class="text-3xl font-title font-bold text-center">Invite People</h1>
+    <ModalTemplate title="Invite People">
       <p class="text-base-content/70 text-center mt-2">
         Invite people to join <b>{guild.name}</b> by sending them this link:
       </p>
@@ -61,6 +61,6 @@ export default function GuildInviteModal({ guild }: { guild: Guild }) {
           />
         </button>
       </div>
-    </>
+    </ModalTemplate>
   )
 }

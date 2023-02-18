@@ -39,3 +39,7 @@ html {
 body {
   @apply hide-scrollbar;
 }
+
+.filter-accent-300 {
+  filter: invert(56%) sepia(13%) saturate(3494%) hue-rotate(185deg) brightness(112%) contrast(101%);
+}

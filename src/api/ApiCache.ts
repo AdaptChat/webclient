@@ -4,6 +4,7 @@ import type {ReadyEvent} from "../types/ws";
 import {Channel} from "../types/channel";
 import MessageGrouper from "./MessageGrouper";
 import type Api from "./Api";
+import {createSignal, Signal} from "solid-js";
 
 /**
  * Options when updating guild cache.

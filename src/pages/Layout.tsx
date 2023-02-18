@@ -1,8 +1,8 @@
-import {createSignal, For, JSX, onMount, ParentProps, Show} from "solid-js";
-import {getApi} from "../api/Api";
+import {createSignal, JSX, onMount, ParentProps, Show} from "solid-js";
 import type {Guild} from "../types/guild";
 import tippy from "tippy.js"
-import {A, useLocation, useNavigate, useParams} from "@solidjs/router";
+import {useLocation, useNavigate} from "@solidjs/router";
+import GuildSideSelect from "../components/guilds/GuildSideSelect";
 
 interface GuildIconProps {
   guild: Guild,
@@ -11,6 +11,12 @@ interface GuildIconProps {
   sizeClass: string,
   tooltip?: boolean,
 }
+
+export const tippyBaseOptions = {
+  placement: 'right',
+  arrow: true,
+  animation: 'shift-away',
+} as const
 
 export function GuildIcon({ guild, unread, pings, sizeClass, tooltip }: GuildIconProps) {
   const mx = pings.toString().length * 0.25 + 'rem'
@@ -37,9 +43,7 @@ export function GuildIcon({ guild, unread, pings, sizeClass, tooltip }: GuildIco
   onMount(() => {
     if (tooltip) tippy(anchor!, {
       content: guild.name,
-      placement: 'right',
-      arrow: true,
-      animation: 'shift-away',
+      ...tippyBaseOptions,
     })
   })
 
@@ -55,7 +59,7 @@ export function GuildIcon({ guild, unread, pings, sizeClass, tooltip }: GuildIco
       <div class={baseClass} ref={anchor!}>
         {indicator}
         <div class={"rounded-full hover:rounded-lg " + sizeClass}>
-          <img src={guild.icon} alt=""/>
+          <img src={guild.icon} alt={guild.name} />
         </div>
       </div>
     </Show>
@@ -96,8 +100,6 @@ interface LayoutProps {
 export const [showSidebar, setShowSidebar] = createSignal(true)
 
 export default function Layout(props: ParentProps<LayoutProps>) {
-  const api = getApi()!
-
   onMount(() => {
     if (window.innerWidth < 768) setShowSidebar(false)
   })
@@ -108,19 +110,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
         "flex flex-grow w-full h-full": true,
         "mobile:h-[calc(100%-4rem)]": props.showBottomNav,
       }}>
-        <div class="flex flex-col p-2 bg-gray-900 h-full overflow-y-auto gap-y-2 hide-scrollbar mobile:hidden">
-          <A href="/" class="opacity-70 hover:opacity-100 transition-opacity duration-300 w-full px-3 pt-3 flex items-center">
-            <img src="/icons/home.svg" alt="Home" class="invert select-none w-5" />
-          </A>
-          <hr class="h-1 bg-gray-800 border-none rounded-full my-2" />
-          <For each={Array.from(api.cache!.guilds.values())}>
-            {(guild: Guild) => (
-              <A href={`/guilds/${guild.id}`}>
-                <GuildIcon guild={guild} unread={false} pings={0} sizeClass="w-12 h-12" tooltip />
-              </A>
-            )}
-          </For>
-        </div>
+        <GuildSideSelect />
         <Show when={props.sidebar && showSidebar()} keyed={false}>
           <div class="flex flex-col w-64 h-full bg-gray-850 mobile:w-[calc(100%-3rem)]">
             {props.sidebar!()}

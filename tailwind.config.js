@@ -7,14 +7,26 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        accent: '#0586ff',
+        accent: {
+          DEFAULT: '#0586ff',
+          50: '#bddfff',
+          100: '#a8d5ff',
+          200: '#7fc1ff',
+          300: '#57adff',
+          400: '#2e9aff',
+          500: '#0586ff',
+          600: '#0069cc',
+          700: '#004c94',
+          800: '#002f5c',
+          900: '#001224',
+        },
         secondary: '#be3dff',
         link: '#4bd5ff',
         base: {
           content: '#ffffff',
         },
         gray: {
-          850: '#19222D',
+          850: '#19222d',
         },
       },
       screens: {
