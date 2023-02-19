@@ -1,5 +1,5 @@
 import {getApi} from "../../api/Api";
-import {createSignal, For, onMount, Show} from "solid-js";
+import {For, onMount, Show} from "solid-js";
 import tippy from "tippy.js";
 import {A} from "@solidjs/router";
 import {Guild} from "../../types/guild";
@@ -21,7 +21,7 @@ export default function GuildSideSelect() {
 
   return (
     <div class="overflow-y-auto hide-scrollbar mobile:hidden">
-      <div class="flex flex-col p-2 bg-gray-900 gap-y-2">
+      <div class="flex flex-col p-2 bg-gray-900 gap-y-2 min-h-full">
         <NewGuildModal />
         <A href="/"
            class="opacity-70 hover:opacity-100 transition-opacity duration-300 w-full px-3 pt-3 flex items-center">

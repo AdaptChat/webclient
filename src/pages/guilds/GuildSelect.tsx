@@ -24,7 +24,7 @@ export default function GuildSelect() {
         {/* TODO: Make this into a tab to select between guilds and DM channels */}
         <h1 class="font-title font-bold text-center text-2xl p-3 mt-2">Servers</h1>
         <div class="flex flex-col overflow-y-auto w-full">
-          <For each={Array.from(api.cache!.guilds.values())}>
+          <For each={api.cache!.guildList.map(g => api.cache!.guilds.get(g)!)}>
           {(guild: Guild) => (
             <A href={`/guilds/${guild.id}`} class="hover:bg-gray-700 transition w-full p-3 flex items-center cursor-pointer">
               <GuildIcon guild={guild} unread={false} pings={0} sizeClass="w-14 h-14" />
