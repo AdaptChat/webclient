@@ -14,6 +14,17 @@ export interface UpdateGuildOptions {
   updateChannels?: boolean
 }
 
+function sortedIndex<T extends number>(array: T[], value: T) {
+  let low = 0, high = array.length
+
+  while (low < high) {
+    const mid = (low + high) >>> 1;
+    if (array[mid] < value) low = mid + 1;
+    else high = mid;
+  }
+  return low;
+}
+
 /**
  * Caches data returned from the API.
  */
@@ -21,6 +32,7 @@ export default class ApiCache {
   clientUser?: ClientUser
   users: Map<number, User>
   guilds: Map<number, Guild>
+  guildListReactor: Signal<number[]> // TODO this should sort by order
   channels: Map<number, Channel>
   messages: Map<number, MessageGrouper>
   inviteCodes: Map<number, string>
@@ -28,6 +40,7 @@ export default class ApiCache {
   constructor(private readonly api: Api) {
     this.users = new Map()
     this.guilds = new Map()
+    this.guildListReactor = createSignal([])
     this.channels = new Map()
     this.messages = new Map()
     this.inviteCodes = new Map()
@@ -53,6 +66,14 @@ export default class ApiCache {
     if (options.updateChannels && guild.channels)
       for (const channel of guild.channels)
         this.updateChannel(channel)
+
+    this.guildListReactor[1](prev => {
+      // TODO: sort by true order, this is just creation date
+      const index = sortedIndex(prev, guild.id)
+      const next = [...prev]
+      next.splice(index, 0, guild.id)
+      return next
+    })
   }
 
   updateUser(user: User) {
@@ -61,6 +82,10 @@ export default class ApiCache {
 
   updateChannel(channel: Channel) {
     this.channels.set(channel.id, channel)
+  }
+
+  get guildList(): number[] {
+    return this.guildListReactor[0]()
   }
 
   get clientAvatar(): string | undefined {

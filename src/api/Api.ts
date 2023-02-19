@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import {createRoot, createSignal} from "solid-js";
 import WsClient from "./WsClient";
 import ApiCache from "./ApiCache";
 
@@ -154,27 +154,30 @@ export default class Api {
   }
 }
 
-const _globalApi = createSignal<Api>()
-export const getApi = _globalApi[0]
-const [confirmedApiAccess, setConfirmedApiAccess] = createSignal(false)
+export const [getApi, setApi] = createRoot(() => {
+  const _globalApi = createSignal<Api>()
+  const getApi = _globalApi[0]
+  const [confirmedApiAccess, setConfirmedApiAccess] = createSignal(false)
 
-export function setApi(api: Api) {
-  // @ts-ignore
-  if (window) try {
-    Object.defineProperty(window, 'adaptApi', {
-      get: () => {
-        if (!confirmedApiAccess())
-          confirm('Access to the "adaptApi" development/debug variable has been requested. ' +
-            'Press "OK" to confirm access, otherwise press "Cancel" to deny access.\n\n' +
-            'This is used to access the API from the browser console and can be used to gain access to your account. ' +
-            'If you do not know what this is, you should probably press "Cancel".') && setConfirmedApiAccess(true)
+  function setApi(api: Api) {
+    // @ts-ignore
+    if (window) try {
+      Object.defineProperty(window, 'adaptApi', {
+        get: () => {
+          if (!confirmedApiAccess())
+            confirm('Access to the "adaptApi" development/debug variable has been requested. ' +
+              'Press "OK" to confirm access, otherwise press "Cancel" to deny access.\n\n' +
+              'This is used to access the API from the browser console and can be used to gain access to your account. ' +
+              'If you do not know what this is, you should probably press "Cancel".') && setConfirmedApiAccess(true)
 
-        return confirmedApiAccess() ? api : undefined
-      },
-    })
-  } catch (ignored) {}
+          return confirmedApiAccess() ? api : undefined
+        },
+      })
+    } catch (ignored) {}
 
-  _globalApi[1](api)
-}
+    _globalApi[1](api)
+  }
 
+  return [getApi, setApi] as const
+})
 export const globalApi = [getApi, setApi] as const

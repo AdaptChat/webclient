@@ -1,8 +1,9 @@
 import {getApi} from "../../api/Api";
 import {For} from "solid-js";
 import type {Guild} from "../../types/guild";
-import Layout, {GuildIcon} from "../Layout";
+import Layout from "../Layout";
 import {A} from "@solidjs/router";
+import GuildIcon from "../../components/guilds/GuildIcon";
 
 export default function GuildSelect() {
   const api = getApi()!

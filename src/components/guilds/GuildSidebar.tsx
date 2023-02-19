@@ -22,7 +22,7 @@ export default function GuildSidebar() {
   return (
     <div class="flex flex-col items-center justify-center w-full">
       <Modal get={showInviteModal} set={setShowInviteModal}>
-        <GuildInviteModal guild={guild} />
+        <GuildInviteModal guild={guild} show={showInviteModal} />
       </Modal>
       <div
         class="w-[calc(100%-2rem)] mt-4 card box-border overflow-hidden flex border border-2 border-base-content/10

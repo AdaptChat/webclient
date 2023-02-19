@@ -1,4 +1,4 @@
-import {Accessor, ParentProps, Setter, Signal} from "solid-js";
+import {Accessor, createSignal, ParentProps, Setter, Signal} from "solid-js";
 
 export default function Modal({ get, set, children }: ParentProps<{ get: Accessor<boolean>, set: Setter<boolean> }>) {
   return (
@@ -14,7 +14,7 @@ export default function Modal({ get, set, children }: ParentProps<{ get: Accesso
       onClick={(event) => event.currentTarget == event.target && set(false)}
     >
       <div classList={{
-        "relative bg-gray-800 p-6 rounded-lg transition-all duration-200 mx-2": true,
+        "relative bg-gray-800 p-6 rounded-lg max-w-xl transition-all duration-200 mx-2": true,
         "scale-50": !get(),
         "scale-100": get(),
       }}>
@@ -40,4 +40,21 @@ export function ModalTemplate({ title, children }: ParentProps<{ title: string }
       {children}
     </>
   )
+}
+
+export function createPaginatedModalSignal<Page>(
+  setPage: Setter<Page>,
+  defaultPage: Exclude<Page, Function> | ((prev: Page) => Page),
+) {
+  const [showNewServerModal, _setShowNewServerModal] = createSignal(false)
+
+  function setShowNewServerModal<U extends boolean>(value: U | ((previous: boolean) => U)) {
+    return _setShowNewServerModal(prev => {
+      value = typeof value === 'function' ? value(prev) : value
+      if (value) setPage(defaultPage)
+      return value
+    })
+  }
+
+  return [showNewServerModal, setShowNewServerModal] as const
 }

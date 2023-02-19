@@ -2,8 +2,9 @@ import Layout, {setShowSidebar} from "./Layout";
 import {getApi} from "../api/Api";
 import StatusIndicator, {StatusIndicatorProps} from "../components/StatusIndicator";
 import {toast} from "solid-toast";
-import {ParentProps} from "solid-js";
+import {type JSX, ParentProps} from "solid-js";
 import {A} from "@solidjs/router";
+import useNewGuildModalComponent from "../components/guilds/NewGuildModal";
 
 function StatusSelect(props: StatusIndicatorProps & { label: string }) {
   return (
@@ -30,18 +31,21 @@ export function Card(props: ParentProps<{ title: string }>) {
   )
 }
 
-function LearnAdaptSubcard(props: ParentProps<{ title: string }>) {
+function LearnAdaptSubcard(
+  { title, children, ...props }: ParentProps<{ title: string }> & JSX.ButtonHTMLAttributes<HTMLButtonElement>
+) {
   return (
-    <a
+    <button
       class="flex justify-between gap-2 bg-neutral rounded-lg p-4 w-full hover:bg-neutral-focus transition-colors
-        cursor-pointer"
+        cursor-pointer items-center"
+      {...props}
     > {/* TODO */}
       <div>
-        <h3 class="text-left font-medium font-title text-lg">{props.title}</h3>
-        <p class="text-sm">{props.children}</p>
+        <h3 class="text-left font-medium font-title text-lg">{title}</h3>
+        <p class="text-sm text-left">{children}</p>
       </div>
       <img src="/icons/chevron-right.svg" alt="Click to go" class="invert select-none w-4"/>
-    </a>
+    </button>
   )
 }
 
@@ -90,9 +94,11 @@ export function Sidebar() {
 export default function Home() {
   const api = getApi()!
   const clientUser = api.cache!.clientUser!
+  const { NewGuildModal, setShow: setShowNewGuildModal } = useNewGuildModalComponent()
 
   return (
     <Layout sidebar={Sidebar} title="Home">
+      <NewGuildModal />
       <div class="flex flex-col items-center w-full h-full p-8 mobile-xs:p-4 xl:p-12 2xl:p-16 overflow-auto">
         <div class="flex items-center mobile:justify-center px-8 bg-gray-900 rounded-xl py-12 w-full mobile:flex-col">
           <img src={api.cache?.clientAvatar} alt="" class="w-24 rounded-lg mr-4" />
@@ -120,13 +126,14 @@ export default function Home() {
         <div class="flex items-center justify-center mt-4 gap-4 w-full mobile:flex-col">
           <Card title="Learn Adapt">
             <LearnAdaptSubcard title="Connect with friends">
-              Find, connect, and chat with your friends, as long as they share with you their tag.
+              Find your friends on Adapt and add them to your friends list.
               <span class="block text-base-content/60 mt-1">
                 Your tag is <code>{clientUser.username}#{clientUser.discriminator}!</code>
               </span>
             </LearnAdaptSubcard>
-            <LearnAdaptSubcard title="Create a community">
+            <LearnAdaptSubcard title="Create a community" onClick={() => setShowNewGuildModal(true)}>
               Create and develop a new server for you, your friends, or whoever you desire.
+              You can also join an existing server as long as you have its invite link.
             </LearnAdaptSubcard>
             <LearnAdaptSubcard title="Discover communities">
               Find new servers to join that suit your interests. You can also join our{' '}

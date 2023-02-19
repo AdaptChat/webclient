@@ -1,10 +1,10 @@
 import type {Guild} from "../../types/guild";
 import {getApi} from "../../api/Api";
-import {createEffect, createSignal} from "solid-js";
+import {Accessor, createEffect, createSignal} from "solid-js";
 import {toast} from "solid-toast";
 import {ModalTemplate} from "../ui/Modal";
 
-export default function GuildInviteModal({ guild }: { guild: Guild }) {
+export default function GuildInviteModal({ guild, show }: { guild: Guild, show: Accessor<boolean> }) {
   let inputRef: HTMLInputElement | null = null
 
   const api = getApi()!
@@ -12,6 +12,9 @@ export default function GuildInviteModal({ guild }: { guild: Guild }) {
   const [copied, setCopied] = createSignal(false)
 
   createEffect(async () => {
+    if (!show())
+      return
+
     const code = api.cache!.inviteCodes.get(guild.id)
     if (code) {
       setCode(code)
