@@ -100,18 +100,21 @@ export default function Chat(props: { channelId: number }) {
                 )
 
                 const firstMessage = group[0]
-                const author = firstMessage && api.cache!.users.get(firstMessage.author_id!)
+                const author = firstMessage
+                  && firstMessage.author_id
+                  && api.cache!.users.get(firstMessage.author_id)
+                  || grouper().authorDefault
                 return (
                   <Show when={group.length >= 1} keyed={false}>
                     <div class="flex flex-col">
                       <div class="flex flex-col relative pl-[68px] hover:bg-gray-850/60 transition-all duration-200">
                         <img
                           class="absolute left-4 w-10 h-10 mt-1 rounded-full"
-                          src={api.cache!.avatarOf(author!.id)}
+                          src={api.cache!.avatarOf(author.id)}
                           alt=""
                         />
                         <div class="inline">
-                          <span class="font-medium">{author!.username}</span>
+                          <span class="font-medium">{author.username}</span>
                           <span class="text-base-content/50 text-sm ml-2">
                             {humanizeTimestamp(snowflakes.timestamp(firstMessage.id))}
                           </span>

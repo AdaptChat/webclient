@@ -166,7 +166,7 @@ function NewGuildModal(
 
               const { guild_id } =  response.ensureOk().jsonOrThrow()
               const guildResponse = await api.request<Guild>(
-                'GET', `/guilds/${guild_id}`, { params: { channels: true } },
+                'GET', `/guilds/${guild_id}`, { params: { channels: true, members: true } },
               )
               if (!guildResponse.ok) return guildResponse.errorJsonOrThrow().message
               return guildResponse.ensureOk().jsonOrThrow()

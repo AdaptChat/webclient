@@ -2,6 +2,7 @@ import type {Message} from "../types/message";
 import {createSignal, type Signal} from "solid-js";
 import {humanizeDate, isSameDay, snowflakes} from "../utils";
 import type Api from "./Api";
+import {User} from "../types/user";
 
 /**
  * A divider between messages.
@@ -196,6 +197,15 @@ export default class MessageGrouper {
       attachments: [],
       flags: 0,
       stars: 0,
+    }
+  }
+
+  get authorDefault(): User {
+    return {
+      id: 0,
+      username: 'Unknown User',
+      discriminator: 0,
+      flags: 0,
     }
   }
 
