@@ -37,7 +37,7 @@ export default function Chat(props: { channelId: number }) {
 
   const mobile = /Android|webOS|iPhone|iP[ao]d|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   const grouper = createMemo(() => {
-    const { grouper, cached } = api.cache!.useChannelMessages(props.channelId)
+    const { grouper, cached } = getApi()!.cache!.useChannelMessages(props.channelId)
     setLoading(!cached)
 
     if (!cached)
