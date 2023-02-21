@@ -121,7 +121,7 @@ jobs:
           workspaces: "./src-tauri -> target"
 
       - name: Cache Docker images.
-        uses: ScribeMD/docker-cache@3
+        uses: ScribeMD/docker-cache@v3
         with:
           key: docker-${{ runner.os }}-${{ hashFiles('Dockerfile') }}
       
