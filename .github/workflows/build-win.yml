@@ -1,4 +1,4 @@
-name: Build
+name: Build Windows
 
 on:
   push:
@@ -15,6 +15,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: "./src-tauri -> target"
+
+    - name: Install tauri CLI
+      run: cargo install tauri-cli
+
     - name: Build
       run: cargo tauri build
     
