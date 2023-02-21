@@ -11,6 +11,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@tauri-apps/cli": "^1.2.3",
     "@types/js-cookie": "^3.0.2",
     "@types/node": "^18.11.18",
     "autoprefixer": "^10.4.13",

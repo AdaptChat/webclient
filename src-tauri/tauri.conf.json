@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "AdaptChat",
+    "productName": "Adapt",
     "version": "0.1.0"
   },
   "tauri": {
