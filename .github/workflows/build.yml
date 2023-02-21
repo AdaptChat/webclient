@@ -1,0 +1,111 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-mac-x86_64:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: "./src-tauri -> target"
+
+    - name: Install tauri CLI
+      run: cargo install tauri-cli
+
+    - name: Install packages
+      run: npm i
+
+    - name: Build
+      run: cargo tauri build --target x86_64-apple-darwin
+    
+    - name: Upload artifact x86_64
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-darwin-86_64
+        path: src-tauri/target/x86_64-apple-darwin/release/bundle
+
+  build-mac-aarch64:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: "./src-tauri -> target"
+
+    - name: Install tauri CLI
+      run: cargo install tauri-cli
+
+    - name: Install packages
+      run: npm i
+
+    - name: Build
+      run: rustup target add aarch64-apple-darwin && cargo tauri build --target aarch64-apple-darwin
+
+    - name: Upload artifact aarch64
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-darwin-aarch64
+        path: src-tauri/target/aarch64-apple-darwin/release/bundle
+  
+  build-win-x86_64-64bit:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: "./src-tauri -> target"
+
+    - name: Install tauri CLI
+      run: cargo install tauri-cli
+
+    - name: Install packages
+      run: npm i
+
+    - name: Build
+      run: cargo tauri build --target x86_64-pc-windows-msvc
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-windows-86_64-64bit
+        path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle
+
+  build-win-i686-32bit:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: "./src-tauri -> target"
+
+    - name: Install tauri CLI
+      run: cargo install tauri-cli
+
+    - name: Install packages
+      run: npm i
+
+    - name: Build
+      run: rustup target add i686-pc-windows-msvc && cargo tauri build --target i686-pc-windows-msvc
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-windows-i686-32bit
+        path: src-tauri/target/i686-pc-windows-msvc/release/bundle
