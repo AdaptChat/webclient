@@ -123,7 +123,7 @@ jobs:
       - name: Cache Docker images.
         uses: ScribeMD/docker-cache@0.2
         with:
-          key: 'docker-${{ runner.os }}-${{ hashFiles("Dockerfile") }}'
+          key: docker-${{ runner.os }}-${{ hashFiles('Dockerfile') }}
       
       - name: Clone tauri-cross
         run: git clone https://github.com/rfdonnelly/tauri-cross.git
