@@ -5,6 +5,7 @@
   "scripts": {
     "start": "vite",
     "dev": "vite",
+    "tauri": "tauri",
     "build": "vite build",
     "serve": "vite preview"
   },
