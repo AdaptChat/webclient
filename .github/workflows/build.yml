@@ -133,7 +133,7 @@ jobs:
       
       - name: Build
         run: |
-          docker run -it --rm \
+          docker run -t --rm \
             -v $PWD:/src \
             -w /src \
             -u $(id -u):$(id -g) \
