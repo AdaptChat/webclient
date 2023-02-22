@@ -1,7 +1,6 @@
 import {type Component, createEffect, createSignal, lazy, onMount, onCleanup, Show} from 'solid-js';
 import {Navigate, Route, Routes, useLocation} from "@solidjs/router";
 import Api, { getApi, setApi } from "./api/Api";
-import Cookies from 'js-cookie'
 import WsClient from "./api/WsClient";
 import {Toaster} from "solid-toast";
 
@@ -18,12 +17,12 @@ const GuildChannel = lazy(() => import('./pages/guilds/GuildChannel'))
 
 const RedirectingLogin = lazy(async () => {
   const redirectTo = useLocation().pathname
-  if (Cookies.get('token') != null)
+  if (localStorage.getItem('token') != null)
     await new Promise(resolve => setTimeout(resolve, 500))
 
   return {
     default: () => {
-      Cookies.remove('token')
+      localStorage.removeItem('token')
       return <Navigate href="/login" state={{redirectTo}} />
     }
   }
@@ -33,7 +32,7 @@ const App: Component = () => {
   const [ws, setWs] = createSignal<WsClient>()
 
   onMount(() => {
-    const token = Cookies.get('token');
+    const token = localStorage.getItem('token');
 
     if (token != null) {
       setApi(new Api(token))

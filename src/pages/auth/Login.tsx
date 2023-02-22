@@ -2,7 +2,6 @@ import Layout, {FormInput} from "./Layout";
 import Api, {setApi} from "../../api/Api";
 import {LoginResponse} from "../../types/auth";
 import {createSignal} from "solid-js";
-import Cookies from "js-cookie";
 import {useLocation, useNavigate} from "@solidjs/router";
 
 export default function Login() {
@@ -41,7 +40,7 @@ export default function Login() {
           setError(response.errorJsonOrThrow().message)
         }
         let { token } = response.ensureOk().jsonOrThrow()
-        if (rememberMeRef!.checked) Cookies.set("token", token);
+        if (rememberMeRef!.checked) localStorage.setItem("token", token);
         setApi(new Api(token))
         navigate(redirectTo)
       }}
