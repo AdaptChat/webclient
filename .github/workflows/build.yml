@@ -145,4 +145,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: app-linux-x86_64-64bit
-          path: src-tauri/target/x86_64-unknown-linux-gnu/release/bundle
+          path: |
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
