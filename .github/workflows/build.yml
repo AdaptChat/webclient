@@ -125,19 +125,13 @@ jobs:
         with:
           key: docker-${{ runner.os }}-${{ hashFiles('Dockerfile') }}
       
-      - name: Clone tauri-cross
-        run: git clone https://github.com/rfdonnelly/tauri-cross.git
-      
-      - name: Build docker image
-        run: docker build -t tauri:centos7 tauri-cross/centos7
-      
       - name: Build
         run: |
           docker run -t --rm \
             -v $PWD:/src \
             -w /src \
             -u $(id -u):$(id -g) \
-            tauri:centos7 \
+            cryptex2233/tauribuild:centos7 \
             cargo tauri build --target x86_64-unknown-linux-gnu
       
       - name: Upload artifact
