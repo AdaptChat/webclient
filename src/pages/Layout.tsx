@@ -55,7 +55,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
       }}>
         <GuildSideSelect />
         <Show when={props.sidebar && showSidebar()} keyed={false}>
-          <div class="flex flex-col w-64 h-full bg-gray-850 mobile:w-[calc(100%-3rem)]">
+          <div class="flex flex-col w-60 h-full bg-gray-850 mobile:w-[calc(100%-3rem)]">
             {props.sidebar!()}
           </div>
         </Show>
@@ -70,7 +70,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
         </div>
         <div classList={{
           "flex flex-col items-center": true,
-          "w-[calc(100%-320px)] mobile:hidden": props.sidebar && showSidebar(),
+          "w-[calc(100%-304px)] mobile:hidden": props.sidebar && showSidebar(),
           "w-[calc(100%-64px)] mobile:w-full": !props.sidebar || !showSidebar(),
         }}>
           {props.title && (

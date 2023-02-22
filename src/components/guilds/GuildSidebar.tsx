@@ -37,7 +37,7 @@ export default function GuildSidebar() {
           "flex justify-between items-center px-4 pt-2": true,
           "pb-2": !guild.description,
         }}>
-          <span class="inline-block font-title card-title text-base text-ellipsis w-[168px] overflow-hidden whitespace-nowrap">
+          <span class="inline-block font-title card-title text-base text-ellipsis w-36 break-words">
             {guild.name}
           </span>
           <label tabIndex={0} class="cursor-pointer">
