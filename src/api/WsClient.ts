@@ -16,7 +16,7 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
   },
   ready(ws: WsClient, data: ReadyEvent) {
     ws.readyPromiseResolver?.(true)
-    ws.api.cache = ApiCache.fromReadyEvent(ws.api, data)
+    ws.api.cache ??= ApiCache.fromReadyEvent(ws.api, data)
     console.info('[WS] Ready event received from harmony')
   },
   message_create(ws: WsClient, data: MessageCreateEvent) {
@@ -31,7 +31,7 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
       } catch (ignored) {}
 
     grouper.pushMessage(data.message)
-  }
+  },
 }
 
 /**
