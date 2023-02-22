@@ -12,7 +12,6 @@
   "license": "MIT",
   "devDependencies": {
     "@tauri-apps/cli": "^1.2.3",
-    "@types/js-cookie": "^3.0.2",
     "@types/node": "^18.11.18",
     "autoprefixer": "^10.4.13",
     "daisyui": "^2.49.0",
@@ -26,7 +25,6 @@
     "@nerimity/solid-turnstile": "^1.1.0",
     "@solidjs/router": "^0.7.0",
     "cssnano": "^5.1.14",
-    "js-cookie": "^3.0.1",
     "solid-js": "^1.6.6",
     "solid-toast": "^0.4.0",
     "tippy.js": "^6.3.7"
