@@ -73,9 +73,12 @@ export default class WsClient {
   }
 
   sendIdentify() {
+    console.debug('[WS] Sending identify to harmony')
+
     this.connection?.send(JSON.stringify({
       op: 'identify',
       token: this.api.token,
+      device: '__TAURI__' in window ? 'desktop' : 'web',
     }))
   }
 
