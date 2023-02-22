@@ -10,7 +10,7 @@ export const WS_CONNECT_URI: string = 'wss://harmony.adapt.chat'
 
 type WsEventHandler = (ws: WsClient, data: any) => any
 export const WsEventHandlers: Record<string, WsEventHandler> = {
-  hello(ws, _) {
+  hello(ws) {
     ws.sendIdentify()
     console.info('[WS] Connected to harmony')
   },
@@ -87,9 +87,22 @@ export default class WsClient {
   }
 
   private processMessage(message: MessageEvent) {
-    console.debug('[WS] Received message from harmony: ' + message)
+    if (typeof message.data !== 'string')
+      return console.debug('[WS] Received non-text message from harmony')
 
-    const json: WsEvent = JSON.parse(message.data)
+    let json: WsEvent
+    try {
+       json = JSON.parse(message.data)
+    } catch (e) {
+      return console.debug('[WS] Received non-JSON message from harmony', message.data)
+    }
+
+    const debugMessage = `[WS] Received ${json.event} event from harmony`
+    if (json.data != null)
+      console.debug(debugMessage, json.data)
+    else
+      console.debug(debugMessage)
+
     WsEventHandlers[json.event]?.(this, json.data)
   }
 
