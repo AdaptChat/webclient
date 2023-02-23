@@ -1,7 +1,7 @@
 import Api from "./Api";
-import {GuildCreateEvent, MessageCreateEvent, ReadyEvent, WsEvent} from "../types/ws";
 import ApiCache from "./ApiCache";
 import Backoff from "./Backoff";
+import {GuildCreateEvent, GuildRemoveEvent, MessageCreateEvent, ReadyEvent, WsEvent} from "../types/ws";
 
 /**
  * WebSocket endpoint
@@ -24,6 +24,9 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
   },
   guild_create(ws: WsClient, data: GuildCreateEvent) {
     ws.api.cache?.updateGuild(data.guild, { updateUsers: true, updateChannels: true })
+  },
+  guild_remove(ws: WsClient, data: GuildRemoveEvent) {
+    ws.api.cache?.removeGuild(data.guild_id)
   },
   message_create(ws: WsClient, data: MessageCreateEvent) {
     let grouper = ws.api.cache?.messages?.get(data.message.channel_id)

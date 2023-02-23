@@ -77,6 +77,11 @@ export default class ApiCache {
     })
   }
 
+  removeGuild(guildId: number) {
+    this.guilds.delete(guildId)
+    this.guildListReactor[1](prev => prev.filter(id => id !== guildId))
+  }
+
   updateUser(user: User) {
     this.users.set(user.id, user)
   }

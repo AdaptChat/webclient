@@ -64,6 +64,7 @@ module.exports = {
         secondary: '#be3dff',
         accent: '#0586ff',
         neutral: '#3a3a41',
+        error: '#ee3434',
         base: {
           content: '#ffffff',
         },
