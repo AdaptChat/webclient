@@ -100,9 +100,9 @@ export default function Chat(props: { channelId: number }) {
 
                 const firstMessage = group[0]
                 const author = firstMessage
-                  && firstMessage.author_id
-                  && api.cache!.users.get(firstMessage.author_id)
+                  && (firstMessage.author ?? (firstMessage.author_id && api.cache!.users.get(firstMessage.author_id)))
                   || grouper().authorDefault
+
                 return (
                   <Show when={group.length >= 1} keyed={false}>
                     <div class="flex flex-col">

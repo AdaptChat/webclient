@@ -61,7 +61,8 @@ export default class ApiCache {
 
     if (options.updateUsers && guild.members)
       for (const member of guild.members)
-        this.updateUser(member as User)
+        if ('username' in member)
+          this.updateUser(member as User)
 
     if (options.updateChannels && guild.channels)
       for (const channel of guild.channels)
