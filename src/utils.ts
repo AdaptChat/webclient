@@ -98,3 +98,24 @@ export function humanizeTime(timestamp: number | Date): string {
     hour12: true,
   })
 }
+
+/**
+ * Capitalizes a string.
+ * @param s The string to capitalize.
+ * @returns The capitalized string.
+ */
+export function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+/**
+ * Returns a humanized version of a status.
+ */
+export function humanizeStatus(status: string): string {
+  switch (status) {
+    case 'online': return 'Online'
+    case 'idle': return 'Idle'
+    case 'dnd': return 'Do Not Disturb'
+    default: return 'Offline'
+  }
+}

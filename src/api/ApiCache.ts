@@ -1,10 +1,12 @@
 import type {ClientUser, User} from "../types/user";
 import type {Guild, Member} from "../types/guild";
 import type {ReadyEvent} from "../types/ws";
-import {Channel} from "../types/channel";
-import MessageGrouper from "./MessageGrouper";
+import type {Channel} from "../types/channel";
+import type {Presence} from "../types/presence";
 import type Api from "./Api";
+import MessageGrouper from "./MessageGrouper";
 import {createSignal, Signal} from "solid-js";
+import {ReactiveMap} from "@solid-primitives/map";
 
 /**
  * Options when updating guild cache.
@@ -36,6 +38,7 @@ export default class ApiCache {
   channels: Map<number, Channel>
   messages: Map<number, MessageGrouper>
   inviteCodes: Map<number, string>
+  presences: ReactiveMap<number, Presence>
 
   constructor(private readonly api: Api) {
     this.users = new Map()
@@ -44,6 +47,7 @@ export default class ApiCache {
     this.channels = new Map()
     this.messages = new Map()
     this.inviteCodes = new Map()
+    this.presences = new ReactiveMap<number, Presence>()
   }
 
   static fromReadyEvent(api: Api, ready: ReadyEvent): ApiCache {
@@ -84,6 +88,10 @@ export default class ApiCache {
 
   updateUser(user: User) {
     this.users.set(user.id, user)
+  }
+
+  updatePresence(presence: Presence) {
+    this.presences.set(presence.user_id, presence)
   }
 
   updateChannel(channel: Channel) {

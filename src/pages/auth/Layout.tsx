@@ -1,5 +1,6 @@
 import {ComponentProps, ParentProps, Show} from "solid-js";
 import {A} from "@solidjs/router";
+import {capitalize} from "../../utils";
 
 export function FormInput({ id, label, ...props }: { label: string } & ComponentProps<'input'>) {
   return (
@@ -51,9 +52,7 @@ export default function Layout(props: ParentProps<Props>) {
           <Show when={props.error} keyed={false}>
             <div class="text-red-500">
               <p class="mt-4 font-bold">Something went wrong!</p>
-              <p class="text-sm">
-                {props.error!.charAt(0).toUpperCase() + props.error!.slice(1)}
-              </p>
+              <p class="text-sm">{capitalize(props.error!)}</p>
             </div>
           </Show>
         </div>

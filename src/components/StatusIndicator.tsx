@@ -4,11 +4,15 @@ export interface StatusIndicatorProps {
 }
 
 export default function StatusIndicator(props: StatusIndicatorProps) {
-  const { status, width = 3 } = props;
-  const statusClass = status === 'online' ? 'bg-success'
-    : status === 'idle' ? 'bg-warning'
-    : status === 'dnd' ? 'bg-error'
-    : 'bg-gray-400';
-
-  return <div class={`w-3 h-3 rounded-full ${statusClass}`} />
+  return (
+    <div
+      classList={{
+        "w-3 h-3 rounded-full": true,
+        "bg-success": props.status === 'online',
+        "bg-warning": props.status === 'idle',
+        "bg-error": props.status === 'dnd',
+        "bg-gray-400": props.status === 'offline',
+      }}
+    />
+  )
 }

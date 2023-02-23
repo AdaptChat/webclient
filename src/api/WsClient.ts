@@ -1,7 +1,14 @@
 import Api from "./Api";
 import ApiCache from "./ApiCache";
 import Backoff from "./Backoff";
-import {GuildCreateEvent, GuildRemoveEvent, MessageCreateEvent, ReadyEvent, WsEvent} from "../types/ws";
+import {
+  GuildCreateEvent,
+  GuildRemoveEvent,
+  MessageCreateEvent,
+  PresenceUpdateEvent,
+  ReadyEvent, UpdatePresencePayload,
+  WsEvent
+} from "../types/ws";
 
 /**
  * WebSocket endpoint
@@ -40,6 +47,9 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
       } catch (ignored) {}
 
     grouper.pushMessage(data.message)
+  },
+  presence_update(ws: WsClient, data: PresenceUpdateEvent) {
+    ws.api.cache?.updatePresence(data.presence)
   },
 }
 
@@ -137,6 +147,13 @@ export default class WsClient {
   async reconnect() {
     this.resetConnection()
     await this.connect()
+  }
+
+  async updatePresence(presence: UpdatePresencePayload) {
+    this.connection?.send(JSON.stringify({
+      op: 'update_presence',
+      ...presence,
+    }))
   }
 
   reconnectWithBackoff() {

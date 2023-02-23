@@ -1,16 +1,18 @@
 import Layout, {setShowSidebar} from "./Layout";
 import {getApi} from "../api/Api";
 import StatusIndicator, {StatusIndicatorProps} from "../components/StatusIndicator";
-import {toast} from "solid-toast";
-import {type JSX, ParentProps} from "solid-js";
+import {createMemo, type JSX, ParentProps} from "solid-js";
 import {A} from "@solidjs/router";
 import useNewGuildModalComponent from "../components/guilds/NewGuildModal";
+import {humanizeStatus} from "../utils";
 
 function StatusSelect(props: StatusIndicatorProps & { label: string }) {
+  const api = getApi()!
+
   return (
     <li>
       <button
-        onClick={() => toast.error('Status is a work in progress')}
+        onClick={() => api.ws?.updatePresence({ status: props.status })}
         class="font-medium p-2"
       >
         <StatusIndicator status={props.status} />
@@ -94,6 +96,8 @@ export function Sidebar() {
 export default function Home() {
   const api = getApi()!
   const clientUser = api.cache!.clientUser!
+  const status = createMemo(() => api.cache!.presences.get(clientUser.id)?.status ?? 'online')
+
   const { NewGuildModal, setShow: setShowNewGuildModal } = useNewGuildModalComponent()
 
   return (
@@ -111,8 +115,8 @@ export default function Home() {
             </h1>
             <div class="dropdown mt-2">
               <label tabIndex="0" class="btn btn-sm text-[1rem]">
-                <StatusIndicator status="online" />
-                <span class="ml-2">Online</span>
+                <StatusIndicator status={status()} />
+                <span class="ml-2">{humanizeStatus(status())}</span>
               </label>
               <ul tabIndex="0" class="mt-2 dropdown-content menu p-2 shadow-xl bg-neutral-focus rounded-box w-52">
                 <StatusSelect label="Online" status="online" />

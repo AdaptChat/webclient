@@ -5,6 +5,7 @@ import {useParams} from "@solidjs/router";
 import {getApi} from "../../api/Api";
 import NotFound from "../NotFound";
 import GuildSidebar from "../../components/guilds/GuildSidebar";
+import GuildMemberList from "../../components/guilds/GuildMemberList";
 
 export default function GuildHome() {
   const api = getApi()!
@@ -14,7 +15,7 @@ export default function GuildHome() {
     return <NotFound sidebar={GuildSidebar} />
 
   return (
-    <Layout sidebar={GuildSidebar} title={guild()!.name} showBottomNav>
+    <Layout sidebar={GuildSidebar} rightSidebar={GuildMemberList} title={guild()!.name} showBottomNav>
       <div class="flex flex-col items-center w-full h-full p-8 mobile-xs:p-4 xl:p-12 2xl:p-16 overflow-auto">
         <div class="flex items-center mobile:justify-center px-8 bg-gray-900 rounded-xl py-12 w-full mobile:flex-col">
           <Show when={guild()!.icon} keyed={false}>

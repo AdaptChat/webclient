@@ -1,6 +1,17 @@
 import {ClientUser} from "./user";
 import {Guild, Invite} from "./guild";
 import {Message} from "./message";
+import {Presence} from "./presence";
+
+/**
+ * Payload sent to harmony to update the client user's presence.
+ */
+export interface UpdatePresencePayload {
+  /**
+   * The new status.
+   */
+  status?: 'online' | 'idle' | 'dnd' | 'offline',
+}
 
 type WsEventMapping<Event extends string, Data = null> = {
   event: Event,
@@ -19,6 +30,7 @@ export type WsEvent = WsEventMapping<'hello'>
   | WsEventMapping<'guild_remove', GuildRemoveEvent>
   | WsEventMapping<'member_join', MemberJoinEvent>
   | WsEventMapping<'member_remove', MemberRemoveEvent>
+  | WsEventMapping<'presence_update', Presence>
 
 /**
  * Ready, sent by harmony when it is ready to send and receive events.
@@ -118,4 +130,14 @@ export interface MemberRemoveEvent extends MemberRemoveInfo {
    * The ID of the user that left.
    */
   user_id: number;
+}
+
+/**
+ * Sent by harmony when a user's presence is updated.
+ */
+export interface PresenceUpdateEvent {
+  /**
+   * The new presence of the user.
+   */
+  presence: Presence;
 }
