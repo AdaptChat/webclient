@@ -61,7 +61,6 @@ export default function Chat(props: { channelId: number }) {
       type: 'default',
       content,
       author_id: api.cache!.clientUser!.id,
-      nonce,
       _nonceState: 'pending',
       ...grouper().nonceDefault,
     } as any

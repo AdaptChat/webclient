@@ -88,11 +88,6 @@ export type Message = MessageInfo & {
    * The amount of stars this message has received.
    */
   stars: number;
-  /**
-   * A custom nonce for this message. This is a random string that if used, a message with the
-   * same nonce will be dispatched by the websocket, indicating that the message was sent.
-   */
-  nonce?: string;
 
   _nonceState?: 'pending' | 'success' | 'error';
   _nonceError?: string;

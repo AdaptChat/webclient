@@ -1,5 +1,5 @@
 import Api from "./Api";
-import {MessageCreateEvent, ReadyEvent, WsEvent} from "../types/ws";
+import {GuildCreateEvent, MessageCreateEvent, ReadyEvent, WsEvent} from "../types/ws";
 import ApiCache from "./ApiCache";
 import Backoff from "./Backoff";
 
@@ -9,6 +9,8 @@ import Backoff from "./Backoff";
 export const WS_CONNECT_URI: string = 'wss://harmony.adapt.chat'
 
 type WsEventHandler = (ws: WsClient, data: any) => any
+type WsEventListener = (data: any, remove: () => void) => any
+
 export const WsEventHandlers: Record<string, WsEventHandler> = {
   hello(ws) {
     ws.sendIdentify()
@@ -17,16 +19,20 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
   ready(ws: WsClient, data: ReadyEvent) {
     ws.readyPromiseResolver?.(true)
     ws.api.cache ??= ApiCache.fromReadyEvent(ws.api, data)
+    ws.resetBackoff()
     console.info('[WS] Ready event received from harmony')
+  },
+  guild_create(ws: WsClient, data: GuildCreateEvent) {
+    ws.api.cache?.updateGuild(data.guild, { updateUsers: true, updateChannels: true })
   },
   message_create(ws: WsClient, data: MessageCreateEvent) {
     let grouper = ws.api.cache?.messages?.get(data.message.channel_id)
     if (!grouper) return
 
-    if (data.message.nonce)
+    if (data.nonce)
       try {
-        if (grouper.nonced.has(data.message.nonce)) {
-          return grouper.ackNonce(data.message.nonce, data.message)
+        if (grouper.nonced.has(data.nonce)) {
+          return grouper.ackNonce(data.nonce, data.message)
         }
       } catch (ignored) {}
 
@@ -38,15 +44,16 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
  * Implements a client for harmony (Adapt's websocket).
  */
 export default class WsClient {
-  readyPromiseResolver?: (resolver: any) => void;
-
-  private connection?: WebSocket;
-
-  private pingInterval?: number;
-  private shouldKeepAlive: boolean;
+  readyPromiseResolver?: (resolver: any) => void
+  private connection?: WebSocket
+  private listeners: Map<string, WsEventListener[]>
+  private pingInterval?: number
+  private shouldKeepAlive: boolean
+  private backoff: Backoff = new Backoff(1_000, 120_000)
 
   constructor(public api: Api) {
     this.shouldKeepAlive = false
+    this.listeners = new Map()
   }
 
   async initConnection() {
@@ -57,10 +64,7 @@ export default class WsClient {
     const connection = new WebSocket(WS_CONNECT_URI)
     connection.onmessage = this.processMessage.bind(this)
     connection.onclose = () => {
-      if (this.shouldKeepAlive) {
-        console.debug('[WS] Connection closed, attempting reconnect in ')
-        this.reconnect()
-      }
+      if (this.shouldKeepAlive) this.reconnectWithBackoff()
     }
 
     this.pingInterval = setInterval(this.sendPing.bind(this), 15000) as unknown as number
@@ -104,6 +108,16 @@ export default class WsClient {
       console.debug(debugMessage)
 
     WsEventHandlers[json.event]?.(this, json.data)
+
+    const listeners = this.listeners.get(json.event)
+    if (listeners) {
+      const sweep: Set<number> = new Set()
+
+      listeners.forEach((handler, index) => {
+        handler(json.data, () => sweep.add(index))
+      })
+      this.listeners.set(json.event, listeners.filter((_, index) => !sweep.has(index)))
+    }
   }
 
   private clearPingInterval() {
@@ -120,6 +134,23 @@ export default class WsClient {
   async reconnect() {
     this.resetConnection()
     await this.connect()
+  }
+
+  reconnectWithBackoff() {
+    const delay = this.backoff.delay()
+    console.debug(`[WS] Connection closed, attempting reconnect in ${delay / 1000} seconds`)
+    setTimeout(this.reconnect.bind(this), delay)
+  }
+
+  resetBackoff() {
+    this.backoff.reset()
+  }
+
+  on(event: string, handler: WsEventListener) {
+    if (!this.listeners.has(event))
+      this.listeners.set(event, [])
+
+    this.listeners.get(event)!.push(handler)
   }
 
   close() {

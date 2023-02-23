@@ -4,6 +4,8 @@ import {getApi} from "../../api/Api";
 import type {Guild, Member} from "../../types/guild";
 import {useNavigate} from "@solidjs/router";
 import {type UpdateGuildOptions} from "../../api/ApiCache";
+import {snowflakes} from "../../utils";
+import {GuildCreateEvent} from "../../types/ws";
 
 export enum ModalPage { New, Create, Join }
 
@@ -31,7 +33,7 @@ function Card({ title, children, ...props }: ParentProps<{ title: string }> & JS
 interface ExtendedProps extends Props {
   title: string,
   placeholder: string,
-  onSubmit: (name: string, setError: Setter<string>) => Promise<Guild | string>,
+  onSubmit: (name: string, nonce: string, acker: (guildId: number) => void) => Promise<string | void>,
   buttonLabel: string,
   minLength: number,
   maxLength: number,
@@ -57,17 +59,29 @@ function Base(props: ParentProps<ExtendedProps>) {
           const name = input!.value
           submit!.disabled = true
 
-          const guild = await props.onSubmit(name, setError)
-          if (typeof guild === "string") {
-            submit!.disabled = false
-            setError(guild)
-            return
+          let acked = false
+          let ack = (guildId: number) => {
+            acked = true
+            props.setShowModal(false)
+            navigate(`/guilds/${guildId}`)
           }
 
-          api.cache!.updateGuild(guild, props.updateOptions)
+          const nonce = snowflakes.fromTimestamp(Date.now())
+          api.ws?.on("guild_create", (event: GuildCreateEvent, remove) => {
+            if (acked)
+              return remove()
+            if (!event.nonce || event.nonce != nonce.toString())
+              return
 
-          props.setShowModal(false)
-          navigate(`/guilds/${guild.id}`)
+            ack(event.guild.id)
+            remove()
+          })
+
+          const error = await props.onSubmit(name, nonce.toString(), ack)
+          if (error) {
+            submit!.disabled = false
+            setError(error)
+          }
         }}
       >
         <input
@@ -136,10 +150,10 @@ function NewGuildModal(
             {...props}
             title="Create a Server"
             placeholder={`${api.cache!.clientUser?.username}'s server`}
-            onSubmit={async (name) => {
-              const response = await api.request<Guild>('POST', '/guilds', { json: { name } })
-              if (!response.ok) return response.errorJsonOrThrow().message
-              return response.jsonOrThrow()
+            onSubmit={async (name, nonce) => {
+              const response = await api.request<Guild>('POST', '/guilds', { json: { name, nonce } })
+              if (!response.ok)
+                return response.errorJsonOrThrow().message
             }}
             buttonLabel="Create Server"
             minLength={2}
@@ -156,20 +170,18 @@ function NewGuildModal(
             {...props}
             title="Join a Server"
             placeholder="Enter an invite code..."
-            onSubmit={async (code, setError) => {
+            onSubmit={async (code, nonce, acker) => {
               const matches = code.match(/(?:(?:https?:\/\/(?:www\.)?)?adapt\.chat\/invite\/)?(\w{6,12})\/?/) ?? code
-              if (!matches || matches.length < 2)
-                setError("That doesn't look like a valid invite code.")
+              if (!matches || matches.length < 1)
+                return "That doesn't look like a valid invite code."
 
-              const response = await api.request<Member>('POST', `/invites/${matches[1]}`)
-              if (!response.ok) return response.errorJsonOrThrow().message
+              const response = await api.request<Member>('POST', `/invites/${matches[1]}`, { params: { nonce } })
+              if (!response.ok)
+                return response.errorJsonOrThrow().message
 
-              const { guild_id } =  response.ensureOk().jsonOrThrow()
-              const guildResponse = await api.request<Guild>(
-                'GET', `/guilds/${guild_id}`, { params: { channels: true, members: true } },
-              )
-              if (!guildResponse.ok) return guildResponse.errorJsonOrThrow().message
-              return guildResponse.ensureOk().jsonOrThrow()
+              const { guild_id } = response.ensureOk().jsonOrThrow()
+              if (api.cache?.guildList?.includes(guild_id))
+                acker(guild_id)
             }}
             buttonLabel="Join Server"
             minLength={6}

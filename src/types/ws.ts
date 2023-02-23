@@ -1,5 +1,5 @@
 import {ClientUser} from "./user";
-import {Guild} from "./guild";
+import {Guild, Invite} from "./guild";
 import {Message} from "./message";
 
 type WsEventMapping<Event extends string, Data = null> = {
@@ -15,6 +15,10 @@ export type WsEvent = WsEventMapping<'hello'>
   | WsEventMapping<'pong'>
   | WsEventMapping<'ready', ReadyEvent>
   | WsEventMapping<'message_create', MessageCreateEvent>
+  | WsEventMapping<'guild_create', GuildCreateEvent>
+  | WsEventMapping<'guild_remove', GuildRemoveEvent>
+  | WsEventMapping<'member_join', MemberJoinEvent>
+  | WsEventMapping<'member_remove', MemberRemoveEvent>
 
 /**
  * Ready, sent by harmony when it is ready to send and receive events.
@@ -42,4 +46,76 @@ export interface MessageCreateEvent {
    * The message that was sent.
    */
   message: Message;
+  /**
+   * The nonce of the message, if any.
+   */
+  nonce?: string;
+}
+
+/**
+ * Sent by harmony when a guild is created or joined.
+ */
+export interface GuildCreateEvent {
+  /**
+   * The guild that was created or joined.
+   */
+  guild: Guild;
+  /**
+   * The nonce of the guild, if any.
+   */
+  nonce?: string;
+}
+
+interface MemberRemoveInfo {
+  /**
+   * The type of removal.
+   */
+  type: 'delete' | 'leave' | 'kick' | 'ban',
+  /**
+   * The ID of the user that kicked or banned the client user.
+   * Only present if the type is 'kick' or 'ban'.
+   */
+  moderator_id?: number,
+}
+
+/**
+ * Sent by harmony when a guild is removed.
+ */
+export interface GuildRemoveEvent extends MemberRemoveInfo {
+  /**
+   * The ID of the guild that was removed.
+   */
+  guild_id: number;
+}
+
+/**
+ * Sent by harmony when a user joins a guild.
+ */
+export interface MemberJoinEvent {
+  /**
+   * The ID of the guild that the user joined.
+   */
+  guild_id: number;
+  /**
+   * The ID of the user that joined.
+   */
+  user_id: number;
+  /**
+   * The invite used to join the guild, if any.
+   */
+  invite?: Invite,
+}
+
+/**
+ * Sent by harmony when a user is removed from a guild.
+ */
+export interface MemberRemoveEvent extends MemberRemoveInfo {
+  /**
+   * The ID of the guild that the user left.
+   */
+  guild_id: number;
+  /**
+   * The ID of the user that left.
+   */
+  user_id: number;
 }

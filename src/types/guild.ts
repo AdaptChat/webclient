@@ -104,3 +104,43 @@ export type Member = MaybePartialUser & {
    */
   joined_at: string;
 }
+
+/**
+ * Represents an invitation to a guild. All invites are immutable by design.
+ */
+export interface Invite {
+  /**
+   * The code of the invite.
+   */
+  code: string;
+  /**
+   * The ID of the user that created this invite.
+   */
+  inviter_id: number;
+  /**
+   * Partial guild information about the guild this invite leads to. This is `None` when this is
+   * already fetched from a guild.
+   */
+  guild?: PartialGuild;
+  /**
+   * The ID of the guild this invite leads to.
+   */
+  guild_id: number;
+  /**
+   * A timestamp representing when this invite was created.
+   */
+  created_at: string;
+  /**
+   * How many times this invite has been used.
+   */
+  uses: number;
+  /**
+   * How many times this invite can be used. `0` if unlimited.
+   */
+  max_uses: number;
+  /**
+   * How long this invite is valid for, in seconds. `0` if this invite never expires. This
+   * counts from the time the invite was created (see `created_at`).
+   */
+  max_age: number;
+}
