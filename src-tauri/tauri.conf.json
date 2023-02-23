@@ -11,12 +11,14 @@
   },
   "tauri": {
     "allowlist": {
-      "all": false
+      "dialog": {
+        "all": true
+      }
     },
     "bundle": {
       "active": true,
       "category": "DeveloperTool",
-      "copyright": "",
+      "copyright": "AGPL-3.0, Adapt Chat",
       "deb": {
         "depends": []
       },

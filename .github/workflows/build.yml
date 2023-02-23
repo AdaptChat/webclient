@@ -110,8 +110,8 @@ jobs:
         name: app-windows-i686-32bit
         path: src-tauri/target/i686-pc-windows-msvc/release/bundle
 
-  build-linux:
-    runs-on: ubuntu-latest
+  build-linux-x86_64-64bit:
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v3
@@ -120,22 +120,31 @@ jobs:
         with:
           workspaces: "./src-tauri -> target"
 
-      - name: Cache Docker images.
-        uses: ScribeMD/docker-cache@0.2.8
-        with:
-          key: docker-${{ runner.os }}-${{ hashFiles('Dockerfile') }}
+      - name: Install tauri CLI
+        run: cargo install tauri-cli
+
+      - name: Install packages
+        run: npm i
       
-      - name: Build
+      - name: Install build deps
         run: |
-          docker run -t --rm \
-            -v $PWD:/src \
-            -w /src \
-            -u $(id -u):$(id -g) \
-            cryptex2233/tauribuild:centos7 \
-            cargo tauri build --target x86_64-unknown-linux-gnu
+          sudo apt update
+          sudo apt install libwebkit2gtk-4.0-dev \
+              build-essential \
+              curl \
+              wget \
+              libssl-dev \
+              libgtk-3-dev \
+              libayatana-appindicator3-dev \
+              librsvg2-dev
+
+      - name: Build
+        run: cargo tauri build --target x86_64-unknown-linux-gnu
       
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: app-linux-x86_64-64bit
-          path: src-tauri/target/x86_64-unknown-linux-gnu/release/bundle
+          path: |
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
