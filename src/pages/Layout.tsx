@@ -36,15 +36,20 @@ function BottomNav({ href, icon, alt }: { href: string, icon: string, alt: strin
 
 interface LayoutProps {
   sidebar?: () => JSX.Element,
+  rightSidebar?: () => JSX.Element,
   title?: string,
   showBottomNav?: boolean,
 }
 
 export const [showSidebar, setShowSidebar] = createSignal(true)
+export const [showRightSidebar, setShowRightSidebar] = createSignal(true)
 
 export default function Layout(props: ParentProps<LayoutProps>) {
   onMount(() => {
-    if (window.innerWidth < 768) setShowSidebar(false)
+    if (window.innerWidth < 768) {
+      setShowSidebar(false)
+      setShowRightSidebar(false)
+    }
   })
 
   return (
@@ -90,6 +95,11 @@ export default function Layout(props: ParentProps<LayoutProps>) {
           )}
           {props.children}
         </div>
+        <Show when={props.rightSidebar && showRightSidebar()} keyed={false}>
+          <div class="flex flex-col w-60 h-full bg-gray-850 mobile:w-[calc(100%-3rem)]">
+            {props.rightSidebar!()}
+          </div>
+        </Show>
       </div>
       <div classList={{
         "btm-nav md:hidden": true,
