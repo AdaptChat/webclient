@@ -1,5 +1,5 @@
 import {ClientUser} from "./user";
-import {Guild, Invite} from "./guild";
+import {Guild, Invite, Member} from "./guild";
 import {Message} from "./message";
 import {Presence} from "./presence";
 
@@ -48,6 +48,10 @@ export interface ReadyEvent {
    * A list of guilds that the session's user is a member of.
    */
   guilds: Guild[];
+  /**
+   * A list of presences observed by the session's user.
+   */
+  presences: Presence[];
 }
 
 /**
@@ -105,13 +109,9 @@ export interface GuildRemoveEvent extends MemberRemoveInfo {
  */
 export interface MemberJoinEvent {
   /**
-   * The ID of the guild that the user joined.
+   * The member that joined.
    */
-  guild_id: number;
-  /**
-   * The ID of the user that joined.
-   */
-  user_id: number;
+  member: Member;
   /**
    * The invite used to join the guild, if any.
    */

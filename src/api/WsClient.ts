@@ -3,12 +3,13 @@ import ApiCache from "./ApiCache";
 import Backoff from "./Backoff";
 import {
   GuildCreateEvent,
-  GuildRemoveEvent,
+  GuildRemoveEvent, MemberJoinEvent,
   MessageCreateEvent,
   PresenceUpdateEvent,
   ReadyEvent, UpdatePresencePayload,
   WsEvent
 } from "../types/ws";
+import {User} from "../types/user";
 
 /**
  * WebSocket endpoint
@@ -47,6 +48,10 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
       } catch (ignored) {}
 
     grouper.pushMessage(data.message)
+  },
+  member_join(ws: WsClient, data: MemberJoinEvent) {
+    ws.api.cache?.updateUser(data.member as User)
+    ws.api.cache?.trackMember(data.member.guild_id, data.member.id)
   },
   presence_update(ws: WsClient, data: PresenceUpdateEvent) {
     ws.api.cache?.updatePresence(data.presence)

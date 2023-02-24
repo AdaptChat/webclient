@@ -1,20 +1,16 @@
 import {getApi} from "../../api/Api";
-import {For, onMount} from "solid-js";
+import {For} from "solid-js";
 import type {Guild} from "../../types/guild";
-import Layout, {tippyBaseOptions} from "../Layout";
+import Layout from "../Layout";
 import {A} from "@solidjs/router";
 import GuildIcon from "../../components/guilds/GuildIcon";
-import tippy from "tippy.js";
 import useNewGuildModalComponent from "../../components/guilds/NewGuildModal";
+import tooltip from "../../directives/tooltip";
+import {noop} from "../../utils";
+noop(tooltip)
 
 export default function GuildSelect() {
   const api = getApi()!
-  let newServerAnchor: HTMLButtonElement | null = null
-
-  onMount(() => {
-    tippy(newServerAnchor!, { content: 'New Server', ...tippyBaseOptions, placement: 'left' });
-  })
-
   const { NewGuildModal, setShow: setShowNewGuildModal } = useNewGuildModalComponent()
 
   return (
@@ -34,10 +30,10 @@ export default function GuildSelect() {
           </For>
         </div>
         <button
-          ref={newServerAnchor!}
-          class="absolute top-4 right-4 flex group items-center justify-center bg-gray-700 border border-4
+          class="absolute top-4 right-4 flex group items-center justify-center bg-gray-700 border-4
             border-gray-800 hover:bg-accent rounded-[50%] hover:rounded-[25%] transition-all duration-300 w-12 h-12"
           onClick={() => setShowNewGuildModal(true)}
+          use:tooltip={{ content: "New Server", placement: 'left' }}
         >
           <img
             src="/icons/plus.svg"

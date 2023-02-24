@@ -1,5 +1,5 @@
 import Modal, {createPaginatedModalSignal, ModalTemplate} from "../ui/Modal";
-import {createSignal, JSX, Match, ParentProps, Setter, Show, Signal, Switch} from "solid-js";
+import {createSignal, type JSX, Match, type ParentProps, Setter, Show, Signal, Switch} from "solid-js";
 import {getApi} from "../../api/Api";
 import type {Guild, Member} from "../../types/guild";
 import {useNavigate} from "@solidjs/router";
@@ -17,7 +17,7 @@ interface Props {
 function Card({ title, children, ...props }: ParentProps<{ title: string }> & JSX.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
-      class="flex justify-between gap-2 border border-2 border-gray-700 rounded-lg p-4 w-full hover:bg-gray-900
+      class="flex justify-between gap-2 border-2 border-gray-700 rounded-lg p-4 w-full hover:bg-gray-900
         transition-colors cursor-pointer items-center mt-4"
       {...props}
     > {/* TODO */}

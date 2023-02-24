@@ -119,3 +119,8 @@ export function humanizeStatus(status: string): string {
     default: return 'Offline'
   }
 }
+
+/**
+ * Does nothing with the given values. Useful for ignoring unused imports that you don't want TypeScript to remove.
+ */
+export function noop(..._values: unknown[]) {}

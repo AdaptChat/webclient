@@ -35,6 +35,7 @@ export default class ApiCache {
   users: Map<number, User>
   guilds: Map<number, Guild>
   guildListReactor: Signal<number[]> // TODO this should sort by order
+  memberReactor: ReactiveMap<number, number[]>
   channels: Map<number, Channel>
   messages: Map<number, MessageGrouper>
   inviteCodes: Map<number, string>
@@ -44,6 +45,7 @@ export default class ApiCache {
     this.users = new Map()
     this.guilds = new Map()
     this.guildListReactor = createSignal([])
+    this.memberReactor = new ReactiveMap<number, number[]>()
     this.channels = new Map()
     this.messages = new Map()
     this.inviteCodes = new Map()
@@ -56,12 +58,18 @@ export default class ApiCache {
     for (const guild of ready.guilds)
       cache.updateGuild(guild, { updateUsers: true, updateChannels: true })
 
+    for (const presence of ready.presences)
+      cache.updatePresence(presence)
+
     cache.updateUser(ready.user)
     return cache
   }
 
   updateGuild(guild: Guild, options: UpdateGuildOptions = {}) {
     this.guilds.set(guild.id, guild)
+
+    if (guild.members)
+      this.memberReactor.set(guild.id, guild.members.map(member => member.id).sort((a, b) => a - b))
 
     if (options.updateUsers && guild.members)
       for (const member of guild.members)
@@ -96,6 +104,13 @@ export default class ApiCache {
 
   updateChannel(channel: Channel) {
     this.channels.set(channel.id, channel)
+  }
+
+  trackMember(guildId: number, userId: number) {
+    const previous = this.memberReactor.get(guildId) ?? []
+    if (previous.includes(userId)) return
+
+    this.memberReactor.set(guildId, [...previous, userId].sort((a, b) => a - b))
   }
 
   get guildList(): number[] {

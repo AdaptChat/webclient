@@ -1,6 +1,8 @@
 export interface StatusIndicatorProps {
   status: 'online' | 'idle' | 'dnd' | 'offline';
   width?: number;
+  indicator?: boolean;
+  tailwind?: string;
 }
 
 export default function StatusIndicator(props: StatusIndicatorProps) {
@@ -11,7 +13,9 @@ export default function StatusIndicator(props: StatusIndicatorProps) {
         "bg-success": props.status === 'online',
         "bg-warning": props.status === 'idle',
         "bg-error": props.status === 'dnd',
-        "bg-gray-400": props.status === 'offline',
+        "bg-gray-500": props.status === 'offline',
+        "indicator-item indicator-bottom": props.indicator,
+        [props.tailwind ?? ""]: props.tailwind !== undefined
       }}
     />
   )

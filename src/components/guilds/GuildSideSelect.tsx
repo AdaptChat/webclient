@@ -1,22 +1,17 @@
 import {getApi} from "../../api/Api";
-import {For, onMount, Show} from "solid-js";
-import tippy from "tippy.js";
+import {For, Show} from "solid-js";
 import {A} from "@solidjs/router";
 import {Guild} from "../../types/guild";
 import GuildIcon from "./GuildIcon";
-import {tippyBaseOptions} from "../../pages/Layout";
 import useNewGuildModalComponent from "./NewGuildModal";
+import tooltip from "../../directives/tooltip";
+import {noop} from "../../utils";
+noop(tooltip)
 
 const Separator = () => <hr class="h-1 bg-gray-800 border-none rounded-full my-2" />
 
 export default function GuildSideSelect() {
   const api = getApi()!
-  let newServerAnchor: HTMLButtonElement | null = null
-
-  onMount(() => {
-    tippy(newServerAnchor!, { content: 'New Server', ...tippyBaseOptions });
-  })
-
   const { NewGuildModal, setShow: setShowNewGuildModal } = useNewGuildModalComponent()
 
   return (
@@ -39,7 +34,7 @@ export default function GuildSideSelect() {
           <Separator />
         </Show>
         <button
-          ref={newServerAnchor!}
+          use:tooltip={{ content: "New Server", placement: 'right' }}
           class="flex group items-center justify-center bg-neutral-focus hover:bg-accent rounded-[50%] hover:rounded-[25%] transition-all duration-300 w-12 h-12"
           onClick={() => setShowNewGuildModal(true)}
         >
