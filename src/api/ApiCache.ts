@@ -113,6 +113,13 @@ export default class ApiCache {
     this.memberReactor.set(guildId, [...previous, userId].sort((a, b) => a - b))
   }
 
+  untrackMember(guildId: number, userId: number) {
+    const previous = this.memberReactor.get(guildId) ?? []
+    if (!previous.includes(userId)) return
+
+    this.memberReactor.set(guildId, previous.filter(id => id !== userId))
+  }
+
   get guildList(): number[] {
     return this.guildListReactor[0]()
   }

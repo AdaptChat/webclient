@@ -3,7 +3,7 @@ import ApiCache from "./ApiCache";
 import Backoff from "./Backoff";
 import {
   GuildCreateEvent,
-  GuildRemoveEvent, MemberJoinEvent,
+  GuildRemoveEvent, MemberJoinEvent, MemberRemoveEvent,
   MessageCreateEvent,
   PresenceUpdateEvent,
   ReadyEvent, UpdatePresencePayload,
@@ -52,6 +52,9 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
   member_join(ws: WsClient, data: MemberJoinEvent) {
     ws.api.cache?.updateUser(data.member as User)
     ws.api.cache?.trackMember(data.member.guild_id, data.member.id)
+  },
+  member_remove(ws: WsClient, data: MemberRemoveEvent) {
+    ws.api.cache?.untrackMember(data.guild_id, data.user_id)
   },
   presence_update(ws: WsClient, data: PresenceUpdateEvent) {
     ws.api.cache?.updatePresence(data.presence)
