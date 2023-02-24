@@ -5,7 +5,8 @@ import {SidebarButton} from "../../pages/Home";
 import {GuildChannel} from "../../types/channel";
 import GuildInviteModal from "./GuildInviteModal";
 import Modal from "../ui/Modal";
-import ConfirmGuildLeaveModal from "./ConfirmGuildLeaveModal";
+import ConfirmGuildLeaveModal, {type Props} from "./ConfirmGuildLeaveModal";
+import ConfirmGuildDeleteModal from "./ConfirmGuildDelete";
 
 interface GuildDropdownButtonProps {
   icon: string,
@@ -45,6 +46,12 @@ export default function GuildSidebar() {
   const [showInviteModal, setShowInviteModal] = createSignal(false)
   const [confirmGuildLeaveModal, setConfirmGuildLeaveModal] = createSignal(false)
 
+  const isOwner = createMemo(() => guild.owner_id === api.cache?.clientUser?.id)
+  const GuildRemoveComponent = (props: Props) => {
+    return isOwner()
+      ? <ConfirmGuildDeleteModal {...props} />
+      : <ConfirmGuildLeaveModal {...props} />
+  }
 
   return (
     <div class="flex flex-col items-center justify-center w-full">
@@ -52,10 +59,10 @@ export default function GuildSidebar() {
         <GuildInviteModal guild={guild} show={showInviteModal} />
       </Modal>
       <Modal get={confirmGuildLeaveModal} set={setConfirmGuildLeaveModal}>
-        <ConfirmGuildLeaveModal guild={guild} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
+        <GuildRemoveComponent guild={guild} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
       </Modal>
       <div
-        class="w-[calc(100%-2rem)] mt-4 card box-border overflow-hidden flex border border-2 border-base-content/10
+        class="w-[calc(100%-2rem)] mt-4 card box-border overflow-hidden flex border-2 border-base-content/10
           group hover:bg-gray-800 transition-all duration-200 cursor-pointer"
       >
         {guild.banner && (
@@ -87,8 +94,8 @@ export default function GuildSidebar() {
             onClick={() => setShowInviteModal(true)}
           />
           <GuildDropdownButton
-            icon="/icons/right-from-bracket.svg"
-            label="Leave Server"
+            icon={isOwner() ? "/icons/trash.svg" : "/icons/right-from-bracket.svg"}
+            label={isOwner() ? "Delete Server" : "Leave Server"}
             groupHoverColor="error"
             svgClass="filter-error group-hover/gdb:invert"
             labelClass="text-error group-hover/gdb:text-base-content"

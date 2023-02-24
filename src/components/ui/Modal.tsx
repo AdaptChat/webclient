@@ -1,15 +1,23 @@
-import {Accessor, createSignal, ParentProps, Setter, Signal} from "solid-js";
+import {Accessor, createEffect, createSignal, ParentProps, Setter} from "solid-js";
 
 export default function Modal({ get, set, children }: ParentProps<{ get: Accessor<boolean>, set: Setter<boolean> }>) {
+  const [invisible, setInvisible] = createSignal(true)
+  createEffect(() => {
+    if (get()) setInvisible(false)
+    else setTimeout(() => setInvisible(true), 200)
+  })
+
   return (
     <div
       classList={{
         [
-          "absolute flex items-center justify-center bg-black/50 backdrop-blur w-full h-full inset-0"
+          "flex absolute items-center justify-center bg-black/50 backdrop-blur w-full h-full inset-0"
           + " transition-all duration-200"
         ]: true,
         "opacity-0 z-[-90]": !get(),
         "opacity-100 z-[9999]": get(),
+        "invisible": invisible(),
+        "visible": !invisible(),
       }}
       onClick={(event) => event.currentTarget == event.target && set(false)}
     >
