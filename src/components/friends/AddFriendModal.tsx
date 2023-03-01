@@ -23,7 +23,8 @@ export default function AddFriendModal() {
 
   onMount(() => {
     setUnsubscribe(() => api.ws?.on('relationship_create', ({ relationship }: RelationshipCreateEvent) => {
-      setNewRequests((old) => [...old, relationship.user])
+      if (relationship.type === 'outgoing_request')
+        setNewRequests((old) => [...old, relationship.user].slice(-5))
     }))
   })
 

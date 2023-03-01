@@ -2,7 +2,7 @@ import Layout, {setShowSidebar} from "./Layout";
 import {getApi} from "../api/Api";
 import StatusIndicator, {StatusIndicatorProps} from "../components/StatusIndicator";
 import {createMemo, type JSX, ParentProps} from "solid-js";
-import {A} from "@solidjs/router";
+import {A, useNavigate} from "@solidjs/router";
 import useNewGuildModalComponent from "../components/guilds/NewGuildModal";
 import {humanizeStatus} from "../utils";
 
@@ -96,6 +96,7 @@ export function Sidebar() {
 
 export default function Home() {
   const api = getApi()!
+  const navigate = useNavigate()
   const clientUser = api.cache!.clientUser!
   const status = createMemo(() => api.cache!.presences.get(clientUser.id)?.status ?? 'online')
 
@@ -130,7 +131,7 @@ export default function Home() {
         </div>
         <div class="flex items-center justify-center mt-4 gap-4 w-full mobile:flex-col">
           <Card title="Learn Adapt">
-            <LearnAdaptSubcard title="Connect with friends">
+            <LearnAdaptSubcard title="Connect with friends" onClick={() => navigate('/friends')}>
               Find your friends on Adapt and add them to your friends list.
               <span class="block text-base-content/60 mt-1">
                 Your tag is <code>{clientUser.username}#{clientUser.discriminator}!</code>
