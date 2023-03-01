@@ -14,7 +14,7 @@ export default function FriendsList() {
   return (
     <div>
       <Show when={friends().length} keyed={false} fallback={(
-        <div class="flex items-center justify-center font-medium text-base-content/60 p-4">
+        <div class="text-center font-medium text-base-content/60 p-4">
           You currently have no friends (just like Cryptex).
           <button class="ml-2 btn btn-sm btn-primary" onClick={() => setShowAddFriendModal(true)}>Add some?</button>
         </div>

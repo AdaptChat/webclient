@@ -97,20 +97,20 @@ export default function AddFriendModal() {
         <div class="flex flex-col gap-y-2 mt-4">
           <For each={newRequests()}>
             {(user: User) => (
-              <span class="flex items-center text-base-content/70">
-              <img src="/icons/check.svg" alt="" class="w-4 h-4 mr-2 invert opacity-70 select-none"/>
-              Requested to add
-              <span class="flex bg-gray-900 rounded-lg p-1 mx-1">
-                <img
-                  src={api.cache?.avatarOf(user.id)}
-                  alt=""
-                  class="w-6 h-6 rounded-full mr-1 select-none"
-                />
-                {user.username}
-                <span class="text-base-content/50">#{user.discriminator}</span>
+              <span class="inline-flex items-center flex-wrap text-base-content/70">
+                <img src="/icons/check.svg" alt="" class="w-4 h-4 mr-2 invert opacity-70 select-none"/>
+                Requested to add
+                <span class="flex bg-gray-900 rounded-lg p-1 mx-1">
+                  <img
+                    src={api.cache?.avatarOf(user.id)}
+                    alt=""
+                    class="w-6 h-6 rounded-full mr-1 select-none"
+                  />
+                  {user.username}
+                  <span class="text-base-content/50">#{user.discriminator}</span>
+                </span>
+                as a friend.
               </span>
-              as a friend.
-            </span>
             )}
           </For>
         </div>
