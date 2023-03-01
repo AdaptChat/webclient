@@ -36,17 +36,22 @@ export interface User {
 }
 
 /**
+ * Represents the type of relationship a user has with another user.
+ */
+export type RelationshipType = 'friend' | 'blocked' | 'incoming_request' | 'outgoing_request'
+
+/**
  * Represents a relationship that a user has with another user.
  */
 export interface Relationship {
   /**
-   * The ID of the user that this relationship is with.
+   * The user that this relationship is with.
    */
-  id: number;
+  user: User;
   /**
    * The type of relationship this is.
    */
-  kind: 'friend' | 'blocked';
+  type: RelationshipType;
 }
 
 /**

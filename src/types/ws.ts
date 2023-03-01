@@ -1,4 +1,4 @@
-import {ClientUser} from "./user";
+import {ClientUser, Relationship} from "./user";
 import {Guild, Invite, Member} from "./guild";
 import {Message} from "./message";
 import {Presence} from "./presence";
@@ -30,7 +30,8 @@ export type WsEvent = WsEventMapping<'hello'>
   | WsEventMapping<'guild_remove', GuildRemoveEvent>
   | WsEventMapping<'member_join', MemberJoinEvent>
   | WsEventMapping<'member_remove', MemberRemoveEvent>
-  | WsEventMapping<'presence_update', Presence>
+  | WsEventMapping<'presence_update', PresenceUpdateEvent>
+  | WsEventMapping<'relationship_create', RelationshipCreateEvent>
 
 /**
  * Ready, sent by harmony when it is ready to send and receive events.
@@ -52,6 +53,10 @@ export interface ReadyEvent {
    * A list of presences observed by the session's user.
    */
   presences: Presence[];
+  /**
+   * A list of relationships associated with the session's user.
+   */
+  relationships: Relationship[];
 }
 
 /**
@@ -130,6 +135,16 @@ export interface MemberRemoveEvent extends MemberRemoveInfo {
    * The ID of the user that left.
    */
   user_id: number;
+}
+
+/**
+ * Sent by harmony when a relationship is created or updated.
+ */
+export interface RelationshipCreateEvent {
+  /**
+   * The relationship that was created or updated.
+   */
+  relationship: Relationship;
 }
 
 /**

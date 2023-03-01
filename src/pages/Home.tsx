@@ -88,6 +88,7 @@ export function Sidebar() {
     <div class="flex flex-col items-center justify-center w-full">
       <div class="flex flex-col w-full p-2">
         <SidebarButton href="/" svg="/icons/home.svg">Home</SidebarButton>
+        <SidebarButton href="/friends" svg="/icons/user-group.svg">Friends</SidebarButton>
       </div>
     </div>
   )

@@ -6,10 +6,11 @@ import {
   GuildRemoveEvent, MemberJoinEvent, MemberRemoveEvent,
   MessageCreateEvent,
   PresenceUpdateEvent,
-  ReadyEvent, UpdatePresencePayload,
+  ReadyEvent, RelationshipCreateEvent, UpdatePresencePayload,
   WsEvent
 } from "../types/ws";
 import {User} from "../types/user";
+import {toast} from "solid-toast";
 
 /**
  * WebSocket endpoint
@@ -55,6 +56,23 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
   },
   member_remove(ws: WsClient, data: MemberRemoveEvent) {
     ws.api.cache?.untrackMember(data.guild_id, data.user_id)
+  },
+  relationship_create(ws: WsClient, data: RelationshipCreateEvent) {
+    const prev = ws.api.cache?.relationships.get(data.relationship.user.id)
+    ws.api.cache?.updateRelationship(data.relationship)
+
+    const name = data.relationship.user.username
+    const now = data.relationship.type
+
+    // TODO: these could be push/native notifications
+    if (prev === 'outgoing_request' && now === 'friend')
+      return toast(`${name} accepted your friend request!`);
+
+    if (now === 'incoming_request')
+      return toast(`${name} sent you a friend request. See friend requests to accept or deny.`);
+  },
+  relationship_remove(ws: WsClient, data: { user_id: number }) {
+    ws.api.cache?.relationships.delete(data.user_id)
   },
   presence_update(ws: WsClient, data: PresenceUpdateEvent) {
     ws.api.cache?.updatePresence(data.presence)
@@ -174,11 +192,12 @@ export default class WsClient {
     this.backoff.reset()
   }
 
-  on(event: string, handler: WsEventListener) {
+  on(event: string, handler: WsEventListener): () => void {
     if (!this.listeners.has(event))
       this.listeners.set(event, [])
 
     this.listeners.get(event)!.push(handler)
+    return () => this.listeners.get(event)!.splice(this.listeners.get(event)!.indexOf(handler), 1)
   }
 
   close() {

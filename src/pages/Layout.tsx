@@ -1,10 +1,12 @@
-import {createEffect, createMemo, createSignal, JSX, onMount, ParentProps, Show} from "solid-js";
-import tippy from "tippy.js"
+import {createEffect, createMemo, createSignal, For, JSX, onMount, ParentProps, Show} from "solid-js";
 import {useLocation, useNavigate} from "@solidjs/router";
 import GuildSideSelect from "../components/guilds/GuildSideSelect";
 import tooltip from "../directives/tooltip";
 import {noop} from "../utils";
 import {createMediaQuery} from "@solid-primitives/media";
+import {getApi} from "../api/Api";
+import StatusIndicator from "../components/StatusIndicator";
+import {toast} from "solid-toast";
 noop(tooltip)
 
 function BottomNav({ href, icon, alt }: { href: string, icon: string, alt: string }) {
@@ -26,13 +28,17 @@ interface LayoutProps {
   sidebar?: () => JSX.Element,
   rightSidebar?: () => JSX.Element,
   title?: string,
+  topNav?: () => JSX.Element,
   showBottomNav?: boolean,
+  actionButtons?: { icon: string, alt: string, onClick: () => any }[],
 }
 
 export const [showSidebar, setShowSidebar] = createSignal(true)
 export const [showRightSidebar, setShowRightSidebar] = createSignal(true)
 
 export default function Layout(props: ParentProps<LayoutProps>) {
+  const api = getApi()!
+  const clientUser = api.cache!.clientUser!
   const isMobile = createMediaQuery("(max-width: 768px)")
 
   onMount(() => {
@@ -60,8 +66,30 @@ export default function Layout(props: ParentProps<LayoutProps>) {
       }}>
         <GuildSideSelect />
         <Show when={sidebar()} keyed={false}>
-          <div class="flex flex-col w-60 h-full bg-gray-850 mobile:w-[calc(100%-3rem)]">
-            {props.sidebar!()}
+          <div class="flex flex-col justify-between w-60 h-full bg-gray-850 mobile:w-[calc(100%-3rem)]">
+            <div class="flex flex-col w-full">
+              {props.sidebar!()}
+            </div>
+            <div class="flex items-center bg-gray-900 rounded-lg m-4 pr-2">
+              <div class="indicator w-10">
+                <StatusIndicator status={api.cache!.presences.get(clientUser.id)!.status} tailwind="m-[0.1rem]" indicator />
+                <img src={api.cache!.clientAvatar} alt="" class="w-10 h-10 rounded-lg" />
+              </div>
+              <span
+                class="w-[calc100%-3rem)] ml-2 text-sm font-medium overflow-ellipsis overflow-hidden cursor-pointer"
+                onClick={() => toast.promise(
+                  navigator.clipboard.writeText(`${clientUser.username}#${clientUser.discriminator}`),
+                  {
+                    loading: "Copying tag...",
+                    success: "Copied to your clipboard!",
+                    error: "Failed to copy user tag, try again later.",
+                  }
+                )}
+              >
+                {clientUser.username}
+                <span class="text-base-content/50">#{clientUser.discriminator}</span>
+              </span>
+            </div>
           </div>
         </Show>
         <div
@@ -84,7 +112,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
               "flex items-center justify-between w-full bg-gray-900": true,
               "mobile:hidden": sidebar(),
             }}>
-              <div class="flex items-center p-4">
+              <div class="flex items-center pl-4 h-14 mobile:overflow-x-auto mobile:hide-scrollbar">
                 <button onClick={() => setShowSidebar(prev => !prev)}>
                   <img
                     src={showSidebar() ? "/icons/chevron-left.svg" : "/icons/chevron-right.svg"}
@@ -96,19 +124,40 @@ export default function Layout(props: ParentProps<LayoutProps>) {
                 <span class="font-bold font-title">
                   {props.title}
                 </span>
+                {props.topNav && (
+                  <>
+                    <div class="divider divider-horizontal w-2 my-3 rounded-full" />
+                    <div class="flex items-center gap-x-4 mobile-xs:gap-x-2">
+                      {props.topNav!()}
+                    </div>
+                  </>
+                )}
               </div>
-              {props.rightSidebar && (
-                <div class="flex items-center p-4">
-                  <button onClick={() => setShowRightSidebar(prev => !prev)}>
+              <div class="flex items-center p-4 gap-x-4">
+                {/* TODO: merge the member icon into actionButtons */}
+                {props.rightSidebar && (
+                  <button onClick={() => setShowRightSidebar(prev => !prev)} class="w-6">
                     <img
-                      src="/icons/user-group.svg"
+                      src="/icons/users.svg"
                       alt="Show or hide Members"
                       class="invert opacity-70 select-none hover:opacity-100 transition duration-200 w-6 h-6"
                       use:tooltip={{content: `${rightSidebar() ? 'Hide' : 'Show'} Member List`, placement: 'bottom'}}
                     />
                   </button>
-                </div>
-              )}
+                )}
+                <For each={props.actionButtons ?? []}>
+                  {({ icon, alt, onClick }) => (
+                    <button onClick={onClick} class="w-6">
+                      <img
+                        src={icon}
+                        alt={alt}
+                        class="invert opacity-70 select-none hover:opacity-100 transition duration-200 w-6 h-6"
+                        use:tooltip={{ content: alt, placement: 'bottom' }}
+                      />
+                    </button>
+                  )}
+                </For>
+              </div>
             </div>
           )}
           <div classList={{
@@ -116,8 +165,9 @@ export default function Layout(props: ParentProps<LayoutProps>) {
             "mobile:hidden": sidebar(),
           }}>
             <div classList={{
-              "flex flex-col flex-grow": true,
-              "mobile:hidden": rightSidebar(),
+              "flex flex-col": true,
+              "w-full": !rightSidebar(),
+              "w-[calc(100%-15rem)] mobile:hidden": rightSidebar(),
             }}>
               {props.children}
             </div>

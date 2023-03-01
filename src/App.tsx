@@ -14,6 +14,7 @@ const Home = lazy(() => import('./pages/Home'))
 const GuildSelect = lazy(() => import('./pages/guilds/GuildSelect'))
 const GuildHome = lazy(() => import('./pages/guilds/GuildHome'))
 const GuildChannel = lazy(() => import('./pages/guilds/GuildChannel'))
+const Friends = lazy(() => import('./pages/friends/Friends'))
 
 const RedirectingLogin = lazy(async () => {
   const redirectTo = useLocation().pathname
@@ -74,6 +75,7 @@ const App: Component = () => {
           <Routes>
             <Route path="/" component={Home} />
             <Route path="/select" component={GuildSelect} />
+            <Route path="/friends/*" component={Friends} />
             <Route path="/guilds/:guildId" component={GuildHome} />
             <Route path="/guilds/:guildId/:channelId" component={GuildChannel} />
           </Routes>

@@ -124,3 +124,12 @@ export function humanizeStatus(status: string): string {
  * Does nothing with the given values. Useful for ignoring unused imports that you don't want TypeScript to remove.
  */
 export function noop(..._values: unknown[]) {}
+
+/**
+ * Filters an iterator into an array.
+ */
+export function* filterIterator<T>(iterator: IterableIterator<T>, predicate: (item: T) => boolean): Generator<T> {
+  for (const item of iterator)
+    if (predicate(item))
+      yield item
+}

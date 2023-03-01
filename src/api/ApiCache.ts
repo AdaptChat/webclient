@@ -1,4 +1,4 @@
-import type {ClientUser, User} from "../types/user";
+import type {ClientUser, Relationship, RelationshipType, User} from "../types/user";
 import type {Guild, Member} from "../types/guild";
 import type {ReadyEvent} from "../types/ws";
 import type {Channel} from "../types/channel";
@@ -40,6 +40,7 @@ export default class ApiCache {
   messages: Map<number, MessageGrouper>
   inviteCodes: Map<number, string>
   presences: ReactiveMap<number, Presence>
+  relationships: ReactiveMap<number, RelationshipType>
 
   constructor(private readonly api: Api) {
     this.users = new Map()
@@ -50,11 +51,16 @@ export default class ApiCache {
     this.messages = new Map()
     this.inviteCodes = new Map()
     this.presences = new ReactiveMap<number, Presence>()
+    this.relationships = new ReactiveMap<number, RelationshipType>()
   }
 
   static fromReadyEvent(api: Api, ready: ReadyEvent): ApiCache {
     let cache = new ApiCache(api)
     cache.clientUser = ready.user
+
+    for (const relationship of ready.relationships)
+      cache.updateRelationship(relationship)
+
     for (const guild of ready.guilds)
       cache.updateGuild(guild, { updateUsers: true, updateChannels: true })
 
@@ -104,6 +110,11 @@ export default class ApiCache {
 
   updateChannel(channel: Channel) {
     this.channels.set(channel.id, channel)
+  }
+
+  updateRelationship(relationship: Relationship) {
+    this.relationships.set(relationship.user.id, relationship.type)
+    this.updateUser(relationship.user)
   }
 
   trackMember(guildId: number, userId: number) {
