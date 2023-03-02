@@ -36,7 +36,7 @@ export function FriendEntry({ api, id, children }: ParentProps<{ api: Api, id: n
         <img src={api.cache!.avatarOf(id)} alt="" class="w-8 h-8 rounded-lg" />
         <div class="ml-4">
           {user.username}
-          <span class="text-base-content/60">#{user.discriminator}</span>
+          <span class="text-base-content/60">#{user.discriminator.toString().padStart(4, '0')}</span>
         </div>
       </div>
       <div class="flex gap-x-2">

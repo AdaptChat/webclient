@@ -108,7 +108,7 @@ export default function AddFriendModal() {
                     class="w-6 h-6 rounded-full mr-1 select-none"
                   />
                   {user.username}
-                  <span class="text-base-content/50">#{user.discriminator}</span>
+                  <span class="text-base-content/50">#{user.discriminator.toString().padStart(4, '0')}</span>
                 </span>
                 as a friend.
               </span>
