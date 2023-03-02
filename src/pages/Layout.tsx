@@ -78,7 +78,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
               <span
                 class="w-[calc100%-3rem)] ml-2 text-sm font-medium overflow-ellipsis overflow-hidden cursor-pointer"
                 onClick={() => toast.promise(
-                  navigator.clipboard.writeText(`${clientUser.username}#${clientUser.discriminator}`),
+                  navigator.clipboard.writeText(`${clientUser.username}#${clientUser.discriminator.toString().padStart(4, '0')}`),
                   {
                     loading: "Copying tag...",
                     success: "Copied to your clipboard!",
@@ -87,7 +87,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
                 )}
               >
                 {clientUser.username}
-                <span class="text-base-content/50">#{clientUser.discriminator}</span>
+                <span class="text-base-content/50">#{clientUser.discriminator.toString().padStart(4, '0')}</span>
               </span>
             </div>
           </div>
