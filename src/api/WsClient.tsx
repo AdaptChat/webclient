@@ -175,7 +175,7 @@ export default class WsClient {
     await this.connect()
   }
 
-  async updatePresence(presence: UpdatePresencePayload) {
+  updatePresence(presence: UpdatePresencePayload) {
     this.connection?.send(JSON.stringify({
       op: 'update_presence',
       ...presence,

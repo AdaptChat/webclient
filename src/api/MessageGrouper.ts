@@ -22,6 +22,13 @@ export type MessageGroup = Message[] & { isDivider?: false } | MessageDivider
 export const SNOWFLAKE_BOUNDARY: number = 235_929_600_000
 
 /**
+ * Shortcut function for getting the last element of an array.
+ */
+function last<T>(array: T[]): T | undefined {
+  return array[array.length - 1]
+}
+
+/**
  * Groups messages by their author and timestamp.
  */
 export default class MessageGrouper {
@@ -131,11 +138,11 @@ export default class MessageGrouper {
       lastMessage = message
     }
 
-    if (this.groups.at(-1)?.isDivider)
+    if (last(this.groups)?.isDivider)
       this.finishGroup()
 
     this.setGroups([...groups])
-    this.currentGroup = groups.at(-1) as any
+    this.currentGroup = last(groups) as any
   }
 
   /**
@@ -153,7 +160,7 @@ export default class MessageGrouper {
     const response = await this.api.request<Message[]>('GET', `/channels/${this.channelId}/messages`, { params })
     const messages = response.ensureOk().jsonOrThrow()
 
-    this.fetchBefore = messages.at(-1)?.id
+    this.fetchBefore = last(messages)?.id
     if (messages.length < 200)
       this.noMoreMessages = true
     this.insertMessages(messages.reverse())
@@ -178,8 +185,8 @@ export default class MessageGrouper {
   }
 
   private get lastMessage() {
-    const group = <Message[]> this.groups.at(-1)
-    return group.at(-1)
+    const group = <Message[]> last(this.groups)
+    return last(group)
   }
 
   get groups() {

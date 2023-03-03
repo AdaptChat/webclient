@@ -1,5 +1,5 @@
 import type {ClientUser, Relationship, RelationshipType, User} from "../types/user";
-import type {Guild, Member} from "../types/guild";
+import type {Guild} from "../types/guild";
 import type {ReadyEvent} from "../types/ws";
 import type {Channel} from "../types/channel";
 import type {Presence} from "../types/presence";
