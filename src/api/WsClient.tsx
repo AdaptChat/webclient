@@ -3,10 +3,17 @@ import ApiCache from "./ApiCache";
 import Backoff from "./Backoff";
 import {
   GuildCreateEvent,
-  GuildRemoveEvent, MemberJoinEvent, MemberRemoveEvent,
+  GuildRemoveEvent,
+  MemberJoinEvent,
+  MemberRemoveEvent,
   MessageCreateEvent,
   PresenceUpdateEvent,
-  ReadyEvent, RelationshipCreateEvent, UpdatePresencePayload,
+  ReadyEvent,
+  RelationshipCreateEvent,
+  RelationshipRemoveEvent,
+  TypingStartEvent,
+  TypingStopEvent,
+  UpdatePresencePayload,
   WsEvent
 } from "../types/ws";
 import {User} from "../types/user";
@@ -71,12 +78,18 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
     if (now === 'incoming_request')
       return toast(`${name} sent you a friend request. See friend requests to accept or deny.`);
   },
-  relationship_remove(ws: WsClient, data: { user_id: number }) {
+  relationship_remove(ws: WsClient, data: RelationshipRemoveEvent) {
     ws.api.cache?.relationships.delete(data.user_id)
   },
   presence_update(ws: WsClient, data: PresenceUpdateEvent) {
     ws.api.cache?.updatePresence(data.presence)
   },
+  typing_start(ws: WsClient, data: TypingStartEvent) {
+    ws.api.cache?.useTyping(data.channel_id).updateTyping(data.user_id, true)
+  },
+  typing_stop(ws: WsClient, data: TypingStopEvent) {
+    ws.api.cache?.useTyping(data.channel_id).updateTyping(data.user_id, false)
+  }
 }
 
 /**

@@ -14,7 +14,7 @@ export default function GuildMemberList() {
         {(user_id) => (
           <div class="flex items-center p-2 rounded-lg hover:bg-gray-700 transition duration-200 cursor-pointer">
             <div class="indicator">
-              <StatusIndicator status={api.cache!.presences.get(user_id)!.status} tailwind="m-[0.1rem]" indicator />
+              <StatusIndicator status={api.cache!.presences.get(user_id)?.status} tailwind="m-[0.1rem]" indicator />
               <img src={api.cache!.avatarOf(user_id)} alt="" class="w-8 h-8 rounded-full"/>
             </div>
             <span class="ml-2">{api.cache!.users.get(user_id)?.username}</span>

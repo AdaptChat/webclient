@@ -7,6 +7,8 @@ import type Api from "./Api";
 import MessageGrouper from "./MessageGrouper";
 import {createSignal, Signal} from "solid-js";
 import {ReactiveMap} from "@solid-primitives/map";
+import {ReactiveSet} from "@solid-primitives/set";
+import {TypingManager} from "./TypingManager";
 
 /**
  * Options when updating guild cache.
@@ -41,17 +43,19 @@ export default class ApiCache {
   inviteCodes: Map<number, string>
   presences: ReactiveMap<number, Presence>
   relationships: ReactiveMap<number, RelationshipType>
+  typing: Map<number, TypingManager>
 
   constructor(private readonly api: Api) {
     this.users = new Map()
     this.guilds = new Map()
     this.guildListReactor = createSignal([])
-    this.memberReactor = new ReactiveMap<number, number[]>()
+    this.memberReactor = new ReactiveMap()
     this.channels = new Map()
     this.messages = new Map()
     this.inviteCodes = new Map()
-    this.presences = new ReactiveMap<number, Presence>()
-    this.relationships = new ReactiveMap<number, RelationshipType>()
+    this.presences = new ReactiveMap()
+    this.relationships = new ReactiveMap()
+    this.typing = new Map()
   }
 
   static fromReadyEvent(api: Api, ready: ReadyEvent): ApiCache {
@@ -149,6 +153,14 @@ export default class ApiCache {
 
     if (!grouper) this.messages.set(channelId, grouper = new MessageGrouper(this.api, channelId))
     return { grouper, cached }
+  }
+
+  useTyping(channelId: number): TypingManager {
+    let manager = this.typing.get(channelId)
+    if (!manager)
+      this.typing.set(channelId, manager = new TypingManager(this.api))
+
+    return manager
   }
 }
 

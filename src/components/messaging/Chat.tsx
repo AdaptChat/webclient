@@ -1,8 +1,9 @@
-import {createMemo, createSignal, For, Show} from "solid-js";
+import {createMemo, createSignal, For, onCleanup, Show} from "solid-js";
 import type {Message} from "../../types/message";
 import {getApi} from "../../api/Api";
 import {type MessageGroup} from "../../api/MessageGrouper";
 import {humanizeTime, humanizeTimestamp, snowflakes} from "../../utils";
+import TypingKeepAlive from "../../api/TypingKeepAlive";
 
 export function MessageContent({ message }: { message: Message }) {
   return (
@@ -45,6 +46,10 @@ export default function Chat(props: { channelId: number }) {
     return grouper
   })
 
+  const typing = api.cache!.useTyping(props.channelId)
+  const typingKeepAlive = new TypingKeepAlive(api, props.channelId)
+  onCleanup(() => typingKeepAlive.stop())
+
   let messageInputRef: HTMLDivElement | null = null
   let messageAreaRef: HTMLDivElement | null = null
   const createMessage = async () => {
@@ -72,6 +77,7 @@ export default function Chat(props: { channelId: number }) {
       const json = { content, nonce }
       await api.request('POST', `/channels/${props.channelId}/messages`, { json })
         .then(res => res.ensureOk().jsonOrThrow())
+        .then(typingKeepAlive.stop.bind(typingKeepAlive))
     } catch (e: any) {
       mockMessage._nonceState = 'error'
       mockMessage._nonceError = e
@@ -85,7 +91,7 @@ export default function Chat(props: { channelId: number }) {
 
   return (
     <div class="flex flex-col justify-end w-full h-0 flex-grow">
-      <div ref={messageAreaRef!} class="overflow-auto flex flex-col-reverse pb-6" onScroll={async (event) => {
+      <div ref={messageAreaRef!} class="overflow-auto flex flex-col-reverse pb-5" onScroll={async (event) => {
         if (event.target.scrollTop + event.target.scrollHeight <= event.target.clientHeight + 10) {
           await grouper().fetchMessages()
         }
@@ -138,8 +144,8 @@ export default function Chat(props: { channelId: number }) {
           </Show>
         </div>
       </div>
-      <div class="flex items-center bg-gray-800 w-full p-4 pt-0">
-        <div class="flex-grow bg-gray-700 rounded-lg p-2">
+      <div class="flex items-center bg-gray-800 w-full px-4">
+        <div classList={{ "w-full bg-gray-700 rounded-lg p-2": true, "w-[calc(100%-3rem)]": mobile }}>
           <div
             ref={messageInputRef!}
             class="empty:before:content-[attr(data-placeholder)] empty:before:text-base-content/50 outline-none break-words"
@@ -157,6 +163,7 @@ export default function Chat(props: { channelId: number }) {
             }}
             onInput={event => {
               if (mobile) setMessageInput(event.target.textContent!.trim())
+              const ignored = typingKeepAlive.ackTyping()
             }}
             onFocus={() => {
               const timeout = messageInputFocusTimeout()
@@ -173,7 +180,7 @@ export default function Chat(props: { channelId: number }) {
         <button
           classList={{
             [
-              "w-10 h-10 flex items-center justify-center rounded-full bg-gray-700 ml-2 transition-all duration-200"
+              "w-10 h-10 flex flex-shrink-0 items-center justify-center rounded-full bg-gray-700 ml-2 transition-all duration-200"
             ]: true,
             "opacity-50 cursor-not-allowed": !messageInput(),
             "hover:bg-accent": !!messageInput(),
@@ -189,6 +196,24 @@ export default function Chat(props: { channelId: number }) {
         >
           <img src="/icons/paper-plane-top.svg" alt="Send" class="invert" width={18} height={18} />
         </button>
+      </div>
+      <div class="mx-4 h-5 text-xs flex-shrink-0">
+        <Show when={typing.users.size > 0} keyed={false}>
+          <For each={[...typing.users].map(id => api.cache?.users.get(id)?.username).filter((u): u is string => !!u)}>
+            {(username, index) => (
+              <>
+                <span class="font-bold">{username}</span>
+                {index() < typing.users.size - 1 && typing.users.size > 2 && (
+                  <span class="text-base-content/50">, </span>
+                )}
+                {index() === typing.users.size - 2 && (
+                  <span class="text-base-content/50"> and </span>
+                )}
+              </>
+            )}
+          </For>
+          <span class="text-base-content/50 font-medium"> {typing.users.size === 1 ? 'is' : 'are'} typing...</span>
+        </Show>
       </div>
     </div>
   )

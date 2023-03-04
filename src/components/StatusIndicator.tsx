@@ -1,11 +1,13 @@
 export interface StatusIndicatorProps {
-  status: 'online' | 'idle' | 'dnd' | 'offline';
+  status?: 'online' | 'idle' | 'dnd' | 'offline';
   width?: number;
   indicator?: boolean;
   tailwind?: string;
 }
 
 export default function StatusIndicator(props: StatusIndicatorProps) {
+  props.status ??= 'offline'
+
   return (
     <div
       classList={{

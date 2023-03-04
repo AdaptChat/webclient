@@ -32,6 +32,9 @@ export type WsEvent = WsEventMapping<'hello'>
   | WsEventMapping<'member_remove', MemberRemoveEvent>
   | WsEventMapping<'presence_update', PresenceUpdateEvent>
   | WsEventMapping<'relationship_create', RelationshipCreateEvent>
+  | WsEventMapping<'relationship_remove', RelationshipRemoveEvent>
+  | WsEventMapping<'typing_start', TypingStartEvent>
+  | WsEventMapping<'typing_stop', TypingStopEvent>
 
 /**
  * Ready, sent by harmony when it is ready to send and receive events.
@@ -148,6 +151,16 @@ export interface RelationshipCreateEvent {
 }
 
 /**
+ * Sent by harmony when a relationship is removed.
+ */
+export interface RelationshipRemoveEvent {
+  /**
+   * The ID of the user that the relationship was removed for.
+   */
+  user_id: number;
+}
+
+/**
  * Sent by harmony when a user's presence is updated.
  */
 export interface PresenceUpdateEvent {
@@ -156,3 +169,22 @@ export interface PresenceUpdateEvent {
    */
   presence: Presence;
 }
+
+/**
+ * Sent by harmony when a user starts typing.
+ */
+export interface TypingStartEvent {
+  /**
+   * The ID of the channel that the user started typing in.
+   */
+  channel_id: number;
+  /**
+   * The ID of the user that started typing.
+   */
+  user_id: number;
+}
+
+/**
+ * Sent by harmony when a user stops typing.
+ */
+export type TypingStopEvent = TypingStartEvent
