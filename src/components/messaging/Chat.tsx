@@ -20,9 +20,10 @@ export function MessageContent({ message }: { message: Message }) {
     >
       {message.content}
       <Show when={message._nonceError} keyed={false}>
-        <span class="flex">
+        <p class="p-2 bg-error-content rounded-lg text-sm font-medium">
+          <b>Error: </b>
           {message._nonceError}
-        </span>
+        </p>
       </Show>
     </span>
   )
@@ -75,12 +76,13 @@ export default function Chat(props: { channelId: number }) {
 
     try {
       const json = { content, nonce }
-      await api.request('POST', `/channels/${props.channelId}/messages`, { json })
-        .then(res => res.ensureOk().jsonOrThrow())
-        .then(typingKeepAlive.stop.bind(typingKeepAlive))
+      const response = await api.request('POST', `/channels/${props.channelId}/messages`, { json })
+
+      const ignored = typingKeepAlive.stop()
+      if (!response.ok)
+        grouper().ackNonceError(nonce, mockMessage, response.errorJsonOrThrow().message)
     } catch (e: any) {
-      mockMessage._nonceState = 'error'
-      mockMessage._nonceError = e
+      grouper().ackNonceError(nonce, mockMessage, e)
       throw e
     }
   }

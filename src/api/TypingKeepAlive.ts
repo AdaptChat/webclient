@@ -13,8 +13,8 @@ export default class TypingKeepAlive {
     if (this.elapsedSinceLastTyping() < 10_000)
       return
 
-    await this.sendTyping('PUT')
     this.lastTyping = performance.now()
+    await this.sendTyping('PUT')
   }
 
   async stop() {

@@ -216,10 +216,7 @@ export default class MessageGrouper {
     }
   }
 
-  /**
-   * Acks the nonce of a message.
-   */
-  ackNonce(nonce: string, message: Message) {
+  private ackNonceWith(nonce: string, message: Message, f: (message: Message) => void) {
     const [groupIndex, messageIndex] = this.nonced.get(nonce)!
     this.nonced.delete(nonce)
 
@@ -227,9 +224,26 @@ export default class MessageGrouper {
       let groups = [...prev]
       let group = [...<Message[]> groups[groupIndex]]
       Object.assign(group[messageIndex], message)
-      group[messageIndex]._nonceState = 'success'
+      f(group[messageIndex])
       groups[groupIndex] = group
       return groups
+    })
+  }
+
+  /**
+   * Acks the nonce of a message.
+   */
+  ackNonce(nonce: string, message: Message) {
+    this.ackNonceWith(nonce, message, m => m._nonceState = 'success')
+  }
+
+  /**
+   * Acks the nonce of a message with an error.
+   */
+  ackNonceError(nonce: string, message: Message, error: string) {
+    this.ackNonceWith(nonce, message, m => {
+      m._nonceState = 'error'
+      m._nonceError = error
     })
   }
 
