@@ -24,11 +24,12 @@ function BottomNav({ href, icon, alt }: { href: string, icon: string, alt: strin
   )
 }
 
-interface LayoutProps {
+export interface LayoutProps {
   sidebar?: () => JSX.Element,
   rightSidebar?: () => JSX.Element,
   title?: string,
   topNav?: () => JSX.Element,
+  hideGuildSelect?: boolean,
   showBottomNav?: boolean,
   actionButtons?: { icon: string, alt: string, onClick: () => any }[],
 }
@@ -64,9 +65,15 @@ export default function Layout(props: ParentProps<LayoutProps>) {
         "flex flex-grow w-full h-full": true,
         "mobile:h-[calc(100%-4rem)]": props.showBottomNav,
       }}>
-        <GuildSideSelect />
+        <Show when={!props.hideGuildSelect} keyed={false}>
+          <GuildSideSelect />
+        </Show>
         <Show when={sidebar()} keyed={false}>
-          <div class="flex flex-col justify-between w-60 h-full bg-gray-850 mobile:w-[calc(100%-3rem)]">
+          <div classList={{
+            "flex flex-col justify-between bg-gray-850 h-full mobile:w-[calc(100%-3rem)]": true,
+            "w-[19rem]": props.hideGuildSelect,
+            "w-60": !props.hideGuildSelect,
+          }}>
             <div class="flex flex-col w-full">
               {props.sidebar!()}
             </div>
@@ -104,7 +111,8 @@ export default function Layout(props: ParentProps<LayoutProps>) {
         <div classList={{
           "flex flex-col items-center": true,
           "w-[calc(100%-19rem)]": sidebar() || rightSidebar(), // 4rem (guild sidebar) + 15rem (large sidebar)
-          "w-[calc(100%-4rem)] mobile:w-full": !sidebar(), // 4rem (guild sidebar)
+          "w-[calc(100%-4rem)] mobile:w-full": !sidebar() && !props.hideGuildSelect, // 4rem (guild sidebar)
+          "w-full": !sidebar() && props.hideGuildSelect,
           "mobile:hidden": sidebar(),
         }}>
           {props.title && (

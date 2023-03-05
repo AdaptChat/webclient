@@ -110,7 +110,6 @@ export default function GuildSidebar() {
             <SidebarButton
               href={`/guilds/${guildId}/${channel.id}`}
               svg="/icons/hashtag.svg"
-              active={channelId() === channel.id}
             >
               {channel.name}
             </SidebarButton>

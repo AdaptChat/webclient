@@ -7,14 +7,24 @@ import {Toaster} from "solid-toast";
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/shift-away.css';
 
+// Home
+const Home = lazy(() => import('./pages/Home'))
+const Loading = lazy(() => import('./pages/Loading'))
+
+// Friends
+const Friends = lazy(() => import('./pages/friends/Friends'))
+
+// Auth
 const Login = lazy(() => import('./pages/auth/Login'))
 const Register = lazy(() => import('./pages/auth/Register'))
-const Loading = lazy(() => import('./pages/Loading'))
-const Home = lazy(() => import('./pages/Home'))
+
+// Guilds
 const GuildSelect = lazy(() => import('./pages/guilds/GuildSelect'))
 const GuildHome = lazy(() => import('./pages/guilds/GuildHome'))
 const GuildChannel = lazy(() => import('./pages/guilds/GuildChannel'))
-const Friends = lazy(() => import('./pages/friends/Friends'))
+
+// Settings
+const AccountSettings = lazy(() => import('./pages/settings/Account'))
 
 const RedirectingLogin = lazy(async () => {
   const redirectTo = useLocation().pathname
@@ -78,6 +88,7 @@ const App: Component = () => {
             <Route path="/friends/*" component={Friends} />
             <Route path="/guilds/:guildId" component={GuildHome} />
             <Route path="/guilds/:guildId/:channelId" component={GuildChannel} />
+            <Route path={["/settings", "/settings/account"]} component={AccountSettings} />
           </Routes>
         </Show>
       </Show>

@@ -2,7 +2,7 @@ import Layout, {setShowSidebar} from "./Layout";
 import {getApi} from "../api/Api";
 import StatusIndicator, {StatusIndicatorProps} from "../components/StatusIndicator";
 import {createMemo, type JSX, ParentProps} from "solid-js";
-import {A, useNavigate} from "@solidjs/router";
+import {A, useLocation, useNavigate} from "@solidjs/router";
 import useNewGuildModalComponent from "../components/guilds/NewGuildModal";
 import {humanizeStatus} from "../utils";
 
@@ -51,13 +51,36 @@ function LearnAdaptSubcard(
   )
 }
 
-export function SidebarButton(props: ParentProps<{ href: string, svg?: string, icon?: string, active?: boolean }>) {
+const WrappedButtonComponent = (props: ParentProps<JSX.ButtonHTMLAttributes<HTMLButtonElement>>) => (
+  <button {...props} />
+)
+
+export function SidebarButton(
+  props: ParentProps<{ href?: string | string[], onClick?: () => void, svg?: string, icon?: string, active?: boolean, danger?: boolean }>
+) {
+  const Component = props.href ? A : WrappedButtonComponent
+  const location = useLocation()
+  const active = createMemo(() => {
+    if (props.active) return true
+    if (!props.href) return false
+
+    if (typeof props.href == 'string')
+      return location.pathname == props.href
+
+    return props.href.includes(location.pathname)
+  })
+
   return (
-    <A
-      href={props.href}
-      class="w-full group flex items-center gap-x-3 p-2 rounded-lg hover:bg-gray-700 transition-all duration-200"
+    <Component
+      href={typeof props.href == 'string' ? props.href : props.href?.[0]!}
+      classList={{
+        "w-full group flex items-center gap-x-3 p-2 rounded-lg transition-all duration-200": true,
+        "hover:bg-gray-700": !props.danger,
+        "hover:bg-error": props.danger,
+      }}
       onClick={() => {
         if (window.innerWidth < 768) setShowSidebar(false)
+        props.onClick?.()
       }}
     >
       {props.svg && (
@@ -65,25 +88,27 @@ export function SidebarButton(props: ParentProps<{ href: string, svg?: string, i
           src={props.svg}
           alt=""
           classList={{
-            "w-5 h-5 invert opacity-50 group-hover:opacity-80 select-none transition-all duration-200": true,
-            "opacity-100": props.active,
+            "w-5 h-5 select-none transition-all duration-200": true,
+            "opacity-100": active(),
+            "opacity-50 group-hover:opacity-80 invert": !props.danger,
+            "filter-error group-hover:invert": props.danger,
           }}
         />
       )}
       {props.icon && <img src={props.icon} alt="" class="w-5 h-5" />}
       <span classList={{
-        "font-medium text-base-content text-opacity-60 group-hover:text-opacity-80 transition-all duration-200": true,
-        "text-opacity-100": props.active,
+        "font-medium transition-all duration-200": true,
+        "text-opacity-100": active(),
+        "text-base-content text-opacity-60 group-hover:text-opacity-80": !props.danger,
+        "text-error group-hover:text-base-content": props.danger,
       }}>
         {props.children}
       </span>
-    </A>
+    </Component>
   )
 }
 
 export function Sidebar() {
-  const api = getApi()!
-
   return (
     <div class="flex flex-col items-center justify-center w-full">
       <div class="flex flex-col w-full p-2">
