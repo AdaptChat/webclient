@@ -100,7 +100,8 @@ export function SidebarButton(
       <span classList={{
         "font-medium transition-all duration-200": true,
         "text-opacity-100": active(),
-        "text-base-content text-opacity-60 group-hover:text-opacity-80": !props.danger,
+        "text-opacity-60": !active(),
+        "text-base-content group-hover:text-opacity-80": !props.danger,
         "text-error group-hover:text-base-content": props.danger,
       }}>
         {props.children}
