@@ -90,8 +90,8 @@ export function SidebarButton(
           alt=""
           classList={{
             "w-4 h-4 select-none transition-all duration-200": true,
-            "opacity-100": active(),
-            "opacity-50": !active(),
+            "opacity-100": active() || props.danger,
+            "opacity-50": !active() && !props.danger,
             "group-hover:opacity-80 invert": !props.danger,
             "filter-error group-hover:invert": props.danger,
           }}
@@ -100,8 +100,8 @@ export function SidebarButton(
       {props.icon && <img src={props.icon} alt="" class="w-4 h-4" />}
       <span classList={{
         "font-medium transition-all duration-200": true,
-        "text-opacity-100": active(),
-        "text-opacity-60": !active(),
+        "text-opacity-100": active() || props.danger,
+        "text-opacity-60": !active() && !props.danger,
         "text-base-content group-hover:text-opacity-80": !props.danger,
         "text-error group-hover:text-base-content": props.danger,
       }}>
