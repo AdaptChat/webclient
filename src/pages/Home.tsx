@@ -91,7 +91,8 @@ export function SidebarButton(
           classList={{
             "w-4 h-4 select-none transition-all duration-200": true,
             "opacity-100": active(),
-            "opacity-50 group-hover:opacity-80 invert": !props.danger,
+            "opacity-50": !active(),
+            "group-hover:opacity-80 invert": !props.danger,
             "filter-error group-hover:invert": props.danger,
           }}
         />
