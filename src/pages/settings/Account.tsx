@@ -95,6 +95,7 @@ export default function Account() {
                 #{clientUser().discriminator.toString().padStart(4, '0')}
               </span>
             </div>
+            <span class="font-medium text-sm text-base-content/50">{clientUser().email}</span>
           </form>
           <div class="flex absolute right-4 top-4 gap-x-2">
             <Show when={editing() && changed()} keyed={false}>
