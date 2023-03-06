@@ -9,7 +9,7 @@ export default function GuildMemberList() {
   if (!guild) return
 
   return (
-    <div class="flex flex-col w-full p-2">
+    <div class="flex flex-col w-full p-2 overflow-y-auto">
       <For each={api.cache!.memberReactor.get(guild.id)}>
         {(user_id) => (
           <div class="flex items-center p-2 rounded-lg hover:bg-gray-700 transition duration-200 cursor-pointer">

@@ -39,7 +39,7 @@ export const [showRightSidebar, setShowRightSidebar] = createSignal(true)
 
 export default function Layout(props: ParentProps<LayoutProps>) {
   const api = getApi()!
-  const clientUser = api.cache!.clientUser!
+  const clientUser = () => api.cache!.clientUser!
   const isMobile = createMediaQuery("(max-width: 768px)")
 
   onMount(() => {
@@ -79,13 +79,13 @@ export default function Layout(props: ParentProps<LayoutProps>) {
             </div>
             <div class="flex items-center bg-gray-900 rounded-lg m-4 pr-2">
               <div class="indicator w-10">
-                <StatusIndicator status={api.cache!.presences.get(clientUser.id)!.status} tailwind="m-[0.1rem]" indicator />
+                <StatusIndicator status={api.cache!.presences.get(clientUser().id)!.status} tailwind="m-[0.1rem]" indicator />
                 <img src={api.cache!.clientAvatar} alt="" class="w-10 h-10 rounded-lg" />
               </div>
               <span
                 class="w-[calc100%-3rem)] ml-2 text-sm font-medium overflow-ellipsis overflow-hidden cursor-pointer"
                 onClick={() => toast.promise(
-                  navigator.clipboard.writeText(`${clientUser.username}#${clientUser.discriminator.toString().padStart(4, '0')}`),
+                  navigator.clipboard.writeText(`${clientUser().username}#${clientUser().discriminator.toString().padStart(4, '0')}`),
                   {
                     loading: "Copying tag...",
                     success: "Copied to your clipboard!",
@@ -93,8 +93,8 @@ export default function Layout(props: ParentProps<LayoutProps>) {
                   }
                 )}
               >
-                {clientUser.username}
-                <span class="text-base-content/50">#{clientUser.discriminator.toString().padStart(4, '0')}</span>
+                {clientUser().username}
+                <span class="text-base-content/50">#{clientUser().discriminator.toString().padStart(4, '0')}</span>
               </span>
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
               <img src="/icons/chevron-right.svg" alt="Collapse Members List" class="invert w-3 opacity-50"/>
             </div>
             <Show when={rightSidebar()} keyed={false}>
-              <div class="flex flex-col w-60 h-full bg-gray-850 mobile:w-[calc(100%-3rem)]">
+              <div class="flex flex-col w-60 h-full overflow-y-auto bg-gray-850 mobile:w-[calc(100%-3rem)]">
                 {props.rightSidebar!()}
               </div>
             </Show>
@@ -202,6 +202,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
       }}>
         <BottomNav href="/" icon="/icons/home.svg" alt="Home" />
         <BottomNav href="/select" icon="/icons/server.svg" alt="Servers" />
+        <BottomNav href="/settings" icon="/icons/gear.svg" alt="Settings" />
       </div>
     </div>
   )

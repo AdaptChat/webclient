@@ -1,4 +1,4 @@
-import {ClientUser, Relationship} from "./user";
+import {ClientUser, Relationship, User} from "./user";
 import {Guild, Invite, Member} from "./guild";
 import {Message} from "./message";
 import {Presence} from "./presence";
@@ -25,6 +25,7 @@ export type WsEvent = WsEventMapping<'hello'>
   | WsEventMapping<'ping'>
   | WsEventMapping<'pong'>
   | WsEventMapping<'ready', ReadyEvent>
+  | WsEventMapping<'user_update', UserUpdateEvent>
   | WsEventMapping<'message_create', MessageCreateEvent>
   | WsEventMapping<'guild_create', GuildCreateEvent>
   | WsEventMapping<'guild_remove', GuildRemoveEvent>
@@ -60,6 +61,20 @@ export interface ReadyEvent {
    * A list of relationships associated with the session's user.
    */
   relationships: Relationship[];
+}
+
+/**
+ * Sent by harmony when a observable user is updated.
+ */
+export interface UserUpdateEvent {
+  /**
+   * The user before it was updated.
+   */
+  before: User;
+  /**
+   * The user after it was updated.
+   */
+  after: User;
 }
 
 /**

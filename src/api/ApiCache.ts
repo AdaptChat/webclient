@@ -7,7 +7,6 @@ import type Api from "./Api";
 import MessageGrouper from "./MessageGrouper";
 import {createSignal, Signal} from "solid-js";
 import {ReactiveMap} from "@solid-primitives/map";
-import {ReactiveSet} from "@solid-primitives/set";
 import {TypingManager} from "./TypingManager";
 
 /**
@@ -33,7 +32,7 @@ function sortedIndex<T extends number>(array: T[], value: T) {
  * Caches data returned from the API.
  */
 export default class ApiCache {
-  clientUser?: ClientUser
+  clientUserReactor: Signal<ClientUser>
   users: Map<number, User>
   guilds: Map<number, Guild>
   guildListReactor: Signal<number[]> // TODO this should sort by order
@@ -46,6 +45,7 @@ export default class ApiCache {
   typing: Map<number, TypingManager>
 
   constructor(private readonly api: Api) {
+    this.clientUserReactor = null as any // lazy
     this.users = new Map()
     this.guilds = new Map()
     this.guildListReactor = createSignal([])
@@ -60,7 +60,7 @@ export default class ApiCache {
 
   static fromReadyEvent(api: Api, ready: ReadyEvent): ApiCache {
     let cache = new ApiCache(api)
-    cache.clientUser = ready.user
+    cache.clientUserReactor = createSignal(ready.user)
 
     for (const relationship of ready.relationships)
       cache.updateRelationship(relationship)
@@ -73,6 +73,18 @@ export default class ApiCache {
 
     cache.updateUser(ready.user)
     return cache
+  }
+
+  get clientUser(): ClientUser | undefined {
+    return this.clientUserReactor?.[0]()
+  }
+
+  get clientId(): number | undefined {
+    return this.clientUser?.id
+  }
+
+  updateClientUser(user: User) {
+    this.clientUserReactor?.[1](prev => ({ ...prev, ...user }))
   }
 
   updateGuild(guild: Guild, options: UpdateGuildOptions = {}) {

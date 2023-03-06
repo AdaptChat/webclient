@@ -1,7 +1,6 @@
 import type {Guild} from "../../types/guild";
 import {getApi} from "../../api/Api";
 import {Accessor, createEffect, createSignal} from "solid-js";
-import {toast} from "solid-toast";
 import {ModalTemplate} from "../ui/Modal";
 
 export default function GuildInviteModal({ guild, show }: { guild: Guild, show: Accessor<boolean> }) {

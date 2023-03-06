@@ -13,7 +13,7 @@ import {
   RelationshipRemoveEvent,
   TypingStartEvent,
   TypingStopEvent,
-  UpdatePresencePayload,
+  UpdatePresencePayload, UserUpdateEvent,
   WsEvent
 } from "../types/ws";
 import {User} from "../types/user";
@@ -37,6 +37,12 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
     ws.api.cache ??= ApiCache.fromReadyEvent(ws.api, data)
     ws.resetBackoff()
     console.info('[WS] Ready event received from harmony')
+  },
+  user_update(ws: WsClient, data: UserUpdateEvent) {
+    if (data.after.id === ws.api.cache?.clientId)
+      ws.api.cache?.updateClientUser(data.after)
+
+    ws.api.cache?.updateUser(data.after)
   },
   guild_create(ws: WsClient, data: GuildCreateEvent) {
     ws.api.cache?.updateGuild(data.guild, { updateUsers: true, updateChannels: true })

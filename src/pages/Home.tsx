@@ -74,9 +74,10 @@ export function SidebarButton(
     <Component
       href={typeof props.href == 'string' ? props.href : props.href?.[0]!}
       classList={{
-        "w-full group flex items-center gap-x-3 p-2 rounded-lg transition-all duration-200": true,
+        "w-full group flex items-center gap-x-2 p-2 rounded-lg transition-all duration-200": true,
         "hover:bg-gray-700": !props.danger,
         "hover:bg-error": props.danger,
+        "bg-gray-900": active(),
       }}
       onClick={() => {
         if (window.innerWidth < 768) setShowSidebar(false)
@@ -88,14 +89,14 @@ export function SidebarButton(
           src={props.svg}
           alt=""
           classList={{
-            "w-5 h-5 select-none transition-all duration-200": true,
+            "w-4 h-4 select-none transition-all duration-200": true,
             "opacity-100": active(),
             "opacity-50 group-hover:opacity-80 invert": !props.danger,
             "filter-error group-hover:invert": props.danger,
           }}
         />
       )}
-      {props.icon && <img src={props.icon} alt="" class="w-5 h-5" />}
+      {props.icon && <img src={props.icon} alt="" class="w-4 h-4" />}
       <span classList={{
         "font-medium transition-all duration-200": true,
         "text-opacity-100": active(),
