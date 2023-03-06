@@ -1,7 +1,7 @@
 import {SidebarButton} from "../../pages/Home";
 import {ParentProps} from "solid-js";
 
-const Section = ({ children }: ParentProps) => (
+export const Section = ({ children }: ParentProps) => (
   <div class="font-bold text-xs px-1 py-2 uppercase text-base-content/50 select-none mt-1">{children}</div>
 )
 

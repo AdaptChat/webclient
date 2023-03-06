@@ -74,7 +74,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
             "w-[19rem]": props.hideGuildSelect,
             "w-60": !props.hideGuildSelect,
           }}>
-            <div class="flex flex-col w-full">
+            <div class="flex flex-col w-full overflow-y-auto">
               {props.sidebar!()}
             </div>
             <div class="flex items-center bg-gray-900 rounded-lg m-4 pr-2">
@@ -189,7 +189,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
               <img src="/icons/chevron-right.svg" alt="Collapse Members List" class="invert w-3 opacity-50"/>
             </div>
             <Show when={rightSidebar()} keyed={false}>
-              <div class="flex flex-col w-60 h-full overflow-y-auto bg-gray-850 mobile:w-[calc(100%-3rem)]">
+              <div class="absolute right-0 top-14 inset-y-0 flex flex-col w-60 overflow-y-auto bg-gray-850 mobile:w-[calc(100%-3rem)]">
                 {props.rightSidebar!()}
               </div>
             </Show>
