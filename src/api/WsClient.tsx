@@ -18,11 +18,12 @@ import {
 } from "../types/ws";
 import {User} from "../types/user";
 import {toast} from "solid-toast";
+import msgpack from "msgpack-lite";
 
 /**
  * WebSocket endpoint
  */
-export const WS_CONNECT_URI: string = 'wss://harmony.adapt.chat'
+export const WS_CONNECT_URI: string = 'wss://harmony.adapt.chat?format=msgpack'
 
 type WsEventHandler = (ws: WsClient, data: any) => any
 type WsEventListener = (data: any, remove: () => void) => any
@@ -137,7 +138,7 @@ export default class WsClient {
   sendIdentify() {
     console.debug('[WS] Sending identify to harmony')
 
-    this.connection?.send(JSON.stringify({
+    this.connection?.send(msgpack.encode({
       op: 'identify',
       token: this.api.token,
       device: '__TAURI__' in window ? 'desktop' : 'web',
@@ -145,18 +146,19 @@ export default class WsClient {
   }
 
   private sendPing() {
-    this.connection?.send(JSON.stringify({ op: 'ping' }))
+    this.connection?.send(msgpack.encode({ op: 'ping' }))
   }
 
-  private processMessage(message: MessageEvent) {
-    if (typeof message.data !== 'string')
-      return console.debug('[WS] Received non-text message from harmony')
-
+  private async processMessage(message: MessageEvent) {
     let json: WsEvent
     try {
-       json = JSON.parse(message.data)
+      let data = message.data
+      if (data instanceof Blob)
+        data = new Uint8Array(await data.arrayBuffer())
+
+      json = msgpack.decode(data)
     } catch (e) {
-      return console.debug('[WS] Received non-JSON message from harmony', message.data)
+      return console.debug('[WS] Received undeserializable message from harmony', e, message.data)
     }
 
     const debugMessage = `[WS] Received ${json.event} event from harmony`
@@ -195,7 +197,7 @@ export default class WsClient {
   }
 
   updatePresence(presence: UpdatePresencePayload) {
-    this.connection?.send(JSON.stringify({
+    this.connection?.send(msgpack.encode({
       op: 'update_presence',
       ...presence,
     }))

@@ -12,6 +12,7 @@
   "license": "MIT",
   "devDependencies": {
     "@tauri-apps/cli": "^1.2.3",
+    "@types/msgpack-lite": "^0.1.8",
     "@types/node": "^18.11.18",
     "autoprefixer": "^10.4.13",
     "daisyui": "^2.49.0",
@@ -28,6 +29,7 @@
     "@solid-primitives/set": "^0.4.2",
     "@solidjs/router": "^0.7.0",
     "cssnano": "^5.1.14",
+    "msgpack-lite": "^0.1.26",
     "solid-js": "^1.6.6",
     "solid-toast": "^0.4.0",
     "tippy.js": "^6.3.7"
