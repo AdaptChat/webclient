@@ -2,6 +2,7 @@ import {ClientUser, Relationship, User} from "./user";
 import {Guild, Invite, Member} from "./guild";
 import {Message} from "./message";
 import {Presence} from "./presence";
+import {Channel, DmChannel} from "./channel";
 
 /**
  * Payload sent to harmony to update the client user's presence.
@@ -54,6 +55,10 @@ export interface ReadyEvent {
    */
   guilds: Guild[];
   /**
+   * A list of DM channels that the session's user is a recipient of.
+   */
+  dm_channels: DmChannel[];
+  /**
    * A list of presences observed by the session's user.
    */
   presences: Presence[];
@@ -89,6 +94,16 @@ export interface MessageCreateEvent {
    * The nonce of the message, if any.
    */
   nonce?: string;
+}
+
+/**
+ * Sent by harmony when a channel is created.
+ */
+export interface ChannelCreateEvent {
+  /**
+   * The channel that was created.
+   */
+  channel: Channel;
 }
 
 /**

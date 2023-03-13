@@ -126,10 +126,24 @@ export function humanizeStatus(status: string): string {
 export function noop(..._values: unknown[]) {}
 
 /**
- * Filters an iterator into an array.
+ * Yields the items of an iterator that match a predicate.
  */
 export function* filterIterator<T>(iterator: IterableIterator<T>, predicate: (item: T) => boolean): Generator<T> {
   for (const item of iterator)
     if (predicate(item))
       yield item
+}
+
+/**
+ * Returns the first item that matches a predicate.
+ */
+export function findIterator<T>(
+  iterator: IterableIterator<T> | undefined,
+  predicate: (item: T,
+) => boolean): T | undefined {
+  if (!iterator)
+    return
+  for (const item of iterator)
+    if (predicate(item))
+      return item
 }

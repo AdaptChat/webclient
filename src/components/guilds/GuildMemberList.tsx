@@ -1,8 +1,8 @@
 import {getApi} from "../../api/Api";
 import {useParams} from "@solidjs/router";
 import {createMemo, For} from "solid-js";
-import StatusIndicator from "../StatusIndicator";
-import {Section} from "../settings/SettingsSidebar";
+import StatusIndicator from "../users/StatusIndicator";
+import SidebarSection from "../ui/SidebarSection";
 
 export function GuildMemberGroup({ members, offline }: { members: number[], offline?: boolean }) {
   const api = getApi()!
@@ -10,13 +10,26 @@ export function GuildMemberGroup({ members, offline }: { members: number[], offl
   return (
     <For each={members}>
       {(user_id) => (
-        <div class="flex items-center p-2 rounded-lg hover:bg-gray-700 transition duration-200 cursor-pointer">
-          <div class="indicator">
+        <div class="group flex items-center p-2 rounded-lg hover:bg-gray-700 transition duration-200 cursor-pointer">
+          <div class="indicator flex-shrink-0">
             <StatusIndicator status={api.cache!.presences.get(user_id)?.status} tailwind="m-[0.1rem]" indicator />
-            <img src={api.cache!.avatarOf(user_id)} alt="" class="w-8 h-8 rounded-full"/>
+            <img
+              src={api.cache!.avatarOf(user_id)}
+              alt=""
+              classList={{
+                "w-8 h-8 rounded-full": true,
+                "filter grayscale group-hover:grayscale-0 transition duration-1000": offline,
+              }}
+            />
           </div>
-          <span classList={{ "ml-2 text-base-content": true, "text-opacity-50": offline }}>
-            {api.cache!.users.get(user_id)?.username}
+          <span class="ml-2 w-full overflow-ellipsis overflow-hidden">
+            <span classList={{ "text-base-content": true, "text-opacity-50": offline, "!text-opacity-80": !offline }}>
+              {api.cache!.users.get(user_id)?.username}
+            </span>
+            {/* TODO: discriminator part is temporary and can be removed in place of profiles */}
+            <span class="text-base-content/30 text-sm">
+              #{api.cache!.users.get(user_id)?.discriminator.toString().padStart(4, '0')}
+            </span>
           </span>
         </div>
       )}
@@ -45,9 +58,9 @@ export default function GuildMemberList() {
 
   return (
     <div class="flex flex-col w-full p-2 overflow-y-auto">
-      <Section>Online ({groupedMembers().online.length})</Section>
+      <SidebarSection>Online ({groupedMembers().online.length})</SidebarSection>
       <GuildMemberGroup members={groupedMembers().online} />
-      <Section>Offline ({groupedMembers().offline.length})</Section>
+      <SidebarSection>Offline ({groupedMembers().offline.length})</SidebarSection>
       <GuildMemberGroup members={groupedMembers().offline} offline />
     </div>
   )

@@ -38,6 +38,7 @@ export default class ApiCache {
   guildListReactor: Signal<number[]> // TODO this should sort by order
   memberReactor: ReactiveMap<number, number[]>
   channels: Map<number, Channel>
+  dmChannelOrder: Signal<number[]> // TODO this should be stored on the server
   messages: Map<number, MessageGrouper>
   inviteCodes: Map<number, string>
   presences: ReactiveMap<number, Presence>
@@ -51,6 +52,7 @@ export default class ApiCache {
     this.guildListReactor = createSignal([])
     this.memberReactor = new ReactiveMap()
     this.channels = new Map()
+    this.dmChannelOrder = createSignal([])
     this.messages = new Map()
     this.inviteCodes = new Map()
     this.presences = new ReactiveMap()
@@ -70,6 +72,9 @@ export default class ApiCache {
 
     for (const presence of ready.presences)
       cache.updatePresence(presence)
+
+    for (const dmChannel of ready.dm_channels)
+      cache.updateChannel(dmChannel)
 
     cache.updateUser(ready.user)
     return cache
@@ -126,6 +131,9 @@ export default class ApiCache {
 
   updateChannel(channel: Channel) {
     this.channels.set(channel.id, channel)
+
+    if (channel.type === 'dm' || channel.type === 'group')
+      this.dmChannelOrder[1](prev => prev.includes(channel.id) ? prev : [channel.id, ...prev])
   }
 
   updateRelationship(relationship: Relationship) {

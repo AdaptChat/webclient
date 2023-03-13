@@ -5,7 +5,7 @@ import tooltip from "../directives/tooltip";
 import {noop} from "../utils";
 import {createMediaQuery} from "@solid-primitives/media";
 import {getApi} from "../api/Api";
-import StatusIndicator from "../components/StatusIndicator";
+import StatusIndicator from "../components/users/StatusIndicator";
 import {toast} from "solid-toast";
 noop(tooltip)
 
@@ -83,7 +83,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
                 <img src={api.cache!.clientAvatar} alt="" class="w-10 h-10 rounded-lg" />
               </div>
               <span
-                class="w-[calc100%-3rem)] ml-2 text-sm font-medium overflow-ellipsis overflow-hidden cursor-pointer"
+                class="w-[calc(100%-3rem)] ml-2 text-sm font-medium overflow-ellipsis overflow-hidden cursor-pointer"
                 onClick={() => toast.promise(
                   navigator.clipboard.writeText(`${clientUser().username}#${clientUser().discriminator.toString().padStart(4, '0')}`),
                   {

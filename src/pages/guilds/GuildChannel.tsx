@@ -6,6 +6,7 @@ import GuildSidebar from "../../components/guilds/GuildSidebar"
 import Chat from "../../components/messaging/Chat";
 import {createMemo} from "solid-js";
 import GuildMemberList from "../../components/guilds/GuildMemberList";
+import {type GuildChannel as GuildChannelType} from "../../types/channel";
 
 export default function GuildChannel() {
   const channel = createMemo(() => {
@@ -19,7 +20,7 @@ export default function GuildChannel() {
   }
 
   return (
-    <Layout sidebar={GuildSidebar} rightSidebar={GuildMemberList} title={'#' + channel()!.name}>
+    <Layout sidebar={GuildSidebar} rightSidebar={GuildMemberList} title={'#' + (channel()! as GuildChannelType).name}>
       <Chat channelId={channel()!.id} />
     </Layout>
   )

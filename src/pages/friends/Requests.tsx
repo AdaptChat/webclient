@@ -29,7 +29,7 @@ export function FriendEntry({ api, id, children }: ParentProps<{ api: Api, id: n
 
   return (
     <div
-      class="flex items-center justify-between m-4 p-2 border-2 border-gray-700 hover:bg-gray-850 transition
+      class="flex items-center justify-between mx-4 my-2 p-2 border-2 border-gray-700 hover:bg-gray-850 transition
         duration-200 rounded-lg cursor-pointer"
     >
       <div class="flex items-center">

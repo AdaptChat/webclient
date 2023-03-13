@@ -1,10 +1,16 @@
 import Layout, {setShowSidebar} from "./Layout";
 import {getApi} from "../api/Api";
-import StatusIndicator, {StatusIndicatorProps} from "../components/StatusIndicator";
-import {createMemo, type JSX, ParentProps} from "solid-js";
+import StatusIndicator, {StatusIndicatorProps} from "../components/users/StatusIndicator";
+import {createMemo, For, type JSX, ParentProps} from "solid-js";
 import {A, useLocation, useNavigate} from "@solidjs/router";
 import useNewGuildModalComponent from "../components/guilds/NewGuildModal";
-import {humanizeStatus} from "../utils";
+import {humanizeStatus, noop} from "../utils";
+import SidebarSection from "../components/ui/SidebarSection";
+import SidebarButton from "../components/ui/SidebarButton";
+import {DmChannel, GroupDmChannel} from "../types/channel";
+import tooltip from "../directives/tooltip";
+import {toast} from "solid-toast";
+noop(tooltip)
 
 function StatusSelect(props: StatusIndicatorProps & { label: string }) {
   const api = getApi()!
@@ -51,72 +57,88 @@ function LearnAdaptSubcard(
   )
 }
 
-const WrappedButtonComponent = (props: ParentProps<JSX.ButtonHTMLAttributes<HTMLButtonElement>>) => (
-  <button {...props} />
-)
-
-export function SidebarButton(
-  props: ParentProps<{ href?: string | string[], onClick?: () => void, svg?: string, icon?: string, active?: boolean, danger?: boolean }>
-) {
-  const Component = props.href ? A : WrappedButtonComponent
+function DirectMessageButton({ channelId }: { channelId: number }) {
+  const href = `/dms/${channelId}`
   const location = useLocation()
-  const active = createMemo(() => {
-    if (props.active) return true
-    if (!props.href) return false
+  const active = createMemo(() => location.pathname.startsWith(href))
 
-    if (typeof props.href == 'string')
-      return location.pathname == props.href
-
-    return props.href.includes(location.pathname)
-  })
+  const api = getApi()!
+  const channel = createMemo(() => api.cache!.channels.get(channelId)! as DmChannel)
+  const user = createMemo(() =>
+    channel().type == 'dm'
+      ? api.cache!.users.get(channel().recipient_ids.find(id => id != api.cache!.clientUser!.id)!)
+      : undefined
+  )
+  const presence = createMemo(() => api.cache!.presences.get(user()!.id))
+  const group = channel().type === 'group'
+  const deleteMessage = () =>
+    group
+      ? (channel() as GroupDmChannel).owner_id == user()?.id
+        ? 'Delete Group'
+        : 'Leave Group'
+      : 'Close DM'
 
   return (
-    <Component
-      href={typeof props.href == 'string' ? props.href : props.href?.[0]!}
+    <A
+      href={href}
       classList={{
-        "w-full group flex items-center gap-x-2 p-2 rounded-lg transition-all duration-200": true,
-        "hover:bg-gray-700": !props.danger,
-        "hover:bg-error": props.danger,
+        "w-full group flex items-center justify-between px-2 h-12 rounded-lg transition-all duration-200 hover:bg-gray-700": true,
         "bg-gray-900": active(),
       }}
       onClick={() => {
         if (window.innerWidth < 768) setShowSidebar(false)
-        props.onClick?.()
       }}
     >
-      {props.svg && (
-        <img
-          src={props.svg}
-          alt=""
-          classList={{
-            "w-4 h-4 select-none transition-all duration-200": true,
-            "opacity-100": active() || props.danger,
-            "opacity-50": !active() && !props.danger,
-            "group-hover:opacity-80 invert": !props.danger,
-            "filter-error group-hover:invert": props.danger,
-          }}
-        />
-      )}
-      {props.icon && <img src={props.icon} alt="" class="w-4 h-4" />}
-      <span classList={{
-        "font-medium transition-all duration-200": true,
-        "text-opacity-100": active() || props.danger,
-        "text-opacity-60": !active() && !props.danger,
-        "text-base-content group-hover:text-opacity-80": !props.danger,
-        "text-error group-hover:text-base-content": props.danger,
-      }}>
-        {props.children}
-      </span>
-    </Component>
+      <div class="flex items-center gap-x-2">
+        {group ? (
+          <img src={(channel() as GroupDmChannel).icon} alt="" class="w-8 h-8 rounded-full"/>
+        ) : (
+          <div class="indicator">
+            <StatusIndicator status={presence()?.status} tailwind="m-[0.1rem]" indicator />
+            <img src={api.cache!.avatarOf(user()!.id)} alt="" class="w-8 h-8 rounded-full"/>
+          </div>
+        )}
+        <div class="ml-1">
+          <span classList={{
+            "text-base-content group-hover:text-opacity-80 transition-all duration-200": true,
+            "text-opacity-100": active(),
+            "text-opacity-60": !active(),
+          }}>
+            {group ? (channel() as GroupDmChannel).name : user()!.username }
+          </span>
+          <div class="text-xs text-base-content/40">
+            {group ? channel().recipient_ids.length + ' members' : presence()?.custom_status}
+          </div>
+        </div>
+      </div>
+      <img
+        src="/icons/xmark.svg"
+        alt={deleteMessage()}
+        class="invert select-none w-4 h-4 opacity-0 hover:!opacity-80 group-hover:opacity-50 transition-opacity duration-200"
+        use:tooltip={deleteMessage()}
+        onClick={(event) => {
+          event.stopPropagation()
+          event.preventDefault()
+
+          toast.error('Work in progress!')
+        }}
+      />
+    </A>
   )
 }
 
 export function Sidebar() {
+  const api = getApi()!
+
   return (
     <div class="flex flex-col items-center justify-center w-full">
       <div class="flex flex-col w-full p-2">
         <SidebarButton href="/" svg="/icons/home.svg">Home</SidebarButton>
         <SidebarButton href="/friends" svg="/icons/user-group.svg">Friends</SidebarButton>
+        <SidebarSection plusAction={() => {}} plusTooltip="New Direct Message">Direct Messages</SidebarSection>
+        <For each={api.cache!.dmChannelOrder[0]()}>
+          {(channelId) => <DirectMessageButton channelId={channelId} />}
+        </For>
       </div>
     </div>
   )

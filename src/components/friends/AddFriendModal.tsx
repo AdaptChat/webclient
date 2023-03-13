@@ -42,7 +42,7 @@ export default function AddFriendModal() {
           e.preventDefault()
           const tag = inputRef!.value
 
-          if (!/[^#\n\t\r]{2,}#\d{4}/.test(tag)) {
+          if (!/^[^#\n\t\r]{2,}#\d{4}$/.test(tag)) {
             setError("Invalid tag, make sure it is in the format of Username#0000")
             return
           }

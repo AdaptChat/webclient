@@ -1,7 +1,7 @@
 import {useParams} from "@solidjs/router";
 import {createMemo, createSignal, For} from "solid-js";
 import {getApi} from "../../api/Api";
-import {SidebarButton} from "../../pages/Home";
+import SidebarButton from "../ui/SidebarButton";
 import {GuildChannel} from "../../types/channel";
 import GuildInviteModal from "./GuildInviteModal";
 import Modal from "../ui/Modal";

@@ -18,6 +18,9 @@ const Friends = lazy(() => import('./pages/friends/Friends'))
 const Login = lazy(() => import('./pages/auth/Login'))
 const Register = lazy(() => import('./pages/auth/Register'))
 
+// DMs
+const DmChannel = lazy(() => import('./pages/dms/DmChannel'))
+
 // Guilds
 const GuildSelect = lazy(() => import('./pages/guilds/GuildSelect'))
 const GuildHome = lazy(() => import('./pages/guilds/GuildHome'))
@@ -86,6 +89,7 @@ const App: Component = () => {
             <Route path="/" component={Home} />
             <Route path="/select" component={GuildSelect} />
             <Route path="/friends/*" component={Friends} />
+            <Route path="/dms/:channelId" component={DmChannel} />
             <Route path="/guilds/:guildId" component={GuildHome} />
             <Route path="/guilds/:guildId/:channelId" component={GuildChannel} />
             <Route path={["/settings", "/settings/account"]} component={AccountSettings} />

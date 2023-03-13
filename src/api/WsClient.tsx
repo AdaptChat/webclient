@@ -2,6 +2,7 @@ import Api from "./Api";
 import ApiCache from "./ApiCache";
 import Backoff from "./Backoff";
 import {
+  ChannelCreateEvent,
   GuildCreateEvent,
   GuildRemoveEvent,
   MemberJoinEvent,
@@ -50,6 +51,9 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
   },
   guild_remove(ws: WsClient, data: GuildRemoveEvent) {
     ws.api.cache?.removeGuild(data.guild_id)
+  },
+  channel_create(ws: WsClient, data: ChannelCreateEvent) {
+    ws.api.cache?.updateChannel(data.channel)
   },
   message_create(ws: WsClient, data: MessageCreateEvent) {
     let grouper = ws.api.cache?.messages?.get(data.message.channel_id)
@@ -170,14 +174,13 @@ export default class WsClient {
     WsEventHandlers[json.event]?.(this, json.data)
 
     const listeners = this.listeners.get(json.event)
-    if (listeners) {
-      const sweep: Set<number> = new Set()
+    if (!listeners) return
+    const sweep: Set<number> = new Set()
 
-      listeners.forEach((handler, index) => {
-        handler(json.data, () => sweep.add(index))
-      })
-      this.listeners.set(json.event, listeners.filter((_, index) => !sweep.has(index)))
-    }
+    listeners.forEach((handler, index) => {
+      handler(json.data, () => sweep.add(index))
+    })
+    this.listeners.set(json.event, listeners.filter((_, index) => !sweep.has(index)))
   }
 
   private clearPingInterval() {

@@ -78,7 +78,65 @@ export type GuildChannel = GuildChannelInfo & {
   parent_id?: number,
 }
 
+export interface GroupDmChannelInfo {
+  /**
+   * The type of the channel.
+   */
+  type: 'group',
+  /**
+   * The name of the group chat.
+   */
+  name: string,
+  /**
+   * The topic of the group chat, if any.
+   */
+  topic?: string,
+  /**
+   * The URL of the group's icon, if any.
+   */
+  icon?: string,
+  /**
+   * The ID of the owner of the group chat.
+   */
+  owner_id: number,
+  /**
+   * A list of recipients in the group chat by user ID.
+   */
+  recipient_ids: number[],
+}
+
+/**
+ * Represents the type along with type-specific information of a DM channel.
+ */
+export type DmChannelInfo = {
+  /**
+   * The type of the channel.
+   */
+  type: 'dm',
+  /**
+   * The two IDs of the recipients of the DM.
+   */
+  recipient_ids: [number, number],
+} | GroupDmChannelInfo
+
+type _DmChannel = {
+  /**
+   * The ID of the channel.
+   */
+  id: number,
+}
+
+/**
+ * Represents a direct-message-like channel that does not belong in a guild.
+ */
+export type DmChannel = DmChannelInfo & _DmChannel
+
+/**
+ * Represents a group DM channel.
+ */
+export type GroupDmChannel = GroupDmChannelInfo & _DmChannel
+
 /**
  * Represents any channel.
  */
-export type Channel = GuildChannel
+export type Channel = GuildChannel | DmChannel

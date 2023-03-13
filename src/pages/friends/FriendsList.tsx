@@ -1,15 +1,18 @@
 import {getApi} from "../../api/Api";
 import {For, Setter, Show} from "solid-js";
 import {FriendEntry, RelationshipDeleteButton, relationshipFilterFactory} from "./Requests";
-import {useRouteData} from "@solidjs/router";
+import {useNavigate, useRouteData} from "@solidjs/router";
 import tooltip from "../../directives/tooltip";
-import {noop} from "../../utils";
+import {findIterator, noop} from "../../utils";
+import {ChannelCreateEvent} from "../../types/ws";
+import {Channel} from "../../types/channel";
 noop(tooltip)
 
 export default function FriendsList() {
   const api = getApi()!
   const { setShowAddFriendModal } = useRouteData<{ setShowAddFriendModal: Setter<boolean> }>()
   const friends = relationshipFilterFactory(api, 'friend')
+  const navigate = useNavigate()
 
   return (
     <div>
@@ -23,6 +26,28 @@ export default function FriendsList() {
         <For each={friends()}>
           {([id, _]) => (
             <FriendEntry api={api} id={id}>
+              <button
+                class="p-2.5 rounded-full bg-gray-700 hover:bg-accent transition duration-200"
+                onClick={async () => {
+                  const predicate = (channel: Channel) => channel.type === 'dm' && channel.recipient_ids.includes(id)
+                  const found = findIterator(api.cache?.channels.values(), predicate)
+                  if (found)
+                    return navigate(`/dms/${found.id}`)
+
+                  api.ws?.on('channel_create', ({ channel }: ChannelCreateEvent, remove) => {
+                    if (predicate(channel)) {
+                      navigate(`/dms/${channel.id}`)
+                      remove()
+                    }
+                  })
+                  await api.request('POST', `/users/me/channels`, {
+                    json: { type: 'dm', recipient_id: id }
+                  })
+                }}
+                use:tooltip={{ content: "Open DM", placement: 'left' }}
+              >
+                <img src="/icons/message.svg" alt="Open DM" class="w-3 h-3 invert"/>
+              </button>
               <RelationshipDeleteButton api={api} id={id} label="Remove Friend" />
             </FriendEntry>
           )}
