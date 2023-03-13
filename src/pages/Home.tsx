@@ -1,7 +1,7 @@
 import Layout, {setShowSidebar} from "./Layout";
 import {getApi} from "../api/Api";
 import StatusIndicator, {StatusIndicatorProps} from "../components/users/StatusIndicator";
-import {createMemo, For, type JSX, ParentProps} from "solid-js";
+import {createMemo, For, type JSX, ParentProps, Show} from "solid-js";
 import {A, useLocation, useNavigate} from "@solidjs/router";
 import useNewGuildModalComponent from "../components/guilds/NewGuildModal";
 import {humanizeStatus, noop} from "../utils";
@@ -129,16 +129,21 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
 
 export function Sidebar() {
   const api = getApi()!
+  const dmChannelOrder = api.cache!.dmChannelOrder[0]
 
   return (
     <div class="flex flex-col items-center justify-center w-full">
       <div class="flex flex-col w-full p-2">
         <SidebarButton href="/" svg="/icons/home.svg">Home</SidebarButton>
         <SidebarButton href="/friends" svg="/icons/user-group.svg">Friends</SidebarButton>
-        <SidebarSection plusAction={() => {}} plusTooltip="New Direct Message">Direct Messages</SidebarSection>
-        <For each={api.cache!.dmChannelOrder[0]()}>
-          {(channelId) => <DirectMessageButton channelId={channelId} />}
-        </For>
+        <Show when={dmChannelOrder().length > 0} keyed={false}>
+          <SidebarSection plusAction={() => toast.error("Work in progress")} plusTooltip="New Direct Message">
+            Direct Messages
+          </SidebarSection>
+          <For each={dmChannelOrder()}>
+            {(channelId) => <DirectMessageButton channelId={channelId} />}
+          </For>
+        </Show>
       </div>
     </div>
   )
