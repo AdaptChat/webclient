@@ -137,8 +137,8 @@ export default class ApiCache {
   }
 
   updateRelationship(relationship: Relationship) {
-    this.relationships.set(relationship.user.id, relationship.type)
     this.updateUser(relationship.user)
+    this.relationships.set(relationship.user.id, relationship.type)
   }
 
   trackMember(guildId: number, userId: number) {

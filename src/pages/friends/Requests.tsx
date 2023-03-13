@@ -53,7 +53,7 @@ export default function Requests() {
   const outgoing = relationshipFilterFactory(api, 'outgoing_request')
 
   return (
-    <div>
+    <div class="h-[calc(100%-3.5rem)] overflow-y-auto">
       <Show when={!outgoing().length && !incoming().length} keyed={false}>
         <p class="text-center font-medium text-base-content/60 p-4">
           You currently have no incoming or outgoing friend requests.

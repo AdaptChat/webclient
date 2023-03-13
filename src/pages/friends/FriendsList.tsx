@@ -15,7 +15,7 @@ export default function FriendsList() {
   const navigate = useNavigate()
 
   return (
-    <div>
+    <div class="h-[calc(100%-3.5rem)] overflow-y-auto">
       <Show when={friends().length} keyed={false} fallback={(
         <div class="text-center font-medium text-base-content/60 p-4">
           You currently have no friends (just like Cryptex).
