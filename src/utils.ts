@@ -72,6 +72,21 @@ export function humanizeTimestamp(timestamp: number | Date): string {
 }
 
 /**
+ * Humanizes a full timestamp.
+ */
+export function humanizeFullTimestamp(timestamp: number | Date): string {
+  if (typeof timestamp === 'number')
+    timestamp = new Date(timestamp)
+
+  return timestamp.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long',
+  }) + ' at ' + humanizeTime(timestamp)
+}
+
+/**
  * Humanizes only the date of a timestamp.
  */
 export function humanizeDate(timestamp: number | Date): string {
@@ -81,7 +96,7 @@ export function humanizeDate(timestamp: number | Date): string {
   return timestamp.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
-    day: '2-digit',
+    day: 'numeric',
   })
 }
 

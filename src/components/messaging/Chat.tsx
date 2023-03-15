@@ -1,21 +1,26 @@
-import {createMemo, createSignal, For, onCleanup, Show} from "solid-js";
+import {createMemo, createSignal, For, JSX, onCleanup, onMount, Show} from "solid-js";
 import type {Message} from "../../types/message";
 import {getApi} from "../../api/Api";
 import {type MessageGroup} from "../../api/MessageGrouper";
-import {humanizeTime, humanizeTimestamp, snowflakes} from "../../utils";
+import {humanizeFullTimestamp, humanizeTime, humanizeTimestamp, snowflakes} from "../../utils";
 import TypingKeepAlive from "../../api/TypingKeepAlive";
+import tooltip from "../../directives/tooltip";
+import {noop} from "../../utils";
+noop(tooltip)
 
-export function MessageContent({ message }: { message: Message }) {
+export function MessageContent({ message, largePadding }: { message: Message, largePadding?: boolean }) {
   return (
     <span
       data-message-id={message.id}
       classList={{
         "text-base-content/50": message._nonceState === 'pending',
         "text-error": message._nonceState === 'error',
-        "break-words": true,
+        "break-words text-sm font-light": true,
       }}
       style={{
-        width: "calc(100% - /* base width */ 68px - /* padding */ 8px)",
+        width: largePadding
+          ? "calc(100% - 4.875rem)"
+          : "calc(100% - 1rem)",
       }}
     >
       {message.content}
@@ -49,7 +54,20 @@ export default function Chat(props: { channelId: number }) {
 
   const typing = api.cache!.useTyping(props.channelId)
   const typingKeepAlive = new TypingKeepAlive(api, props.channelId)
-  onCleanup(() => typingKeepAlive.stop())
+  const focusListener = (e: KeyboardEvent) => {
+    const charCode = e.key.charCodeAt(0)
+    if (e.key.length == 1 && charCode >= 32 && charCode <= 126 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+      messageInputRef!.focus()
+    }
+  }
+
+  onMount(() => {
+    document.addEventListener('keydown', focusListener)
+  })
+  onCleanup(async () => {
+    document.removeEventListener('keydown', focusListener)
+    await typingKeepAlive.stop()
+  })
 
   let messageInputRef: HTMLDivElement | null = null
   let messageAreaRef: HTMLDivElement | null = null
@@ -87,6 +105,11 @@ export default function Chat(props: { channelId: number }) {
     }
   }
 
+  const timestampTooltip = (messageId: number) => ({
+    content: humanizeFullTimestamp(snowflakes.timestamp(messageId)),
+    delay: [1000, null] as [number, null],
+    interactive: true
+  })
   const fallback = (
     <div>Loading...</div>
   )
@@ -103,7 +126,7 @@ export default function Chat(props: { channelId: number }) {
             <For each={grouper().groups}>
               {(group: MessageGroup) => {
                 if (group.isDivider) return (
-                  <div class="divider text-base-content/50 mx-4">{group.content}</div>
+                  <div class="divider text-base-content/50 mx-4 h-0 text-sm">{group.content}</div>
                 )
 
                 const firstMessage = group[0]
@@ -114,27 +137,36 @@ export default function Chat(props: { channelId: number }) {
                 return (
                   <Show when={group.length >= 1} keyed={false}>
                     <div class="flex flex-col">
-                      <div class="flex flex-col relative pl-[68px] hover:bg-gray-850/60 transition-all duration-200">
+                      <div class="flex flex-col relative pl-[62px] py-px hover:bg-gray-850/60 transition-all duration-200">
                         <img
-                          class="absolute left-4 w-10 h-10 mt-1 rounded-full"
+                          class="absolute left-3.5 w-9 h-9 mt-0.5 rounded-full"
                           src={api.cache!.avatarOf(author.id)}
                           alt=""
                         />
-                        <div class="inline">
+                        <div class="inline text-sm">
                           <span class="font-medium">{author.username}</span>
-                          <span class="text-base-content/50 text-sm ml-2">
+                          <span
+                            class="text-base-content/50 text-xs ml-2"
+                            use:tooltip={timestampTooltip(firstMessage.id)}
+                          >
                             {humanizeTimestamp(snowflakes.timestamp(firstMessage.id))}
                           </span>
                         </div>
                         <MessageContent message={firstMessage} />
                       </div>
-                      <For each={group}>
-                        {(message: Message, index) => index() > 0 && (
-                          <div class="group flex items-center hover:bg-gray-850/60 transition-all duration-200">
-                            <span class="w-[68px] invisible text-center group-hover:visible text-xs text-base-content/40">
+                      <For each={group.slice(1)}>
+                        {(message: Message) => (
+                          <div class="relative group flex items-center hover:bg-gray-850/60 py-px transition-all duration-200">
+                            <span
+                              class="w-[62px] invisible text-center group-hover:visible text-[0.65rem] text-base-content/40"
+                              use:tooltip={timestampTooltip(message.id)}
+                            >
                               {humanizeTime(snowflakes.timestamp(message.id))}
                             </span>
-                            <MessageContent message={message} />
+                            <MessageContent message={message} largePadding />
+                            <div>
+
+                            </div>
                           </div>
                         )}
                       </For>
@@ -150,7 +182,7 @@ export default function Chat(props: { channelId: number }) {
         <div classList={{ "w-full bg-gray-700 rounded-lg p-2": true, "w-[calc(100%-3rem)]": mobile }}>
           <div
             ref={messageInputRef!}
-            class="empty:before:content-[attr(data-placeholder)] empty:before:text-base-content/50 outline-none break-words"
+            class="empty:before:content-[attr(data-placeholder)] text-sm empty:before:text-base-content/50 outline-none break-words"
             contentEditable
             data-placeholder="Send a message..."
             spellcheck={false}

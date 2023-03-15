@@ -15,7 +15,7 @@
   src: url('/fonts/Inter.var.woff2') format('woff2');
   font-weight: 100 900;
   font-display: swap;
-  font-feature-settings: "ss01", "cv11";
+  font-feature-settings: "ss01";
 }
 
 :root {

@@ -181,7 +181,10 @@ export default function Layout(props: ParentProps<LayoutProps>) {
             </div>
             <div
               classList={{
-                "hidden flex-grow items-center justify-center bg-transparent hover:bg-gray-700 transition-all duration-300 cursor-pointer": true,
+                [
+                  "hidden flex-grow items-center justify-center bg-transparent hover:bg-gray-700 transition-all "
+                  + "duration-300 cursor-pointer"
+                ]: true,
                 "mobile:flex": rightSidebar(),
               }}
               onClick={() => setShowRightSidebar(false)}

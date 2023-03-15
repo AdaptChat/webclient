@@ -98,7 +98,7 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
             <img src={api.cache!.avatarOf(user()!.id)} alt="" class="w-8 h-8 rounded-full"/>
           </div>
         )}
-        <div class="ml-1">
+        <div class="ml-1 text-sm">
           <span classList={{
             "text-base-content group-hover:text-opacity-80 transition-all duration-200": true,
             "text-opacity-100": active(),
@@ -135,7 +135,7 @@ export function Sidebar() {
     <div class="flex flex-col items-center justify-center w-full">
       <div class="flex flex-col w-full p-2">
         <SidebarButton href="/" svg="/icons/home.svg">Home</SidebarButton>
-        <SidebarButton href="/friends" svg="/icons/user-group.svg">Friends</SidebarButton>
+        <SidebarButton href={["/friends", "/friends/requests"]} svg="/icons/user-group.svg">Friends</SidebarButton>
         <Show when={dmChannelOrder().length > 0} keyed={false}>
           <SidebarSection plusAction={() => toast.error("Work in progress")} plusTooltip="New Direct Message">
             Direct Messages
