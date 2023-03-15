@@ -62,7 +62,7 @@ export default function GuildSidebar() {
         <GuildRemoveComponent guild={guild} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
       </Modal>
       <div
-        class="w-[calc(100%-2rem)] mt-4 card box-border overflow-hidden flex border-2 border-base-content/10
+        class="w-[calc(100%-1rem)] mt-2 card box-border overflow-hidden flex border-2 border-base-content/10
           group hover:bg-gray-800 transition-all duration-200 cursor-pointer"
       >
         {guild.banner && (
@@ -74,7 +74,7 @@ export default function GuildSidebar() {
           "flex justify-between items-center px-4 pt-2": true,
           "pb-2": !guild.description,
         }}>
-          <span class="inline-block font-title card-title text-base text-ellipsis w-36 break-words">
+          <span class="inline-block font-title card-title text-base text-ellipsis w-40 break-words">
             {guild.name}
           </span>
           <label tabIndex={0} class="cursor-pointer">
