@@ -6,15 +6,14 @@ export interface StatusIndicatorProps {
 }
 
 export default function StatusIndicator(props: StatusIndicatorProps) {
-  const status = props.status ?? 'offline'
   return (
     <div
       classList={{
         "w-3 h-3 rounded-full": true,
-        "bg-success": status === 'online',
-        "bg-warning": status === 'idle',
-        "bg-error": status === 'dnd',
-        "bg-gray-500": status === 'offline',
+        "bg-success": props.status === 'online',
+        "bg-warning": props.status === 'idle',
+        "bg-error": props.status === 'dnd',
+        "bg-gray-500": props.status === 'offline' || props.status == null,
         "indicator-item indicator-bottom": props.indicator,
         [props.tailwind ?? ""]: props.tailwind !== undefined
       }}
