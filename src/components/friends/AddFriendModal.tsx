@@ -32,7 +32,7 @@ export default function AddFriendModal() {
 
   return (
     <ModalTemplate title="Add Friend">
-      <p class="mt-2 text-base-content/50">
+      <p class="mt-2 text-base-content/50 text-sm">
         Ask your friend to give you their unique user tag, which contains their username and discriminator.
         This can be found at the bottom of the sidebar on the left.
       </p>

@@ -17,7 +17,7 @@ export default function ConfirmGuildLeaveModal({ guild, setConfirmGuildLeaveModa
 
   return (
     <ModalTemplate title="Leave Server">
-      <p class="text-base-content/80 text-justify mt-4">
+      <p class="text-base-content/80 mt-4 text-center">
         Are you sure you want to leave <b>{guild.name}</b>? You will be unable to rejoin unless you are re-invited.
       </p>
       <Show when={confirmGuildLeaveModalError()} keyed={false}>

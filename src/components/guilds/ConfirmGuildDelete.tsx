@@ -17,7 +17,7 @@ export default function ConfirmGuildDeleteModal({ guild, setConfirmGuildLeaveMod
 
   return (
     <ModalTemplate title="Delete Server">
-      <p class="text-base-content/80 text-justify mt-4">
+      <p class="text-base-content/80 text-justify text-sm mt-4">
         Are you sure you want to delete <b>{guild.name}</b>? You will not be able to undo this action.
         All data associated with this server will be deleted and you will not be able to recover them in the future.
       </p>

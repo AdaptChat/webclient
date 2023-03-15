@@ -9,30 +9,33 @@ export function GuildMemberGroup({ members, offline }: { members: number[], offl
 
   return (
     <For each={members}>
-      {(user_id) => (
-        <div class="group flex items-center px-2 py-1.5 rounded-lg hover:bg-gray-700 transition duration-200 cursor-pointer">
-          <div class="indicator flex-shrink-0">
-            <StatusIndicator status={api.cache!.presences.get(user_id)?.status} tailwind="m-[0.1rem]" indicator />
-            <img
-              src={api.cache!.avatarOf(user_id)}
-              alt=""
-              classList={{
-                "w-7 h-7 rounded-full": true,
-                "filter grayscale group-hover:grayscale-0 transition duration-1000": offline,
-              }}
-            />
-          </div>
-          <span class="ml-2 w-full overflow-ellipsis overflow-hidden text-sm">
+      {(user_id) => {
+        const user = api.cache!.users.get(user_id)
+        return (
+          <div class="group flex items-center px-2 py-1.5 rounded-lg hover:bg-gray-700 transition duration-200 cursor-pointer">
+            <div class="indicator flex-shrink-0">
+              <StatusIndicator status={api.cache!.presences.get(user_id)?.status} tailwind="m-[0.1rem]" indicator />
+              <img
+                src={api.cache!.avatarOf(user_id)}
+                alt=""
+                classList={{
+                  "w-7 h-7 rounded-full": true,
+                  "filter grayscale group-hover:grayscale-0 transition duration-1000": offline,
+                }}
+              />
+            </div>
+            <span class="ml-2 w-full overflow-ellipsis overflow-hidden text-sm">
             <span classList={{ "text-base-content": true, "text-opacity-50": offline, "!text-opacity-80": !offline }}>
-              {api.cache!.users.get(user_id)?.username}
+              {user?.username}
             </span>
-            {/* TODO: discriminator part is temporary and can be removed in place of profiles */}
-            <span class="text-base-content/30 text-xs">
-              #{api.cache!.users.get(user_id)?.discriminator.toString().padStart(4, '0')}
+              {/* TODO: discriminator part is temporary and can be removed in place of profiles */}
+              <span class="text-base-content/30 text-xs">
+              #{user?.discriminator.toString().padStart(4, '0')}
             </span>
           </span>
-        </div>
-      )}
+          </div>
+        )
+      }}
     </For>
   )
 }

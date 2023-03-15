@@ -44,7 +44,7 @@ export default function Modal({ get, set, children }: ParentProps<{ get: Accesso
 export function ModalTemplate({ title, children }: ParentProps<{ title: string }>) {
   return (
     <>
-      <h1 class="text-3xl font-title font-bold text-center">{title}</h1>
+      <h1 class="text-2xl font-title font-bold text-center">{title}</h1>
       {children}
     </>
   )

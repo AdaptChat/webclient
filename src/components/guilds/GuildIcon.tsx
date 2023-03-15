@@ -61,8 +61,8 @@ export default function GuildIcon(
     } keyed={false}>
       <div class={baseClass} use:tooltip={ttProps}>
         {indicator}
-        <div classList={{ sizeClass: true, ...extraClasses() }}>
-          <img src={guild.icon} alt={guild.name} />
+        <div classList={{ [sizeClass]: true, ...extraClasses() }}>
+          <img src={guild.icon} alt={guild.name} width={48} height={48} />
         </div>
       </div>
     </Show>

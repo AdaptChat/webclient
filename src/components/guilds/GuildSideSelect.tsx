@@ -42,7 +42,7 @@ export default function GuildSideSelect() {
           <Separator />
           <For each={Array.from(api.cache!.guildList.map(g => api.cache!.guilds.get(g)!))}>
             {(guild: Guild) => (
-              <A href={`/guilds/${guild.id}`}>
+              <A href={`/guilds/${guild.id}`} class="flex">
                 <GuildIcon
                   guild={guild} unread={false} pings={0} sizeClass="w-12 h-12" tooltip ringIfActive
                 />
