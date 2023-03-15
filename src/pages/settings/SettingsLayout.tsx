@@ -20,7 +20,7 @@ export default function SettingsLayout({ children, ...props }: ParentProps<Layou
   onCleanup(() => document.removeEventListener('keydown', handleKeyDown))
 
   return (
-    <Layout sidebar={SettingsSidebar} hideGuildSelect {...props}>
+    <Layout sidebar={SettingsSidebar} showBottomNav hideGuildSelect {...props}>
       {children}
     </Layout>
   )
