@@ -164,9 +164,6 @@ export default function Chat(props: { channelId: number }) {
                               {humanizeTime(snowflakes.timestamp(message.id))}
                             </span>
                             <MessageContent message={message} largePadding />
-                            <div>
-
-                            </div>
                           </div>
                         )}
                       </For>
