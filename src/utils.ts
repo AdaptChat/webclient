@@ -162,3 +162,12 @@ export function findIterator<T>(
     if (predicate(item))
       return item
 }
+
+/**
+ * Yields elements in the difference between two sets.
+ */
+export function* setDifference<T>(a: Set<T>, b: Set<T>): Generator<T> {
+  for (const v of a)
+    if (!b.has(v))
+      yield v;
+}

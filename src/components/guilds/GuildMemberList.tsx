@@ -1,14 +1,17 @@
 import {getApi} from "../../api/Api";
 import {useParams} from "@solidjs/router";
-import {createMemo, For} from "solid-js";
+import {Accessor, createEffect, createSignal, For, Show} from "solid-js";
 import StatusIndicator from "../users/StatusIndicator";
 import SidebarSection from "../ui/SidebarSection";
+import {ReactiveSet} from "@solid-primitives/set";
+import {setDifference} from "../../utils";
 
-export function GuildMemberGroup({ members, offline }: { members: number[], offline?: boolean }) {
+export function GuildMemberGroup({ members, offline }: { members: Accessor<ReactiveSet<number> | undefined>, offline?: boolean }) {
   const api = getApi()!
+  if (!members()) return
 
   return (
-    <For each={members}>
+    <For each={[...members()!].sort((a, b) => a - b)}>
       {(user_id) => {
         const user = api.cache!.users.get(user_id)
         return (
@@ -45,30 +48,54 @@ export default function GuildMemberList() {
   const guild = api.cache!.guilds.get(parseInt(useParams().guildId))
   if (!guild) return
 
-  const groupedMembers = createMemo(() => {
-    const online = [], offline = []
+  const [online, setOnline] = createSignal<ReactiveSet<number>>()
+  const [offline, setOffline] = createSignal<ReactiveSet<number>>()
+
+  let tracked = new Set<number>()
+  createEffect(() => {
     const members = api.cache!.memberReactor.get(guild.id)
+    if (members == null) return
 
-    if (members != null)
-      for (const member of members)
-        if (api.cache!.presences.get(member)?.status === 'offline')
-          offline.push(member)
-        else
-          online.push(member)
+    for (const member of members) {
+      if (tracked.has(member)) continue
 
-    return { online, offline }
+      createEffect((prev) => {
+        const status = api.cache!.presences.get(member)?.status
+        if (prev != null && (prev === 'offline') === (status === 'offline'))
+          return status
+
+        if (status === 'offline') {
+          online()?.delete(member);
+          (offline() ?? setOffline(new ReactiveSet<number>())).add(member)
+        } else {
+          offline()?.delete(member);
+          (online() ?? setOnline(new ReactiveSet<number>())).add(member)
+        }
+        return status
+      })
+    }
+    const updated = new Set(members)
+    for (const removed of setDifference(tracked, updated)) {
+      online()?.delete(removed)
+      offline()?.delete(removed)
+    }
+    tracked = updated
   })
 
   return (
     <div class="flex flex-col w-full p-2 overflow-y-auto">
-      <SidebarSection badge={groupedMembers().online.length}>
-        Online
-      </SidebarSection>
-      <GuildMemberGroup members={groupedMembers().online} />
-      <SidebarSection badge={groupedMembers().offline.length}>
-        Offline
-      </SidebarSection>
-      <GuildMemberGroup members={groupedMembers().offline} offline />
+      <Show when={online()?.size} keyed={false}>
+        <SidebarSection badge={() => online()?.size}>
+          Online
+        </SidebarSection>
+        <GuildMemberGroup members={online} />
+      </Show>
+      <Show when={offline()?.size} keyed={false}>
+        <SidebarSection badge={() => offline()?.size}>
+          Offline
+        </SidebarSection>
+        <GuildMemberGroup members={offline} offline />
+      </Show>
     </div>
   )
 }
