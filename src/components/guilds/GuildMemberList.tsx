@@ -62,7 +62,7 @@ export default function GuildMemberList() {
         if (prev != null && (prev === 'offline') === (status === 'offline'))
           return status
 
-        if (status === 'offline') {
+        if (status === 'offline' || !status) {
           online.delete(member);
           offline.add(member)
         } else {
