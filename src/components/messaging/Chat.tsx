@@ -56,7 +56,12 @@ export default function Chat(props: { channelId: number }) {
   const typingKeepAlive = new TypingKeepAlive(api, props.channelId)
   const focusListener = (e: KeyboardEvent) => {
     const charCode = e.key.charCodeAt(0)
-    if (e.key.length == 1 && charCode >= 32 && charCode <= 126 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+    if (
+      document.activeElement == document.body
+        && e.key.length == 1
+        && charCode >= 32 && charCode <= 126
+        && !e.ctrlKey && !e.altKey && !e.metaKey
+    ) {
       messageInputRef!.focus()
     }
   }
