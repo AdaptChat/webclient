@@ -94,13 +94,16 @@ export default function Register() {
         </label>
       </div>
 
-      <Turnstile
-        ref={turnstileRef!}
-        sitekey={process.env.NODE_ENV === "production" ? "0x4AAAAAAACKrfJ6GCEBF1ih" : "1x00000000000000000000AA"}
-        onVerify={token => console.debug(token)}
-        autoResetOnExpire={true}
-        class="self-center"
-      />
+      {/*
+        TODO: captcha
+        <Turnstile
+          ref={turnstileRef!}
+          sitekey={process.env.NODE_ENV === "production" ? "0x4AAAAAAACKrfJ6GCEBF1ih" : "1x00000000000000000000AA"}
+          onVerify={token => console.debug(token)}
+          autoResetOnExpire={true}
+          class="self-center"
+        />
+      */}
     </Layout>
   )
 }
