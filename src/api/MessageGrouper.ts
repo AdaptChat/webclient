@@ -116,7 +116,7 @@ export default class MessageGrouper {
     let groups = this.groups
     if (groupIndex <= 0) {
       let firstMessageGroup = groups[0]
-      if (firstMessageGroup.isDivider)
+      if (firstMessageGroup.isDivider || groupIndex < 0)
         groups = [firstMessageGroup = [], ...groups]
 
       lastMessage = (<Message[]> firstMessageGroup)[0]
