@@ -98,13 +98,13 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
             <img src={api.cache!.avatarOf(user()!.id)} alt="" class="w-8 h-8 rounded-full"/>
           </div>
         )}
-        <div class="ml-1 text-sm">
+        <div class="ml-0.5 text-sm">
           <span classList={{
             "text-base-content group-hover:text-opacity-80 transition-all duration-200": true,
             "text-opacity-100": active(),
             "text-opacity-60": !active(),
           }}>
-            {group ? (channel() as GroupDmChannel).name : user()!.username }
+            {group ? (channel() as GroupDmChannel).name : user()!.username}
           </span>
           <div class="text-xs text-base-content/40">
             {group ? channel().recipient_ids.length + ' members' : presence()?.custom_status}
