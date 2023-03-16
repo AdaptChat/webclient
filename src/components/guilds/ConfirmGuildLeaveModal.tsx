@@ -23,11 +23,10 @@ export default function ConfirmGuildLeaveModal({ guild, setConfirmGuildLeaveModa
       <Show when={confirmGuildLeaveModalError()} keyed={false}>
         <p class="text-error mt-2">{confirmGuildLeaveModalError()}</p>
       </Show>
-      <div class="flex justify-end mt-4">
+      <div class="flex justify-end mt-4 gap-x-4">
         <button class="btn border-none bg-none" onClick={() => setConfirmGuildLeaveModal(false)}>
           Cancel
         </button>
-        <div class="divider divider-horizontal w-2" />
         <button
           class="btn btn-error bg-error/80 border-none hover:bg-error/60"
           onClick={async (event) => {

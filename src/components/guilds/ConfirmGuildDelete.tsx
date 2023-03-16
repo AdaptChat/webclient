@@ -98,11 +98,10 @@ export default function ConfirmGuildDeleteModal({ guild, setConfirmGuildLeaveMod
         <div class="btn border-none bg-none mt-4" onClick={() => setConfirmGuildLeaveModal(false)}>
           Cancel
         </div>
-        <div class="divider divider-horizontal w-2 mt-4" />
         <button
           ref={submitButton!}
           type="submit"
-          class="btn btn-error bg-error/80 border-none hover:bg-error/60 mt-4"
+          class="btn btn-error bg-error/80 border-none hover:bg-error/60 mt-4 ml-4"
           disabled={!guildNameIsCorrect()}
         >
           Delete Server
