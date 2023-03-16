@@ -8,6 +8,49 @@ import tooltip from "../../directives/tooltip";
 import {noop} from "../../utils";
 noop(tooltip)
 
+type SkeletalData = {
+  headerWidth: string,
+  contentLines: string[],
+}
+function generateSkeletalData(n: number = 10): SkeletalData[] {
+  const data: SkeletalData[] = []
+  for (let i = 0; i < n; i++) {
+    const headerWidth = `${Math.random() * 25 + 25}%`
+    const contentLines = []
+
+    const lines = Math.random() * (
+      Math.random() < 0.2 ? 5 : 2
+    )
+    for (let j = 0; j < lines; j++) {
+      contentLines.push(`${Math.random() * 60 + 20}%`)
+    }
+    data.push({ headerWidth, contentLines })
+  }
+  return data
+}
+
+function MessageLoadingSkeleton() {
+  const skeletalData = generateSkeletalData()
+
+  return (
+    <div class="flex flex-col gap-y-4">
+      <For each={skeletalData}>
+        {(data: SkeletalData, i) => (
+          <div class="flex flex-col animate-pulse" style={{ 'animation-delay': `${i() * 100}ms` }}>
+            <div class="flex flex-col relative pl-[62px] py-px hover:bg-gray-850/60 transition-all duration-200">
+              <div class="absolute left-3.5 w-9 h-9 mt-0.5 rounded-full bg-gray-400" />
+              <div class="h-5 bg-gray-600 rounded-full" style={{ width: data.headerWidth }} />
+              {data.contentLines.map((width) => (
+                <div class="h-5 bg-gray-700 rounded-full" style={{ width }} />
+              ))}
+            </div>
+          </div>
+        )}
+      </For>
+    </div>
+  )
+}
+
 export function MessageContent({ message, largePadding }: { message: Message, largePadding?: boolean }) {
   return (
     <span
@@ -34,7 +77,7 @@ export function MessageContent({ message, largePadding }: { message: Message, la
   )
 }
 
-export default function Chat(props: { channelId: number }) {
+export default function Chat(props: { channelId: number, title: string, startMessage: JSX.Element }) {
   const api = getApi()!
 
   const [messageInput, setMessageInput] = createSignal('')
@@ -115,9 +158,6 @@ export default function Chat(props: { channelId: number }) {
     delay: [1000, null] as [number, null],
     interactive: true
   })
-  const fallback = (
-    <div>Loading...</div>
-  )
 
   return (
     <div class="flex flex-col justify-end w-full h-0 flex-grow">
@@ -127,7 +167,13 @@ export default function Chat(props: { channelId: number }) {
         }
       }}>
         <div class="flex flex-col gap-y-4">
-          <Show when={!loading()} keyed={false} fallback={fallback}>
+          <Show when={grouper().noMoreMessages() && !loading()} keyed={false}>
+            <div class="pl-4 pt-8">
+              <h1 class="font-title font-bold text-xl">{props.title}</h1>
+              <p class="text-base-content/60 text-sm">{props.startMessage}</p>
+            </div>
+          </Show>
+          <Show when={!loading()} keyed={false} fallback={MessageLoadingSkeleton}>
             <For each={grouper().groups}>
               {(group: MessageGroup) => {
                 if (group.isDivider) return (

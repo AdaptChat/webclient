@@ -1,5 +1,5 @@
 import type {Message} from "../types/message";
-import {createSignal, type Signal} from "solid-js";
+import {Accessor, createSignal, Setter, type Signal} from "solid-js";
 import {humanizeDate, isSameDay, snowflakes} from "../utils";
 import type Api from "./Api";
 import {User} from "../types/user";
@@ -38,14 +38,16 @@ export default class MessageGrouper {
   private fetchBefore?: number
   private fetchLock: boolean = false
   nonced: Map<string, [number, number]>
-  noMoreMessages: boolean = false
+  noMoreMessages: Accessor<boolean>
+  private setNoMoreMessages: Setter<boolean>
 
   constructor(
     private readonly api: Api,
     private readonly channelId: number,
   ) {
     this.groupsSignal = createSignal([])
-    this.nonced = new Map()
+    this.nonced = new Map();
+    [this.noMoreMessages, this.setNoMoreMessages] = createSignal(false)
   }
 
   /**
@@ -149,7 +151,7 @@ export default class MessageGrouper {
    * Fetches messages from the API and inserts into the grouper.
    */
   async fetchMessages() {
-    if (this.noMoreMessages || this.fetchLock)
+    if (this.noMoreMessages() || this.fetchLock)
       return
 
     this.fetchLock = true
@@ -162,7 +164,7 @@ export default class MessageGrouper {
 
     this.fetchBefore = last(messages)?.id
     if (messages.length < 200)
-      this.noMoreMessages = true
+      this.setNoMoreMessages(true)
     this.insertMessages(messages.reverse())
     this.fetchLock = false
   }

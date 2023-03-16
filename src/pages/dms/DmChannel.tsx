@@ -25,11 +25,18 @@ export default function DmChannel() {
       : undefined
   )
   const group = channel().type == 'group'
+  const name = () => group ? (channel() as GroupDmChannel).name : user()?.username
 
   // TODO: right sidebar
   return (
-    <Layout sidebar={Sidebar} title={group ? (channel() as GroupDmChannel).name : user()?.username}>
-      <Chat channelId={channel()!.id} />
+    <Layout sidebar={Sidebar} title={name()}>
+      <Chat
+        channelId={channel()!.id}
+        title={name()!}
+        startMessage={
+          <>This is the start of the conversation {group ? 'in' : 'with'} <b>{name()}</b>.</>
+        }
+      />
     </Layout>
   )
 }

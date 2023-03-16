@@ -12,7 +12,7 @@ export default function GuildChannel() {
   const channel = createMemo(() => {
     const params = useParams()
     const api = getApi()!, cache = api.cache!
-    return cache.channels.get(parseInt(params.channelId))
+    return cache.channels.get(parseInt(params.channelId)) as GuildChannelType
   })
 
   if (!channel()) {
@@ -20,8 +20,14 @@ export default function GuildChannel() {
   }
 
   return (
-    <Layout sidebar={GuildSidebar} rightSidebar={GuildMemberList} title={'#' + (channel()! as GuildChannelType).name}>
-      <Chat channelId={channel()!.id} />
+    <Layout sidebar={GuildSidebar} rightSidebar={GuildMemberList} title={'#' + channel().name}>
+      <Chat
+        channelId={channel().id}
+        title={`#${channel().name}`}
+        startMessage={
+          <>This is the start of the conversation in <b>#{channel().name}</b>.</>
+        }
+      />
     </Layout>
   )
 }
