@@ -1,4 +1,4 @@
-import {createMemo, createSignal, For, JSX, onCleanup, onMount, Show} from "solid-js";
+import {createEffect, createMemo, createSignal, For, JSX, onCleanup, onMount, Show} from "solid-js";
 import type {Message} from "../../types/message";
 import {getApi} from "../../api/Api";
 import {type MessageGroup} from "../../api/MessageGrouper";
@@ -85,6 +85,7 @@ export default function Chat(props: { channelId: number, title: string, startMes
   const [messageInputFocusTimeout, setMessageInputFocusTimeout] = createSignal<number | null>(null)
   const [loading, setLoading] = createSignal(true)
 
+  createEffect(() => console.log(loading(), grouper().groups))
   const mobile = /Android|webOS|iPhone|iP[ao]d|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   const grouper = createMemo(() => {
     const { grouper, cached } = getApi()!.cache!.useChannelMessages(props.channelId)
@@ -181,45 +182,45 @@ export default function Chat(props: { channelId: number, title: string, startMes
                 )
 
                 const firstMessage = group[0]
+                if (!firstMessage) return null
+
                 const author = firstMessage
                   && (firstMessage.author ?? (firstMessage.author_id && api.cache!.users.get(firstMessage.author_id)))
                   || grouper().authorDefault
 
                 return (
-                  <Show when={group.length >= 1} keyed={false}>
-                    <div class="flex flex-col">
-                      <div class="flex flex-col relative pl-[62px] py-px hover:bg-gray-850/60 transition-all duration-200">
-                        <img
-                          class="absolute left-3.5 w-9 h-9 mt-0.5 rounded-full"
-                          src={api.cache!.avatarOf(author.id)}
-                          alt=""
-                        />
-                        <div class="inline text-sm">
-                          <span class="font-medium">{author.username}</span>
-                          <span
-                            class="text-base-content/50 text-xs ml-2"
-                            use:tooltip={timestampTooltip(firstMessage.id)}
-                          >
-                            {humanizeTimestamp(snowflakes.timestamp(firstMessage.id))}
-                          </span>
-                        </div>
-                        <MessageContent message={firstMessage} />
+                  <div class="flex flex-col">
+                    <div class="flex flex-col relative pl-[62px] py-px hover:bg-gray-850/60 transition-all duration-200">
+                      <img
+                        class="absolute left-3.5 w-9 h-9 mt-0.5 rounded-full"
+                        src={api.cache!.avatarOf(author.id)}
+                        alt=""
+                      />
+                      <div class="inline text-sm">
+                        <span class="font-medium">{author.username}</span>
+                        <span
+                          class="text-base-content/50 text-xs ml-2"
+                          use:tooltip={timestampTooltip(firstMessage.id)}
+                        >
+                          {humanizeTimestamp(snowflakes.timestamp(firstMessage.id))}
+                        </span>
                       </div>
-                      <For each={group.slice(1)}>
-                        {(message: Message) => (
-                          <div class="relative group flex items-center hover:bg-gray-850/60 py-px transition-all duration-200">
-                            <span
-                              class="w-[62px] invisible text-center group-hover:visible text-[0.65rem] text-base-content/40"
-                              use:tooltip={timestampTooltip(message.id)}
-                            >
-                              {humanizeTime(snowflakes.timestamp(message.id))}
-                            </span>
-                            <MessageContent message={message} largePadding />
-                          </div>
-                        )}
-                      </For>
+                      <MessageContent message={firstMessage} />
                     </div>
-                  </Show>
+                    <For each={group.slice(1)}>
+                      {(message: Message) => (
+                        <div class="relative group flex items-center hover:bg-gray-850/60 py-px transition-all duration-200">
+                          <span
+                            class="w-[62px] invisible text-center group-hover:visible text-[0.65rem] text-base-content/40"
+                            use:tooltip={timestampTooltip(message.id)}
+                          >
+                            {humanizeTime(snowflakes.timestamp(message.id))}
+                          </span>
+                          <MessageContent message={message} largePadding />
+                        </div>
+                      )}
+                    </For>
+                  </div>
                 )
               }}
             </For>

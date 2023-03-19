@@ -110,12 +110,13 @@ export default class MessageGrouper {
    */
   insertMessages(messages: Message[]) {
     if (messages.length === 0) return
-    if (this.currentGroup == null) this.finishGroup()
+
+    let groups = this.groups
+    if (this.currentGroup == null) groups.push([])
 
     let [groupIndex, messageIndex] = this.findCloseMessageIndex(messages[0].id)
     let lastMessage: Message
 
-    let groups = this.groups
     if (groupIndex <= 0) {
       let firstMessageGroup = groups[0]
       if (firstMessageGroup.isDivider || groupIndex < 0)
@@ -139,9 +140,6 @@ export default class MessageGrouper {
       target.splice(++messageIndex, 0, message)
       lastMessage = message
     }
-
-    if (last(this.groups)?.isDivider)
-      this.finishGroup()
 
     this.setGroups([...groups])
     this.currentGroup = last(groups) as any
