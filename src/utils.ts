@@ -1,3 +1,7 @@
+import {Role} from "./types/guild";
+import {PermissionOverwrite} from "./types/channel";
+import {Permissions} from "./api/Bitflags";
+
 /**
  * Utilities related to snowflakes.
  */
@@ -35,6 +39,42 @@ export namespace snowflakes {
 
     return BigInt(timestamp - EPOCH_MILLIS) << 18n
   }
+}
+
+/**
+ * Calculates the permissions after applying all role permissions and channel overwrites.
+ * This assumes `roles` is sorted by position.
+ *
+ * This does not account for guild owners (they should have all permissions), this should be
+ * handled separately.
+ */
+export function calculatePermissions(userId: number, roles: Role[], overwrites?: PermissionOverwrite[]): Permissions {
+  let perms = roles.reduce((acc, role) => acc | role.permissions.allow, 0n)
+    & ~roles.reduce((acc, role) => acc | role.permissions.deny, 0n)
+
+  if (Permissions.fromValue(perms).has('ADMINISTRATOR'))
+    return Permissions.of('ADMINISTRATOR')
+
+  if (overwrites != null) {
+    const roleOverwrites = overwrites
+      .map((overwrite) => [overwrite, roles.find((role) => role.id === overwrite.id)] as const)
+      .filter(([_, role]) => role != null)
+      .map(([overwrite, role]) => [overwrite, role!.position] as const)
+      .sort((a, b) => a[1] - b[1])
+
+    for (const [{ allow, deny }] of roleOverwrites) {
+      perms |= allow
+      perms &= ~deny
+    }
+
+    const memberOverwrite = overwrites.find((overwrite) => overwrite.id === userId)
+    if (memberOverwrite != null) {
+      perms |= memberOverwrite.allow
+      perms &= ~memberOverwrite.deny
+    }
+  }
+
+  return Permissions.fromValue(perms)
 }
 
 /**

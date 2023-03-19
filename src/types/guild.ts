@@ -144,3 +144,49 @@ export interface Invite {
    */
   max_age: number;
 }
+
+/**
+ * A role in a guild.
+ */
+export interface Role {
+  /**
+   * The snowflake ID of the role.
+   */
+  id: number;
+  /**
+   * The ID of the guild this role belongs to.
+   */
+  guild_id: number;
+  /**
+   * The name of the role.
+   *
+   */
+  name: string;
+  /**
+   * The color of the role. This is an integer between 0 and 16777215, or `None` if the role
+   * has no color (in which case it inherits the color).
+   */
+  color?: number;
+  /**
+   * The permissions users with this role have.
+   */
+  permissions: {
+    /**
+     * Allowed permissions.
+     */
+    allow: bigint;
+    /**
+     * Denied permissions.
+     */
+    deny: bigint;
+  };
+  /**
+   * The position of this role in the role hierarchy. The lower the number, the lower the role.
+   * The default role always has a position of 0.
+   */
+  position: number;
+  /**
+   * A bitmask of flags representing extra metadata about the role.
+   */
+  flags: number;
+}

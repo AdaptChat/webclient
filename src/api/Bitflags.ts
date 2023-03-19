@@ -1,10 +1,31 @@
+interface _BitflagsMapping<Flags> {
+  flags: Flags
+  of(...flags: (keyof Flags)[]): _BitflagsValue<Flags>
+  fromFlags(flags: { [key in keyof Flags]?: boolean }): _BitflagsValue<Flags>
+  fromValue(value: bigint): _BitflagsValue<Flags>
+  empty(): _BitflagsValue<Flags>
+  all(): _BitflagsValue<Flags>
+}
+
+interface _BitflagsValue<Flags> {
+  value: bigint
+  has(flag: keyof Flags): boolean
+  add(...targets: (keyof Flags)[]): this
+  remove(...targets: (keyof Flags)[]): this
+  toggle(...targets: (keyof Flags)[]): this
+  update(newFlags: { [key in keyof Flags]?: boolean }): this
+  clear(): this
+  get isEmpty(): boolean
+  toFlags(): { [key in keyof Flags]: boolean }
+}
+
 /**
  * Represents flags represented as booleans.
  */
 export function generateBitflags<
   RawFlags extends { [key: string]: number | bigint | ((flags: { [key: string]: bigint }) => number | bigint) },
   Flags extends RawFlags & { [key: string]: bigint },
->(rawFlags: RawFlags) {
+>(rawFlags: RawFlags): _BitflagsMapping<Flags> {
   const flags: Flags = {} as any
   for (const [key, value] of Object.entries(rawFlags)) {
     flags[key as keyof Flags] = BigInt(typeof value === "function" ? value(flags) : value) as any
@@ -14,8 +35,12 @@ export function generateBitflags<
     static readonly flags = flags
     value: bigint
 
-    constructor(value: number | bigint = 0) {
+    private constructor(value: number | bigint = 0) {
       this.value = BigInt(value)
+    }
+
+    static of(...flags: (keyof Flags)[]) {
+      return new this(flags.reduce((acc, flag) => acc | this.flags[flag], 0n))
     }
 
     static fromFlags(flags: { [key in keyof Flags]?: boolean }) {
@@ -28,6 +53,10 @@ export function generateBitflags<
 
     static fromValue(value: bigint) {
       return new this(value)
+    }
+
+    static empty() {
+      return new this()
     }
 
     static all() {
@@ -74,14 +103,17 @@ export function generateBitflags<
       return Object.fromEntries(Object.keys(flags).map((key) => [key, this.has(key)])) as any
     }
   }
-  return _BitflagsGeneratedBase as typeof _BitflagsGeneratedBase & { flags: typeof flags }
+  return _BitflagsGeneratedBase
 }
+
+type _Extract<T> = T extends _BitflagsMapping<infer U> ? _BitflagsValue<U> : never
 
 export const Devices = generateBitflags({
   DESKTOP: 1 << 0,
   MOBILE: 1 << 1,
   WEB: 1 << 2,
 })
+export type Devices = _Extract<typeof Devices>
 
 export const PrivacyConfiguration = generateBitflags({
   FRIENDS: 1 << 0,
@@ -93,10 +125,12 @@ export const PrivacyConfiguration = generateBitflags({
   DEFAULT_GROUP_DM_PRIVACY: flags => flags.FRIENDS,
   DEFAULT_FRIEND_REQUEST_PRIVACY: flags => flags.EVERYONE,
 })
+export type PrivacyConfiguration = _Extract<typeof PrivacyConfiguration>
 
 export const UserFlags = generateBitflags({
   BOT: 1 << 0,
 })
+export type UserFlags = _Extract<typeof UserFlags>
 
 export const RoleFlags = generateBitflags({
   HOISTED: 1 << 0,
@@ -104,6 +138,7 @@ export const RoleFlags = generateBitflags({
   MENTIONABLE: 1 << 2,
   DEFAULT: 1 << 3,
 })
+export type RoleFlags = _Extract<typeof RoleFlags>
 
 export const MessageFlags = generateBitflags({
   PINNED: 1 << 0,
@@ -111,12 +146,14 @@ export const MessageFlags = generateBitflags({
   CROSSPOST: 1 << 2,
   PUBLISHED: 1 << 3,
 })
+export type MessageFlags = _Extract<typeof MessageFlags>
 
 export const GuildFlags = generateBitflags({
   PUBLIC: 1 << 0,
   VERIFIED: 1 << 1,
   VANIITY_URL: 1 << 2,
 })
+export type GuildFlags = _Extract<typeof GuildFlags>
 
 export const Permissions = generateBitflags({
   VIEW_CHANNEL: 1 << 0,
@@ -167,3 +204,4 @@ export const Permissions = generateBitflags({
     | flags.CONNECT
     | flags.SPEAK,
 })
+export type Permissions = _Extract<typeof Permissions>

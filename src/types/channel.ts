@@ -70,12 +70,31 @@ export type GuildChannel = GuildChannelInfo & {
   /**
    * The permission overwrites for this channel.
    */
-  permission_overwrites: any[], /* PermissionOverwrite[] TODO */
+  permission_overwrites: PermissionOverwrite[],
   /**
    * The ID of the parent category of the channel. This is `undefined` if the channel is not in a
    * category.
    */
   parent_id?: number,
+}
+
+/**
+ * Represents a permission overwrite.
+ */
+export interface PermissionOverwrite {
+  /**
+   * The ID of the role or user that this overwrite applies to. The model type can be extracted from
+   * the ID.
+   */
+  id: number;
+  /**
+   * Allowed permissions.
+   */
+  allow: bigint;
+  /**
+   * Denied permissions.
+   */
+  deny: bigint;
 }
 
 export interface GroupDmChannelInfo {
