@@ -85,7 +85,6 @@ export default function Chat(props: { channelId: number, title: string, startMes
   const [messageInputFocusTimeout, setMessageInputFocusTimeout] = createSignal<number | null>(null)
   const [loading, setLoading] = createSignal(true)
 
-  createEffect(() => console.log(loading(), grouper().groups))
   const mobile = /Android|webOS|iPhone|iP[ao]d|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   const grouper = createMemo(() => {
     const { grouper, cached } = getApi()!.cache!.useChannelMessages(props.channelId)
