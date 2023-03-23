@@ -1,6 +1,7 @@
 import {createMemo, JSX, ParentProps} from "solid-js";
 import {A, useLocation} from "@solidjs/router";
 import {setShowSidebar} from "../../pages/Layout";
+import Icon, {IconElement} from "../icons/Icon";
 
 const WrappedButtonComponent = (props: ParentProps<JSX.ButtonHTMLAttributes<HTMLButtonElement>>) => (
   <button {...props} />
@@ -9,8 +10,8 @@ const WrappedButtonComponent = (props: ParentProps<JSX.ButtonHTMLAttributes<HTML
 export interface Props {
   href?: string | string[],
   onClick?: () => void,
-  svg?: string,
-  icon?: string,
+  svg?: IconElement,
+  iconUrl?: string,
   active?: boolean,
   danger?: boolean
 }
@@ -43,19 +44,18 @@ export default function SidebarButton(props: ParentProps<Props>) {
       }}
     >
       {props.svg && (
-        <img
-          src={props.svg}
-          alt=""
+        <Icon
+          icon={props.svg}
           classList={{
             "w-4 h-4 select-none transition-all duration-200": true,
             "opacity-100": active() || props.danger,
             "opacity-50": !active() && !props.danger,
-            "group-hover:opacity-80 invert": !props.danger,
-            "filter-error group-hover:invert": props.danger,
+            "group-hover:opacity-80 fill-base-content": !props.danger,
+            "fill-error group-hover:fill-base-content": props.danger,
           }}
         />
       )}
-      {props.icon && <img src={props.icon} alt="" class="w-4 h-4" />}
+      {props.iconUrl && <img src={props.iconUrl} alt="" class="w-4 h-4" />}
       <span classList={{
         "font-medium text-sm transition-all duration-200": true,
         "text-opacity-100": active() || props.danger,

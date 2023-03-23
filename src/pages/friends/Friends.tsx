@@ -4,6 +4,7 @@ import {A, Route, Routes, useLocation} from "@solidjs/router";
 import {createSignal, lazy} from "solid-js";
 import Modal from "../../components/ui/Modal";
 import AddFriendModal from "../../components/friends/AddFriendModal";
+import UserPlus from "../../components/icons/svg/UserPlus";
 
 const FriendsList = lazy(() => import("./FriendsList"))
 const Requests = lazy(() => import("./Requests"))
@@ -45,7 +46,7 @@ export default function Friends() {
   return (
     <Layout title="Friends" sidebar={Sidebar} topNav={FriendsNav} showBottomNav actionButtons={[
       {
-        icon: "/icons/user-plus.svg",
+        icon: UserPlus,
         alt: "Add Friend",
         onClick: () => setShowAddFriendModal(true),
       }

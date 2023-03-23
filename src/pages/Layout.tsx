@@ -1,25 +1,38 @@
 import {createEffect, createMemo, createSignal, For, JSX, onMount, ParentProps, Show} from "solid-js";
 import {useLocation, useNavigate} from "@solidjs/router";
-import GuildSideSelect from "../components/guilds/GuildSideSelect";
+import {createMediaQuery} from "@solid-primitives/media";
+import {toast} from "solid-toast";
+
+import {getApi} from "../api/Api";
 import tooltip from "../directives/tooltip";
 import {noop} from "../utils";
-import {createMediaQuery} from "@solid-primitives/media";
-import {getApi} from "../api/Api";
-import StatusIndicator from "../components/users/StatusIndicator";
-import {toast} from "solid-toast";
 noop(tooltip)
 
-function BottomNav({ href, icon, alt }: { href: string, icon: string, alt: string }) {
+import GuildSideSelect from "../components/guilds/GuildSideSelect";
+import StatusIndicator from "../components/users/StatusIndicator";
+
+import Icon, {IconElement} from "../components/icons/Icon";
+import ChevronLeft from "../components/icons/svg/ChevronLeft";
+import ChevronRight from "../components/icons/svg/ChevronRight";
+import HomeIcon from "../components/icons/svg/Home";
+import UsersIcon from "../components/icons/svg/Users";
+import ServerIcon from "../components/icons/svg/Server";
+import GearIcon from "../components/icons/svg/Gear";
+
+function BottomNav({ href, icon, alt }: { href: string, icon: IconElement, alt: string }) {
   const route = useLocation()
   const navigate = useNavigate()
 
   return (
     <a
-      class={`bg-gray-900 hover:bg-gray-700 transition text-base-content/30 ${route.pathname === href ? 'active' : ''}`}
+      classList={{
+        "group bg-gray-900 hover:bg-gray-700 transition text-base-content": true,
+        "active": route.pathname === href,
+      }}
       onClick={() => navigate(href)}
       use:tooltip={{ content: alt, placement: 'top' }}
     >
-      <img src={icon} alt={alt} class="invert select-none w-5" />
+      <Icon icon={icon} title={alt} class="select-none w-5 h-5 fill-base-content opacity-70 group-hover:opacity-100" />
     </a>
   )
 }
@@ -31,7 +44,7 @@ export interface LayoutProps {
   topNav?: () => JSX.Element,
   hideGuildSelect?: boolean,
   showBottomNav?: boolean,
-  actionButtons?: { icon: string, alt: string, onClick: () => any }[],
+  actionButtons?: { icon: IconElement, alt: string, onClick: () => any }[],
 }
 
 export const [showSidebar, setShowSidebar] = createSignal(true)
@@ -106,7 +119,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
           }}
           onClick={() => setShowSidebar(false)}
         >
-          <img src="/icons/chevron-left.svg" alt="Collapse Sidebar" class="invert w-3 opacity-50" />
+          <Icon icon={ChevronLeft} class="fa-xs opacity-50 fill-base-content w-5 h-5" title="Collapse Sidebar" />
         </div>
         <div classList={{
           "flex flex-col items-center": true,
@@ -122,11 +135,13 @@ export default function Layout(props: ParentProps<LayoutProps>) {
             }}>
               <div class="flex items-center pl-4 h-14 mobile:overflow-x-auto mobile:hide-scrollbar">
                 <button onClick={() => setShowSidebar(prev => !prev)}>
-                  <img
-                    src={showSidebar() ? "/icons/chevron-left.svg" : "/icons/chevron-right.svg"}
-                    alt={showSidebar() ? "Collapse Sidebar" : "Show Sidebar"}
-                    class="invert select-none w-3 opacity-30 hover:opacity-60 transition-opacity duration-300
-                      left-3 top-3 z-[9999] mr-4"
+                  <Icon
+                    icon={showSidebar() ? ChevronLeft : ChevronRight}
+                    title={showSidebar() ? "Collapse Sidebar" : "Show Sidebar"}
+                    class={
+                      "fill-base-content select-none w-5 h-5 opacity-30 hover:opacity-60 transition-opacity"
+                        + " duration-300 z-[9999] mr-3"
+                    }
                   />
                 </button>
                 <span class="font-bold font-title">
@@ -144,23 +159,23 @@ export default function Layout(props: ParentProps<LayoutProps>) {
               <div class="flex items-center p-4 gap-x-4">
                 {/* TODO: merge the member icon into actionButtons */}
                 {props.rightSidebar && (
-                  <button onClick={() => setShowRightSidebar(prev => !prev)} class="w-6">
-                    <img
-                      src="/icons/users.svg"
-                      alt="Show or hide Members"
-                      class="invert opacity-70 select-none hover:opacity-100 transition duration-200 w-6 h-6"
-                      use:tooltip={{content: `${rightSidebar() ? 'Hide' : 'Show'} Member List`, placement: 'bottom'}}
+                  <button onClick={() => setShowRightSidebar(prev => !prev)}>
+                    <Icon
+                      icon={UsersIcon}
+                      class="fill-base-content opacity-70 hover:opacity-100 select-none w-6 h-6 transition duration-200"
+                      title="Show or Hide Members"
+                      tooltip={{ content: `${rightSidebar() ? 'Hide' : 'Show'} Member List`, placement: 'bottom' }}
                     />
                   </button>
                 )}
                 <For each={props.actionButtons ?? []}>
                   {({ icon, alt, onClick }) => (
-                    <button onClick={onClick} class="w-6">
-                      <img
-                        src={icon}
-                        alt={alt}
-                        class="invert opacity-70 select-none hover:opacity-100 transition duration-200 w-6 h-6"
-                        use:tooltip={{ content: alt, placement: 'bottom' }}
+                    <button onClick={onClick}>
+                      <Icon
+                        icon={icon}
+                        title={alt}
+                        class="fill-base-content opacity-70 hover:opacity-100 select-none w-6 h-6 transition duration-200"
+                        tooltip={{ content: alt, placement: 'bottom' }}
                       />
                     </button>
                   )}
@@ -173,7 +188,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
             "mobile:hidden": sidebar(),
           }}>
             <div classList={{
-              "flex flex-col": true,
+              "flex flex-col transition-all": true,
               "w-full": !rightSidebar(),
               "w-[calc(100%-15rem)] mobile:hidden": rightSidebar(),
             }}>
@@ -189,10 +204,13 @@ export default function Layout(props: ParentProps<LayoutProps>) {
               }}
               onClick={() => setShowRightSidebar(false)}
             >
-              <img src="/icons/chevron-right.svg" alt="Collapse Members List" class="invert w-3 opacity-50"/>
+              <Icon icon={ChevronRight} class="w-5 h-5 opacity-50 fill-base-content" title="Collapse Members List" />
             </div>
             <Show when={rightSidebar()} keyed={false}>
-              <div class="absolute right-0 top-14 inset-y-0 flex flex-col w-60 overflow-y-auto bg-gray-850 mobile:w-[calc(100%-3rem)]">
+              <div
+                class="absolute right-0 top-14 inset-y-0 mobile:relative mobile:top-0 flex flex-col w-60
+                  overflow-y-auto bg-gray-850 mobile:w-[calc(100%-3rem)]"
+              >
                 {props.rightSidebar!()}
               </div>
             </Show>
@@ -203,9 +221,9 @@ export default function Layout(props: ParentProps<LayoutProps>) {
         "btm-nav md:hidden": true,
         "hidden": !props.showBottomNav && !sidebar(),
       }}>
-        <BottomNav href="/" icon="/icons/home.svg" alt="Home" />
-        <BottomNav href="/select" icon="/icons/server.svg" alt="Servers" />
-        <BottomNav href="/settings" icon="/icons/gear.svg" alt="Settings" />
+        <BottomNav href="/" icon={HomeIcon} alt="Home" />
+        <BottomNav href="/select" icon={ServerIcon} alt="Servers" />
+        <BottomNav href="/settings" icon={GearIcon} alt="Settings" />
       </div>
     </div>
   )

@@ -6,6 +6,9 @@ import {useNavigate} from "@solidjs/router";
 import {type UpdateGuildOptions} from "../../api/ApiCache";
 import {snowflakes} from "../../utils";
 import {GuildCreateEvent} from "../../types/ws";
+import Icon from "../icons/Icon";
+import ChevronRight from "../icons/svg/ChevronRight";
+import ChevronLeft from "../icons/svg/ChevronLeft";
 
 export enum ModalPage { New, Create, Join }
 
@@ -25,7 +28,7 @@ function Card({ title, children, ...props }: ParentProps<{ title: string }> & JS
         <h3 class="text-left font-medium font-title text-lg">{title}</h3>
         <p class="text-sm text-left">{children}</p>
       </div>
-      <img src="/icons/chevron-right.svg" alt="Click to go" class="invert select-none w-4"/>
+      <Icon icon={ChevronRight} title="Click to go" class="fill-base-content select-none w-4 h-4"/>
     </button>
   )
 }
@@ -101,7 +104,7 @@ function Base(props: ParentProps<ExtendedProps>) {
         </Show>
         {/* If a button component was used, some browsers will not recognize the button after it. */}
         <div class="flex gap-x-2 btn btn-neutral" onClick={() => props.setPage(ModalPage.New)}>
-          <img src="/icons/chevron-left.svg" alt="" class="invert select-none w-[10px] opacity-60" width={10} />
+          <Icon icon={ChevronLeft} class="fill-base-content select-none w-[10px] h-[10px] opacity-60" />
           Back
         </div>
         <button

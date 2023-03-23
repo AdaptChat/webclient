@@ -3,6 +3,9 @@ import {createEffect, createSignal, For, onCleanup, onMount, Show} from "solid-j
 import {getApi} from "../../api/Api";
 import {User} from "../../types/user";
 import {RelationshipCreateEvent} from "../../types/ws";
+import Icon from "../icons/Icon";
+import Check from "../icons/svg/Check";
+import Plus from "../icons/svg/Plus";
 
 export default function AddFriendModal() {
   let inputRef: HTMLInputElement | null = null
@@ -83,11 +86,10 @@ export default function AddFriendModal() {
             "bg-success": added(),
           }}
         >
-          <img
-            src={added() ? "/icons/check.svg" : "/icons/plus.svg"}
-            alt="Copy to clipboard"
-            class="w-4 h-4 invert"
-            width={20}
+          <Icon
+            icon={added() ? Check : Plus}
+            title="Copy to clipboard"
+            class="w-4 h-4 fill-base-content"
           />
         </button>
       </form>
@@ -99,7 +101,7 @@ export default function AddFriendModal() {
           <For each={newRequests()}>
             {(user: User) => (
               <span class="inline-flex items-center flex-wrap text-base-content/70">
-                <img src="/icons/check.svg" alt="" class="w-4 h-4 mr-2 invert opacity-70 select-none"/>
+                <Icon icon={Check} class="w-4 h-4 mr-2 fill-base-content opacity-70 select-none" />
                 Requested to add
                 <span class="flex bg-gray-900 rounded-lg p-1 mx-1">
                   <img

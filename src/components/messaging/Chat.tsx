@@ -1,4 +1,4 @@
-import {createEffect, createMemo, createSignal, For, JSX, onCleanup, onMount, Show} from "solid-js";
+import {createMemo, createSignal, For, JSX, onCleanup, onMount, Show} from "solid-js";
 import type {Message} from "../../types/message";
 import {getApi} from "../../api/Api";
 import {type MessageGroup} from "../../api/MessageGrouper";
@@ -6,6 +6,8 @@ import {humanizeFullTimestamp, humanizeTime, humanizeTimestamp, snowflakes} from
 import TypingKeepAlive from "../../api/TypingKeepAlive";
 import tooltip from "../../directives/tooltip";
 import {noop} from "../../utils";
+import Icon from "../icons/Icon";
+import PaperPlaneTop from "../icons/svg/PaperPlaneTop";
 noop(tooltip)
 
 type SkeletalData = {
@@ -262,7 +264,7 @@ export default function Chat(props: { channelId: number, title: string, startMes
         <button
           classList={{
             [
-              "w-10 h-10 flex flex-shrink-0 items-center justify-center rounded-full bg-gray-700 ml-2 transition-all duration-200"
+              "w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-gray-700 ml-2 transition-all duration-200"
             ]: true,
             "opacity-50 cursor-not-allowed": !messageInput(),
             "hover:bg-accent": !!messageInput(),
@@ -276,7 +278,7 @@ export default function Chat(props: { channelId: number, title: string, startMes
             await createMessage()
           }}
         >
-          <img src="/icons/paper-plane-top.svg" alt="Send" class="invert" width={18} height={18} />
+          <Icon icon={PaperPlaneTop} title="Send" class="fill-base-content w-[18px] h-[18px]" />
         </button>
       </div>
       <div class="mx-4 h-5 text-xs flex-shrink-0">

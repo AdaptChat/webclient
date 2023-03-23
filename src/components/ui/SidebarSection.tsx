@@ -1,6 +1,8 @@
 import {type JSX, ParentProps, Show} from "solid-js";
 import tooltip from "../../directives/tooltip";
 import {noop} from "../../utils";
+import Icon from "../icons/Icon";
+import Plus from "../icons/svg/Plus";
 noop(tooltip)
 
 export default function SidebarSection(
@@ -20,10 +22,10 @@ export default function SidebarSection(
           onClick={() => props.plusAction!()}
           use:tooltip={props.plusTooltip}
         >
-          <img
-            src="/icons/plus.svg"
-            alt={props.plusTooltip}
-            class="w-full h-full invert opacity-50 group-hover:opacity-80 transition duration-200"
+          <Icon
+            icon={Plus}
+            title={props.plusTooltip}
+            class="w-full h-full fill-base-content opacity-50 group-hover:opacity-80 transition duration-200"
           />
         </button>
       )}

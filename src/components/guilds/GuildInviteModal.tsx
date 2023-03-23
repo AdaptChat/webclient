@@ -2,6 +2,9 @@ import type {Guild} from "../../types/guild";
 import {getApi} from "../../api/Api";
 import {Accessor, createEffect, createSignal} from "solid-js";
 import {ModalTemplate} from "../ui/Modal";
+import Check from "../icons/svg/Check";
+import Icon from "../icons/Icon";
+import ClipboardIcon from "../icons/svg/Clipboard";
 
 export default function GuildInviteModal({ guild, show }: { guild: Guild, show: Accessor<boolean> }) {
   let inputRef: HTMLInputElement | null = null
@@ -55,11 +58,10 @@ export default function GuildInviteModal({ guild, show }: { guild: Guild, show: 
             setTimeout(() => setCopied(false), 1000)
           }}
         >
-          <img
-            src={copied() ? "/icons/check.svg" : "/icons/clipboard.svg"}
-            alt="Copy to clipboard"
-            class="w-4 h-4 invert"
-            width={20}
+          <Icon
+            icon={copied() ? Check : ClipboardIcon}
+            title="Copy to clipboard"
+            class="w-4 h-4 fill-base-content"
           />
         </button>
       </div>

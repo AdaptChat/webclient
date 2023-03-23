@@ -118,12 +118,16 @@ export function humanizeFullTimestamp(timestamp: number | Date): string {
   if (typeof timestamp === 'number')
     timestamp = new Date(timestamp)
 
-  return timestamp.toLocaleDateString('en-US', {
+  return timestamp.toLocaleString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
     weekday: 'long',
-  }) + ' at ' + humanizeTime(timestamp)
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  })
 }
 
 /**

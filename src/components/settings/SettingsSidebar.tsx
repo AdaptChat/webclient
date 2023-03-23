@@ -2,6 +2,8 @@ import SidebarButton from "../ui/SidebarButton";
 import tooltip from "../../directives/tooltip";
 import {noop} from "../../utils";
 import SidebarSection from "../ui/SidebarSection";
+import UserIcon from "../icons/svg/User";
+import RightFromBracket from "../icons/svg/RightFromBracket";
 noop(tooltip)
 
 export function SettingsSidebar() {
@@ -9,9 +11,9 @@ export function SettingsSidebar() {
     <div class="flex flex-col items-center justify-center w-full">
       <div class="flex flex-col w-full p-2">
         <SidebarSection>User Settings</SidebarSection>
-        <SidebarButton href={["/settings/account", "/settings"]} svg="/icons/user.svg">Account</SidebarButton>
+        <SidebarButton href={["/settings/account", "/settings"]} svg={UserIcon}>Account</SidebarButton>
         <SidebarButton
-          svg="/icons/right-from-bracket.svg"
+          svg={RightFromBracket}
           danger
           onClick={() => {
             window.localStorage.clear()

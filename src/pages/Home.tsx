@@ -10,6 +10,11 @@ import SidebarButton from "../components/ui/SidebarButton";
 import {DmChannel, GroupDmChannel} from "../types/channel";
 import tooltip from "../directives/tooltip";
 import {toast} from "solid-toast";
+import Icon from "../components/icons/Icon";
+import Xmark from "../components/icons/svg/Xmark";
+import HomeIcon from "../components/icons/svg/Home";
+import UserGroup from "../components/icons/svg/UserGroup";
+import ChevronRight from "../components/icons/svg/ChevronRight";
 noop(tooltip)
 
 function StatusSelect(props: StatusIndicatorProps & { label: string }) {
@@ -52,7 +57,7 @@ function LearnAdaptSubcard(
         <h3 class="text-left font-medium font-title text-lg">{title}</h3>
         <p class="text-sm text-left">{children}</p>
       </div>
-      <img src="/icons/chevron-right.svg" alt="Click to go" class="invert select-none w-4"/>
+      <Icon icon={ChevronRight} title="Click to go" class="fill-base-content select-none w-4 h-4"/>
     </button>
   )
 }
@@ -111,11 +116,11 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
           </div>
         </div>
       </div>
-      <img
-        src="/icons/xmark.svg"
-        alt={deleteMessage()}
-        class="invert select-none w-4 h-4 opacity-0 hover:!opacity-80 group-hover:opacity-50 transition-opacity duration-200"
-        use:tooltip={deleteMessage()}
+      <Icon
+        icon={Xmark}
+        title={deleteMessage()}
+        tooltip={deleteMessage()}
+        class="fill-base-content select-none w-4 h-4 opacity-0 hover:!opacity-80 group-hover:opacity-50 transition-opacity duration-200"
         onClick={(event) => {
           event.stopPropagation()
           event.preventDefault()
@@ -134,8 +139,8 @@ export function Sidebar() {
   return (
     <div class="flex flex-col items-center justify-center w-full">
       <div class="flex flex-col w-full p-2">
-        <SidebarButton href="/" svg="/icons/home.svg">Home</SidebarButton>
-        <SidebarButton href={["/friends", "/friends/requests"]} svg="/icons/user-group.svg">Friends</SidebarButton>
+        <SidebarButton href="/" svg={HomeIcon}>Home</SidebarButton>
+        <SidebarButton href={["/friends", "/friends/requests"]} svg={UserGroup}>Friends</SidebarButton>
         <Show when={dmChannelOrder().length > 0} keyed={false}>
           <SidebarSection plusAction={() => toast.error("Work in progress")} plusTooltip="New Direct Message">
             Direct Messages

@@ -4,6 +4,9 @@ import {filterIterator} from "../../utils";
 import {RelationshipType} from "../../types/user";
 import tooltip from "../../directives/tooltip";
 import {noop} from "../../utils";
+import Icon from "../../components/icons/Icon";
+import Xmark from "../../components/icons/svg/Xmark";
+import Check from "../../components/icons/svg/Check";
 noop(tooltip)
 
 export function relationshipFilterFactory(api: Api, targetType: RelationshipType): Accessor<[number, RelationshipType][]> {
@@ -19,7 +22,7 @@ export function RelationshipDeleteButton({ api, id, label }: { api: Api, id: num
       onClick={() => api.request('DELETE', `/relationships/${id}`)}
       use:tooltip={{content: label, placement: 'left'}}
     >
-      <img src="/icons/xmark.svg" alt={label} class="w-4 h-4 invert"/>
+      <Icon icon={Xmark} title={label} class="w-4 h-4 fill-base-content"/>
     </button>
   )
 }
@@ -79,7 +82,7 @@ export default function Requests() {
                 onClick={() => api.request('PUT', `/relationships/friends/${id}`)}
                 use:tooltip={{content: "Accept Request", placement: 'left'}}
               >
-                <img src="/icons/check.svg" alt="Accept Request" class="w-4 h-4 invert"/>
+                <Icon icon={Check} title="Accept Request" class="w-4 h-4 fill-base-content"/>
               </button>
               <RelationshipDeleteButton api={api} id={id} label="Deny Request" />
             </FriendEntry>

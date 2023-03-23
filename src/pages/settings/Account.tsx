@@ -3,6 +3,10 @@ import {getApi} from "../../api/Api";
 import tooltip from "../../directives/tooltip";
 import {noop} from "../../utils";
 import {createSignal, createUniqueId, Show} from "solid-js";
+import Icon from "../../components/icons/Icon";
+import PenToSquare from "../../components/icons/svg/PenToSquare";
+import Check from "../../components/icons/svg/Check";
+import Xmark from "../../components/icons/svg/Xmark";
 noop(tooltip)
 
 export default function Account() {
@@ -48,7 +52,7 @@ export default function Account() {
               class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur rounded-lg
                 opacity-0 group-hover:opacity-100 transition duration-200"
             >
-              <img src="/icons/pen-to-square.svg" class="w-6 h-6 invert" alt="Edit Avatar" />
+              <Icon icon={PenToSquare} class="w-6 h-6 fill-base-content" title="Edit Avatar" />
               <span class="uppercase font-bold text-xs mt-1">Edit Avatar</span>
             </div>
             <img src={api.cache!.clientAvatar} alt="" class="w-24 h-24" />
@@ -100,11 +104,11 @@ export default function Account() {
           <div class="flex absolute right-4 top-4 gap-x-2">
             <Show when={editing() && changed()} keyed={false}>
               <button type="submit" form={formId} class="select-none opacity-60 hover:opacity-100 transition duration-200">
-                <img
-                  src="/icons/check.svg"
-                  class="w-6 h-6 invert"
-                  alt="Save"
-                  use:tooltip={{ content: "Save", placement: 'left' }}
+                <Icon
+                  icon={Check}
+                  class="w-6 h-6 fill-base-content"
+                  title="Save"
+                  tooltip={{ content: "Save", placement: 'left' }}
                 />
               </button>
             </Show>
@@ -112,11 +116,11 @@ export default function Account() {
               class="select-none opacity-60 hover:opacity-100 transition duration-200"
               onClick={() => setEditing(prev => !prev)}
             >
-              <img
-                src={editing() ? "/icons/xmark.svg" : "/icons/pen-to-square.svg"}
-                class="w-6 h-6 invert"
-                alt={editing() ? "Cancel" : "Edit"}
-                use:tooltip={{ content: editing() ? "Cancel" : "Edit", placement: 'left' }}
+              <Icon
+                icon={editing() ? Xmark : PenToSquare}
+                class="w-6 h-6 fill-base-content"
+                title={editing() ? "Cancel" : "Edit"}
+                tooltip={{ content: editing() ? "Cancel" : "Edit", placement: 'left' }}
               />
             </button>
           </div>

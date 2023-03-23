@@ -7,9 +7,16 @@ import GuildInviteModal from "./GuildInviteModal";
 import Modal from "../ui/Modal";
 import ConfirmGuildLeaveModal, {type Props} from "./ConfirmGuildLeaveModal";
 import ConfirmGuildDeleteModal from "./ConfirmGuildDelete";
+import Icon, {IconElement} from "../icons/Icon";
+import ChevronDown from "../icons/svg/ChevronDown";
+import UserPlus from "../icons/svg/UserPlus";
+import Trash from "../icons/svg/Trash";
+import RightFromBracket from "../icons/svg/RightFromBracket";
+import HomeIcon from "../icons/svg/Home";
+import Hashtag from "../icons/svg/Hashtag";
 
 interface GuildDropdownButtonProps {
-  icon: string,
+  icon: IconElement,
   label: string,
   groupHoverColor?: string,
   svgClass?: string,
@@ -18,14 +25,14 @@ interface GuildDropdownButtonProps {
 }
 
 function GuildDropdownButton(props: GuildDropdownButtonProps) {
-  const svgClasses = "w-4 h-4 invert " + (props.svgClass ?? "")
+  const svgClasses = "w-4 h-4 " + (props.svgClass ?? "")
   const labelClasses = "ml-2 " + (props.labelClass ?? "")
   const groupHoverClass = props.groupHoverColor ? `hover:bg-error` : "hover:bg-accent"
 
   return (
     <li class={`w-full group/gdb ${groupHoverClass} transition-all duration-300`}>
       <a class="px-3 py-2 text-sm flex items-center" onClick={props.onClick}>
-        <img src={props.icon} alt="" class={svgClasses} width={16}/>
+        <Icon icon={props.icon} class={svgClasses} />
         <span class={labelClasses}>{props.label}</span>
       </a>
     </li>
@@ -78,7 +85,7 @@ export default function GuildSidebar() {
             {guild.name}
           </span>
           <label tabIndex={0} class="cursor-pointer">
-            <img src="/icons/chevron-down.svg" alt="Server Options" class="w-3 invert opacity-50" width={12} />
+            <Icon icon={ChevronDown} title="Server Options" class="w-3 fill-base-content opacity-50" />
           </label>
         </div>
         {guild.description && (
@@ -89,28 +96,26 @@ export default function GuildSidebar() {
         <div class="divider m-0 p-0 h-0 hidden group-hover:flex" />
         <ul tabIndex={0} class="hidden group-hover:flex flex-col">
           <GuildDropdownButton
-            icon="/icons/user-plus.svg"
+            icon={UserPlus}
             label="Invite People"
+            svgClass="fill-base-content"
             onClick={() => setShowInviteModal(true)}
           />
           <GuildDropdownButton
-            icon={isOwner() ? "/icons/trash.svg" : "/icons/right-from-bracket.svg"}
+            icon={isOwner() ? Trash : RightFromBracket}
             label={isOwner() ? "Delete Server" : "Leave Server"}
             groupHoverColor="error"
-            svgClass="filter-error group-hover/gdb:invert"
+            svgClass="fill-error group-hover/gdb:fill-base-content"
             labelClass="text-error group-hover/gdb:text-base-content"
             onClick={() => setConfirmGuildLeaveModal(true)}
           />
         </ul>
       </div>
       <div class="flex flex-col w-full p-2">
-        <SidebarButton href={`/guilds/${guildId}`} svg="/icons/home.svg" active={!channelId()}>Home</SidebarButton>
+        <SidebarButton href={`/guilds/${guildId}`} svg={HomeIcon} active={!channelId()}>Home</SidebarButton>
         <For each={guild.channels}>
           {(channel: GuildChannel) => (
-            <SidebarButton
-              href={`/guilds/${guildId}/${channel.id}`}
-              svg="/icons/hashtag.svg"
-            >
+            <SidebarButton href={`/guilds/${guildId}/${channel.id}`} svg={Hashtag}>
               {channel.name}
             </SidebarButton>
           )}

@@ -6,6 +6,8 @@ import tooltip from "../../directives/tooltip";
 import {findIterator, noop} from "../../utils";
 import {ChannelCreateEvent} from "../../types/ws";
 import {Channel} from "../../types/channel";
+import MessageIcon from "../../components/icons/svg/Message";
+import Icon from "../../components/icons/Icon";
 noop(tooltip)
 
 export default function FriendsList() {
@@ -46,7 +48,7 @@ export default function FriendsList() {
                 }}
                 use:tooltip={{ content: "Open DM", placement: 'left' }}
               >
-                <img src="/icons/message.svg" alt="Open DM" class="w-3 h-3 invert"/>
+                <Icon icon={MessageIcon} title="Open DM" class="w-3 h-3 fill-base-content"/>
               </button>
               <RelationshipDeleteButton api={api} id={id} label="Remove Friend" />
             </FriendEntry>

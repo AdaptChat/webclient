@@ -2,13 +2,14 @@ import {useNavigate} from "@solidjs/router";
 import Layout, {LayoutProps} from "../Layout";
 import {SettingsSidebar} from "../../components/settings/SettingsSidebar";
 import {onCleanup, onMount, ParentProps} from "solid-js";
+import Xmark from "../../components/icons/svg/Xmark";
 
 export default function SettingsLayout({ children, ...props }: ParentProps<LayoutProps>) {
   const navigate = useNavigate()
 
   props.actionButtons ??= []
   props.actionButtons.push({
-    icon: '/icons/xmark.svg',
+    icon: Xmark,
     alt: 'Exit Settings',
     onClick: () => navigate('/'),
   })

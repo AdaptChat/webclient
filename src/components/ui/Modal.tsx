@@ -1,4 +1,6 @@
 import {Accessor, createEffect, createSignal, ParentProps, Setter} from "solid-js";
+import Icon from "../icons/Icon";
+import Xmark from "../icons/svg/Xmark";
 
 export default function Modal({ get, set, children }: ParentProps<{ get: Accessor<boolean>, set: Setter<boolean> }>) {
   const [invisible, setInvisible] = createSignal(true)
@@ -27,11 +29,10 @@ export default function Modal({ get, set, children }: ParentProps<{ get: Accesso
         "scale-100": get(),
       }}>
         <button>
-          <img
-            src="/icons/xmark.svg"
-            alt="Close Modal"
-            class="w-5 h-5 invert absolute right-4 top-4 select-none opacity-50 hover:opacity-100 transition-all duration-200"
-            width={20}
+          <Icon
+            icon={Xmark}
+            title="Close Modal"
+            class="w-5 h-5 fill-base-content absolute right-4 top-4 select-none opacity-50 hover:opacity-100 transition-all duration-200"
             onClick={() => set(false)}
           />
         </button>
