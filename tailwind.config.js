@@ -21,7 +21,11 @@ module.exports = {
           900: '#001224',
         },
         secondary: '#be3dff',
-        link: '#4bd5ff',
+        link: {
+          DEFAULT: '#4bd5ff',
+          hover: '#9be7ff',
+          visited: '#4bd5ff',
+        },
         base: {
           content: '#ffffff',
         },

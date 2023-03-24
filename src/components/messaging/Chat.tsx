@@ -1,4 +1,4 @@
-import {createMemo, createRenderEffect, createSignal, For, JSX, onCleanup, onMount, Show} from "solid-js";
+import {createMemo, createSignal, For, JSX, onCleanup, onMount, Show} from "solid-js";
 import type {Message} from "../../types/message";
 import {getApi} from "../../api/Api";
 import {type MessageGroup} from "../../api/MessageGrouper";
@@ -8,7 +8,7 @@ import tooltip from "../../directives/tooltip";
 import {noop} from "../../utils";
 import Icon from "../icons/Icon";
 import PaperPlaneTop from "../icons/svg/PaperPlaneTop";
-import {render} from "./Markdown";
+import {DynamicMarkdown} from "./Markdown";
 noop(tooltip)
 
 type SkeletalData = {
@@ -58,11 +58,6 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
   const message = () => props.message
   const largePadding = () => props.largePadding
 
-  const [richContent, setRichContent] = createSignal<JSX.Element>()
-  createRenderEffect(() => {
-    render.process(message().content!).then(({ result }) => setRichContent(result as any))
-  })
-
   return (
     <span
       data-message-id={message().id}
@@ -77,7 +72,7 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
           : "calc(100% - 1rem)",
       }}
     >
-      {richContent}
+      <DynamicMarkdown content={message().content!} />
       <Show when={message()._nonceError} keyed={false}>
         <p class="p-2 bg-error-content rounded-lg text-sm font-medium">
           <b>Error: </b>
