@@ -1,5 +1,6 @@
 const defaultTheme = require('tailwindcss/defaultTheme')
-const plugin = require("tailwindcss/plugin");
+const colors = require('tailwindcss/colors')
+const plugin = require("tailwindcss/plugin")
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -31,6 +32,10 @@ module.exports = {
         },
         gray: {
           850: '#19222d',
+        },
+        highlight: {
+          DEFAULT: colors.yellow[400],
+          content: colors.black,
         },
       },
       screens: {

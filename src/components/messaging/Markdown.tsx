@@ -8,7 +8,7 @@ import remarkRehype from "remark-rehype";
 import {Root as HtmlRoot} from "rehype-stringify/lib";
 import {Root as MdRoot} from "remark-parse/lib";
 
-import {JSX} from "solid-js";
+import {createSignal, JSX} from "solid-js";
 import {Member} from "../../types/guild";
 import {getApi} from "../../api/Api";
 import {snowflakes} from "../../utils";
@@ -17,6 +17,8 @@ import {Navigator, useNavigate} from "@solidjs/router";
 import {VFile} from "vfile";
 import {childrenToSolid} from "./markdown/ast-to-solid";
 import {html} from "property-information";
+import remarkRegexp from "./markdown/regex-plugin";
+import {h} from "hastscript";
 
 const flattenHtml: Plugin<any[], MdRoot> = () => (tree) => {
   visit(tree, "html", (node) => {
@@ -43,7 +45,23 @@ const underline: Plugin<any[], HtmlRoot> = () => (tree, file) => {
   })
 }
 
-function anchorElement(props: JSX.HTMLAttributes<HTMLAnchorElement>) {
+const textStyle: Plugin<any[], HtmlRoot> = () => (tree) => {
+  visit(tree, "element", (node) => {
+    if (node.tagName !== 'a') return
+    const href = node.properties?.href as string
+    if (!href) return
+
+    if (href.startsWith('color=')) {
+      const color = href.slice(6)
+      node.properties = {
+        style: `color: ${color} !important;`
+      }
+      node.tagName = 'span'
+    }
+  })
+}
+
+function Anchor(props: JSX.HTMLAttributes<HTMLAnchorElement> & { isImage?: boolean }) {
   const navigate = useNavigate()
   const handler: JSX.EventHandler<HTMLAnchorElement, MouseEvent> = (e) => {
     if (e.ctrlKey || e.metaKey)
@@ -72,10 +90,33 @@ function anchorElement(props: JSX.HTMLAttributes<HTMLAnchorElement>) {
   return (
     <a
       {...props}
-      class="text-link underline hover:text-link-hover visited:text-link-visited transition"
+      class="group/anchor"
       target="_blank"
       rel="noreferrer"
       onClick={handler}
+    >
+      <span class="underline text-link group-hover/anchor:text-link-hover group-visited/anchor:text-link-visited transition">
+        {props.children}
+      </span>
+      {props.isImage && (
+        <span class="bg-gray-700 text-xs px-1 py-0.5 ml-1 rounded-lg select-none text-base-content/80">Image</span>
+      )}
+    </a>
+  )
+}
+
+function Spoiler(props: JSX.HTMLAttributes<HTMLSpanElement>) {
+  const [revealed, setRevealed] = createSignal(false)
+
+  return (
+    <span
+      {...props}
+      classList={{
+        "py-0.5 rounded transition duration-200": true,
+        "cursor-pointer select-none text-transparent bg-gray-900": !revealed(),
+        "text-base-content bg-gray-700": revealed(),
+      }}
+      onClick={() => setRevealed(true)}
     />
   )
 }
@@ -125,17 +166,28 @@ export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.
   h4: (props) => <h4 class="text-base font-bold" {...props} />,
   h5: (props) => <h5 class="text-sm font-bold" {...props} />,
   h6: (props) => <h6 class="text-xs font-bold" {...props} />,
-  a: anchorElement,
-  span: (props) =>  <span {...props} />,
+  a: Anchor,
+  img: (props: any) => <Anchor {...props} isImage href={props.src}>{props.alt || props.src}</Anchor>,
+  span: (props) => <span {...props} />,
+  code: (props) => <code class="bg-gray-900 rounded px-1 py-0.5" {...props} />,
+  // TODO: syntax highlighting
+  pre: (props) => <pre class="bg-gray-900 rounded px-2 py-1 my-1" {...props} />,
+  ul: (props) => <ul class="list-disc ml-4" {...props} />,
+  ol: (props) => <ol class="list-decimal ml-4" {...props} />,
+  spoiler: Spoiler,
+  highlight: (props) => <span class="bg-highlight text-highlight-content rounded py-0.5" {...props} />,
 }
 
 export const render = unified()
   .use(remarkParse)
   .use(remarkBreaks)
   .use(remarkGfm)
+  .use(remarkRegexp(/\|\|([^|]+)\|\|/, 'spoiler'))
+  .use(remarkRegexp(/!!([^!]+)!!/, 'highlight'))
   .use(flattenHtml)
   .use(remarkRehype)
   .use(underline)
+  .use(textStyle)
 
 const defaults = {
   remarkPlugins: [],
@@ -158,6 +210,7 @@ const defaults = {
 export function DynamicMarkdown(props: { content: string }) {
   const file = new VFile();
   file.value = props.content
+    .replace(/^([+\-*]|(\d[.)]))\s*$/, '\u200E$1')
 
   const root = render.runSync(render.parse(file), file);
   if (root.type !== "root")
