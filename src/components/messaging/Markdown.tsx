@@ -11,7 +11,7 @@ import {Root as MdRoot} from "remark-parse/lib";
 import {createSignal, JSX} from "solid-js";
 import {Member} from "../../types/guild";
 import {getApi} from "../../api/Api";
-import {snowflakes} from "../../utils";
+import {findIterator, snowflakes} from "../../utils";
 import {GuildCreateEvent} from "../../types/ws";
 import {Navigator, useNavigate} from "@solidjs/router";
 import {VFile} from "vfile";
@@ -191,6 +191,22 @@ function parseStyle(style: string): string {
   return css.join(' ')
 }
 
+function MentionUser({ arg, children, ...props }: any) {
+  const api = getApi()!
+  const user = api.cache?.users?.get(parseInt(arg))
+  // TODO: Should there be a special fallback for when the user is not found?
+  if (!user) return <span {...props}>{children}</span>
+
+  return (
+    <span
+      {...props}
+      class="bg-accent bg-opacity-30 hover:bg-opacity-80 py-0.5 rounded cursor-pointer transition duration-200"
+    >
+      @{user.username}
+    </span>
+  )
+}
+
 export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.Element> = {
   strong: (props) => <strong class="font-bold" {...props} />,
   h1: (props) => <h1 class="text-2xl font-bold" {...props} />,
@@ -210,6 +226,7 @@ export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.
   spoiler: Spoiler,
   highlight: (props) => <span class="bg-highlight text-highlight-content rounded py-0.5" {...props} />,
   styled: ({ arg, ...props }: any) => <span {...props} style={parseStyle(arg)} />,
+  'mention-user': MentionUser,
 }
 
 export const render = unified()
@@ -221,6 +238,7 @@ export const render = unified()
   .use(remarkRegexp(/\|\|(.+?)\|\|/s, 'spoiler'))
   .use(remarkRegexp(/!!(.+?)!!/s, 'highlight'))
   .use(remarkRegexp(/\[([^\]]+)]\{([^}]+)}/, 'styled'))
+  .use(remarkRegexp(/(<@(\d{14,24})>)/, 'mention-user'))
   .use(flattenHtml)
   .use(remarkRehype)
   .use(underline)
