@@ -44,22 +44,6 @@ const underline: Plugin<any[], HtmlRoot> = () => (tree, file) => {
   })
 }
 
-const textStyle: Plugin<any[], HtmlRoot> = () => (tree) => {
-  visit(tree, "element", (node) => {
-    if (node.tagName !== 'a') return
-    const href = node.properties?.href as string
-    if (!href) return
-
-    if (href.startsWith('color=')) {
-      const color = decodeURI(href.slice(6).replace(/_/g, ' '))
-      node.properties = {
-        style: `color: ${color} !important;`
-      }
-      node.tagName = 'span'
-    }
-  })
-}
-
 function Anchor(props: JSX.HTMLAttributes<HTMLAnchorElement> & { isImage?: boolean }) {
   const navigate = useNavigate()
   const handler: JSX.EventHandler<HTMLAnchorElement, MouseEvent> = (e) => {
@@ -111,12 +95,19 @@ function Spoiler(props: JSX.HTMLAttributes<HTMLSpanElement>) {
     <span
       {...props}
       classList={{
-        "py-0.5 rounded transition duration-200": true,
-        "!cursor-pointer !select-none all:!text-transparent all:!bg-gray-900": !revealed(),
+        "relative rounded py-0.5": true,
+        "cursor-pointer select-none all:!text-transparent": !revealed(),
         "text-base-content bg-gray-600/50": revealed(),
       }}
       onClick={() => setRevealed(true)}
-    />
+    >
+      <span classList={{
+        "absolute inset-0 bg-gray-900 rounded transition duration-200 pointer-events-none opacity-100": true,
+        "opacity-0": revealed(),
+        "opacity-100": !revealed(),
+      }} />
+      {props.children}
+    </span>
   )
 }
 
@@ -157,6 +148,49 @@ export async function joinGuild(code: string, navigate: Navigator) {
     ack(guild_id)
 }
 
+function sanitizeCSSValue(value: string) {
+  return value.replace(/[:;!]/g, '')
+}
+
+/**
+ * Parses a style string into a CSS string.
+ *
+ * A style string can be either the following:
+ * - A comma-separated list of key-value pairs, where a key-value pair is written as `key=value`
+ *   - Available keys are: `color` and `bg`, which are both CSS colors
+ * - A lone CSS color, which will be assumed to be the `color` key
+ *
+ * Example: `color=red, bg=blue`
+ *
+ * Since CSS colors can contain commas, any commas enclosed in parentheses are assumed to be part of the color.
+ * For example, `color=rgb(255, 0, 0), bg=rgb(0, 255, 0)` is valid.
+ *
+ * @param style The style string to parse
+ */
+function parseStyle(style: string): string {
+  const parts = style.split(/,(?![^(]*\))/g)
+  const css: string[] = []
+  for (const part of parts) {
+    const [key, value] = part.split('=')
+    if (!key || !value)
+      continue
+
+    switch (key.trim()) {
+      case 'color':
+        css.push(`color: ${sanitizeCSSValue(value)} !important;`)
+        break
+      case 'bg':
+        css.push(`background-color: ${sanitizeCSSValue(value)} !important;`)
+        break
+    }
+  }
+  if (!css.length) {
+    if (!style.length) return '';
+    css.push(`color: ${sanitizeCSSValue(style)} !important;`)
+  }
+  return css.join(' ')
+}
+
 export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.Element> = {
   strong: (props) => <strong class="font-bold" {...props} />,
   h1: (props) => <h1 class="text-2xl font-bold" {...props} />,
@@ -175,18 +209,21 @@ export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.
   ol: (props) => <ol class="list-decimal ml-4" {...props} />,
   spoiler: Spoiler,
   highlight: (props) => <span class="bg-highlight text-highlight-content rounded py-0.5" {...props} />,
+  styled: ({ arg, ...props }: any) => <span {...props} style={parseStyle(arg)} />,
 }
 
 export const render = unified()
   .use(remarkParse)
   .use(remarkBreaks)
   .use(remarkGfm)
-  .use(remarkRegexp(/\|\|([^|]+)\|\|/, 'spoiler'))
-  .use(remarkRegexp(/!!([^!]+)!!/, 'highlight'))
+  // TODO: Backslashes are supposed to work here, however browser support for negative lookbehind is limited
+  //  (Safari doesn't support it until 16.4, which is not yet stable as of writing this)
+  .use(remarkRegexp(/\|\|(.+?)\|\|/s, 'spoiler'))
+  .use(remarkRegexp(/!!(.+?)!!/s, 'highlight'))
+  .use(remarkRegexp(/\[([^\]]+)]\{([^}]+)}/, 'styled'))
   .use(flattenHtml)
   .use(remarkRehype)
   .use(underline)
-  .use(textStyle)
 
 const defaults = {
   remarkPlugins: [],
