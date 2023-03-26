@@ -54,7 +54,7 @@ module.exports = {
   },
   plugins: [
     require('daisyui'),
-    plugin(({ addComponents }) => {
+    plugin(({ addComponents, addVariant }) => {
       addComponents({
         '.hide-scrollbar': {
           '-ms-overflow-style': 'none',
@@ -64,6 +64,8 @@ module.exports = {
           }
         }
       })
+      addVariant('all', '&, *')
+      addVariant('all-children', '& *')
     })
   ],
   daisyui: {

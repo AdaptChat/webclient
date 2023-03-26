@@ -18,7 +18,6 @@ import {VFile} from "vfile";
 import {childrenToSolid} from "./markdown/ast-to-solid";
 import {html} from "property-information";
 import remarkRegexp from "./markdown/regex-plugin";
-import {h} from "hastscript";
 
 const flattenHtml: Plugin<any[], MdRoot> = () => (tree) => {
   visit(tree, "html", (node) => {
@@ -52,7 +51,7 @@ const textStyle: Plugin<any[], HtmlRoot> = () => (tree) => {
     if (!href) return
 
     if (href.startsWith('color=')) {
-      const color = href.slice(6)
+      const color = decodeURI(href.slice(6).replace(/_/g, ' '))
       node.properties = {
         style: `color: ${color} !important;`
       }
@@ -113,8 +112,8 @@ function Spoiler(props: JSX.HTMLAttributes<HTMLSpanElement>) {
       {...props}
       classList={{
         "py-0.5 rounded transition duration-200": true,
-        "cursor-pointer select-none text-transparent bg-gray-900": !revealed(),
-        "text-base-content bg-gray-700": revealed(),
+        "!cursor-pointer !select-none all:!text-transparent all:!bg-gray-900": !revealed(),
+        "text-base-content bg-gray-600/50": revealed(),
       }}
       onClick={() => setRevealed(true)}
     />
