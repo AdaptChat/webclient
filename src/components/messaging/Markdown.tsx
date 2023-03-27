@@ -1,5 +1,6 @@
 import {Plugin, unified} from "unified";
 import {visit} from "unist-util-visit";
+import {VFile} from "vfile";
 
 import remarkBreaks from "remark-breaks";
 import remarkParse from "remark-parse";
@@ -9,12 +10,12 @@ import {Root as HtmlRoot} from "rehype-stringify/lib";
 import {Root as MdRoot} from "remark-parse/lib";
 
 import {createSignal, JSX} from "solid-js";
+import {Navigator, useNavigate} from "@solidjs/router";
+
 import {Member} from "../../types/guild";
 import {getApi} from "../../api/Api";
-import {findIterator, snowflakes} from "../../utils";
+import {snowflakes} from "../../utils";
 import {GuildCreateEvent} from "../../types/ws";
-import {Navigator, useNavigate} from "@solidjs/router";
-import {VFile} from "vfile";
 import {childrenToSolid} from "./markdown/ast-to-solid";
 import {html} from "property-information";
 import remarkRegexp from "./markdown/regex-plugin";
@@ -218,9 +219,11 @@ export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.
   a: Anchor,
   img: (props: any) => <Anchor {...props} isImage href={props.src}>{props.alt || props.src}</Anchor>,
   span: (props) => <span {...props} />,
-  code: (props) => <code class="bg-gray-900 rounded px-1 py-0.5" {...props} />,
+  code: (props) => <code {...props} class="bg-gray-900 rounded px-1 py-0.5" />,
   // TODO: syntax highlighting
-  pre: (props) => <pre class="bg-gray-900 rounded px-2 py-1 my-1" {...props} />,
+  pre: (props) => (
+    <pre class="bg-gray-900 rounded px-2 py-1 my-1 whitespace-pre-wrap break-words all-children:!px-0" {...props} />
+  ),
   ul: (props) => <ul class="list-disc ml-4" {...props} />,
   ol: (props) => <ol class="list-decimal ml-4" {...props} />,
   spoiler: Spoiler,
@@ -267,7 +270,7 @@ export function DynamicMarkdown(props: { content: string }) {
     .replace(/^([+\-*]|(\d[.)]))\s*$/, '\u200E$1')
 
   const root = render.runSync(render.parse(file), file);
-  if (root.type !== "root")
+  if (root.type !== "root" as any)
     throw new TypeError("Expected a `root` node")
 
   return childrenToSolid(
