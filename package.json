@@ -31,6 +31,7 @@
     "@solid-primitives/set": "^0.4.2",
     "@solidjs/router": "^0.7.0",
     "cssnano": "^5.1.14",
+    "fuse.js": "^6.6.2",
     "hast-util-to-jsx-runtime": "^1.2.0",
     "hastscript": "^7.2.0",
     "msgpack-lite": "^0.1.26",

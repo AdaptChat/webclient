@@ -1,4 +1,4 @@
-import {createMemo, createSignal, For, JSX, onCleanup, onMount, Show} from "solid-js";
+import {createMemo, createSignal, For, JSX, Match, onCleanup, onMount, Show, Switch} from "solid-js";
 import type {Message} from "../../types/message";
 import {getApi} from "../../api/Api";
 import {type MessageGroup} from "../../api/MessageGrouper";
@@ -9,6 +9,10 @@ import {noop} from "../../utils";
 import Icon from "../icons/Icon";
 import PaperPlaneTop from "../icons/svg/PaperPlaneTop";
 import {DynamicMarkdown} from "./Markdown";
+import {DmChannel} from "../../types/channel";
+import Fuse from "fuse.js";
+import {User} from "../../types/user";
+
 noop(tooltip)
 
 type SkeletalData = {
@@ -30,6 +34,34 @@ function generateSkeletalData(n: number = 10): SkeletalData[] {
     data.push({ headerWidth, contentLines })
   }
   return data
+}
+
+function getCaretPosition(editableDiv: HTMLDivElement) {
+  let caretPos = 0, selection, range
+
+  if (window.getSelection) {
+    selection = window.getSelection();
+    if (selection?.rangeCount) {
+      range = selection.getRangeAt(0);
+      if (range.commonAncestorContainer.parentNode == editableDiv) {
+        caretPos = range.endOffset;
+      }
+    }
+  }
+  // @ts-ignore
+  else if (document.selection && document.selection.createRange) {
+    // @ts-ignore
+    range = document.selection.createRange();
+    if (range.parentElement == editableDiv) {
+      const tempEl = document.createElement("span");
+      editableDiv.insertBefore(tempEl, editableDiv.firstChild);
+      const tempRange = range.duplicate();
+      tempRange.moveToElementText(tempEl);
+      tempRange.setEndPoint("EndToEnd", range);
+      caretPos = tempRange.text.length;
+    }
+  }
+  return caretPos;
 }
 
 function MessageLoadingSkeleton() {
@@ -83,13 +115,48 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
   )
 }
 
-export default function Chat(props: { channelId: number, title: string, startMessage: JSX.Element }) {
+function getWordAt(str: string, pos: number) {
+  const left = str.slice(0, pos + 1).search(/\S+$/)
+  const right = str.slice(pos).search(/\s/)
+
+  return [right < 0 ? str.slice(left) : str.slice(left, right + pos), left] as const
+}
+
+export enum AutocompleteType {
+  UserMention,
+}
+
+export interface AutocompleteState {
+  type: AutocompleteType,
+  value: string,
+  selected: number,
+  data?: any,
+}
+
+function trueModulo(n: number, m: number) {
+  return ((n % m) + m) % m
+}
+
+function setSelectionRange(element: HTMLDivElement, selectionStart: number, selectionEnd: number = selectionStart) {
+  const range = document.createRange()
+  const selection = window.getSelection()
+
+  range.setStart(element.childNodes[0], selectionStart)
+  range.setEnd(element.childNodes[0], selectionEnd)
+  range.collapse(true)
+
+  selection?.removeAllRanges()
+  selection?.addRange(range)
+}
+
+export default function Chat(props: { channelId: number, guildId?: number, title: string, startMessage: JSX.Element }) {
   const api = getApi()!
 
   const [messageInput, setMessageInput] = createSignal('')
   const [messageInputFocused, setMessageInputFocused] = createSignal(false)
   const [messageInputFocusTimeout, setMessageInputFocusTimeout] = createSignal<number | null>(null)
   const [loading, setLoading] = createSignal(true)
+  const [autocompleteState, setAutocompleteState] = createSignal<AutocompleteState | null>(null)
 
   const mobile = /Android|webOS|iPhone|iP[ao]d|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   const grouper = createMemo(() => {
@@ -165,6 +232,76 @@ export default function Chat(props: { channelId: number, title: string, startMes
     interactive: true
   })
 
+  const updateAutocompleteState = () => {
+    const [currentWord, index] = getWordAt(messageInputRef?.innerText!, getCaretPosition(messageInputRef!) - 1)
+    if (currentWord.startsWith('@')) {
+      setAutocompleteState({
+        type: AutocompleteType.UserMention,
+        value: currentWord.slice(1),
+        selected: 0,
+        data: { index },
+      })
+    } else {
+      setAutocompleteState(null)
+    }
+  }
+
+  const members = createMemo(() => {
+    const cache = api.cache
+    if (!cache) return []
+
+    const m = (
+      props.guildId
+        ? cache.memberReactor.get(props.guildId)?.map(u => cache.users.get(u))
+        : (cache.channels.get(props.channelId) as DmChannel | null)?.recipient_ids.map(u => cache.users.get(u))
+    ) ?? []
+    return m.filter((u): u is User => !!u)
+  })
+  const fuseMemberIndex = createMemo(() => new Fuse(members()!, {
+    keys: ['username'], // TODO: nickname
+  }))
+
+  const setAutocompleteSelection = (index: number) => {
+    setAutocompleteState(prev => ({
+      ...prev!,
+      selected: trueModulo(index, autocompleteResult()?.length || 1),
+    }))
+  }
+  const autocompleteResult = createMemo(() => {
+    const state = autocompleteState()
+    if (!state) return
+
+    const { type, value } = state
+    switch (type) {
+      case AutocompleteType.UserMention:
+        return value
+          ? fuseMemberIndex()?.search(value).slice(0, 5).map(result => result.item)
+          : members().slice(0, 5)
+    }
+  })
+  const executeAutocomplete = (index?: number) => {
+    const result = autocompleteResult()
+    if (!result) return
+
+    const { type, value, selected } = autocompleteState()!
+    switch (type) {
+      case AutocompleteType.UserMention: {
+        const user = result[index ?? selected]
+        const { index: wordIndex } = autocompleteState()!.data!
+
+        const text = messageInputRef!.innerText!
+        const before = text.slice(0, wordIndex) + `<@${user.id}>`
+        const after = text.slice(wordIndex + value.length + 1)
+        messageInputRef!.innerText = before + after
+
+        setAutocompleteState(null)
+        messageInputRef!.focus()
+        setSelectionRange(messageInputRef!, before.length)
+        break
+      }
+    }
+  }
+
   return (
     <div class="flex flex-col justify-end w-full h-0 flex-grow">
       <div ref={messageAreaRef!} class="overflow-auto flex flex-col-reverse pb-5" onScroll={async (event) => {
@@ -232,7 +369,36 @@ export default function Chat(props: { channelId: number, title: string, startMes
           </Show>
         </div>
       </div>
-      <div class="flex items-center bg-gray-800 w-full px-4">
+      <div class="relative flex items-center bg-gray-800 w-full px-4">
+        <Switch>
+          <Match when={!autocompleteResult()?.length} keyed={false}>
+            {null}
+          </Match>
+          <Match when={autocompleteState()?.type === AutocompleteType.UserMention} keyed={false}>
+            <div class="absolute inset-x-4 bottom-10 rounded-lg bg-gray-900 p-2 flex flex-col">
+              <For each={autocompleteResult()}>
+                {(user, idx) => (
+                  <div
+                    classList={{
+                      "flex items-center px-1 py-1.5 cursor-pointer transition duration-200 rounded-lg": true,
+                      "bg-gray-800": idx() === autocompleteState()?.selected,
+                    }}
+                    onClick={() => executeAutocomplete(idx())}
+                    onMouseOver={() => setAutocompleteSelection(idx())}
+                  >
+                    <img src={api.cache!.avatarOf(user.id)} class="w-6 h-6 rounded-full" alt="" />
+                    <div class="ml-2 text-sm">
+                      <span>{user.username}</span>
+                      <span class="text-base-content/60 text-sm">
+                        #{user.discriminator.toString().padStart(4, '0')}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </For>
+            </div>
+          </Match>
+        </Switch>
         <div classList={{ "w-full bg-gray-700 rounded-lg p-2": true, "w-[calc(100%-3rem)]": mobile }}>
           <div
             ref={messageInputRef!}
@@ -240,15 +406,37 @@ export default function Chat(props: { channelId: number, title: string, startMes
             contentEditable
             data-placeholder="Send a message..."
             spellcheck={false}
+            onKeyUp={(event) => {
+              const oldState = autocompleteState()
+              if (oldState)
+                if (event.key === 'ArrowUp') {
+                  return setAutocompleteSelection(oldState.selected - 1)
+                } else if (event.key === 'ArrowDown') {
+                  return setAutocompleteSelection(oldState.selected + 1)
+                }
+
+              updateAutocompleteState()
+            }}
+            onKeyDown={(event) => {
+              const oldState = autocompleteState()
+              if (oldState && (event.key === 'ArrowUp' || event.key === 'ArrowDown'))
+                event.preventDefault()
+            }}
             onKeyPress={async (event) => {
               if (event.shiftKey)
                 return
 
               if (event.key === 'Enter' && (!mobile || event.ctrlKey || event.metaKey)) {
                 event.preventDefault()
+                if (autocompleteState() != null)
+                  return executeAutocomplete()
+
                 await createMessage()
               }
             }}
+            onMouseUp={updateAutocompleteState}
+            onTouchStart={updateAutocompleteState}
+            onSelect={updateAutocompleteState}
             onInput={event => {
               if (mobile) setMessageInput(event.target.textContent!.trim())
               const ignored = typingKeepAlive.ackTyping()

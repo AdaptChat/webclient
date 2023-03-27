@@ -23,6 +23,7 @@ export default function GuildChannel() {
     <Layout sidebar={GuildSidebar} rightSidebar={GuildMemberList} title={'#' + channel().name}>
       <Chat
         channelId={channel().id}
+        guildId={channel().guild_id}
         title={`#${channel().name}`}
         startMessage={
           <>This is the start of the conversation in <b>#{channel().name}</b>.</>
