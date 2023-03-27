@@ -230,6 +230,12 @@ export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.
   highlight: (props) => <span class="bg-highlight text-highlight-content rounded py-0.5" {...props} />,
   styled: ({ arg, ...props }: any) => <span {...props} style={parseStyle(arg)} />,
   'mention-user': MentionUser,
+  blockquote: (props) => (
+    <div class="flex">
+      <div class="select-none bg-gray-600 rounded-full w-0.5" />
+      <blockquote class="mx-2" {...props} />
+    </div>
+  ),
 }
 
 export const render = unified()
