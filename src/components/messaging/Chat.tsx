@@ -231,10 +231,10 @@ export default function Chat(props: { channelId: number, guildId?: number, title
       let options;
       if (attachments.length > 0) {
         const formData = new FormData()
+        formData.append('json', JSON.stringify(json));
         for (const [i, attachment] of Object.entries(attachments)) {
           formData.append('file' + i, attachment.file, attachment.filename)
         }
-        formData.append('json', JSON.stringify(json));
         options = { multipart: formData }
       } else {
         options = { json }
