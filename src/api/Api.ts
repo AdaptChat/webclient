@@ -24,6 +24,7 @@ export interface RequestOptions {
   headers?: Record<string, string>,
   params?: Record<string, any>,
   json?: Record<string, any>,
+  multipart?: FormData,
 }
 
 /**
@@ -142,13 +143,15 @@ export default class Api {
     let headers = options.headers ?? {}
     if (options.json)
       headers['Content-Type'] ??= 'application/json';
+    if (options.multipart)
+      headers['Content-Type'] ??= 'multipart/form-data';
     if (options.params)
       endpoint += '?' + new URLSearchParams(options.params).toString()
 
     let response = await fetch(BASE_URL + endpoint, {
       method,
       headers: headers as unknown as Headers,
-      body: options.json && JSON.stringify(options.json),
+      body: options.multipart ?? (options.json && JSON.stringify(options.json)),
     })
     return await ApiResponse.fromResponse<T>(method, endpoint, response)
   }

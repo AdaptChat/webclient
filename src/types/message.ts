@@ -79,7 +79,7 @@ export type Message = MessageInfo & {
   /**
    * A list of attachments included in this message.
    */
-  attachments: any[] // TODO Attachment[];
+  attachments: Attachment[]
   /**
    * A bitmask of message flags to indicate special properties of the message.
    */
@@ -91,4 +91,26 @@ export type Message = MessageInfo & {
 
   _nonceState?: 'pending' | 'success' | 'error';
   _nonceError?: string;
+}
+
+/**
+ * Represents a message attachment.
+ */
+export interface Attachment {
+  /**
+   * The UUID of the attachment.
+   */
+  id: string
+  /**
+   * The filename of the attachment.
+   */
+  filename: string
+  /**
+   * The description/alt text of the attachment.
+   */
+  alt?: string
+  /**
+   * The size of the attachment, in bytes.
+   */
+  size: number
 }

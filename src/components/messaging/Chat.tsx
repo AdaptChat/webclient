@@ -12,6 +12,7 @@ import {DynamicMarkdown} from "./Markdown";
 import {DmChannel} from "../../types/channel";
 import Fuse from "fuse.js";
 import {User} from "../../types/user";
+import Plus from "../icons/svg/Plus";
 
 noop(tooltip)
 
@@ -149,6 +150,14 @@ function setSelectionRange(element: HTMLDivElement, selectionStart: number, sele
   selection?.addRange(range)
 }
 
+interface UploadedAttachment {
+  filename: string
+  alt?: string
+  file: File
+  type: string,
+  preview?: string,
+}
+
 export default function Chat(props: { channelId: number, guildId?: number, title: string, startMessage: JSX.Element }) {
   const api = getApi()!
 
@@ -157,6 +166,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
   const [messageInputFocusTimeout, setMessageInputFocusTimeout] = createSignal<number | null>(null)
   const [loading, setLoading] = createSignal(true)
   const [autocompleteState, setAutocompleteState] = createSignal<AutocompleteState | null>(null)
+  const [uploadedAttachments, setUploadedAttachments] = createSignal<UploadedAttachment[]>([])
 
   const mobile = /Android|webOS|iPhone|iP[ao]d|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   const grouper = createMemo(() => {
@@ -194,9 +204,11 @@ export default function Chat(props: { channelId: number, guildId?: number, title
   let messageAreaRef: HTMLDivElement | null = null
   const createMessage = async () => {
     const content = messageInputRef!.innerText!.trim()
-    if (!content) return
+    const attachments = uploadedAttachments()
+    if (!content && attachments.length < 1) return
 
     setMessageInput('')
+    setUploadedAttachments([])
     messageInputRef!.innerHTML = ''
     messageAreaRef!.scrollTo(0, messageAreaRef!.scrollHeight)
 
@@ -215,7 +227,20 @@ export default function Chat(props: { channelId: number, guildId?: number, title
 
     try {
       const json = { content, nonce }
-      const response = await api.request('POST', `/channels/${props.channelId}/messages`, { json })
+
+      let options;
+      if (attachments.length > 0) {
+        const formData = new FormData()
+        for (const [i, attachment] of Object.entries(attachments)) {
+          formData.append('file' + i, attachment.file, attachment.filename)
+        }
+        formData.append('json', JSON.stringify(json));
+        options = { multipart: formData }
+      } else {
+        options = { json }
+      }
+
+      const response = await api.request('POST', `/channels/${props.channelId}/messages`, options)
 
       const ignored = typingKeepAlive.stop()
       if (!response.ok)
@@ -399,10 +424,66 @@ export default function Chat(props: { channelId: number, guildId?: number, title
             </div>
           </Match>
         </Switch>
-        <div classList={{ "w-full bg-gray-700 rounded-lg p-2": true, "w-[calc(100%-3rem)]": mobile }}>
+        <button
+          class="w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-gray-700 mr-2 transition-all duration-200 hover:bg-accent"
+          onClick={() => {
+            // Upload attachment
+            const input = document.createElement('input')
+            input.type = 'file'
+            input.multiple = true
+            input.accept = '*'
+            input.addEventListener('change', async () => {
+              const files = input.files
+              if (!files) return
+
+              const uploaded = await Promise.all(Array.from(files, async (file) => {
+                const attachment: UploadedAttachment = {
+                  filename: file.name,
+                  type: file.type,
+                  file,
+                }
+                if (file.type.startsWith('image/')) {
+                  // show a preview of this image
+                  attachment.preview = URL.createObjectURL(file)
+                }
+                return attachment
+              }))
+              setUploadedAttachments(prev => [...prev, ...uploaded])
+            })
+            input.click()
+          }}
+          use:tooltip="Upload"
+        >
+          <Icon icon={Plus} title="Upload" class="fill-base-content w-[18px] h-[18px]" />
+        </button>
+        <div classList={{ "w-full bg-gray-700 rounded-lg py-2": true, "w-[calc(100%-3rem)]": mobile }}>
+          <Show when={uploadedAttachments().length > 0} keyed={false}>
+            <div class="flex flex-wrap gap-x-2 gap-y-1 px-2">
+              <For each={uploadedAttachments()}>
+                {(attachment, idx) => (
+                  <div class="flex flex-col rounded-xl bg-gray-800 w-60 h-48 overflow-hidden box-border">
+                    <div class="overflow-hidden w-60 h-40">
+                      {attachment.preview ? (
+                        <img src={attachment.preview} alt={attachment.filename} class="flex-grow w-60 h-40 object-contain" />
+                      ) : (
+                        <span class="w-full h-full flex items-center justify-center text-base-content/60 p-2 bg-gray-900 break-words">
+                          {attachment.type}
+                        </span>
+                      )}
+                    </div>
+                    <div class="break-words flex-grow p-2">
+                      <h2 class="font-title font-medium justify-self-center">{attachment.filename}</h2>
+                      {attachment.alt && <div>{attachment.alt}</div>}
+                    </div>
+                  </div>
+                )}
+              </For>
+            </div>
+            <div class="divider m-0 p-0" />
+          </Show>
           <div
             ref={messageInputRef!}
-            class="empty:before:content-[attr(data-placeholder)] text-sm empty:before:text-base-content/50 outline-none break-words"
+            class="mx-2 empty:before:content-[attr(data-placeholder)] text-sm empty:before:text-base-content/50 outline-none break-words"
             contentEditable
             data-placeholder="Send a message..."
             spellcheck={false}
