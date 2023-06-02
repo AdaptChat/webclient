@@ -143,8 +143,6 @@ export default class Api {
     let headers = options.headers ?? {}
     if (options.json)
       headers['Content-Type'] ??= 'application/json';
-    if (options.multipart)
-      headers['Content-Type'] ??= 'multipart/form-data';
     if (options.params)
       endpoint += '?' + new URLSearchParams(options.params).toString()
 
