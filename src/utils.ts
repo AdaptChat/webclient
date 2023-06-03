@@ -180,6 +180,25 @@ export function humanizeStatus(status: string): string {
 }
 
 /**
+ * Returns a human-readable size.
+ */
+export function humanizeSize(bytes: number): string {
+  if (bytes < 1000) {
+    return bytes + ' B';
+  }
+
+  const units = ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  let u = -1;
+
+  do {
+    bytes /= 1000;
+    ++u;
+  } while (Math.round(Math.abs(bytes) * 100) / 100 >= 1000 && u < units.length - 1);
+
+  return bytes.toFixed(2) + ' ' + units[u];
+}
+
+/**
  * Does nothing with the given values. Useful for ignoring unused imports that you don't want TypeScript to remove.
  */
 export function noop(..._values: unknown[]) {}

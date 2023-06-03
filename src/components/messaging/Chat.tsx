@@ -2,7 +2,7 @@ import {createMemo, createSignal, For, JSX, Match, onCleanup, onMount, Show, Sus
 import type {Message} from "../../types/message";
 import {getApi} from "../../api/Api";
 import {type MessageGroup} from "../../api/MessageGrouper";
-import {humanizeFullTimestamp, humanizeTime, humanizeTimestamp, snowflakes, uuid} from "../../utils";
+import {humanizeFullTimestamp, humanizeSize, humanizeTime, humanizeTimestamp, snowflakes, uuid} from "../../utils";
 import TypingKeepAlive from "../../api/TypingKeepAlive";
 import tooltip from "../../directives/tooltip";
 import {noop} from "../../utils";
@@ -120,15 +120,30 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
             "opacity-50": message()._nonceState === 'pending',
             "opacity-30": message()._nonceState === 'error',
           }}>
-            {shouldDisplayImage(attachment.filename) ? (
-              <img
-                src={attachment._imageOverride ?? CONVEY + `/attachments/compr/${uuid(attachment.id)}/${attachment.filename}`}
-                alt={attachment.alt}
-                class="max-w-[min(60vw,56rem)] max-h-80 object-contain object-left"
-              />
-            ) : (
-              <p>{attachment.filename}</p>
-            )}
+            {(() => {
+              const url = attachment.id && CONVEY + `/attachments/compr/${uuid(attachment.id)}/${attachment.filename}`
+              return shouldDisplayImage(attachment.filename) ? (
+                <img
+                  src={attachment._imageOverride ?? url}
+                  alt={attachment.alt}
+                  class="max-w-[min(60vw,56rem)] max-h-80 object-contain object-left"
+                />
+              ) : (
+                <div class="flex justify-between bg-gray-900 w-[min(60vw,24rem)] p-4 rounded-lg">
+                  <div>
+                    <a
+                      class="text-lg font-medium font-title hover:underline"
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {attachment.filename}
+                    </a>
+                    <div class="text-base-content/60 text-sm">{humanizeSize(attachment.size)}</div>
+                  </div>
+                </div>
+              )
+            })()}
           </div>
         )}
       </For>
@@ -188,7 +203,6 @@ interface UploadedAttachment {
 export default function Chat(props: { channelId: number, guildId?: number, title: string, startMessage: JSX.Element }) {
   const api = getApi()!
 
-  const [messageInput, setMessageInput] = createSignal('')
   const [messageInputFocused, setMessageInputFocused] = createSignal(false)
   const [messageInputFocusTimeout, setMessageInputFocusTimeout] = createSignal<number | null>(null)
   const [loading, setLoading] = createSignal(true)
@@ -235,7 +249,6 @@ export default function Chat(props: { channelId: number, guildId?: number, title
     const content = messageInputRef!.innerText!.trim()
     const attachments = uploadedAttachments()
 
-    setMessageInput('')
     setUploadedAttachments([])
     messageInputRef!.innerHTML = ''
     messageAreaRef!.scrollTo(0, messageAreaRef!.scrollHeight)
@@ -275,7 +288,6 @@ export default function Chat(props: { channelId: number, guildId?: number, title
       }
 
       const response = await api.request('POST', `/channels/${props.channelId}/messages`, options)
-
       const ignored = typingKeepAlive.stop()
       if (!response.ok)
         grouper().ackNonceError(nonce, mockMessage, response.errorJsonOrThrow().message)
@@ -485,6 +497,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
               setUploadedAttachments(prev => [...prev, ...uploaded])
             })
             input.click()
+            messageInputRef?.focus()
           }}
           use:tooltip="Upload"
         >
@@ -583,8 +596,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
             onMouseUp={updateAutocompleteState}
             onTouchStart={updateAutocompleteState}
             onSelect={updateAutocompleteState}
-            onInput={event => {
-              if (mobile) setMessageInput(event.target.textContent!.trim())
+            onInput={() => {
               const ignored = typingKeepAlive.ackTyping()
             }}
             onFocus={() => {
