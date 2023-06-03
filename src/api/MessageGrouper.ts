@@ -201,7 +201,6 @@ export default class MessageGrouper {
     return {
       channel_id: this.channelId,
       embeds: [],
-      attachments: [],
       flags: 0,
       stars: 0,
     }

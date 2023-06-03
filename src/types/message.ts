@@ -113,4 +113,6 @@ export interface Attachment {
    * The size of the attachment, in bytes.
    */
   size: number
+
+  _imageOverride?: string
 }

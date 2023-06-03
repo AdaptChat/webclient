@@ -215,3 +215,20 @@ export function* setDifference<T>(a: Set<T>, b: Set<T>): Generator<T> {
     if (!b.has(v))
       yield v;
 }
+
+/**
+ * If a string is provided, return that string. If a Uint8Array is provided, return a UUID representation of those bytes.
+ *
+ * @param id The ID to convert.
+ * @returns The ID as a string.
+ */
+export function uuid(id: string | Uint8Array): string {
+  if (typeof id === 'string')
+    return id
+  const base = [...id].map((b) => b.toString(16).padStart(2, '0'))
+  base.splice(4, 0, '-')
+  base.splice(7, 0, '-')
+  base.splice(10, 0, '-')
+  base.splice(13, 0, '-')
+  return base.join('')
+}

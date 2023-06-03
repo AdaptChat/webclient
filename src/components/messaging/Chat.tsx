@@ -1,8 +1,8 @@
-import {createMemo, createSignal, For, JSX, Match, onCleanup, onMount, Show, Switch} from "solid-js";
+import {createMemo, createSignal, For, JSX, Match, onCleanup, onMount, Show, Suspense, Switch} from "solid-js";
 import type {Message} from "../../types/message";
 import {getApi} from "../../api/Api";
 import {type MessageGroup} from "../../api/MessageGrouper";
-import {humanizeFullTimestamp, humanizeTime, humanizeTimestamp, snowflakes} from "../../utils";
+import {humanizeFullTimestamp, humanizeTime, humanizeTimestamp, snowflakes, uuid} from "../../utils";
 import TypingKeepAlive from "../../api/TypingKeepAlive";
 import tooltip from "../../directives/tooltip";
 import {noop} from "../../utils";
@@ -15,6 +15,8 @@ import {User} from "../../types/user";
 import Plus from "../icons/svg/Plus";
 
 noop(tooltip)
+
+const CONVEY = 'https://convey.adapt.chat'
 
 type SkeletalData = {
   headerWidth: string,
@@ -87,6 +89,10 @@ function MessageLoadingSkeleton() {
   )
 }
 
+function shouldDisplayImage(filename: string): boolean {
+  return ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].some((ext) => filename.endsWith(ext))
+}
+
 export function MessageContent(props: { message: Message, largePadding?: boolean }) {
   const message = () => props.message
   const largePadding = () => props.largePadding
@@ -106,6 +112,27 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
       }}
     >
       <DynamicMarkdown content={message().content!} />
+      {/* Attachments */}
+      <For each={message().attachments}>
+        {(attachment) => (
+          <div classList={{
+            "mt-1 inline-block box-border rounded-lg overflow-hidden max-h-96 cursor-pointer": true,
+            "opacity-50": message()._nonceState === 'pending',
+            "opacity-30": message()._nonceState === 'error',
+          }}>
+            {shouldDisplayImage(attachment.filename) ? (
+              <img
+                src={attachment._imageOverride ?? CONVEY + `/attachments/compr/${uuid(attachment.id)}/${attachment.filename}`}
+                alt={attachment.alt}
+                class="max-w-[min(60vw,56rem)] max-h-80 object-contain object-left"
+              />
+            ) : (
+              <p>{attachment.filename}</p>
+            )}
+          </div>
+        )}
+      </For>
+      {/* Error */}
       <Show when={message()._nonceError} keyed={false}>
         <p class="p-2 bg-error-content rounded-lg text-sm font-medium">
           <b>Error: </b>
@@ -168,6 +195,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
   const [autocompleteState, setAutocompleteState] = createSignal<AutocompleteState | null>(null)
   const [uploadedAttachments, setUploadedAttachments] = createSignal<UploadedAttachment[]>([])
 
+  const sendable = () => !!messageInputRef?.innerText?.trim() || uploadedAttachments().length > 0
   const mobile = /Android|webOS|iPhone|iP[ao]d|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   const grouper = createMemo(() => {
     const { grouper, cached } = getApi()!.cache!.useChannelMessages(props.channelId)
@@ -203,9 +231,9 @@ export default function Chat(props: { channelId: number, guildId?: number, title
   let messageInputRef: HTMLDivElement | null = null
   let messageAreaRef: HTMLDivElement | null = null
   const createMessage = async () => {
+    if (!sendable()) return;
     const content = messageInputRef!.innerText!.trim()
     const attachments = uploadedAttachments()
-    if (!content && attachments.length < 1) return
 
     setMessageInput('')
     setUploadedAttachments([])
@@ -213,14 +241,20 @@ export default function Chat(props: { channelId: number, guildId?: number, title
     messageAreaRef!.scrollTo(0, messageAreaRef!.scrollHeight)
 
     const nonce = snowflakes.fromTimestamp(Date.now()).toString()
-    let mockMessage: Message = {
+    let mockMessage = {
       id: nonce,
       type: 'default',
       content,
       author_id: api.cache!.clientUser!.id,
+      attachments: attachments.map(attachment => ({
+        _imageOverride: attachment.preview,
+        filename: attachment.filename,
+        alt: attachment.alt,
+        size: attachment.file.size,
+      })),
       _nonceState: 'pending',
       ...grouper().nonceDefault,
-    } as any
+    } as Message
 
     const loc = grouper().pushMessage(mockMessage)
     grouper().nonced.set(nonce, loc)
@@ -341,7 +375,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
               <p class="text-base-content/60 text-sm">{props.startMessage}</p>
             </div>
           </Show>
-          <Show when={!loading()} keyed={false} fallback={MessageLoadingSkeleton}>
+          <Show when={!loading()} keyed={false} fallback={<MessageLoadingSkeleton />}>
             <For each={grouper().groups}>
               {(group: MessageGroup) => {
                 if (group.isDivider) return (
@@ -487,6 +521,37 @@ export default function Chat(props: { channelId: number, guildId?: number, title
             contentEditable
             data-placeholder="Send a message..."
             spellcheck={false}
+            // Paste listener for attachments
+            onPaste={async (event) => {
+              event.preventDefault()
+
+              const types = event.clipboardData?.types
+              if (types?.includes('Files')) {
+                const files = event.clipboardData?.files
+                if (!files) return
+
+                const uploaded = await Promise.all(Array.from(files, async (file) => {
+                  const attachment: UploadedAttachment = {
+                    filename: file.name,
+                    type: file.type,
+                    file,
+                  }
+                  if (file.type.startsWith('image/')) {
+                    // show a preview of this image
+                    attachment.preview = URL.createObjectURL(file)
+                  }
+                  return attachment
+                }))
+                setUploadedAttachments(prev => [...prev, ...uploaded])
+              }
+
+              if (types?.includes('text/plain')) {
+                const text = event.clipboardData?.getData('text/plain')
+                if (!text) return
+
+                document.execCommand('insertText', false, text)
+              }
+            }}
             onKeyUp={(event) => {
               const oldState = autocompleteState()
               if (oldState)
@@ -539,8 +604,8 @@ export default function Chat(props: { channelId: number, guildId?: number, title
             [
               "w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-gray-700 ml-2 transition-all duration-200"
             ]: true,
-            "opacity-50 cursor-not-allowed": !messageInput(),
-            "hover:bg-accent": !!messageInput(),
+            "opacity-50 cursor-not-allowed": !sendable(),
+            "hover:bg-accent": sendable(),
             "hidden": !mobile,
           }}
           onClick={async () => {
