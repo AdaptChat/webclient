@@ -35,6 +35,7 @@ import Fuse from "fuse.js";
 import {User} from "../../types/user";
 import Plus from "../icons/svg/Plus";
 import Hashtag from "../icons/svg/Hashtag";
+import Trash from "../icons/svg/Trash";
 
 noop(tooltip)
 
@@ -606,7 +607,19 @@ export default function Chat(props: { channelId: number, guildId?: number, title
             <div class="flex flex-wrap gap-x-2 gap-y-1 px-2">
               <For each={uploadedAttachments()}>
                 {(attachment, idx) => (
-                  <div class="flex flex-col rounded-xl bg-gray-800 w-60 h-48 overflow-hidden box-border">
+                  <div class="flex flex-col rounded-xl bg-gray-800 w-60 h-48 overflow-hidden box-border relative group">
+                    <div
+                      class="absolute inset-0 flex items-center justify-center gap-x-2 bg-gray-900/70 opacity-0
+                        group-hover:opacity-100 transition-all duration-200 group-hover:backdrop-blur-md overflow-hidden
+                        box-border rounded-xl"
+                    >
+                      <button
+                        class="rounded-full p-4 bg-transparent hover:bg-error transition-all duration-200"
+                        onClick={() => setUploadedAttachments(prev => prev.filter((_, i) => i !== idx()))}
+                      >
+                        <Icon icon={Trash} class="w-5 h-5 fill-base-content" />
+                      </button>
+                    </div>
                     <div class="overflow-hidden w-60 h-40">
                       {attachment.preview ? (
                         <img src={attachment.preview} alt={attachment.filename} class="flex-grow w-60 h-40 object-contain" />
