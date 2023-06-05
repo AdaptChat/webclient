@@ -605,7 +605,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
         </button>
         <div
           classList={{
-            "w-full bg-gray-700 rounded-lg py-2": true,
+            "w-full bg-gray-700 rounded-lg py-2 max-h-[40vh] overflow-y-auto": true,
             "w-[calc(100%-5.75rem)]": mobile,
             "w-[calc(100%-2.75rem)]": !mobile,
           }}
