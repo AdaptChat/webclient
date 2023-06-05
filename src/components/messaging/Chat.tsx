@@ -8,7 +8,6 @@ import {
   onCleanup,
   onMount,
   Show,
-  Suspense,
   Switch
 } from "solid-js";
 import type {Message} from "../../types/message";
@@ -511,13 +510,15 @@ export default function Chat(props: { channelId: number, guildId?: number, title
           </Show>
         </div>
       </div>
-      <div class="relative flex items-center bg-gray-800 w-full px-4">
-        <Switch>
-          <Match when={!autocompleteResult()?.length} keyed={false}>
-            {null}
-          </Match>
-          <Match when={autocompleteState()?.type === AutocompleteType.UserMention} keyed={false}>
-            <div class="absolute inset-x-4 bottom-10 rounded-lg bg-gray-900 p-2 flex flex-col">
+      <div class="ml-11 mr-2 relative">
+        <div
+          classList={{
+            "absolute inset-x-4 bottom-2 rounded-lg bg-gray-900 p-2 flex flex-col": true,
+            "hidden": !autocompleteResult()?.length,
+          }}
+        >
+          <Switch>
+            <Match when={autocompleteState()?.type === AutocompleteType.UserMention} keyed={false}>
               <For each={autocompleteResult() as User[]}>
                 {(user, idx) => (
                   <div
@@ -532,18 +533,16 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                     <div class="ml-2 text-sm">
                       <span>{user.username}</span>
                       <span class="text-base-content/60 text-sm">
-                        #{user.discriminator.toString().padStart(4, '0')}
-                      </span>
+                      #{user.discriminator.toString().padStart(4, '0')}
+                    </span>
                     </div>
                   </div>
                 )}
               </For>
-            </div>
-          </Match>
+            </Match>
 
-          {/* TODO lots of boilerplate here */}
-          <Match when={autocompleteState()?.type === AutocompleteType.ChannelMention} keyed={false}>
-            <div class="absolute inset-x-4 bottom-10 rounded-lg bg-gray-900 p-2 flex flex-col">
+            {/* TODO lots of boilerplate here */}
+            <Match when={autocompleteState()?.type === AutocompleteType.ChannelMention} keyed={false}>
               <For each={autocompleteResult() as GuildChannel[]}>
                 {(channel, idx) => (
                   <div
@@ -558,17 +557,19 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                     <div class="ml-2 text-sm">
                       <span>{channel.name}</span>
                       <Show when={channel.guild_id != props.guildId} keyed={false}>
-                        <span class="text-base-content/60 text-sm">
-                          &nbsp;in <b>{api?.cache?.guilds?.get(channel.guild_id)?.name}</b>
-                        </span>
+                      <span class="text-base-content/60 text-sm">
+                        &nbsp;in <b>{api?.cache?.guilds?.get(channel.guild_id)?.name}</b>
+                      </span>
                       </Show>
                     </div>
                   </div>
                 )}
               </For>
-            </div>
-          </Match>
-        </Switch>
+            </Match>
+          </Switch>
+        </div>
+      </div>
+      <div class="relative flex items-center bg-gray-800 w-full px-4">
         <button
           class="w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-gray-700 mr-2 transition-all duration-200 hover:bg-accent"
           onClick={() => {
@@ -602,12 +603,18 @@ export default function Chat(props: { channelId: number, guildId?: number, title
         >
           <Icon icon={Plus} title="Upload" class="fill-base-content w-[18px] h-[18px]" />
         </button>
-        <div classList={{ "w-full bg-gray-700 rounded-lg py-2": true, "w-[calc(100%-3rem)]": mobile }}>
+        <div
+          classList={{
+            "w-full bg-gray-700 rounded-lg py-2": true,
+            "w-[calc(100%-5.75rem)]": mobile,
+            "w-[calc(100%-2.75rem)]": !mobile,
+          }}
+        >
           <Show when={uploadedAttachments().length > 0} keyed={false}>
             <div class="flex flex-wrap gap-x-2 gap-y-1 px-2">
               <For each={uploadedAttachments()}>
                 {(attachment, idx) => (
-                  <div class="flex flex-col rounded-xl bg-gray-800 w-60 h-48 overflow-hidden box-border relative group">
+                  <div class="flex flex-col rounded-xl bg-gray-800 w-52 h-40 overflow-hidden box-border relative group">
                     <div
                       class="absolute inset-0 flex items-center justify-center gap-x-2 bg-gray-900/70 opacity-0
                         group-hover:opacity-100 transition-all duration-200 group-hover:backdrop-blur-md overflow-hidden
@@ -620,22 +627,29 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                         <Icon icon={Trash} class="w-5 h-5 fill-base-content" />
                       </button>
                     </div>
-                    <div class="overflow-hidden w-60 h-40">
+                    <div class="overflow-hidden w-52 h-[6.75rem]">
                       {attachment.preview ? (
-                        <img src={attachment.preview} alt={attachment.filename} class="flex-grow w-60 h-40 object-contain" />
+                        <img src={attachment.preview} alt={attachment.filename} class="w-60 h-[6.75rem] object-contain" />
                       ) : (
                         <span class="w-full h-full flex items-center justify-center text-base-content/60 p-2 bg-gray-900 break-words">
-                          {attachment.type}
+                          {attachment.type || attachment.filename}
                         </span>
                       )}
                     </div>
-                    <div class="break-words flex-grow p-2">
-                      <h2 class="font-title font-medium justify-self-center">{attachment.filename}</h2>
-                      {attachment.alt && <div>{attachment.alt}</div>}
+                    <div class="break-words flex-grow p-2 bg-gray-850">
+                      <h2 class="text-sm font-title font-medium justify-self-center">{attachment.filename}</h2>
+                      <div class="text-xs text-base-content/60">
+                        {humanizeSize(attachment.file.size)} {attachment.alt && <> - {attachment.alt}</>}
+                      </div>
                     </div>
                   </div>
                 )}
               </For>
+              <Show when={uploadedAttachments().length > 1} keyed={false}>
+                <div class="self-center justify-self-center text-base-content/60">
+                  = {humanizeSize(uploadedAttachments().reduce((acc, cur) => acc + cur.file.size, 0))}
+                </div>
+              </Show>
             </div>
             <div class="divider m-0 p-0" />
           </Show>
