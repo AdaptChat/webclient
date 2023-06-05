@@ -9,8 +9,8 @@ import remarkRehype from "remark-rehype";
 import {Root as HtmlRoot} from "rehype-stringify/lib";
 import {Root as MdRoot} from "remark-parse/lib";
 
-import {createSignal, JSX} from "solid-js";
-import {Navigator, useNavigate} from "@solidjs/router";
+import {createSignal, JSX, Show} from "solid-js";
+import {A, Navigator, useNavigate, useParams} from "@solidjs/router";
 
 import {Member} from "../../types/guild";
 import {getApi} from "../../api/Api";
@@ -19,6 +19,7 @@ import {GuildCreateEvent} from "../../types/ws";
 import {childrenToSolid} from "./markdown/ast-to-solid";
 import {html} from "property-information";
 import remarkRegexp from "./markdown/regex-plugin";
+import {GuildChannel} from "../../types/channel";
 
 const flattenHtml: Plugin<any[], MdRoot> = () => (tree) => {
   visit(tree, "html", (node) => {
@@ -66,7 +67,7 @@ function Anchor(props: JSX.HTMLAttributes<HTMLAnchorElement> & { isImage?: boole
     else if (url.hostname.endsWith('adapt.chat'))
       return
 
-    if (!window.confirm(`You are about to leave Adapt.chat and go to ${href}. Are you sure?`)) {
+    if (!window.confirm(`You are about to leave Adapt and go to ${href}. Are you sure?`)) {
       e.preventDefault()
     }
   }
@@ -208,6 +209,27 @@ function MentionUser({ arg, children, ...props }: any) {
   )
 }
 
+function MentionChannel({ arg, children, ...props }: any) {
+  const api = getApi()!
+  const currentGuild = useParams().guildId
+  const channel = api.cache?.channels?.get(parseInt(arg)) as GuildChannel | undefined
+  // TODO: Should there be a special fallback for when the channel is not found?
+  if (!channel) return <span {...props}>{children}</span>
+
+  return (
+    <A
+      {...props}
+      class="bg-accent bg-opacity-30 hover:bg-opacity-80 py-0.5 rounded cursor-pointer transition duration-200"
+      href={`/guilds/${channel.guild_id}/${channel.id}`}
+    >
+      #{channel.name}
+      <Show when={channel.guild_id != currentGuild as any as number} keyed={false}>
+        <span class="text-base-content/80"> ({api.cache?.guilds.get(channel.guild_id)?.name})</span>
+      </Show>
+    </A>
+  )
+}
+
 export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.Element> = {
   strong: (props) => <strong class="font-bold" {...props} />,
   h1: (props) => <h1 class="text-2xl font-bold" {...props} />,
@@ -230,6 +252,7 @@ export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.
   highlight: (props) => <span class="bg-highlight text-highlight-content rounded py-0.5" {...props} />,
   styled: ({ arg, ...props }: any) => <span {...props} style={parseStyle(arg)} />,
   'mention-user': MentionUser,
+  'mention-channel': MentionChannel,
   blockquote: (props) => (
     <div class="flex">
       <div class="select-none bg-gray-600 rounded-full w-0.5" />
@@ -247,7 +270,8 @@ export const render = unified()
   .use(remarkRegexp(/\|\|(.+?)\|\|/s, 'spoiler'))
   .use(remarkRegexp(/!!(.+?)!!/s, 'highlight'))
   .use(remarkRegexp(/\[([^\]]+)]\{([^}]+)}/, 'styled'))
-  .use(remarkRegexp(/(<@(\d{14,24})>)/, 'mention-user'))
+  .use(remarkRegexp(/(<@!?(\d{14,24})>)/, 'mention-user'))
+  .use(remarkRegexp(/(<#!?(\d{14,24})>)/, 'mention-channel'))
   .use(flattenHtml)
   .use(remarkRehype)
   .use(underline)

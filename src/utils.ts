@@ -206,7 +206,7 @@ export function noop(..._values: unknown[]) {}
 /**
  * Yields the items of an iterator that match a predicate.
  */
-export function* filterIterator<T>(iterator: IterableIterator<T>, predicate: (item: T) => boolean): Generator<T> {
+export function* filterIterator<T>(iterator: Iterable<T>, predicate: (item: T) => boolean): Generator<T> {
   for (const item of iterator)
     if (predicate(item))
       yield item
@@ -216,7 +216,7 @@ export function* filterIterator<T>(iterator: IterableIterator<T>, predicate: (it
  * Returns the first item that matches a predicate.
  */
 export function findIterator<T>(
-  iterator: IterableIterator<T> | undefined,
+  iterator: Iterable<T> | undefined,
   predicate: (item: T,
 ) => boolean): T | undefined {
   if (!iterator)
@@ -224,6 +224,18 @@ export function findIterator<T>(
   for (const item of iterator)
     if (predicate(item))
       return item
+}
+
+/**
+ * Flat-maps an iterator.
+ */
+export function* flatMapIterator<T, U>(
+  iterator: Iterable<T>,
+  mapper: (item: T) => Iterable<U>,
+): Generator<U> {
+  for (const item of iterator)
+    for (const mapped of mapper(item))
+      yield mapped
 }
 
 /**

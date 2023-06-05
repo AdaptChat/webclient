@@ -16,8 +16,7 @@ import type {
   Root,
   Text,
 } from "hast";
-import type { Schema } from "property-information";
-import { find, hastToReact, svg } from "property-information";
+import { find, hastToReact, svg, type Schema } from "property-information";
 import { stringify as spaces } from "space-separated-tokens";
 import style from "style-to-object";
 

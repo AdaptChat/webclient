@@ -84,7 +84,7 @@ const App: Component = () => {
             background: "#000000",
           },
         }} />
-        <Show when={ws()} keyed={false} fallback={Loading}>
+        <Show when={ws()} keyed={false} fallback={<Loading />}>
           <Routes>
             <Route path="/" component={Home} />
             <Route path="/select" component={GuildSelect} />

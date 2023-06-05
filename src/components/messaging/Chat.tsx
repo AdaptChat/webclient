@@ -1,18 +1,40 @@
-import {createMemo, createSignal, For, JSX, Match, onCleanup, onMount, Show, Suspense, Switch} from "solid-js";
+import {
+  Accessor,
+  createMemo,
+  createSignal,
+  For,
+  JSX,
+  Match,
+  onCleanup,
+  onMount,
+  Show,
+  Suspense,
+  Switch
+} from "solid-js";
 import type {Message} from "../../types/message";
 import {getApi} from "../../api/Api";
 import {type MessageGroup} from "../../api/MessageGrouper";
-import {humanizeFullTimestamp, humanizeSize, humanizeTime, humanizeTimestamp, snowflakes, uuid} from "../../utils";
+import {
+  filterIterator,
+  flatMapIterator,
+  humanizeFullTimestamp,
+  humanizeSize,
+  humanizeTime,
+  humanizeTimestamp,
+  snowflakes,
+  uuid
+} from "../../utils";
 import TypingKeepAlive from "../../api/TypingKeepAlive";
 import tooltip from "../../directives/tooltip";
 import {noop} from "../../utils";
 import Icon from "../icons/Icon";
 import PaperPlaneTop from "../icons/svg/PaperPlaneTop";
 import {DynamicMarkdown} from "./Markdown";
-import {DmChannel} from "../../types/channel";
+import {Channel, DmChannel, GuildChannel} from "../../types/channel";
 import Fuse from "fuse.js";
 import {User} from "../../types/user";
 import Plus from "../icons/svg/Plus";
+import Hashtag from "../icons/svg/Hashtag";
 
 noop(tooltip)
 
@@ -167,6 +189,7 @@ function getWordAt(str: string, pos: number) {
 
 export enum AutocompleteType {
   UserMention,
+  ChannelMention,
 }
 
 export interface AutocompleteState {
@@ -250,7 +273,11 @@ export default function Chat(props: { channelId: number, guildId?: number, title
     const attachments = uploadedAttachments()
 
     setUploadedAttachments([])
-    messageInputRef!.innerHTML = ''
+    // Clear the message input without invalidating undo history
+    messageInputRef!.focus()
+    document.execCommand('selectAll', false)
+    document.execCommand('insertHTML', false, '')
+
     messageAreaRef!.scrollTo(0, messageAreaRef!.scrollHeight)
 
     const nonce = snowflakes.fromTimestamp(Date.now()).toString()
@@ -303,18 +330,24 @@ export default function Chat(props: { channelId: number, guildId?: number, title
     interactive: true
   })
 
+  const MAPPING = [
+    ['@', AutocompleteType.UserMention],
+    ['#', AutocompleteType.ChannelMention],
+  ] as const
   const updateAutocompleteState = () => {
     const [currentWord, index] = getWordAt(messageInputRef?.innerText!, getCaretPosition(messageInputRef!) - 1)
-    if (currentWord.startsWith('@')) {
-      setAutocompleteState({
-        type: AutocompleteType.UserMention,
-        value: currentWord.slice(1),
-        selected: 0,
-        data: { index },
-      })
-    } else {
-      setAutocompleteState(null)
+    for (const [char, type] of MAPPING) {
+      if (currentWord.startsWith(char)) {
+        setAutocompleteState({
+          type,
+          value: currentWord.slice(1),
+          selected: 0,
+          data: { index },
+        })
+        return
+      }
     }
+    setAutocompleteState(null)
   }
 
   const members = createMemo(() => {
@@ -332,11 +365,46 @@ export default function Chat(props: { channelId: number, guildId?: number, title
     keys: ['username'], // TODO: nickname
   }))
 
+  const recipientId = createMemo(() => {
+    if (props.guildId) return null
+    const ids = (api?.cache?.channels.get(props.channelId) as DmChannel | null)?.recipient_ids as any
+    return ids[0] == api?.cache?.clientId ? ids[1] : ids[0]
+  })
+  const channels = createMemo(() => {
+    const cache = api.cache
+    if (!cache) return []
+
+    // TODO: filter by permissions
+    if (props.guildId) {
+      return [...cache.guilds.get(props.guildId)?.channels?.values() ?? []]
+    } else {
+      const mutuals = filterIterator(
+        cache.guilds.values(),
+        // performance here is O(n^2), this could be improved
+        (guild) => guild.members?.some((member) => member.id == recipientId()) ?? false
+      )
+      return [...flatMapIterator(
+        mutuals,
+        (guild) => guild
+          .channels
+          ?.map(channel => ({...channel, key: `${channel.name}:${guild.name}`}) as unknown as GuildChannel) ?? []
+      )]
+    }
+  })
+  const fuseChannelIndex = createMemo(() => new Fuse(channels()!, {
+    keys: ['key'],
+  }))
+
   const setAutocompleteSelection = (index: number) => {
     setAutocompleteState(prev => ({
       ...prev!,
       selected: trueModulo(index, autocompleteResult()?.length || 1),
     }))
+  }
+  const fuse = function<T>(value: string, index: Accessor<Fuse<T>>, fallback: Accessor<T[]>) {
+    return value
+      ? index()?.search(value).slice(0, 5).map(result => result.item)
+      : fallback().slice(0, 5)
   }
   const autocompleteResult = createMemo(() => {
     const state = autocompleteState()
@@ -344,33 +412,35 @@ export default function Chat(props: { channelId: number, guildId?: number, title
 
     const { type, value } = state
     switch (type) {
-      case AutocompleteType.UserMention:
-        return value
-          ? fuseMemberIndex()?.search(value).slice(0, 5).map(result => result.item)
-          : members().slice(0, 5)
+      case AutocompleteType.UserMention: return fuse(value, fuseMemberIndex, members)
+      case AutocompleteType.ChannelMention: return fuse(value, fuseChannelIndex, channels)
     }
   })
   const executeAutocomplete = (index?: number) => {
     const result = autocompleteResult()
-    if (!result) return
+    if (!result?.length) {
+      return void setAutocompleteState(null)
+    }
 
     const { type, value, selected } = autocompleteState()!
     switch (type) {
-      case AutocompleteType.UserMention: {
-        const user = result[index ?? selected]
+      case AutocompleteType.UserMention:
+      case AutocompleteType.ChannelMention: {
+        const target = result[index ?? selected]
         const { index: wordIndex } = autocompleteState()!.data!
 
+        const symbol = MAPPING.find(([_, ty]) => type === ty)![0]
         const text = messageInputRef!.innerText!
-        const before = text.slice(0, wordIndex) + `<@${user.id}>`
+        const before = text.slice(0, wordIndex) + `<${symbol}!${target.id}>`
         const after = text.slice(wordIndex + value.length + 1)
         messageInputRef!.innerText = before + after
 
-        setAutocompleteState(null)
         messageInputRef!.focus()
         setSelectionRange(messageInputRef!, before.length)
         break
       }
     }
+    setAutocompleteState(null)
   }
 
   return (
@@ -447,7 +517,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
           </Match>
           <Match when={autocompleteState()?.type === AutocompleteType.UserMention} keyed={false}>
             <div class="absolute inset-x-4 bottom-10 rounded-lg bg-gray-900 p-2 flex flex-col">
-              <For each={autocompleteResult()}>
+              <For each={autocompleteResult() as User[]}>
                 {(user, idx) => (
                   <div
                     classList={{
@@ -463,6 +533,34 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                       <span class="text-base-content/60 text-sm">
                         #{user.discriminator.toString().padStart(4, '0')}
                       </span>
+                    </div>
+                  </div>
+                )}
+              </For>
+            </div>
+          </Match>
+
+          {/* TODO lots of boilerplate here */}
+          <Match when={autocompleteState()?.type === AutocompleteType.ChannelMention} keyed={false}>
+            <div class="absolute inset-x-4 bottom-10 rounded-lg bg-gray-900 p-2 flex flex-col">
+              <For each={autocompleteResult() as GuildChannel[]}>
+                {(channel, idx) => (
+                  <div
+                    classList={{
+                      "flex items-center px-1 py-1.5 cursor-pointer transition duration-200 rounded-lg": true,
+                      "bg-gray-800": idx() === autocompleteState()?.selected,
+                    }}
+                    onClick={() => executeAutocomplete(idx())}
+                    onMouseOver={() => setAutocompleteSelection(idx())}
+                  >
+                    <Icon icon={Hashtag} class="w-5 h-5 fill-base-content/60" />
+                    <div class="ml-2 text-sm">
+                      <span>{channel.name}</span>
+                      <Show when={channel.guild_id != props.guildId} keyed={false}>
+                        <span class="text-base-content/60 text-sm">
+                          &nbsp;in <b>{api?.cache?.guilds?.get(channel.guild_id)?.name}</b>
+                        </span>
+                      </Show>
                     </div>
                   </div>
                 )}
@@ -587,7 +685,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
 
               if (event.key === 'Enter' && (!mobile || event.ctrlKey || event.metaKey)) {
                 event.preventDefault()
-                if (autocompleteState() != null)
+                if (autocompleteState() && autocompleteResult()?.length)
                   return executeAutocomplete()
 
                 await createMessage()
