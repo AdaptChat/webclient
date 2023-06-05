@@ -30,7 +30,7 @@ import {noop} from "../../utils";
 import Icon from "../icons/Icon";
 import PaperPlaneTop from "../icons/svg/PaperPlaneTop";
 import {DynamicMarkdown} from "./Markdown";
-import {Channel, DmChannel, GuildChannel} from "../../types/channel";
+import type {DmChannel, GuildChannel} from "../../types/channel";
 import Fuse from "fuse.js";
 import {User} from "../../types/user";
 import Plus from "../icons/svg/Plus";
@@ -392,7 +392,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
     }
   })
   const fuseChannelIndex = createMemo(() => new Fuse(channels()!, {
-    keys: ['key'],
+    keys: ['key', 'name'],
   }))
 
   const setAutocompleteSelection = (index: number) => {
