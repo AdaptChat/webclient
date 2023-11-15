@@ -217,8 +217,8 @@ export function* filterIterator<T>(iterator: Iterable<T>, predicate: (item: T) =
  */
 export function findIterator<T>(
   iterator: Iterable<T> | undefined,
-  predicate: (item: T,
-) => boolean): T | undefined {
+  predicate: (item: T) => boolean,
+): T | undefined {
   if (!iterator)
     return
   for (const item of iterator)
