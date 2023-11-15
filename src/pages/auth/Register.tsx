@@ -100,7 +100,7 @@ export default function Register() {
                 setUsernameHint(
                   response.ok
                     ? ['Username available!', UsernameCheckState.success]
-                    : [response.errorJsonOrThrow().message, UsernameCheckState.error]
+                    : [response.errorJsonOrThrow().message.replace(/'(?:\\(')|("))'/, "$1$2"), UsernameCheckState.error]
                 )
               }, 1000)
             })}
