@@ -1,6 +1,7 @@
-import {ComponentProps, ParentProps, Show} from "solid-js";
+import {ComponentProps, onMount, ParentProps, Show} from "solid-js";
 import {A} from "@solidjs/router";
 import {capitalize} from "../../utils";
+import {Gradient} from "whatamesh";
 
 export function FormInput({ id, label, ...props }: { label: string } & ComponentProps<'input'>) {
   return (
@@ -11,8 +12,9 @@ export function FormInput({ id, label, ...props }: { label: string } & Component
       <input
         id={id}
         placeholder={label}
-        class="relative block w-full appearance-none px-3 py-2 placeholder-white placeholder-opacity-50 bg-gray-900
-          focus:placeholder-accent focus:placeholder-opacity-100 focus:z-10 focus:outline-none sm:text-sm"
+        class="relative block w-full appearance-none px-3 py-2 placeholder-white placeholder-opacity-50 bg-gray-900/70
+          focus:placeholder-accent focus:placeholder-opacity-100 focus:z-10 focus:outline-none sm:text-sm
+          motion-reduce:bg-gray-900/100"
         {...props}
       />
     </div>
@@ -34,9 +36,24 @@ export interface Props {
 }
 
 export default function Layout(props: ParentProps<Props>) {
+  onMount(() => {
+    const gradient = new Gradient()
+    gradient.initGradient('#mesh-gradient')
+
+    window.addEventListener('mouseover', () => gradient.play())
+    window.addEventListener('mouseout', () => gradient.pause())
+  })
+
   return (
-    <div class="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div class="w-full max-w-md space-y-8">
+    <div
+      class="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-900 motion-reduce:bg-gray-800"
+    >
+      <canvas
+        id="mesh-gradient"
+        class="motion-reduce:hidden absolute inset-0 flex flex-grow items-stretch justify-stretch w-full h-full
+          opacity-25 select-none pointer-events-none"
+      />
+      <div class="w-full max-w-md space-y-8 z-10">
         <div class="text-center">
           <img class="mx-auto h-12 w-auto" src="/banner-white-fg.svg" alt="Adapt" />
           <h2 class="mt-6 text-3xl font-bold font-title">{props.title}</h2>
