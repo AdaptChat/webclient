@@ -20,6 +20,11 @@
 
 :root {
   scrollbar-color: theme('colors.gray.500') transparent;
+
+  --gradient-color-1: theme('colors.accent.500');
+  --gradient-color-2: theme('colors.secondary');
+  --gradient-color-3: #ff3d94;
+  --gradient-color-4: #0056c6;
 }
 
 html {

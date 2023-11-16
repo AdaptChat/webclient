@@ -1,6 +1,7 @@
-import {Role} from "./types/guild";
+import {Member, Role} from "./types/guild";
 import {PermissionOverwrite} from "./types/channel";
 import {Permissions} from "./api/Bitflags";
+import {User} from "./types/user";
 
 /**
  * Utilities related to snowflakes.
@@ -262,4 +263,18 @@ export function uuid(id: string | Uint8Array): string {
   base.splice(10, 0, '-')
   base.splice(13, 0, '-')
   return base.join('')
+}
+
+function userDisplayName(user: User): string {
+  return user.display_name ?? user.username
+}
+
+/**
+ * Return the proper display name of a member or user.
+ *
+ * @param member The member or user to get the display name of.
+ * @returns The display name of the member or user.
+ */
+export function displayName(member: Member | User): string {
+  return (member as Member).nick ?? userDisplayName(member as User)
 }

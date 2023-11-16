@@ -6,6 +6,7 @@ import {RelationshipCreateEvent} from "../../types/ws";
 import Icon from "../icons/Icon";
 import Check from "../icons/svg/Check";
 import Plus from "../icons/svg/Plus";
+import {displayName} from "../../utils";
 
 export default function AddFriendModal() {
   let inputRef: HTMLInputElement | null = null
@@ -35,27 +36,25 @@ export default function AddFriendModal() {
 
   return (
     <ModalTemplate title="Add Friend">
-      <p class="mt-2 text-base-content/50 text-sm">
-        Ask your friend to give you their unique user tag, which contains their username and discriminator.
-        This can be found at the bottom of the sidebar on the left.
+      <p class="mt-2 text-base-content/50 text-center text-sm">
+        Ask your friend to give you their unique username.
+        It can be found at the bottom of the left sidebar, and you can copy it by clicking on it.
       </p>
       <form
         class="mt-4 flex rounded-lg overflow-hidden"
         onSubmit={async (e) => {
           e.preventDefault()
-          const tag = inputRef!.value
+          const username = inputRef!.value
 
-          if (!/^[^#\n\t\r]{2,}#\d{4}$/.test(tag)) {
-            setError("Invalid tag, make sure it is in the format of Username#0000")
+          if (!/^[a-zA-Z0-9][a-zA-Z0-9.\-_]{0,30}[a-zA-Z0-9]$/.test(username)) {
+            setError("Invalid username format. Make sure this is the username (not display name).")
             return
           }
 
           submitRef!.disabled = true
-          const username = tag.slice(0, -5)
-          const discriminator = parseInt(tag.slice(-4))
 
           const response = await api.request('POST', '/relationships/friends', {
-            json: { username, discriminator },
+            json: { username },
           })
           if (!response.ok) {
             setError(response.errorJsonOrThrow().message)
@@ -67,13 +66,14 @@ export default function AddFriendModal() {
           submitRef!.disabled = false
         }}
       >
+        <span class="bg-gray-900 text-base-content/80 font-title flex items-center pl-2 font-bold text-xl">@</span>
         <input
           ref={inputRef!}
           type="text"
           name="tag"
           autocomplete="off"
-          class="flex-1 p-2 bg-gray-900 focus:outline-none focus:ring-2 focus:ring-accent"
-          placeholder="Username#0000"
+          class="flex-1 p-2 bg-gray-900 focus:outline-none"
+          placeholder="Username"
           onInput={() => setError()}
           required
         />
@@ -94,7 +94,7 @@ export default function AddFriendModal() {
         </button>
       </form>
       <Show when={error()} keyed={false}>
-        <p class="mt-2 text-error">{error()}</p>
+        <p class="mt-1 ml-1 text-sm text-error">{error()}</p>
       </Show>
       <Show when={newRequests().length > 0} keyed={false}>
         <div class="flex flex-col gap-y-2 mt-4">
@@ -109,8 +109,7 @@ export default function AddFriendModal() {
                     alt=""
                     class="w-6 h-6 rounded-full mr-1 select-none"
                   />
-                  {user.username}
-                  <span class="text-base-content/50">#{user.discriminator.toString().padStart(4, '0')}</span>
+                  {displayName(user)}
                 </span>
                 as a friend.
               </span>

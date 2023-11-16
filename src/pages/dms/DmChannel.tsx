@@ -6,6 +6,7 @@ import Layout from "../Layout";
 import Chat from "../../components/messaging/Chat";
 import {Sidebar} from "../Home";
 import {type DmChannel as DmChannelType, GroupDmChannel} from "../../types/channel";
+import {displayName} from "../../utils";
 
 export default function DmChannel() {
   const api = getApi()!
@@ -25,7 +26,7 @@ export default function DmChannel() {
       : undefined
   )
   const group = channel().type == 'group'
-  const name = () => group ? (channel() as GroupDmChannel).name : user()?.username
+  const name = () => group ? (channel() as GroupDmChannel).name : displayName(user()!)
 
   // TODO: right sidebar
   return (

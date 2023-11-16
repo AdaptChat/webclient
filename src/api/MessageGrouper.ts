@@ -210,7 +210,7 @@ export default class MessageGrouper {
     return {
       id: 0,
       username: 'Unknown User',
-      discriminator: 0,
+      display_name: null,
       flags: 0,
     }
   }

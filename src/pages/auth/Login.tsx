@@ -26,6 +26,7 @@ export default function Login() {
       submitLabelProgressive="Signing in..."
       isSubmitting={isSubmitting()}
       redirectTo={redirectTo}
+      disableSubmission={() => false}
       onSubmit={async () => {
         setIsSubmitting(true)
         const email = emailRef!.value
@@ -66,13 +67,13 @@ export default function Login() {
         />
       </div>
 
-      <div class="flex items-center justify-between mobile-xs:flex-col mobile-xs:gap-y-2">
+      <div class="flex items-center justify-between mobile-xs:flex-col mobile-xs:gap-y-2 mt-4">
         <div class="flex items-center">
           <input
             id="remember-me"
             name="remember-me"
             type="checkbox"
-            class="h-4 w-4 rounded border-gray-400 text-accent focus:ring-accent"
+            class="checkbox checkbox-accent"
             checked
             ref={rememberMeRef!}
           />
