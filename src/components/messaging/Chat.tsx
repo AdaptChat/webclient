@@ -14,6 +14,7 @@ import type {Message} from "../../types/message";
 import {getApi} from "../../api/Api";
 import {type MessageGroup} from "../../api/MessageGrouper";
 import {
+  displayName,
   filterIterator,
   flatMapIterator,
   humanizeFullTimestamp,
@@ -480,7 +481,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                         alt=""
                       />
                       <div class="inline text-sm">
-                        <span class="font-medium">{author.username}</span>
+                        <span class="font-medium">{displayName(author)}</span>
                         <span
                           class="text-base-content/50 text-xs ml-2"
                           use:tooltip={timestampTooltip(firstMessage.id)}
@@ -530,12 +531,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                     onMouseOver={() => setAutocompleteSelection(idx())}
                   >
                     <img src={api.cache!.avatarOf(user.id)} class="w-6 h-6 rounded-full" alt="" />
-                    <div class="ml-2 text-sm">
-                      <span>{user.username}</span>
-                      <span class="text-base-content/60 text-sm">
-                      #{user.discriminator.toString().padStart(4, '0')}
-                    </span>
-                    </div>
+                    <div class="ml-2 text-sm">{user.username}</div>
                   </div>
                 )}
               </For>

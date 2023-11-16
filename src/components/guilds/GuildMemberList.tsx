@@ -4,7 +4,7 @@ import {createEffect, For, Show} from "solid-js";
 import StatusIndicator from "../users/StatusIndicator";
 import SidebarSection from "../ui/SidebarSection";
 import {ReactiveSet} from "@solid-primitives/set";
-import {setDifference} from "../../utils";
+import {displayName, setDifference} from "../../utils";
 
 export function GuildMemberGroup({ members, offline }: { members: ReactiveSet<number>, offline?: boolean }) {
   const api = getApi()!
@@ -28,11 +28,7 @@ export function GuildMemberGroup({ members, offline }: { members: ReactiveSet<nu
             </div>
             <span class="ml-2 w-full overflow-ellipsis overflow-hidden text-sm">
             <span classList={{ "text-base-content": true, "text-opacity-50": offline, "!text-opacity-80": !offline }}>
-              {user?.username}
-            </span>
-              {/* TODO: discriminator part is temporary and can be removed in place of profiles */}
-              <span class="text-base-content/30 text-xs">
-              #{user?.discriminator.toString().padStart(4, '0')}
+              {displayName(user!)}
             </span>
           </span>
           </div>

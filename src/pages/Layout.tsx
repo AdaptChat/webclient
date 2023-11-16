@@ -5,7 +5,7 @@ import {toast} from "solid-toast";
 
 import {getApi} from "../api/Api";
 import tooltip from "../directives/tooltip";
-import {noop} from "../utils";
+import {displayName, noop} from "../utils";
 noop(tooltip)
 
 import GuildSideSelect from "../components/guilds/GuildSideSelect";
@@ -95,20 +95,22 @@ export default function Layout(props: ParentProps<LayoutProps>) {
                 <StatusIndicator status={api.cache!.presences.get(clientUser().id)!.status} tailwind="m-[0.1rem]" indicator />
                 <img src={api.cache!.clientAvatar} alt="" class="w-10 h-10 rounded-lg" />
               </div>
-              <span
-                class="w-[calc(100%-3rem)] ml-2 text-sm font-medium overflow-ellipsis overflow-hidden cursor-pointer"
+              <div
+                class="w-[calc(100%-3rem)] ml-2 font-medium overflow-ellipsis overflow-hidden cursor-pointer"
                 onClick={() => toast.promise(
-                  navigator.clipboard.writeText(`${clientUser().username}#${clientUser().discriminator.toString().padStart(4, '0')}`),
+                  navigator.clipboard.writeText(clientUser().username),
                   {
-                    loading: "Copying tag...",
+                    loading: "Copying username...",
                     success: "Copied to your clipboard!",
-                    error: "Failed to copy user tag, try again later.",
+                    error: "Failed to copy username, try again later.",
                   }
                 )}
               >
-                {clientUser().username}
-                <span class="text-base-content/50">#{clientUser().discriminator.toString().padStart(4, '0')}</span>
-              </span>
+                <div class="text-sm">{displayName(clientUser())}</div>
+                <Show when={clientUser().display_name}>
+                  <span class="text-base-content/50 text-xs">{clientUser().username}</span>
+                </Show>
+              </div>
             </div>
           </div>
         </Show>

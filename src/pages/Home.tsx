@@ -4,7 +4,7 @@ import StatusIndicator, {StatusIndicatorProps} from "../components/users/StatusI
 import {createMemo, For, type JSX, ParentProps, Show} from "solid-js";
 import {A, useLocation, useNavigate} from "@solidjs/router";
 import useNewGuildModalComponent from "../components/guilds/NewGuildModal";
-import {humanizeStatus, noop} from "../utils";
+import {displayName, humanizeStatus, noop} from "../utils";
 import SidebarSection from "../components/ui/SidebarSection";
 import SidebarButton from "../components/ui/SidebarButton";
 import {DmChannel, GroupDmChannel} from "../types/channel";
@@ -172,7 +172,7 @@ export default function Home() {
             <h1 class="text-4xl mobile:text-3xl text-center font-title font-bold">
               Welcome,{' '}
               <span class="bg-gradient-to-r bg-clip-text overflow-ellipsis text-transparent from-accent to-secondary">
-                {clientUser.username}
+                {displayName(clientUser)}
               </span>!
             </h1>
             <div class="dropdown mt-2">
@@ -194,7 +194,7 @@ export default function Home() {
             <LearnAdaptSubcard title="Connect with friends" onClick={() => navigate('/friends')}>
               Find your friends on Adapt and add them to your friends list.
               <span class="block text-base-content/60 mt-1">
-                Your tag is <code>{clientUser.username}#{clientUser.discriminator}!</code>
+                Your username is <code>@{clientUser.username}</code>!
               </span>
             </LearnAdaptSubcard>
             <LearnAdaptSubcard title="Create a community" onClick={() => setShowNewGuildModal(true)}>

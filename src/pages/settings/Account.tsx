@@ -27,7 +27,7 @@ export default function Account() {
       <div class="flex flex-col items-center w-full p-4">
         <div class="relative flex items-center p-2 bg-gray-850 rounded-lg w-full">
           <button
-            class="group relative m-4 rounded-[50%] hover:rounded-lg transition-all duration-200"
+            class="group relative m-4 rounded-[50%] hover:rounded-lg overflow-hidden transition-all duration-200"
             onClick={() => {
               const input = document.createElement('input')
               input.type = 'file'
@@ -95,9 +95,6 @@ export default function Account() {
               ) : (
                 <span class="font-medium text-2xl">{clientUser().username}</span>
               )}
-              <span class="text-base-content/60 text-xl">
-                #{clientUser().discriminator.toString().padStart(4, '0')}
-              </span>
             </div>
             <span class="font-medium text-sm text-base-content/50">{clientUser().email}</span>
           </form>

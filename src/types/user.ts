@@ -14,9 +14,9 @@ export interface User {
    */
   username: string;
   /**
-   * The discriminator of the user, between 0 and 9999.
+   * The display name of the user. This is `None` if the user has no display name.
    */
-  discriminator: number;
+  display_name: string | null;
   /**
    * The URL of the user's avatar. This is `None` if the user has no avatar.
    */

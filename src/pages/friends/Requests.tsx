@@ -1,6 +1,6 @@
 import Api, {getApi} from "../../api/Api";
 import {Accessor, createMemo, For, ParentProps, Show} from "solid-js";
-import {filterIterator} from "../../utils";
+import {displayName, filterIterator} from "../../utils";
 import {RelationshipType} from "../../types/user";
 import tooltip from "../../directives/tooltip";
 import {noop} from "../../utils";
@@ -33,13 +33,15 @@ export function FriendEntry({ api, id, children }: ParentProps<{ api: Api, id: n
   return (
     <div
       class="flex items-center justify-between mx-4 my-2 p-2 border-2 border-gray-700 hover:bg-gray-850 transition
-        duration-200 rounded-lg cursor-pointer"
+        duration-200 rounded-lg cursor-pointer group"
     >
       <div class="flex items-center">
         <img src={api.cache!.avatarOf(id)} alt="" class="w-8 h-8 rounded-lg" />
         <div class="ml-4">
-          {user.username}
-          <span class="text-base-content/60">#{user.discriminator.toString().padStart(4, '0')}</span>
+          {displayName(user)}
+          <Show when={user.display_name} keyed={false}>
+            <span class="text-gray-800 group-hover:text-gray-500 transition ml-2">@{user.username}</span>
+          </Show>
         </div>
       </div>
       <div class="flex gap-x-2">
