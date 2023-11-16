@@ -93,9 +93,10 @@ export default function Register() {
               return setTimeout(async () => {
                 const username = usernameRef!.value
                 if (!username) return setUsernameHint(null)
-
                 setUsernameHint(['Checking availability...', UsernameCheckState.loading])
-                let response = await Api.requestNoAuth<LoginResponse>('GET', `/users/check/${username}`)
+
+                const endpoint: `/${string}` = `/users/check/${encodeURIComponent(username)}`
+                let response = await Api.requestNoAuth<LoginResponse>('GET', endpoint)
 
                 setUsernameHint(
                   response.ok
