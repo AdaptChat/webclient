@@ -7,8 +7,8 @@ noop(tooltip)
 
 interface GuildIconProps {
   guild: Guild,
-  unread: boolean,
-  pings: number,
+  unread?: boolean,
+  pings?: number,
   sizeClass: string,
   tooltip?: boolean,
   ringIfActive?: boolean,
@@ -17,6 +17,7 @@ interface GuildIconProps {
 export default function GuildIcon(
   { guild, unread, pings, sizeClass, tooltip: showTooltip, ringIfActive }: GuildIconProps,
 ) {
+  pings ??= 0
   const mx = pings.toString().length * 0.25 + 'rem'
   const indicator =
     pings > 0 ? (

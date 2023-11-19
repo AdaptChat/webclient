@@ -1,7 +1,7 @@
 import Layout, {setShowSidebar} from "./Layout";
 import {getApi} from "../api/Api";
 import StatusIndicator, {StatusIndicatorProps} from "../components/users/StatusIndicator";
-import {createMemo, For, type JSX, ParentProps, Show} from "solid-js";
+import {createMemo, For, type JSX, onMount, ParentProps, Show} from "solid-js";
 import {A, useLocation, useNavigate} from "@solidjs/router";
 import useNewGuildModalComponent from "../components/guilds/NewGuildModal";
 import {displayName, humanizeStatus, noop} from "../utils";
@@ -161,6 +161,8 @@ export default function Home() {
   const status = createMemo(() => api.cache!.presences.get(clientUser.id)?.status ?? 'online')
 
   const { NewGuildModal, setShow: setShowNewGuildModal } = useNewGuildModalComponent()
+
+  onMount(api.pushNotifications.subscribe.bind(api))
 
   return (
     <Layout sidebar={Sidebar} title="Home" showBottomNav>

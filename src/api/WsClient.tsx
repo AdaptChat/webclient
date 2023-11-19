@@ -14,7 +14,8 @@ import {
   RelationshipRemoveEvent,
   TypingStartEvent,
   TypingStopEvent,
-  UpdatePresencePayload, UserUpdateEvent,
+  UpdatePresencePayload,
+  UserUpdateEvent,
   WsEvent
 } from "../types/ws";
 import {User} from "../types/user";

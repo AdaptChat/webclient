@@ -7,6 +7,8 @@ import {Toaster} from "solid-toast";
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/shift-away.css';
 
+const NotFound = lazy(() => import('./pages/NotFound'))
+
 // Home
 const Home = lazy(() => import('./pages/Home'))
 const Loading = lazy(() => import('./pages/Loading'))
@@ -25,6 +27,7 @@ const DmChannel = lazy(() => import('./pages/dms/DmChannel'))
 const GuildSelect = lazy(() => import('./pages/guilds/GuildSelect'))
 const GuildHome = lazy(() => import('./pages/guilds/GuildHome'))
 const GuildChannel = lazy(() => import('./pages/guilds/GuildChannel'))
+const Invite = lazy(() => import('./pages/guilds/Invite'))
 
 // Settings
 const AccountSettings = lazy(() => import('./pages/settings/Account'))
@@ -87,11 +90,13 @@ const App: Component = () => {
         <Show when={ws()} keyed={false} fallback={<Loading />}>
           <Routes>
             <Route path="/" component={Home} />
+            <Route path="/404" component={NotFound} />
             <Route path="/select" component={GuildSelect} />
             <Route path="/friends/*" component={Friends} />
             <Route path="/dms/:channelId" component={DmChannel} />
             <Route path="/guilds/:guildId" component={GuildHome} />
             <Route path="/guilds/:guildId/:channelId" component={GuildChannel} />
+            <Route path="/invite/:code" component={Invite} />
             <Route path={["/settings", "/settings/account"]} component={AccountSettings} />
           </Routes>
         </Show>
