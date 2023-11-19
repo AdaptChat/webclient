@@ -162,7 +162,7 @@ export default function Home() {
 
   const { NewGuildModal, setShow: setShowNewGuildModal } = useNewGuildModalComponent()
 
-  onMount(api.pushNotifications.subscribe.bind(api))
+  // onMount(api.pushNotifications.subscribe.bind(api))
 
   return (
     <Layout sidebar={Sidebar} title="Home" showBottomNav>
