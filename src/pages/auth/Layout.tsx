@@ -1,4 +1,4 @@
-import {ComponentProps, onMount, ParentProps, Show} from "solid-js";
+import {ComponentProps, JSX, onMount, ParentProps, Show} from "solid-js";
 import {A} from "@solidjs/router";
 import {capitalize} from "../../utils";
 
@@ -19,17 +19,25 @@ export function FormInput({ id, label, ...props }: { label: string } & Component
   )
 }
 
+export function FormSubmit(props: JSX.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return(
+    <button
+      type="submit"
+      class="group relative flex w-full justify-center rounded-md border border-transparent bg-accent py-2 px-4
+        mt-6 text-sm font-medium hover:bg-opacity-80 transition-all focus:outline-none focus:ring-2
+        focus:ring-accent focus:ring-offset-2 disabled:opacity-60"
+      {...props}
+    />
+  )
+}
+
 export interface Props {
   title: string;
   error?: string;
   switchScreenCondition: string;
   switchScreenLabel: string;
   switchScreenHref: string;
-  submitLabel: string;
-  submitLabelProgressive: string;
-  isSubmitting: boolean;
   redirectTo: string;
-  disableSubmission: () => boolean;
   onSubmit(event: SubmitEvent & { target: HTMLFormElement }): void | Promise<void>;
 }
 
@@ -75,15 +83,6 @@ export default function Layout(props: ParentProps<Props>) {
           props.onSubmit(event as any)
         }}>
           {props.children}
-          <button
-            type="submit"
-            class="group relative flex w-full justify-center rounded-md border border-transparent bg-accent py-2 px-4
-              mt-6 text-sm font-medium hover:bg-opacity-80 transition-all focus:outline-none focus:ring-2
-              focus:ring-accent focus:ring-offset-2 disabled:opacity-60"
-            disabled={props.isSubmitting || props.disableSubmission()}
-          >
-            {props.isSubmitting ? props.submitLabelProgressive : props.submitLabel}
-          </button>
         </form>
       </div>
     </div>

@@ -93,7 +93,7 @@ export default function InviteScreen() {
                 <Icon icon={Plus} class="w-4 h-4 mr-2 fill-base-content" />
                 <span>Join {invite()!.guild!.name}</span>
               </button>
-              <button class="btn">
+              <button class="btn" onClick={() => navigate(-1)}>
                 <Icon icon={ChevronLeft} class="w-4 h-4 mr-2 fill-base-content" />
                 <span>Back</span>
               </button>

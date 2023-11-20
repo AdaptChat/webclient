@@ -1,7 +1,7 @@
-import Layout, {FormInput} from "./Layout";
+import Layout, {FormInput, FormSubmit} from "./Layout";
 import Api, {setApi} from "../../api/Api";
 import {LoginResponse} from "../../types/auth";
-import {createSignal, Show} from "solid-js";
+import {createSignal, onMount, Show} from "solid-js";
 import {useLocation, useNavigate} from "@solidjs/router";
 import {Turnstile, TurnstileRef} from "@nerimity/solid-turnstile";
 
@@ -35,11 +35,7 @@ export default function Register() {
       switchScreenCondition="Already have an account?"
       switchScreenLabel="Sign in"
       switchScreenHref="/"
-      submitLabel="Register"
-      submitLabelProgressive="Registering..."
-      isSubmitting={isSubmitting()}
       redirectTo={redirectTo}
-      disableSubmission={() => usernameHint() == null || usernameHint()![1] !== UsernameCheckState.success}
       onSubmit={async () => {
         setIsSubmitting(true)
         const username = usernameRef!.value
@@ -139,14 +135,22 @@ export default function Register() {
         </label>
       </div>
 
-      <Turnstile
-        ref={turnstileRef!}
-        sitekey={process.env.NODE_ENV === "production" ? "0x4AAAAAAACKrfJ6GCEBF1ih" : "1x00000000000000000000AA"}
-        onVerify={setTurnstileToken}
-        autoResetOnExpire={true}
-        class="self-center mt-2"
-        theme="dark"
-      />
+      <Show when={turnstileToken()} keyed={false} fallback={
+        <Turnstile
+          ref={turnstileRef!}
+          sitekey={process.env.NODE_ENV === "production" ? "0x4AAAAAAACKrfJ6GCEBF1ih" : "1x00000000000000000000AA"}
+          onVerify={setTurnstileToken}
+          autoResetOnExpire={true}
+          class="self-center mt-4"
+          theme="dark"
+        />
+      }>
+        <FormSubmit
+          disabled={isSubmitting() || usernameHint() == null || usernameHint()![1] !== UsernameCheckState.success}
+        >
+          {isSubmitting() ? 'Registering...' : 'Register'}
+        </FormSubmit>
+      </Show>
     </Layout>
   )
 }

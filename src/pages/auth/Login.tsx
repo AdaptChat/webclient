@@ -1,4 +1,4 @@
-import Layout, {FormInput} from "./Layout";
+import Layout, {FormInput, FormSubmit} from "./Layout";
 import Api, {setApi} from "../../api/Api";
 import {LoginResponse} from "../../types/auth";
 import {createSignal} from "solid-js";
@@ -22,11 +22,7 @@ export default function Login() {
       switchScreenCondition="Don't have an account?"
       switchScreenLabel="Sign up"
       switchScreenHref="/register"
-      submitLabel="Sign in"
-      submitLabelProgressive="Signing in..."
-      isSubmitting={isSubmitting()}
       redirectTo={redirectTo}
-      disableSubmission={() => false}
       onSubmit={async () => {
         setIsSubmitting(true)
         const email = emailRef!.value
@@ -88,6 +84,10 @@ export default function Login() {
           </a>
         </div>
       </div>
+
+      <FormSubmit disabled={isSubmitting()}>
+        {isSubmitting() ? "Signing in..." : "Sign in"}
+      </FormSubmit>
     </Layout>
   )
 }

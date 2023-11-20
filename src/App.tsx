@@ -90,7 +90,6 @@ const App: Component = () => {
         <Show when={ws()} keyed={false} fallback={<Loading />}>
           <Routes>
             <Route path="/" component={Home} />
-            <Route path="/404" component={NotFound} />
             <Route path="/select" component={GuildSelect} />
             <Route path="/friends/*" component={Friends} />
             <Route path="/dms/:channelId" component={DmChannel} />
@@ -98,6 +97,7 @@ const App: Component = () => {
             <Route path="/guilds/:guildId/:channelId" component={GuildChannel} />
             <Route path="/invite/:code" component={Invite} />
             <Route path={["/settings", "/settings/account"]} component={AccountSettings} />
+            <Route path="/*" component={NotFound} />
           </Routes>
         </Show>
       </Show>
