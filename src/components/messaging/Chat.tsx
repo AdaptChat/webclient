@@ -137,6 +137,20 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
       <Show when={message().content}>
         <DynamicMarkdown content={message().content!} />
       </Show>
+      <For each={message().embeds}>
+        {(embed) => (
+          <div class="rounded overflow-hidden inline-flex my-1">
+            <div class="inline-flex flex-col p-2 bg-gray-900 border-l-accent border-l-4">
+              <Show when={embed.title}>
+                <h1 class="text-lg font-title font-bold">{embed.title}</h1>
+              </Show>
+              <Show when={embed.description}>
+                <div class="text-base-content/80 text-sm">{embed.description}</div>
+              </Show>
+            </div>
+          </div>
+        )}
+      </For>
       {/* Attachments */}
       <For each={message().attachments}>
         {(attachment) => (
