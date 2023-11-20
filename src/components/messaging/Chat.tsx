@@ -248,8 +248,9 @@ export default function Chat(props: { channelId: number, guildId?: number, title
   const [loading, setLoading] = createSignal(true)
   const [autocompleteState, setAutocompleteState] = createSignal<AutocompleteState | null>(null)
   const [uploadedAttachments, setUploadedAttachments] = createSignal<UploadedAttachment[]>([])
+  const [sendable, setSendable] = createSignal(false)
 
-  const sendable = () => !!messageInputRef?.innerText?.trim() || uploadedAttachments().length > 0
+  const updateSendable = () => setSendable(!!messageInputRef?.innerText?.trim() || uploadedAttachments().length > 0)
   const mobile = /Android|webOS|iPhone|iP[ao]d|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   const grouper = createMemo(() => {
     const { grouper, cached } = getApi()!.cache!.useChannelMessages(props.channelId)
@@ -290,6 +291,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
     const attachments = uploadedAttachments()
 
     setUploadedAttachments([])
+    setSendable(false)
     // Clear the message input without invalidating undo history
     messageInputRef!.focus()
     document.execCommand('selectAll', false)
@@ -607,6 +609,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                 return attachment
               }))
               setUploadedAttachments(prev => [...prev, ...uploaded])
+              updateSendable()
             })
             input.click()
             messageInputRef?.focus()
@@ -634,7 +637,10 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                     >
                       <button
                         class="rounded-full p-4 bg-transparent hover:bg-error transition-all duration-200"
-                        onClick={() => setUploadedAttachments(prev => prev.filter((_, i) => i !== idx()))}
+                        onClick={() => {
+                          setUploadedAttachments(prev => prev.filter((_, i) => i !== idx()))
+                          updateSendable()
+                        }}
                       >
                         <Icon icon={Trash} class="w-5 h-5 fill-base-content" />
                       </button>
@@ -701,6 +707,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
 
                 document.execCommand('insertText', false, text)
               }
+              updateSendable()
             }}
             onKeyUp={(event) => {
               const oldState = autocompleteState()
@@ -734,7 +741,8 @@ export default function Chat(props: { channelId: number, guildId?: number, title
             onTouchStart={updateAutocompleteState}
             onSelect={updateAutocompleteState}
             onInput={() => {
-              const ignored = typingKeepAlive.ackTyping()
+              const _ = typingKeepAlive.ackTyping()
+              updateSendable()
             }}
             onFocus={() => {
               const timeout = messageInputFocusTimeout()
