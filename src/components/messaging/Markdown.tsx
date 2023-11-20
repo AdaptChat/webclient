@@ -1,3 +1,5 @@
+import "katex/dist/katex.min.css";
+
 import {Plugin, unified} from "unified";
 import {visit} from "unist-util-visit";
 import {VFile} from "vfile";
@@ -6,6 +8,8 @@ import remarkBreaks from "remark-breaks";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 import {Root as HtmlRoot} from "rehype-stringify/lib";
 import {Root as MdRoot} from "remark-parse/lib";
 
@@ -265,6 +269,7 @@ export const render = unified()
   .use(remarkParse)
   .use(remarkBreaks)
   .use(remarkGfm)
+  .use(remarkMath)
   // TODO: Backslashes are supposed to work here, however browser support for negative lookbehind is limited
   //  (Safari doesn't support it until 16.4, which is not yet stable as of writing this)
   .use(remarkRegexp(/\|\|(.+?)\|\|/s, 'spoiler'))
@@ -274,6 +279,16 @@ export const render = unified()
   .use(remarkRegexp(/(<#!?(\d{14,24})>)/, 'mention-channel'))
   .use(flattenHtml)
   .use(remarkRehype)
+  .use(rehypeKatex, {
+    maxSize: 10,
+    maxExpand: 0,
+    maxLength: 512,
+    trust: false,
+    strict: false,
+    output: "html",
+    throwOnError: false,
+    errorColor: "theme(colors.red.500)",
+  } as any)
   .use(underline)
 
 const defaults = {
