@@ -134,7 +134,9 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
           : "calc(100% - 1rem)",
       }}
     >
-      <DynamicMarkdown content={message().content!} />
+      <Show when={message().content}>
+        <DynamicMarkdown content={message().content!} />
+      </Show>
       {/* Attachments */}
       <For each={message().attachments}>
         {(attachment) => (
