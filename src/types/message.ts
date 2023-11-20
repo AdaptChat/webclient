@@ -75,7 +75,7 @@ export type Message = MessageInfo & {
   /**
    * A list of embeds included in this message.
    */
-  embeds: any[] // TODO Embed[];
+  embeds: Embed[]
   /**
    * A list of attachments included in this message.
    */
@@ -116,3 +116,111 @@ export interface Attachment {
 
   _imageOverride?: string
 }
+
+/**
+ * The type of message embed.
+ */
+export type EmbedType = 'rich' | 'image' | 'video' | 'meta'
+
+/**
+ * The author information of a message embed.
+ */
+export interface EmbedAuthor {
+  /**
+   * The name of the author.
+   */
+  name: string
+  /**
+   * The URL of the author, shown as a hyperlink of the author's name.
+   */
+  url?: string
+  /**
+   * The URL of the author's icon.
+   */
+  icon_url?: string
+}
+
+/**
+ * The footer information of a message embed.
+ */
+export interface EmbedFooter {
+  /**
+   * The text of the footer.
+   */
+  text: string
+  /**
+   * The URL of the footer's icon.
+   */
+  icon_url?: string
+}
+
+/**
+ * The alignment type of amessage embed field.
+ */
+export type EmbedFieldAlignment = 'left' | 'center' | 'right' | 'inline'
+
+/**
+ * Information about an embed field.
+ */
+export interface EmbedField {
+  name: string
+  value: string
+  align: EmbedFieldAlignment
+}
+
+/**
+ * Represents a special card shown in the UI for various purposes, embedding extra information to the user in a more
+ * visually appealing way. These are known as embeds and are used in messages.
+ */
+export interface Embed {
+  /**
+   * The type of this embed.
+   */
+  type: EmbedType
+  /**
+   * The title of this embed.
+   */
+  title?: string
+  /**
+   * The description or body text of this embed.
+   */
+  description?: string
+  /**
+   * The URL of this embed. This is shown as a hyperlink of the title.
+   */
+  url?: string
+  /**
+   * The timestamp of this embed.
+   */
+  timestamp?: string
+  /**
+   * The color of this embed, shown as a stripe on the left side of the embed.
+   */
+  color?: number
+  /**
+   * The hue of the main body of the background. This is only available for rich embeds.
+   * Should be a number between `0` and `100`.
+   */
+  hue?: number
+  /**
+   * The author of this embed.
+   */
+  author?: EmbedAuthor
+  /**
+   * The footer of this embed.
+   */
+  footer?: EmbedFooter
+  /**
+   * The image URL of this embed.
+   */
+  image?: string
+  /**
+   * The thumbnail URL of this embed.
+   */
+  thumbnail?: string
+  /**
+   * An array fields on this embed.
+   */
+  fields?: EmbedField[]
+}
+

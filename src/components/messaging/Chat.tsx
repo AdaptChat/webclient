@@ -165,7 +165,7 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
                 <img
                   src={attachment._imageOverride ?? url}
                   alt={attachment.alt}
-                  class="max-w-[min(60vw,56rem)] max-h-80 object-contain object-left"
+                  class="max-w-[clamp(56rem,60vw,90%)] max-h-80 object-contain object-left"
                 />
               ) : (
                 <div class="flex justify-between bg-gray-900 w-[min(60vw,24rem)] p-4 rounded-lg">
