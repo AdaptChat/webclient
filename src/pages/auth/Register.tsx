@@ -18,6 +18,7 @@ export default function Register() {
   let passwordRef: HTMLInputElement | null = null
   let rememberMeRef: HTMLInputElement | null = null
   let turnstileRef: TurnstileRef | null = null
+  let turnstileToken = ""
 
   let [error, setError] = createSignal<string>()
   let [isSubmitting, setIsSubmitting] = createSignal(false)
@@ -46,8 +47,9 @@ export default function Register() {
         const password = passwordRef!.value
 
         let response = await Api.requestNoAuth<LoginResponse>('POST', '/users', {
-          json: { username, email, password },
+          json: { username, email, password, captcha_token: turnstileToken },
         })
+        // TODO: Display error if turnstileToken is empty.
 
         if (!response.ok) {
           setIsSubmitting(false)
@@ -132,16 +134,13 @@ export default function Register() {
           Remember me
         </label>
       </div>
-      {/*
-        TODO: captcha
-        <Turnstile
-          ref={turnstileRef!}
-          sitekey={process.env.NODE_ENV === "production" ? "0x4AAAAAAACKrfJ6GCEBF1ih" : "1x00000000000000000000AA"}
-          onVerify={token => console.debug(token)}
-          autoResetOnExpire={true}
-          class="self-center"
-        />
-      */}
+      <Turnstile
+        ref={turnstileRef!}
+        sitekey={process.env.NODE_ENV === "production" ? "0x4AAAAAAACKrfJ6GCEBF1ih" : "1x00000000000000000000AA"}
+        onVerify={token => turnstileToken = token}
+        autoResetOnExpire={true}
+        class="self-center"
+      />
     </Layout>
   )
 }
