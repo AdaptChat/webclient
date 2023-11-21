@@ -5,16 +5,52 @@ import StatusIndicator from "../users/StatusIndicator";
 import SidebarSection from "../ui/SidebarSection";
 import {ReactiveSet} from "@solid-primitives/set";
 import {displayName, setDifference} from "../../utils";
+import {useContextMenu} from "../../App";
+import ContextMenu, {ContextMenuButton} from "../ui/ContextMenu";
+import UserPlus from "../icons/svg/UserPlus";
+import {toast} from "solid-toast";
+import Code from "../icons/svg/Code";
 
 export function GuildMemberGroup({ members, offline }: { members: ReactiveSet<number>, offline?: boolean }) {
   const api = getApi()!
+  const contextMenu = useContextMenu()!
 
   return (
     <For each={[...members]}>
       {(user_id) => {
-        const user = api.cache!.users.get(user_id)
+        const user = api.cache!.users.get(user_id)!
         return (
-          <div class="group flex items-center px-2 py-1.5 rounded-lg hover:bg-gray-700 transition duration-200 cursor-pointer">
+          <div
+            class="group flex items-center px-2 py-1.5 rounded-lg hover:bg-gray-700 transition duration-200 cursor-pointer"
+            onContextMenu={contextMenu.getHandler(
+              <ContextMenu>
+                <Show when={api.cache!.clientId !== user_id}>
+                  <ContextMenuButton
+                    icon={UserPlus}
+                    label="Add Friend"
+                    onClick={() => toast.promise(
+                      (async () => {
+                        const response = await api.request('POST', '/relationships/friends', {
+                          json: { username: user.username },
+                        })
+                        if (!response.ok) throw new Error(response.errorJsonOrThrow().message)
+                      })(),
+                      {
+                        loading: 'Sending friend request...',
+                        success: 'Friend request sent.',
+                        error: (err) => err.message,
+                      }
+                    )}
+                  />
+                </Show>
+                <ContextMenuButton
+                  icon={Code}
+                  label="Copy User ID"
+                  onClick={() => window.navigator.clipboard.writeText(user.id.toString())}
+                />
+              </ContextMenu>
+            )}
+          >
             <div class="indicator flex-shrink-0">
               <StatusIndicator status={api.cache!.presences.get(user_id)?.status} tailwind="m-[0.1rem]" indicator />
               <img
@@ -28,7 +64,7 @@ export function GuildMemberGroup({ members, offline }: { members: ReactiveSet<nu
             </div>
             <span class="ml-2 w-full overflow-ellipsis overflow-hidden text-sm">
             <span classList={{ "text-base-content": true, "text-opacity-50": offline, "!text-opacity-80": !offline }}>
-              {displayName(user!)}
+              {displayName(user)}
             </span>
           </span>
           </div>

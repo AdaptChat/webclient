@@ -4,6 +4,7 @@ import {noop} from "../../utils";
 import SidebarSection from "../ui/SidebarSection";
 import UserIcon from "../icons/svg/User";
 import RightFromBracket from "../icons/svg/RightFromBracket";
+import Palette from "../icons/svg/Palette";
 noop(tooltip)
 
 export function SettingsSidebar() {
@@ -12,6 +13,9 @@ export function SettingsSidebar() {
       <div class="flex flex-col w-full p-2">
         <SidebarSection>User Settings</SidebarSection>
         <SidebarButton href={["/settings/account", "/settings"]} svg={UserIcon}>Account</SidebarButton>
+        <SidebarSection>Client Settings</SidebarSection>
+        <SidebarButton href="/settings/appearance" svg={Palette}>Appearance</SidebarButton>
+        <div class="bg-gray-800 h-0.5 my-2 rounded-full" />
         <SidebarButton
           svg={RightFromBracket}
           danger

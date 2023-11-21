@@ -15,12 +15,14 @@ export default function Account() {
   const formId = createUniqueId()
 
   let usernameInputRef: HTMLInputElement | null = null
+  let displayNameInputRef: HTMLInputElement | null = null
   const [editing, setEditing] = createSignal(false)
   const [error, setError] = createSignal<string>()
   const [changed, setChanged] = createSignal(false)
-  const updateChanged = () => {
-    setChanged(usernameInputRef?.value !== clientUser().username)
-  }
+  const updateChanged = () => setChanged(
+    usernameInputRef?.value !== clientUser().username
+    || displayNameInputRef?.value !== clientUser().username
+  )
 
   return (
     <SettingsLayout title="Account Settings">

@@ -1,5 +1,5 @@
 import {useParams} from "@solidjs/router";
-import {createMemo, createSignal, For} from "solid-js";
+import {createMemo, createSignal, For, Show} from "solid-js";
 import {getApi} from "../../api/Api";
 import SidebarButton from "../ui/SidebarButton";
 import {GuildChannel} from "../../types/channel";
@@ -22,6 +22,7 @@ interface GuildDropdownButtonProps {
   svgClass?: string,
   labelClass?: string,
   onClick?: () => any,
+  py?: string,
 }
 
 function GuildDropdownButton(props: GuildDropdownButtonProps) {
@@ -31,7 +32,7 @@ function GuildDropdownButton(props: GuildDropdownButtonProps) {
 
   return (
     <li class={`w-full group/gdb ${groupHoverClass} transition-all duration-300`}>
-      <a class="px-3 py-2 text-sm flex items-center" onClick={props.onClick}>
+      <a class={`px-4 ${props.py ?? 'py-1.5'} text-sm flex items-center`} onClick={props.onClick}>
         <Icon icon={props.icon} class={svgClasses} />
         <span class={labelClasses}>{props.label}</span>
       </a>
@@ -50,6 +51,7 @@ export default function GuildSidebar() {
   const guild = api.cache!.guilds.get(parseInt(guildId))
   if (!guild) return
 
+  const [dropdownExpanded, setDropdownExpanded] = createSignal(false)
   const [showInviteModal, setShowInviteModal] = createSignal(false)
   const [confirmGuildLeaveModal, setConfirmGuildLeaveModal] = createSignal(false)
 
@@ -69,8 +71,9 @@ export default function GuildSidebar() {
         <GuildRemoveComponent guild={guild} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
       </Modal>
       <div
-        class="w-[calc(100%-1rem)] mt-2 card box-border overflow-hidden flex border-2 border-base-content/10
+        class="w-[calc(100%-1rem)] mt-2 card box-border overflow-hidden flex border-2 border-gray-700
           group hover:bg-gray-800 transition-all duration-200 cursor-pointer"
+        onClick={() => setDropdownExpanded(prev => !prev)}
       >
         {guild.banner && (
           <figure class="h-20 overflow-hidden flex items-center justify-center">
@@ -78,38 +81,50 @@ export default function GuildSidebar() {
           </figure>
         )}
         <div classList={{
-          "flex justify-between items-center px-4 pt-2": true,
-          "pb-2": !guild.description,
+          "flex justify-between items-center px-4 pt-3": true,
+          "pb-3": !guild.description,
         }}>
           <span class="inline-block font-title card-title text-base text-ellipsis w-40 break-words">
             {guild.name}
           </span>
-          <label tabIndex={0} class="cursor-pointer">
-            <Icon icon={ChevronDown} title="Server Options" class="w-3 fill-base-content opacity-50" />
+          <label tabIndex={0} classList={{
+            "cursor-pointer transition-transform transform": true,
+            "rotate-0": !dropdownExpanded(),
+            "rotate-180": dropdownExpanded()
+          }}>
+            <Icon
+              icon={ChevronDown}
+              title="Server Options"
+              class="w-3 fill-base-content/50"
+            />
           </label>
         </div>
         {guild.description && (
-          <div class="card-body px-4 pt-1 pb-2">
+          <div class="card-body px-4 pt-1 pb-3">
             <p class="text-xs text-base-content/50">{guild.description}</p>
           </div>
         )}
-        <div class="divider m-0 p-0 h-0 hidden group-hover:flex" />
-        <ul tabIndex={0} class="hidden group-hover:flex flex-col">
-          <GuildDropdownButton
-            icon={UserPlus}
-            label="Invite People"
-            svgClass="fill-base-content"
-            onClick={() => setShowInviteModal(true)}
-          />
-          <GuildDropdownButton
-            icon={isOwner() ? Trash : RightFromBracket}
-            label={isOwner() ? "Delete Server" : "Leave Server"}
-            groupHoverColor="error"
-            svgClass="fill-error group-hover/gdb:fill-base-content"
-            labelClass="text-error group-hover/gdb:text-base-content"
-            onClick={() => setConfirmGuildLeaveModal(true)}
-          />
-        </ul>
+        <Show when={dropdownExpanded()}>
+          <div class="bg-gray-700/50 mx-2 h-0.5 rounded-full flex" />
+          <ul tabIndex={0} class="flex flex-col">
+            <GuildDropdownButton
+              icon={UserPlus}
+              label="Invite People"
+              svgClass="fill-base-content"
+              onClick={() => setShowInviteModal(true)}
+              py="pt-2 pb-1.5"
+            />
+            <GuildDropdownButton
+              icon={isOwner() ? Trash : RightFromBracket}
+              label={isOwner() ? "Delete Server" : "Leave Server"}
+              groupHoverColor="error"
+              svgClass="fill-error group-hover/gdb:fill-base-content"
+              labelClass="text-error group-hover/gdb:text-base-content"
+              onClick={() => setConfirmGuildLeaveModal(true)}
+              py="pt-1.5 pb-2"
+            />
+          </ul>
+        </Show>
       </div>
       <div class="flex flex-col w-full p-2">
         <SidebarButton href={`/guilds/${guildId}`} svg={HomeIcon} active={!channelId()}>Home</SidebarButton>

@@ -28,6 +28,7 @@ import TypingKeepAlive from "../../api/TypingKeepAlive";
 import tooltip from "../../directives/tooltip";
 import {noop} from "../../utils";
 import Icon from "../icons/Icon";
+import Clipboard from "../icons/svg/Clipboard";
 import PaperPlaneTop from "../icons/svg/PaperPlaneTop";
 import {DynamicMarkdown} from "./Markdown";
 import type {DmChannel, GuildChannel} from "../../types/channel";
@@ -36,6 +37,10 @@ import {User} from "../../types/user";
 import Plus from "../icons/svg/Plus";
 import Hashtag from "../icons/svg/Hashtag";
 import Trash from "../icons/svg/Trash";
+import {useContextMenu} from "../../App";
+import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../ui/ContextMenu";
+import {toast} from "solid-toast";
+import Code from "../icons/svg/Code";
 
 noop(tooltip)
 
@@ -232,6 +237,43 @@ function setSelectionRange(element: HTMLDivElement, selectionStart: number, sele
   selection?.addRange(range)
 }
 
+function MessageContextMenu({ message }: { message: Message }) {
+  const api = getApi()!
+
+  return (
+    <ContextMenu>
+      <Show when={message.content}>
+        <ContextMenuButton
+          icon={Clipboard}
+          label="Copy Text"
+          onClick={() => toast.promise(
+            navigator.clipboard.writeText(message.content!),
+            {
+              loading: "Copying message text...",
+              success: "Copied to your clipboard!",
+              error: "Failed to copy message text, try again later.",
+            }
+          )}
+        />
+      </Show>
+      <ContextMenuButton
+        icon={Code}
+        label="Copy Message ID"
+        onClick={() => navigator.clipboard.writeText(message.id.toString())}
+      />
+      <Show when={message.author_id == api.cache!.clientId}>
+        <DangerContextMenuButton
+          icon={Trash}
+          label="Delete Message"
+          onClick={async () => {
+            await api.request('DELETE', `/channels/${message.channel_id}/messages/${message.id}`)
+          }}
+        />
+      </Show>
+    </ContextMenu>
+  )
+}
+
 interface UploadedAttachment {
   filename: string
   alt?: string
@@ -242,6 +284,7 @@ interface UploadedAttachment {
 
 export default function Chat(props: { channelId: number, guildId?: number, title: string, startMessage: JSX.Element }) {
   const api = getApi()!
+  const contextMenu = useContextMenu()!
 
   const [messageInputFocused, setMessageInputFocused] = createSignal(false)
   const [messageInputFocusTimeout, setMessageInputFocusTimeout] = createSignal<number | null>(null)
@@ -492,7 +535,10 @@ export default function Chat(props: { channelId: number, guildId?: number, title
 
                 return (
                   <div class="flex flex-col">
-                    <div class="flex flex-col relative pl-[62px] py-px hover:bg-gray-850/60 transition-all duration-200">
+                    <div
+                      class="flex flex-col relative pl-[62px] py-px hover:bg-gray-850/60 transition-all duration-200"
+                      onContextMenu={contextMenu.getHandler(<MessageContextMenu message={firstMessage} />)}
+                    >
                       <img
                         class="absolute left-3.5 w-9 h-9 mt-0.5 rounded-full"
                         src={api.cache!.avatarOf(author.id)}
@@ -511,7 +557,10 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                     </div>
                     <For each={group.slice(1)}>
                       {(message: Message) => (
-                        <div class="relative group flex items-center hover:bg-gray-850/60 py-px transition-all duration-200">
+                        <div
+                          class="relative group flex items-center hover:bg-gray-850/60 py-px transition-all duration-200"
+                          onContextMenu={contextMenu.getHandler(<MessageContextMenu message={message} />)}
+                        >
                           <span
                             class="w-[62px] invisible text-center group-hover:visible text-[0.65rem] text-base-content/40"
                             use:tooltip={timestampTooltip(message.id)}

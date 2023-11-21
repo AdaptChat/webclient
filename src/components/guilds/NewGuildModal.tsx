@@ -6,9 +6,10 @@ import {useNavigate} from "@solidjs/router";
 import {type UpdateGuildOptions} from "../../api/ApiCache";
 import {snowflakes} from "../../utils";
 import {GuildCreateEvent} from "../../types/ws";
-import Icon from "../icons/Icon";
+import Icon, {IconElement} from "../icons/Icon";
 import ChevronRight from "../icons/svg/ChevronRight";
 import ChevronLeft from "../icons/svg/ChevronLeft";
+import RocketLaunch from "../icons/svg/RocketLaunch";
 
 export enum ModalPage { New, Create, Join }
 
@@ -37,6 +38,7 @@ interface ExtendedProps extends Props {
   title: string,
   placeholder: string,
   onSubmit: (name: string, nonce: string, acker: (guildId: number) => void) => Promise<string | void>,
+  buttonIcon?: IconElement,
   buttonLabel: string,
   minLength: number,
   maxLength: number,
@@ -91,7 +93,7 @@ function Base(props: ParentProps<ExtendedProps>) {
           ref={input!}
           name="name"
           type="text"
-          class="w-full bg-gray-900 rounded-lg p-2 mt-4"
+          class="w-full bg-gray-900 rounded-lg text-sm font-medium p-3 mt-4 outline-none focus:ring-2 ring-accent"
           placeholder={props.placeholder}
           minLength={props.minLength}
           maxLength={props.maxLength}
@@ -104,7 +106,7 @@ function Base(props: ParentProps<ExtendedProps>) {
         </Show>
         {/* If a button component was used, some browsers will not recognize the button after it. */}
         <div class="flex gap-x-2 btn btn-neutral" onClick={() => props.setPage(ModalPage.New)}>
-          <Icon icon={ChevronLeft} class="fill-base-content select-none w-[10px] h-[10px] opacity-60" />
+          <Icon icon={ChevronLeft} class="fill-base-content/60 select-none w-4 h-4" />
           Back
         </div>
         <button
@@ -112,7 +114,8 @@ function Base(props: ParentProps<ExtendedProps>) {
           type="submit"
           class="btn btn-primary flex-grow disabled:bg-accent/50 disabled:text-opacity-50"
         >
-          {props.buttonLabel}
+          {props.buttonIcon && <Icon icon={props.buttonIcon} class="fill-base-content/80 w-4 h-4 mr-2" />}
+          <span>{props.buttonLabel}</span>
         </button>
       </form>
     </ModalTemplate>
@@ -158,13 +161,15 @@ function NewGuildModal(
               if (!response.ok)
                 return response.errorJsonOrThrow().message
             }}
+            buttonIcon={RocketLaunch}
             buttonLabel="Create Server"
             minLength={2}
             maxLength={50}
             updateOptions={{ updateChannels: true }}
           >
-            <p class="text-base-content/70 text-center mt-2 mx-2">
-              Before we create your server, let's give it a name. You can always change this later.
+            <p class="flex flex-col text-base-content/70 text-center text-sm mt-2 mx-2">
+              <span>Before we create your server, let's give it a name.</span>
+              <span class="text-base-content/50">You can always change this later.</span>
             </p>
           </Base>
         </Match>

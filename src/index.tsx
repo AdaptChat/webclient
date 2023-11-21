@@ -3,7 +3,7 @@ import {render} from 'solid-js/web';
 import {Router} from "@solidjs/router";
 
 import './index.css';
-import App from './App';
+import App, {ContextMenuProvider} from './App';
 
 console.log('%cAdapt', 'font-size: 48px;')
 console.log(
@@ -12,5 +12,11 @@ console.log(
   "font-size: 16px;",
 )
 
-const app = () => <Router><App /></Router>;
+const app = () => (
+  <ContextMenuProvider>
+    <Router>
+      <App />
+    </Router>
+  </ContextMenuProvider>
+);
 render(app, document.getElementById('root') as HTMLElement);

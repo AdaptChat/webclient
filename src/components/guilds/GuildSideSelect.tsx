@@ -1,21 +1,30 @@
-import {For, onMount, Show} from "solid-js";
+import {createSignal, For, onMount, Show} from "solid-js";
 import {A} from "@solidjs/router";
 
 import {getApi} from "../../api/Api";
 import {Guild} from "../../types/guild";
 import GuildIcon from "./GuildIcon";
-import useNewGuildModalComponent from "./NewGuildModal";
+import useNewGuildModalComponent, {ModalPage} from "./NewGuildModal";
 
 import tooltip from "../../directives/tooltip";
 import {noop} from "../../utils";
-noop(tooltip)
-
 import Icon, {IconElement} from "../icons/Icon";
 import PlusIcon from "../icons/svg/Plus";
 import HomeIcon from "../icons/svg/Home";
 import Gear from "../icons/svg/Gear";
+import {useContextMenu} from "../../App";
+import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../ui/ContextMenu";
+import RightFromBracket from "../icons/svg/RightFromBracket";
+import Code from "../icons/svg/Code";
+import Modal from "../ui/Modal";
+import GuildInviteModal from "./GuildInviteModal";
+import ConfirmGuildLeaveModal from "./ConfirmGuildLeaveModal";
+import UserPlus from "../icons/svg/UserPlus";
+import RocketLaunch from "../icons/svg/RocketLaunch";
 
-const Separator = () => <hr class="h-1 bg-gray-800 border-none rounded-full my-2" />
+noop(tooltip)
+
+const Separator = () => <hr class="h-[3px] bg-gray-800 border-none rounded-full my-1.5 mx-1" />
 
 function BasicButton({ icon, alt, href }: { icon: IconElement, alt: string, href: string }) {
   let anchor: HTMLAnchorElement | null = null
@@ -36,20 +45,60 @@ function BasicButton({ icon, alt, href }: { icon: IconElement, alt: string, href
 
 export default function GuildSideSelect() {
   const api = getApi()!
-  const { NewGuildModal, setShow: setShowNewGuildModal } = useNewGuildModalComponent()
+  const contextMenu = useContextMenu()!
+
+  const { NewGuildModal, setShow: setShowNewGuildModal, setPage } = useNewGuildModalComponent()
+  const [showInviteModal, setShowInviteModal] = createSignal(false)
+  const [confirmGuildLeaveModal, setConfirmGuildLeaveModal] = createSignal(false)
+  const [modalSubject, setModalSubject] = createSignal<Guild>()
 
   return (
     <div class="flex flex-col items-center justify-between bg-gray-900 mobile:hidden">
       <div class="h-[calc(100%-1.25rem)] overflow-y-auto hide-scrollbar">
         <div class="flex flex-col p-2 gap-y-2 min-h-full">
           <NewGuildModal />
+          <Show when={modalSubject()}>
+            <Modal get={showInviteModal} set={setShowInviteModal}>
+              <GuildInviteModal guild={modalSubject()!} show={showInviteModal} />
+            </Modal>
+            <Modal get={confirmGuildLeaveModal} set={setConfirmGuildLeaveModal}>
+              <ConfirmGuildLeaveModal guild={modalSubject()!} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
+            </Modal>
+          </Show>
           <div class="flex flex-col px-3 pt-3 items-center">
             <BasicButton icon={HomeIcon} alt="Home" href="/" />
           </div>
           <Separator />
           <For each={Array.from(api.cache!.guildList.map(g => api.cache!.guilds.get(g)!))}>
             {(guild: Guild) => (
-              <A href={`/guilds/${guild.id}`} class="flex">
+              <A href={`/guilds/${guild.id}`} class="flex" onContextMenu={contextMenu.getHandler(
+                <ContextMenu>
+                  <ContextMenuButton
+                    icon={UserPlus}
+                    label="Invite People"
+                    buttonClass="hover:bg-accent"
+                    onClick={() => {
+                      setShowInviteModal(true)
+                      setModalSubject(guild)
+                    }}
+                  />
+                  <ContextMenuButton
+                    icon={Code}
+                    label="Copy Server ID"
+                    onClick={() => window.navigator.clipboard.writeText(guild.id.toString())}
+                  />
+                  <Show when={api.cache!.clientId !== guild.owner_id}>
+                    <DangerContextMenuButton
+                      icon={RightFromBracket}
+                      label="Leave Server"
+                      onClick={() => {
+                        setConfirmGuildLeaveModal(true)
+                        setModalSubject(guild)
+                      }}
+                    />
+                  </Show>
+                </ContextMenu>
+              )}>
                 <GuildIcon
                   guild={guild} unread={false} pings={0} sizeClass="w-12 h-12" tooltip ringIfActive
                 />
@@ -61,9 +110,30 @@ export default function GuildSideSelect() {
           </Show>
           <button
             use:tooltip={{ content: "New Server", placement: 'right' }}
-            class="flex group items-center justify-center bg-neutral-focus hover:bg-accent rounded-[50%]
+            class="flex group items-center justify-center bg-gray-800 hover:bg-accent rounded-[50%]
               hover:rounded-[25%] transition-all duration-300 w-12 h-12"
             onClick={() => setShowNewGuildModal(true)}
+            onContextMenu={contextMenu.getHandler(
+              <ContextMenu>
+                <ContextMenuButton
+                  icon={RocketLaunch}
+                  label="Create Server"
+                  buttonClass="hover:bg-accent"
+                  onClick={() => {
+                    setShowNewGuildModal(true)
+                    setPage(ModalPage.Create)
+                  }}
+                />
+                <ContextMenuButton
+                  icon={UserPlus}
+                  label="Join Server"
+                  onClick={() => {
+                    setShowNewGuildModal(true)
+                    setPage(ModalPage.Join)
+                  }}
+                />
+              </ContextMenu>
+            )}
           >
             <Icon
               icon={PlusIcon}
@@ -73,7 +143,7 @@ export default function GuildSideSelect() {
           </button>
         </div>
       </div>
-      <div class="flex flex-col items-center justify-center pb-3 pt-2 w-full relative">
+      <div class="flex flex-col items-center justify-center pb-5 pt-2 w-full relative">
         <div
           class="absolute left-0 right-0 bottom-full w-full flex-grow bg-gradient-to-t from-gray-900 to-transparent h-5
             pointer-events-none"

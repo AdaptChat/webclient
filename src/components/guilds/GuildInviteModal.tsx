@@ -41,7 +41,7 @@ export default function GuildInviteModal({ guild, show }: { guild: Guild, show: 
         <input
           ref={inputRef!}
           type="text"
-          class="bg-transparent p-2 text-base-content flex-grow"
+          class="bg-transparent p-2 text-base-content flex-grow outline-none focus:text-accent-200 transition"
           value={code() ? `https://adapt.chat/invite/${code()}` : 'Loading...'}
           readonly
         />

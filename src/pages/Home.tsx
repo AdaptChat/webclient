@@ -1,7 +1,7 @@
 import Layout, {setShowSidebar} from "./Layout";
 import {getApi} from "../api/Api";
 import StatusIndicator, {StatusIndicatorProps} from "../components/users/StatusIndicator";
-import {createMemo, For, type JSX, onMount, ParentProps, Show} from "solid-js";
+import {createMemo, For, type JSX, ParentProps, Show} from "solid-js";
 import {A, useLocation, useNavigate} from "@solidjs/router";
 import useNewGuildModalComponent from "../components/guilds/NewGuildModal";
 import {displayName, humanizeStatus, noop} from "../utils";
@@ -71,7 +71,7 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
   const channel = createMemo(() => api.cache!.channels.get(channelId)! as DmChannel)
   const user = createMemo(() =>
     channel().type == 'dm'
-      ? api.cache!.users.get(channel().recipient_ids.find(id => id != api.cache!.clientUser!.id)!)
+      ? api.cache!.users.get(channel().recipient_ids.find(id => id != api.cache!.clientId)!)
       : undefined
   )
   const presence = createMemo(() => api.cache!.presences.get(user()!.id))
@@ -162,14 +162,14 @@ export default function Home() {
 
   const { NewGuildModal, setShow: setShowNewGuildModal } = useNewGuildModalComponent()
 
-  // onMount(api.pushNotifications.subscribe.bind(api))
+  // onMount(() => api.pushNotifications.subscribe())
 
   return (
     <Layout sidebar={Sidebar} title="Home" showBottomNav>
       <NewGuildModal />
       <div class="flex flex-col items-center w-full h-full p-8 mobile-xs:p-4 xl:p-12 2xl:p-16 overflow-auto">
         <div class="flex items-center mobile:justify-center px-8 bg-gray-900 rounded-xl py-12 w-full mobile:flex-col">
-          <img src={api.cache?.clientAvatar} alt="" class="w-24 rounded-lg mr-4" />
+          <img src={api.cache?.clientAvatar} alt="" class="w-24 h-24 rounded-lg mr-4" />
           <div class="flex flex-col mobile:items-center">
             <h1 class="text-4xl mobile:text-3xl text-center font-title font-bold">
               Welcome,{' '}

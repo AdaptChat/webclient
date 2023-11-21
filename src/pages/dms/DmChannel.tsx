@@ -22,7 +22,7 @@ export default function DmChannel() {
 
   const user = createMemo(() =>
     channel().type == 'dm'
-      ? api.cache!.users.get(channel().recipient_ids.find(id => id != api.cache!.clientUser!.id)!)
+      ? api.cache!.users.get(channel().recipient_ids.find(id => id != api.cache!.clientId)!)
       : undefined
   )
   const group = channel().type == 'group'
