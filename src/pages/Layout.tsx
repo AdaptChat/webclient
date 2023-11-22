@@ -190,7 +190,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
             "mobile:hidden": sidebar(),
           }}>
             <div classList={{
-              "flex flex-col transition-all": true,
+              "flex flex-col": true,
               "w-full": !rightSidebar(),
               "w-[calc(100%-15rem)] mobile:hidden": rightSidebar(),
             }}>
