@@ -131,7 +131,7 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
       classList={{
         "text-base-content/50": message()._nonceState === 'pending',
         "text-error": message()._nonceState === 'error',
-        "break-words text-sm font-light": true,
+        "break-words text-sm font-light overflow-hidden": true,
       }}
       style={{
         width: largePadding()
