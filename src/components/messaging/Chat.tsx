@@ -266,7 +266,10 @@ function MessageContextMenu({ message }: { message: Message }) {
           icon={Trash}
           label="Delete Message"
           onClick={async () => {
-            await api.request('DELETE', `/channels/${message.channel_id}/messages/${message.id}`)
+            const resp = await api.request('DELETE', `/channels/${message.channel_id}/messages/${message.id}`)
+            if (!resp.ok) {
+              toast.error(`Failed to delete message: ${resp.errorJsonOrThrow().message}`)
+            }
           }}
         />
       </Show>
