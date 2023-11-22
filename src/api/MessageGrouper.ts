@@ -69,6 +69,23 @@ export default class MessageGrouper {
   }
 
   /**
+   * Removes a message from the grouper.
+   */
+  removeMessage(id: number) {
+    const [groupIndex, messageIndex] = this.findCloseMessageIndex(id)
+    if (groupIndex < 0) return
+
+    this.setGroups(prev => {
+      let groups = [...prev]
+      let group = [...<Message[]> groups[groupIndex]]
+      group.splice(messageIndex, 1)
+      groups[groupIndex] = group
+      if (group.length === 0) groups.splice(groupIndex, 1)
+      return groups
+    })
+  }
+
+  /**
    * Finds the indices of the message with the highest ID but still at most the given message ID.
    */
   findCloseMessageIndex(id: number): [number, number] {

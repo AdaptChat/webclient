@@ -8,6 +8,7 @@ import {
   MemberJoinEvent,
   MemberRemoveEvent,
   MessageCreateEvent,
+  MessageDeleteEvent,
   PresenceUpdateEvent,
   ReadyEvent,
   RelationshipCreateEvent,
@@ -68,6 +69,9 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
       } catch (ignored) {}
 
     grouper.pushMessage(data.message)
+  },
+  message_delete(ws: WsClient, data: MessageDeleteEvent) {
+    ws.api.cache?.messages?.get(data.channel_id)?.removeMessage(data.message_id)
   },
   member_join(ws: WsClient, data: MemberJoinEvent) {
     ws.api.cache?.updateUser(data.member as User)
