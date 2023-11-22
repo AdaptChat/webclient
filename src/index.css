@@ -27,6 +27,10 @@
   --gradient-color-4: #0056c6;
 }
 
+* {
+  text-rendering: optimizeLegibility !important;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -56,6 +60,18 @@ body {
   }
 }
 
-.context-menu {
-  animation: fade-in 0.2s ease-in-out;
+.context-menu { animation: fade-in 0.2s ease-in-out }
+
+.katex {
+  box-sizing: border-box;
+  overflow: auto;
+  max-width: 100%;
+  max-height: 256px;
+  display: inline-block !important;
+}
+.katex-display { overflow: auto hidden }
+.katex-display .katex { overflow: unset !important; max-width: none !important }
+.katex * {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

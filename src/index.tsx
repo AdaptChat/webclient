@@ -3,7 +3,8 @@ import {render} from 'solid-js/web';
 import {Router} from "@solidjs/router";
 
 import './index.css';
-import App, {ContextMenuProvider} from './App';
+import App from './App';
+import {ContextMenuProvider} from "./components/ui/ContextMenu";
 
 console.log('%cAdapt', 'font-size: 48px;')
 console.log(

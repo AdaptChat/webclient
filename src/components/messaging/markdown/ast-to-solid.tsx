@@ -10,7 +10,7 @@ import { Dynamic } from "solid-js/web";
 import { stringify as commas } from "comma-separated-tokens";
 import type {
   Comment,
-  DocType,
+  Doctype,
   Element,
   ElementContent,
   Root,
@@ -135,7 +135,7 @@ export function childrenToSolid(
   while (++childIndex < node.children.length) {
     const child = node.children[childIndex] as
       | Comment
-      | DocType
+      | Doctype
       | Element
       | Raw
       | Text;
@@ -315,6 +315,13 @@ function toSolid(
 
   if (!basic) {
     Object.assign(properties, node.properties)
+  }
+
+  const classes = properties.class ?? properties.className;
+  if (Array.isArray(classes)) {
+    delete properties.class;
+    delete properties.className;
+    properties.class = classes.join(" ");
   }
 
   return (

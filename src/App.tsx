@@ -6,13 +6,11 @@ import {
   onMount,
   onCleanup,
   Show,
-  JSX,
-  createContext,
-  ParentProps, Accessor, Setter, useContext
 } from 'solid-js';
 import {Navigate, Route, Routes, useLocation} from "@solidjs/router";
 import Api, { getApi, setApi } from "./api/Api";
 import WsClient from "./api/WsClient";
+import useContextMenu from "./hooks/useContextMenu";
 import {Toaster} from "solid-toast";
 
 import 'tippy.js/dist/tippy.css';
@@ -57,57 +55,10 @@ const RedirectingLogin = lazy(async () => {
   }
 })
 
-type Position = { x: number, y: number }
-
-interface ContextMenuProps {
-  menu: Accessor<JSX.Element | null>
-  setMenu: Setter<JSX.Element | null>
-  pos: Accessor<Position>
-  setPos: Setter<Position>
-  getHandler(menu: JSX.Element): (event: MouseEvent) => void
-  hide(): void
-}
-
-const ContextMenuContext = createContext<ContextMenuProps>()
-
 function contextMenuAdjustment(click: number, element: number, page: number) {
   if (click + element <= page) return click
   if (click < element) return page - element
   return click - element
-}
-
-export function ContextMenuProvider(props: ParentProps) {
-  const [menu, setMenu] = createSignal<JSX.Element>(null)
-  const [pos, setPos] = createSignal({ x: 0, y: 0 })
-  const manager: ContextMenuProps = {
-    menu,
-    setMenu,
-    pos,
-    setPos,
-    getHandler(menu: JSX.Element) {
-      return (event: MouseEvent) => {
-        event.preventDefault()
-        setPos({
-          x: event.clientX,
-          y: event.clientY,
-        })
-        setMenu(() => menu)
-      }
-    },
-    hide() {
-      setMenu(null)
-    },
-  }
-
-  return (
-    <ContextMenuContext.Provider value={manager}>
-      {props.children}
-    </ContextMenuContext.Provider>
-  )
-}
-
-export function useContextMenu() {
-  return useContext(ContextMenuContext)
 }
 
 const App: Component = () => {

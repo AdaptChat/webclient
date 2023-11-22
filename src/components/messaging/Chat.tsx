@@ -37,7 +37,7 @@ import {User} from "../../types/user";
 import Plus from "../icons/svg/Plus";
 import Hashtag from "../icons/svg/Hashtag";
 import Trash from "../icons/svg/Trash";
-import {useContextMenu} from "../../App";
+import useContextMenu from "../../hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../ui/ContextMenu";
 import {toast} from "solid-toast";
 import Code from "../icons/svg/Code";

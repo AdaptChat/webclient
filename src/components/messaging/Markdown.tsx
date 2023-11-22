@@ -269,7 +269,9 @@ export const render = unified()
   .use(remarkParse)
   .use(remarkBreaks)
   .use(remarkGfm)
-  .use(remarkMath)
+  .use(remarkMath, {
+    singleDollarTextMath: false
+  })
   // TODO: Backslashes are supposed to work here, however browser support for negative lookbehind is limited
   //  (Safari doesn't support it until 16.4, which is not yet stable as of writing this)
   .use(remarkRegexp(/\|\|(.+?)\|\|/s, 'spoiler'))
@@ -280,15 +282,13 @@ export const render = unified()
   .use(flattenHtml)
   .use(remarkRehype)
   .use(rehypeKatex, {
-    maxSize: 10,
+    maxSize: 4,
     maxExpand: 0,
-    maxLength: 512,
     trust: false,
     strict: false,
     output: "html",
-    throwOnError: false,
-    errorColor: "theme(colors.red.500)",
-  } as any)
+    errorColor: "theme(colors.error)",
+  })
   .use(underline)
 
 const defaults = {

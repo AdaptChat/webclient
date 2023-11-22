@@ -5,7 +5,7 @@ import StatusIndicator from "../users/StatusIndicator";
 import SidebarSection from "../ui/SidebarSection";
 import {ReactiveSet} from "@solid-primitives/set";
 import {displayName, setDifference} from "../../utils";
-import {useContextMenu} from "../../App";
+import useContextMenu from "../../hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton} from "../ui/ContextMenu";
 import UserPlus from "../icons/svg/UserPlus";
 import {toast} from "solid-toast";

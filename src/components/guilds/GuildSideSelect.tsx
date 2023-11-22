@@ -12,7 +12,7 @@ import Icon, {IconElement} from "../icons/Icon";
 import PlusIcon from "../icons/svg/Plus";
 import HomeIcon from "../icons/svg/Home";
 import Gear from "../icons/svg/Gear";
-import {useContextMenu} from "../../App";
+import useContextMenu from "../../hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../ui/ContextMenu";
 import RightFromBracket from "../icons/svg/RightFromBracket";
 import Code from "../icons/svg/Code";

@@ -1,7 +1,7 @@
-import {ParentProps} from "solid-js";
+import {Accessor, createSignal, JSX, ParentProps, Setter} from "solid-js";
 import Icon, {IconElement} from "../icons/Icon";
 import ChevronRight from "../icons/svg/ChevronRight";
-import {useContextMenu} from "../../App";
+import useContextMenu, {ContextMenuContext} from "../../hooks/useContextMenu";
 
 interface ContextMenuButtonProps {
   icon: IconElement,
@@ -66,5 +66,46 @@ export default function ContextMenu({ children }: ParentProps) {
     <div class="flex flex-col p-2 min-w-[200px] bg-gray-900 rounded-lg">
       {children}
     </div>
+  )
+}
+
+type Position = { x: number, y: number }
+
+export interface ContextMenuProps {
+  menu: Accessor<JSX.Element | null>
+  setMenu: Setter<JSX.Element | null>
+  pos: Accessor<Position>
+  setPos: Setter<Position>
+  getHandler(menu: JSX.Element): (event: MouseEvent) => void
+  hide(): void
+}
+
+export function ContextMenuProvider(props: ParentProps) {
+  const [menu, setMenu] = createSignal<JSX.Element>(null)
+  const [pos, setPos] = createSignal({ x: 0, y: 0 })
+  const manager: ContextMenuProps = {
+    menu,
+    setMenu,
+    pos,
+    setPos,
+    getHandler(menu: JSX.Element) {
+      return (event: MouseEvent) => {
+        event.preventDefault()
+        setPos({
+          x: event.clientX,
+          y: event.clientY,
+        })
+        setMenu(() => menu)
+      }
+    },
+    hide() {
+      setMenu(null)
+    },
+  }
+
+  return (
+    <ContextMenuContext.Provider value={manager}>
+      {props.children}
+    </ContextMenuContext.Provider>
   )
 }
