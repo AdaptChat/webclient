@@ -45,8 +45,20 @@ html {
   padding: 2px;
 }
 
-body {
-  @apply hide-scrollbar;
+body { @apply hide-scrollbar }
+
+::-webkit-scrollbar { width: 0.4rem }
+::-webkit-scrollbar-track { background: transparent }
+::-webkit-scrollbar-thumb {
+  background-color: theme('colors.gray.600');
+  border-radius: 0.2rem;
+}
+::-webkit-scrollbar-thumb:hover { background-color: theme('colors.gray.500') }
+::-webkit-scrollbar-corner { background: transparent }
+
+* {
+  scrollbar-color: theme('colors.gray.600') transparent;
+  scrollbar-width: thin;
 }
 
 @keyframes fade-in {

@@ -539,7 +539,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                 return (
                   <div class="flex flex-col">
                     <div
-                      class="flex flex-col relative pl-[62px] py-px hover:bg-gray-850/60 transition-all duration-200"
+                      class="flex flex-col relative pl-[62px] py-px hover:bg-gray-850/60 transition-all duration-200 rounded-r-lg"
                       onContextMenu={contextMenu.getHandler(<MessageContextMenu message={firstMessage} />)}
                     >
                       <img
@@ -561,7 +561,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                     <For each={group.slice(1)}>
                       {(message: Message) => (
                         <div
-                          class="relative group flex items-center hover:bg-gray-850/60 py-px transition-all duration-200"
+                          class="relative group flex items-center hover:bg-gray-850/60 py-px transition-all duration-200 rounded-r-lg"
                           onContextMenu={contextMenu.getHandler(<MessageContextMenu message={message} />)}
                         >
                           <span
