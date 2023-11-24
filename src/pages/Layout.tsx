@@ -19,15 +19,18 @@ import UsersIcon from "../components/icons/svg/Users";
 import ServerIcon from "../components/icons/svg/Server";
 import GearIcon from "../components/icons/svg/Gear";
 
-function BottomNav({ href, icon, alt }: { href: string, icon: IconElement, alt: string }) {
+type BottomNavProps = { href: string, icon: IconElement, alt: string, check: (pathname: string) => boolean }
+
+function BottomNav({ href, icon, alt, check }: BottomNavProps) {
   const route = useLocation()
   const navigate = useNavigate()
 
   return (
     <a
       classList={{
-        "flex-grow flex items-center justify-center group bg-0 hover:bg-3 transition text-fg border-box border-t-2 border-transparent": true,
-        "border-fg": route.pathname === href,
+        "flex-grow flex items-center justify-center group bg-0 hover:bg-3 transition text-fg border-box border-t-2 cursor-pointer": true,
+        "border-fg": check(route.pathname),
+        "border-transparent": !check(route.pathname),
       }}
       onClick={() => navigate(href)}
       use:tooltip={{ content: alt, placement: 'top' }}
@@ -71,12 +74,13 @@ export default function Layout(props: ParentProps<LayoutProps>) {
 
   const sidebar = createMemo(() => props.sidebar && showSidebar())
   const rightSidebar = createMemo(() => props.rightSidebar && showRightSidebar())
+  const showBottomNav = createMemo(() => props.showBottomNav || sidebar())
 
   return (
     <div class="w-full h-full overflow-hidden">
       <div classList={{
         "flex flex-grow w-full h-full": true,
-        "mobile:h-[calc(100%-4rem)]": props.showBottomNav,
+        "mobile:h-[calc(100%-4rem)]": showBottomNav(),
       }}>
         <Show when={!props.hideGuildSelect} keyed={false}>
           <GuildSideSelect />
@@ -151,7 +155,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
                 </span>
                 {props.topNav && (
                   <>
-                    <div class="bg-2 w-0.5 h-[60%] mx-4 rounded-full" />
+                    <div class="bg-fg/10 w-0.5 h-[60%] mx-4 rounded-full" />
                     <div class="flex items-center gap-x-4 mobile-xs:gap-x-2">
                       {props.topNav!()}
                     </div>
@@ -186,7 +190,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
             </div>
           )}
           <div classList={{
-            "flex flex-grow w-full h-full mobile:h-[calc(100%-3rem)]": true,
+            "flex flex-grow w-full h-full": true,
             "mobile:hidden": sidebar(),
           }}>
             <div classList={{
@@ -221,11 +225,11 @@ export default function Layout(props: ParentProps<LayoutProps>) {
       </div>
       <div classList={{
         "flex h-16 md:hidden": true,
-        "hidden": !props.showBottomNav && !sidebar(),
+        "hidden": !showBottomNav() && !sidebar(),
       }}>
-        <BottomNav href="/" icon={HomeIcon} alt="Home" />
-        <BottomNav href="/select" icon={ServerIcon} alt="Servers" />
-        <BottomNav href="/settings" icon={GearIcon} alt="Settings" />
+        <BottomNav href="/" icon={HomeIcon} alt="Home" check={(p) => p === '/' || p.startsWith('/friends')} />
+        <BottomNav href="/select" icon={ServerIcon} alt="Servers" check={(p) => p === '/select'} />
+        <BottomNav href="/settings" icon={GearIcon} alt="Settings" check={(p) => p.startsWith('/settings')} />
       </div>
     </div>
   )

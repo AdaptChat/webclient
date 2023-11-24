@@ -24,7 +24,7 @@ import RocketLaunch from "../icons/svg/RocketLaunch";
 
 noop(tooltip)
 
-const Separator = () => <hr class="h-[3px] bg-2 border-none rounded-full my-1.5 mx-1" />
+const Separator = () => <hr class="h-[3px] bg-fg/10 border-none rounded-full my-1.5 mx-1" />
 
 function BasicButton({ icon, alt, href }: { icon: IconElement, alt: string, href: string }) {
   let anchor: HTMLAnchorElement | null = null

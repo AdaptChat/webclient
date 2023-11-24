@@ -5,6 +5,7 @@ import {Router} from "@solidjs/router";
 import './index.css';
 import App from './App';
 import {ContextMenuProvider} from "./components/ui/ContextMenu";
+import {ThemeProvider} from "./client/themes";
 
 console.log('%cAdapt', 'font-size: 48px;')
 console.log(
@@ -14,10 +15,12 @@ console.log(
 )
 
 const app = () => (
-  <ContextMenuProvider>
-    <Router>
-      <App />
-    </Router>
-  </ContextMenuProvider>
+  <ThemeProvider>
+    <ContextMenuProvider>
+      <Router>
+        <App />
+      </Router>
+    </ContextMenuProvider>
+  </ThemeProvider>
 );
 render(app, document.getElementById('root') as HTMLElement);

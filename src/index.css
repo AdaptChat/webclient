@@ -42,20 +42,23 @@ html {
 
 body { @apply hide-scrollbar }
 
+details > summary { list-style-type: none }
+details > summary::-webkit-details-marker { display: none }
+
 ::-webkit-scrollbar {
   width: 0.4rem;
   height: 0.4rem;
 }
 ::-webkit-scrollbar-track { background: transparent }
 ::-webkit-scrollbar-thumb {
-  background-color: theme('colors.gray.600');
+  background-color: rgb(var(--c-fg) / 0.3);
   border-radius: 0.2rem;
-  &:hover { background-color: theme('colors.gray.500') }
+  &:hover { background-color: rgb(var(--c-fg) / 0.5) }
 }
 ::-webkit-scrollbar-corner { background: transparent }
 
 * {
-  scrollbar-color: theme('colors.gray.600') transparent;
+  scrollbar-color: rgb(var(--c-fg) / 0.3) transparent;
   scrollbar-width: thin;
 }
 

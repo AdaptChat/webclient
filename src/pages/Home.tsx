@@ -33,8 +33,8 @@ function LearnAdaptSubcard(
 ) {
   return (
     <button
-      class="flex justify-between gap-2 bg-2 rounded-lg p-4 w-full hover:bg-3 transition-colors
-        cursor-pointer items-center"
+      class="flex justify-between gap-2 border-2 border-fg/10 transparent hover:bg-2 hover:border-bg-2 rounded-lg p-4
+       w-full transition-colors cursor-pointer items-center"
       {...props}
     > {/* TODO */}
       <div>

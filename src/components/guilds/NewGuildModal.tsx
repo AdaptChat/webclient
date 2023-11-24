@@ -106,7 +106,7 @@ function Base(props: ParentProps<ExtendedProps>) {
         </Show>
         {/* If a button component was used, some browsers will not recognize the button after it. */}
         <div class="flex gap-x-2 btn btn-neutral" onClick={() => props.setPage(ModalPage.New)}>
-          <Icon icon={ChevronLeft} class="fill-fg/60 select-none w-4 h-4" />
+          <Icon icon={ChevronLeft} class="fill-neutral-content/60 select-none w-4 h-4" />
           Back
         </div>
         <button
@@ -114,7 +114,7 @@ function Base(props: ParentProps<ExtendedProps>) {
           type="submit"
           class="btn btn-primary flex-grow disabled:bg-accent/50 disabled:text-opacity-50"
         >
-          {props.buttonIcon && <Icon icon={props.buttonIcon} class="fill-fg/80 w-4 h-4 mr-2" />}
+          {props.buttonIcon && <Icon icon={props.buttonIcon} class="fill-primary-content/80 w-4 h-4 mr-2" />}
           <span>{props.buttonLabel}</span>
         </button>
       </form>
