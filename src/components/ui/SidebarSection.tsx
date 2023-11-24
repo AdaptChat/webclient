@@ -10,10 +10,10 @@ export default function SidebarSection(
 ) {
   return (
     <div class="flex justify-between select-none mt-1 items-center">
-      <span class="font-bold text-xs px-1 py-2 uppercase text-base-content/50">
+      <span class="font-bold text-xs px-1 py-2 uppercase text-fg/50">
         {props.children}
         <Show when={props.badge?.() != null} keyed={false}>
-          <span class="px-1.5 py-0.5 rounded-[25%] bg-gray-900 ml-1">{props.badge!()}</span>
+          <span class="px-1.5 py-0.5 rounded-[25%] bg-0 ml-1">{props.badge!()}</span>
         </Show>
       </span>
       {props.plusAction && (
@@ -25,7 +25,7 @@ export default function SidebarSection(
           <Icon
             icon={Plus}
             title={props.plusTooltip}
-            class="w-full h-full fill-base-content opacity-50 group-hover:opacity-80 transition duration-200"
+            class="w-full h-full fill-fg opacity-50 group-hover:opacity-80 transition duration-200"
           />
         </button>
       )}

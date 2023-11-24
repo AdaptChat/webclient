@@ -22,26 +22,27 @@ export default function GuildIcon(
   const indicator =
     pings > 0 ? (
       <span
-        class="indicator-item indicator-bottom badge badge-error px-1 py-2 min-w-4 h-4 my-1"
+        class="indicator-item indicator-bottom bg-red-600 flex text-sm font-medium items-center rounded-full
+               px-1 py-2 min-w-4 h-4 my-1"
         style={{
           'margin-left': mx,
           'margin-right': mx,
         }}
       >
-        {pings}
+        {pings.toLocaleString()}
       </span>
     )
     : unread
-    ? <span class="indicator-item indicator-bottom badge badge-sm badge-accent m-1" />
+    ? <span class="indicator-item indicator-bottom bg-accent w-3 h-3 rounded-full m-1" />
     : null
 
-  let baseClass = "avatar indicator group";
+  let baseClass = "indicator group";
   if (showTooltip) baseClass += " cursor-pointer"
 
   const extraClasses = createMemo(() => {
     const active = ringIfActive && guild.id === parseInt(useParams().guildId)
     return {
-      "transition-all duration-200": true,
+      "transition-all duration-200 overflow-hidden": true,
       "ring-accent ring-2 rounded-[30%]": active,
       "rounded-[50%] group-hover:rounded-[40%]": !active,
     }
@@ -53,7 +54,7 @@ export default function GuildIcon(
       <div class={"placeholder " + baseClass} use:tooltip={ttProps}>
         {indicator}
         <div classList={{
-          ["relative bg-neutral-focus text-neutral-content " + sizeClass]: true,
+          ["relative bg-neutral-hover text-neutral-content flex items-center justify-center " + sizeClass]: true,
           ...extraClasses(),
         }}>
           <span class="rounded-[inherit]">{guild.name.split(/ +/).map(word => word[0] ?? '').join('')}</span>
@@ -63,7 +64,7 @@ export default function GuildIcon(
       <div class={baseClass} use:tooltip={ttProps}>
         {indicator}
         <div classList={{ [sizeClass]: true, ...extraClasses() }}>
-          <img src={guild.icon} alt={guild.name} width={48} height={48} />
+          <img class="w-full h-full object-cover" src={guild.icon} alt={guild.name} width={48} height={48} />
         </div>
       </div>
     </Show>

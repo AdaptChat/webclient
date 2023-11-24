@@ -19,17 +19,17 @@ export default function FriendsList() {
   return (
     <div class="h-[calc(100%-3.5rem)] overflow-y-auto">
       <Show when={friends().length} keyed={false} fallback={(
-        <div class="text-center font-medium text-base-content/60 p-4">
+        <div class="text-center font-medium text-fg/60 p-4">
           You currently have no friends (just like Cryptex).
           <button class="ml-2 btn btn-sm btn-primary" onClick={() => setShowAddFriendModal(true)}>Add some?</button>
         </div>
       )}>
-        <div class="divider font-title font-medium text-base-content/60 m-4">Friends</div>
+        <div class="divider font-title font-medium text-fg/60 m-4">Friends</div>
         <For each={friends()}>
           {([id, _]) => (
             <FriendEntry api={api} id={id}>
               <button
-                class="p-2.5 rounded-full bg-gray-700 hover:bg-accent transition duration-200"
+                class="p-2.5 rounded-full bg-3 hover:bg-accent transition duration-200"
                 onClick={async () => {
                   const predicate = (channel: Channel) => channel.type === 'dm' && channel.recipient_ids.includes(id)
                   const found = findIterator(api.cache?.channels.values(), predicate)
@@ -48,7 +48,7 @@ export default function FriendsList() {
                 }}
                 use:tooltip={{ content: "Open DM", placement: 'left' }}
               >
-                <Icon icon={MessageIcon} title="Open DM" class="w-3 h-3 fill-base-content"/>
+                <Icon icon={MessageIcon} title="Open DM" class="w-3 h-3 fill-fg"/>
               </button>
               <RelationshipDeleteButton api={api} id={id} label="Remove Friend" />
             </FriendEntry>

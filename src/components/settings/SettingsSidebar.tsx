@@ -15,7 +15,7 @@ export function SettingsSidebar() {
         <SidebarButton href={["/settings/account", "/settings"]} svg={UserIcon}>Account</SidebarButton>
         <SidebarSection>Client Settings</SidebarSection>
         <SidebarButton href="/settings/appearance" svg={Palette}>Appearance</SidebarButton>
-        <div class="bg-gray-800 h-0.5 my-2 rounded-full" />
+        <div class="bg-2 h-0.5 my-2 rounded-full" />
         <SidebarButton
           svg={RightFromBracket}
           danger

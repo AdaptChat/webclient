@@ -34,21 +34,21 @@ export default function GuildInviteModal({ guild, show }: { guild: Guild, show: 
 
   return (
     <ModalTemplate title="Invite People">
-      <p class="text-base-content/70 text-center mt-2">
+      <p class="text-fg/70 text-center mt-2">
         Invite people to join <b>{guild.name}</b> by sending them this link:
       </p>
-      <div class="flex items-center justify-between bg-gray-900 mt-4 rounded-lg box-border overflow-hidden">
+      <div class="flex items-center justify-between bg-0 mt-4 rounded-lg box-border overflow-hidden">
         <input
           ref={inputRef!}
           type="text"
-          class="bg-transparent p-2 text-base-content flex-grow outline-none focus:text-accent-200 transition"
+          class="bg-transparent p-2 text-fg flex-grow outline-none focus:text-accent-light transition"
           value={code() ? `https://adapt.chat/invite/${code()}` : 'Loading...'}
           readonly
         />
         <button
           classList={{
             "flex items-center justify-center transition-all duration-200 p-2 w-10 h-10": true,
-            "bg-gray-700 hover:bg-accent": !copied(),
+            "bg-3 hover:bg-accent": !copied(),
             "bg-success": copied(),
           }}
           onClick={async () => {
@@ -61,7 +61,7 @@ export default function GuildInviteModal({ guild, show }: { guild: Guild, show: 
           <Icon
             icon={copied() ? Check : ClipboardIcon}
             title="Copy to clipboard"
-            class="w-4 h-4 fill-base-content"
+            class="w-4 h-4 fill-fg"
           />
         </button>
       </div>

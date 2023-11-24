@@ -1,3 +1,7 @@
+@import "./styles/button.css";
+@import "./styles/checkbox.css";
+@import "./styles/indicator.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -18,15 +22,6 @@
   font-feature-settings: "ss01";
 }
 
-:root {
-  scrollbar-color: theme('colors.gray.500') transparent;
-
-  --gradient-color-1: theme('colors.accent.500');
-  --gradient-color-2: theme('colors.secondary');
-  --gradient-color-3: #ff3d94;
-  --gradient-color-4: #0056c6;
-}
-
 * {
   text-rendering: optimizeLegibility !important;
 }
@@ -37,12 +32,12 @@ html {
 
 ._toast {
   border-radius: 0.5rem !important;
-  color: theme("colors.base-content") !important;
-}
+  color: theme("colors.fg") !important;
 
-._toast div[aria-live="polite"] {
-  margin: 4px 0 4px 10px !important;
-  padding: 2px;
+  & div[aria-live="polite"] {
+    margin: 4px 0 4px 10px !important;
+    padding: 2px;
+  }
 }
 
 body { @apply hide-scrollbar }
@@ -55,8 +50,8 @@ body { @apply hide-scrollbar }
 ::-webkit-scrollbar-thumb {
   background-color: theme('colors.gray.600');
   border-radius: 0.2rem;
+  &:hover { background-color: theme('colors.gray.500') }
 }
-::-webkit-scrollbar-thumb:hover { background-color: theme('colors.gray.500') }
 ::-webkit-scrollbar-corner { background: transparent }
 
 * {
@@ -64,7 +59,53 @@ body { @apply hide-scrollbar }
   scrollbar-width: thin;
 }
 
-@keyframes fade-in {
+@layer base {
+  :root {
+    --c-bg-0: 17 24 39;
+    --c-bg-1: 25 34 45;
+    --c-bg-2: 31 41 55;
+    --c-bg-3: 55 65 81;
+    --c-fg: 255 255 255;
+    --c-accent: 5 134 255;
+    --c-accent-light: 87 174 255;
+    --c-primary: 0 120 225;
+    --c-primary-hover: 0 95 179;
+    --c-primary-fg: 255 255 255;
+    --c-secondary: 190 61 255;
+    --c-success: 19 176 118;
+    --c-success-hover: 12 138 91;
+    --c-success-fg: 255 255 255;
+    --c-danger: 238 52 52;
+    --c-danger-hover: 184 28 28;
+    --c-danger-fg: 255 255 255;
+    --c-neutral: 55 60 75;
+    --c-neutral-hover: 45 50 65;
+    --c-neutral-fg: 255 255 255;
+    --c-link: 75 213 255;
+    --c-link-hover: 155 232 255;
+    --c-link-visited: 75 213 255;
+  }
+}
+
+@layer utilities {
+  .bg-0 { @apply bg-bg-0 }
+  .bg-1 { @apply bg-bg-1 }
+  .bg-2 { @apply bg-bg-2 }
+  .bg-3 { @apply bg-bg-3 }
+
+  .input { @apply w-full bg-0 rounded-lg text-sm font-medium p-3 outline-none focus:ring-2 ring-accent }
+  .divider {
+    @apply h-4 whitespace-nowrap flex flex-row items-center self-stretch;
+
+    &:before, &:after { @apply bg-fg/10 h-0.5 w-full flex-grow content-[''] }
+    &:not(:empty) { @apply gap-4 }
+
+    &-start:before { @apply hidden }
+    &-end:after { @apply hidden }
+  }
+}
+
+@keyframes fade-in-up {
   from {
     opacity: 0;
     transform: translateY(1rem);
@@ -75,7 +116,19 @@ body { @apply hide-scrollbar }
   }
 }
 
-.context-menu { animation: fade-in 0.2s ease-in-out }
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.context-menu { animation: fade-in-up 0.2s ease-in-out }
+.dropdown { animation: fade-in-down 0.2s ease-in-out }
 
 .katex-display { overflow: auto hidden }
 .katex * {

@@ -10,10 +10,10 @@ export default function StatusIndicator(props: StatusIndicatorProps) {
     <div
       classList={{
         "w-3 h-3 rounded-full": true,
-        "bg-success": props.status === 'online',
-        "bg-warning": props.status === 'idle',
-        "bg-error": props.status === 'dnd',
-        "bg-gray-500": props.status === 'offline' || props.status == null,
+        "bg-[#36d399]": props.status === 'online',
+        "bg-[#fbbe23]": props.status === 'idle',
+        "bg-[#ef3434]": props.status === 'dnd',
+        "bg-[#6b7280]": props.status === 'offline' || props.status == null,
         "indicator-item indicator-bottom": props.indicator,
         [props.tailwind ?? ""]: props.tailwind !== undefined
       }}

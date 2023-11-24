@@ -18,11 +18,11 @@ export function relationshipFilterFactory(api: Api, targetType: RelationshipType
 export function RelationshipDeleteButton({ api, id, label }: { api: Api, id: number, label: string }) {
   return (
     <button
-      class="p-2 rounded-full bg-gray-700 hover:bg-error transition duration-200"
+      class="p-2 rounded-full bg-3 hover:bg-danger transition duration-200"
       onClick={() => api.request('DELETE', `/relationships/${id}`)}
       use:tooltip={{content: label, placement: 'left'}}
     >
-      <Icon icon={Xmark} title={label} class="w-4 h-4 fill-base-content"/>
+      <Icon icon={Xmark} title={label} class="w-4 h-4 fill-fg"/>
     </button>
   )
 }
@@ -32,15 +32,15 @@ export function FriendEntry({ api, id, children }: ParentProps<{ api: Api, id: n
 
   return (
     <div
-      class="flex items-center justify-between mx-4 my-2 p-2 border-2 border-gray-700 hover:bg-gray-850 transition
+      class="flex items-center justify-between mx-4 my-2 p-2 border-2 border-bg-3 hover:bg-1 transition
         duration-200 rounded-lg cursor-pointer group"
     >
       <div class="flex items-center">
         <img src={api.cache!.avatarOf(id)} alt="" class="w-8 h-8 rounded-lg" />
         <div class="ml-4">
           {displayName(user)}
-          <Show when={user.display_name} keyed={false}>
-            <span class="text-gray-800 group-hover:text-gray-500 transition ml-2">@{user.username}</span>
+          <Show when={user.display_name}>
+            <span class="text-bg-2 group-hover:text-fg/40 transition ml-2">@{user.username}</span>
           </Show>
         </div>
       </div>
@@ -60,12 +60,12 @@ export default function Requests() {
   return (
     <div class="h-[calc(100%-3.5rem)] overflow-y-auto">
       <Show when={!outgoing().length && !incoming().length} keyed={false}>
-        <p class="text-center font-medium text-base-content/60 p-4">
+        <p class="text-center font-medium text-fg/60 p-4">
           You currently have no incoming or outgoing friend requests.
         </p>
       </Show>
       <Show when={outgoing().length} keyed={false}>
-        <div class="divider font-title font-medium text-base-content/60 m-4">Outgoing Requests</div>
+        <div class="divider font-title font-medium text-fg/60 m-4">Outgoing Requests</div>
         <For each={outgoing()}>
           {([id, _]) => (
             <FriendEntry api={api} id={id}>
@@ -75,16 +75,16 @@ export default function Requests() {
         </For>
       </Show>
       <Show when={incoming().length} keyed={false}>
-        <div class="divider font-title font-medium text-base-content/60 m-4">Incoming Requests</div>
+        <div class="divider font-title font-medium text-fg/60 m-4">Incoming Requests</div>
         <For each={incoming()}>
           {([id, _]) => (
             <FriendEntry api={api} id={id}>
               <button
-                class="p-2 rounded-full bg-gray-700 hover:bg-success transition duration-200"
+                class="p-2 rounded-full bg-3 hover:bg-success transition duration-200"
                 onClick={() => api.request('PUT', `/relationships/friends/${id}`)}
                 use:tooltip={{content: "Accept Request", placement: 'left'}}
               >
-                <Icon icon={Check} title="Accept Request" class="w-4 h-4 fill-base-content"/>
+                <Icon icon={Check} title="Accept Request" class="w-4 h-4 fill-fg"/>
               </button>
               <RelationshipDeleteButton api={api} id={id} label="Deny Request" />
             </FriendEntry>

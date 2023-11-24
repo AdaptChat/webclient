@@ -27,7 +27,7 @@ export default function Account() {
   return (
     <SettingsLayout title="Account Settings">
       <div class="flex flex-col items-center w-full p-4">
-        <div class="relative flex items-center p-2 bg-gray-850 rounded-lg w-full">
+        <div class="relative flex items-center p-2 bg-1 rounded-lg w-full">
           <button
             class="group relative m-4 rounded-[50%] hover:rounded-lg overflow-hidden transition-all duration-200"
             onClick={() => {
@@ -54,7 +54,7 @@ export default function Account() {
               class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur rounded-lg
                 opacity-0 group-hover:opacity-100 transition duration-200"
             >
-              <Icon icon={PenToSquare} class="w-6 h-6 fill-base-content" title="Edit Avatar" />
+              <Icon icon={PenToSquare} class="w-6 h-6 fill-fg" title="Edit Avatar" />
               <span class="uppercase font-bold text-xs mt-1">Edit Avatar</span>
             </div>
             <img src={api.cache!.clientAvatar} alt="" class="w-24 h-24" />
@@ -91,21 +91,21 @@ export default function Account() {
                   placeholder="Username"
                   required
                   value={clientUser().username}
-                  class="bg-gray-900 text-xl font-medium text-base-content rounded-lg p-2 mr-1"
+                  class="bg-0 text-xl font-medium text-fg rounded-lg p-2 mr-1"
                   onInput={updateChanged}
                 />
               ) : (
                 <span class="font-medium text-2xl">{clientUser().username}</span>
               )}
             </div>
-            <span class="font-medium text-sm text-base-content/50">{clientUser().email}</span>
+            <span class="font-medium text-sm text-fg/50">{clientUser().email}</span>
           </form>
           <div class="flex absolute right-4 top-4 gap-x-2">
             <Show when={editing() && changed()} keyed={false}>
               <button type="submit" form={formId} class="select-none opacity-60 hover:opacity-100 transition duration-200">
                 <Icon
                   icon={Check}
-                  class="w-6 h-6 fill-base-content"
+                  class="w-6 h-6 fill-fg"
                   title="Save"
                   tooltip={{ content: "Save", placement: 'left' }}
                 />
@@ -117,7 +117,7 @@ export default function Account() {
             >
               <Icon
                 icon={editing() ? Xmark : PenToSquare}
-                class="w-6 h-6 fill-base-content"
+                class="w-6 h-6 fill-fg"
                 title={editing() ? "Cancel" : "Edit"}
                 tooltip={{ content: editing() ? "Cancel" : "Edit", placement: 'left' }}
               />
@@ -125,7 +125,7 @@ export default function Account() {
           </div>
         </div>
         <Show when={error()} keyed={false}>
-          <p class="px-1 py-2 text-error w-full">{error()}</p>
+          <p class="px-1 py-2 text-danger w-full">{error()}</p>
         </Show>
       </div>
     </SettingsLayout>

@@ -88,7 +88,7 @@ function Anchor(props: JSX.HTMLAttributes<HTMLAnchorElement> & { isImage?: boole
         {props.children}
       </span>
       {props.isImage && (
-        <span class="bg-gray-700 text-xs px-1 py-0.5 ml-1 rounded-lg select-none text-base-content/80">Image</span>
+        <span class="bg-3 text-xs px-1 py-0.5 ml-1 rounded-lg select-none text-fg/80">Image</span>
       )}
     </a>
   )
@@ -103,12 +103,12 @@ function Spoiler(props: JSX.HTMLAttributes<HTMLSpanElement>) {
       classList={{
         "relative rounded py-0.5": true,
         "cursor-pointer select-none all:!text-transparent": !revealed(),
-        "text-base-content bg-gray-600/50": revealed(),
+        "text-fg bg-bg-3/60": revealed(),
       }}
       onClick={() => setRevealed(true)}
     >
       <span classList={{
-        "absolute inset-0 bg-gray-900 rounded transition duration-200 pointer-events-none opacity-100": true,
+        "absolute inset-0 bg-0 rounded transition duration-200 pointer-events-none opacity-100": true,
         "opacity-0": revealed(),
         "opacity-100": !revealed(),
       }} />
@@ -228,7 +228,7 @@ function MentionChannel({ arg, children, ...props }: any) {
     >
       #{channel.name}
       <Show when={channel.guild_id != currentGuild as any as number} keyed={false}>
-        <span class="text-base-content/80"> ({api.cache?.guilds.get(channel.guild_id)?.name})</span>
+        <span class="text-fg/80"> ({api.cache?.guilds.get(channel.guild_id)?.name})</span>
       </Show>
     </A>
   )
@@ -245,10 +245,10 @@ export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.
   a: Anchor,
   img: (props: any) => <Anchor {...props} isImage href={props.src}>{props.alt || props.src}</Anchor>,
   span: (props) => <span {...props} />,
-  code: (props) => <code {...props} class="bg-gray-900 rounded px-1 py-0.5" />,
+  code: (props) => <code {...props} class="bg-0 rounded px-1 py-0.5" />,
   // TODO: syntax highlighting
   pre: (props) => (
-    <pre class="bg-gray-900 rounded px-2 py-1 my-1 whitespace-pre-wrap break-words all-children:!px-0" {...props} />
+    <pre class="bg-0 rounded px-2 py-1 my-1 whitespace-pre-wrap break-words all-children:!px-0" {...props} />
   ),
   ul: (props) => <ul class="list-disc ml-4" {...props} />,
   ol: (props) => <ol class="list-decimal ml-4" {...props} />,
@@ -259,7 +259,7 @@ export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.
   'mention-channel': MentionChannel,
   blockquote: (props) => (
     <div class="flex">
-      <div class="select-none bg-gray-600 rounded-full w-0.5" />
+      <div class="select-none bg-fg/25 rounded-full w-0.5" />
       <blockquote class="mx-2" {...props} />
     </div>
   ),

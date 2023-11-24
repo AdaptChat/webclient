@@ -26,13 +26,13 @@ function BottomNav({ href, icon, alt }: { href: string, icon: IconElement, alt: 
   return (
     <a
       classList={{
-        "group bg-gray-900 hover:bg-gray-700 transition text-base-content": true,
-        "active": route.pathname === href,
+        "flex-grow flex items-center justify-center group bg-0 hover:bg-3 transition text-fg border-box border-t-2 border-transparent": true,
+        "border-fg": route.pathname === href,
       }}
       onClick={() => navigate(href)}
       use:tooltip={{ content: alt, placement: 'top' }}
     >
-      <Icon icon={icon} title={alt} class="select-none w-5 h-5 fill-base-content opacity-70 group-hover:opacity-100" />
+      <Icon icon={icon} title={alt} class="select-none w-5 h-5 fill-fg opacity-70 group-hover:opacity-100" />
     </a>
   )
 }
@@ -83,14 +83,14 @@ export default function Layout(props: ParentProps<LayoutProps>) {
         </Show>
         <Show when={sidebar()} keyed={false}>
           <div classList={{
-            "flex flex-col justify-between bg-gray-850 h-full mobile:w-[calc(100%-3rem)]": true,
+            "flex flex-col justify-between bg-1 h-full mobile:w-[calc(100%-3rem)]": true,
             "w-[19rem]": props.hideGuildSelect,
             "w-60": !props.hideGuildSelect,
           }}>
             <div class="flex flex-col w-full overflow-y-auto">
               {props.sidebar!()}
             </div>
-            <div class="flex items-center bg-gray-900 rounded-lg m-4 pr-2">
+            <div class="flex items-center bg-0 rounded-lg m-4 pr-2">
               <div class="indicator w-10">
                 <StatusIndicator status={api.cache!.presences.get(clientUser().id)!.status} tailwind="m-[0.1rem]" indicator />
                 <img src={api.cache!.clientAvatar} alt="" class="w-10 h-10 rounded-lg" />
@@ -108,7 +108,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
               >
                 <div class="text-sm">{displayName(clientUser())}</div>
                 <Show when={clientUser().display_name}>
-                  <span class="text-base-content/50 text-xs">{clientUser().username}</span>
+                  <span class="text-fg/50 text-xs">{clientUser().username}</span>
                 </Show>
               </div>
             </div>
@@ -116,12 +116,12 @@ export default function Layout(props: ParentProps<LayoutProps>) {
         </Show>
         <div
           classList={{
-            "hidden flex-grow items-center justify-center bg-transparent hover:bg-gray-700 transition-all duration-300 cursor-pointer": true,
+            "hidden flex-grow items-center justify-center bg-transparent hover:bg-3 transition-all duration-300 cursor-pointer": true,
             "mobile:flex": sidebar(),
           }}
           onClick={() => setShowSidebar(false)}
         >
-          <Icon icon={ChevronLeft} class="fa-xs opacity-50 fill-base-content w-5 h-5" title="Collapse Sidebar" />
+          <Icon icon={ChevronLeft} class="fa-xs opacity-50 fill-fg w-5 h-5" title="Collapse Sidebar" />
         </div>
         <div classList={{
           "flex flex-col items-center": true,
@@ -132,7 +132,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
         }}>
           {props.title && (
             <div classList={{
-              "flex items-center justify-between w-full bg-gray-900": true,
+              "flex items-center justify-between w-full bg-0": true,
               "mobile:hidden": sidebar(),
             }}>
               <div class="flex items-center pl-4 h-14 mobile:overflow-x-auto mobile:hide-scrollbar">
@@ -141,7 +141,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
                     icon={showSidebar() ? ChevronLeft : ChevronRight}
                     title={showSidebar() ? "Collapse Sidebar" : "Show Sidebar"}
                     class={
-                      "fill-base-content select-none w-5 h-5 opacity-30 hover:opacity-60 transition-opacity"
+                      "fill-fg select-none w-5 h-5 opacity-30 hover:opacity-60 transition-opacity"
                         + " duration-300 z-[9999] mr-3"
                     }
                   />
@@ -151,7 +151,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
                 </span>
                 {props.topNav && (
                   <>
-                    <div class="divider divider-horizontal w-2 my-3 rounded-full" />
+                    <div class="bg-2 w-0.5 h-[60%] mx-4 rounded-full" />
                     <div class="flex items-center gap-x-4 mobile-xs:gap-x-2">
                       {props.topNav!()}
                     </div>
@@ -164,7 +164,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
                   <button onClick={() => setShowRightSidebar(prev => !prev)}>
                     <Icon
                       icon={UsersIcon}
-                      class="fill-base-content opacity-70 hover:opacity-100 select-none w-6 h-6 transition duration-200"
+                      class="fill-fg opacity-70 hover:opacity-100 select-none w-6 h-6 transition duration-200"
                       title="Show or Hide Members"
                       tooltip={{ content: `${rightSidebar() ? 'Hide' : 'Show'} Member List`, placement: 'bottom' }}
                     />
@@ -176,7 +176,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
                       <Icon
                         icon={icon}
                         title={alt}
-                        class="fill-base-content opacity-70 hover:opacity-100 select-none w-6 h-6 transition duration-200"
+                        class="fill-fg opacity-70 hover:opacity-100 select-none w-6 h-6 transition duration-200"
                         tooltip={{ content: alt, placement: 'bottom' }}
                       />
                     </button>
@@ -199,19 +199,19 @@ export default function Layout(props: ParentProps<LayoutProps>) {
             <div
               classList={{
                 [
-                  "hidden flex-grow items-center justify-center bg-transparent hover:bg-gray-700 transition-all "
+                  "hidden flex-grow items-center justify-center bg-transparent hover:bg-3 transition-all "
                   + "duration-300 cursor-pointer"
                 ]: true,
                 "mobile:flex": rightSidebar(),
               }}
               onClick={() => setShowRightSidebar(false)}
             >
-              <Icon icon={ChevronRight} class="w-5 h-5 opacity-50 fill-base-content" title="Collapse Members List" />
+              <Icon icon={ChevronRight} class="w-5 h-5 opacity-50 fill-fg" title="Collapse Members List" />
             </div>
             <Show when={rightSidebar()} keyed={false}>
               <div
                 class="absolute right-0 top-14 inset-y-0 mobile:relative mobile:top-0 flex flex-col w-60
-                  overflow-y-auto bg-gray-850 mobile:w-[calc(100%-3rem)]"
+                  overflow-y-auto bg-1 mobile:w-[calc(100%-3rem)]"
               >
                 {props.rightSidebar!()}
               </div>
@@ -220,7 +220,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
         </div>
       </div>
       <div classList={{
-        "btm-nav md:hidden": true,
+        "flex h-16 md:hidden": true,
         "hidden": !props.showBottomNav && !sidebar(),
       }}>
         <BottomNav href="/" icon={HomeIcon} alt="Home" />

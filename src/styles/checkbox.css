@@ -1,0 +1,76 @@
+/**
+ * Checkbox daisyUI component with CSS variables
+ * <https://github.com/saadeghi/daisyui/blob/master/src/components/styled/checkbox.css>
+ */
+
+@layer utilities {
+  .checkbox {
+    --chkbg: var(--c-primary);
+    --chkfg: var(--c-primary-fg);
+
+    @apply rounded-lg h-6 w-6 cursor-pointer appearance-none border;
+    border-color: rgb(var(--chkbg));
+
+    &:focus {
+      box-shadow: none
+    }
+
+    &:focus-visible {
+      @apply outline outline-2 outline-offset-2;
+      outline-color: rgb(var(--chkbg));
+    }
+
+    &:checked,
+    &[checked="true"],
+    &[aria-checked="true"] {
+      @apply bg-no-repeat;
+      animation: checkmark 0.2s ease-out;
+      border-color: rgb(var(--chkbg));
+      background-color: rgb(var(--chkbg));
+      color: rgb(var(--chkfg));
+      background-image: linear-gradient(-45deg, transparent 65%, rgb(var(--chkbg)) 65.99%),
+      linear-gradient(45deg, transparent 75%, rgb(var(--chkbg)) 75.99%),
+      linear-gradient(-45deg, rgb(var(--chkbg)) 40%, transparent 40.99%),
+      linear-gradient(
+          45deg,
+          rgb(var(--chkbg)) 30%,
+          rgb(var(--chkfg)) 30.99%,
+          rgb(var(--chkfg)) 40%,
+          transparent 40.99%
+      ),
+      linear-gradient(-45deg, rgb(var(--chkfg)) 50%, rgb(var(--chkbg)) 50.99%);
+    }
+
+    &:indeterminate {
+      @apply bg-no-repeat;
+      animation: checkmark var(--animation-input, 0.2s) ease-out;
+      background-color: rgb(var(--chkfg));
+      background-image: linear-gradient(90deg, transparent 80%, rgb(var(--chkbg)) 80%),
+      linear-gradient(-90deg, transparent 80%, rgb(var(--chkbg)) 80%),
+      linear-gradient(
+          0deg,
+          rgb(var(--chkbg)) 43%,
+          rgb(var(--chkfg)) 43%,
+          rgb(var(--chkfg)) 57%,
+          rgb(var(--chkbg)) 57%
+      );
+    }
+
+    &:disabled {
+      @apply cursor-not-allowed border-transparent opacity-20;
+      background-color: rgb(var(--chkfg));
+    }
+  }
+
+  @keyframes checkmark {
+    0% {
+      background-position-y: 5px
+    }
+    50% {
+      background-position-y: -2px
+    }
+    100% {
+      background-position-y: 0
+    }
+  }
+}

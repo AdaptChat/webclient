@@ -21,7 +21,7 @@ export function GuildMemberGroup({ members, offline }: { members: ReactiveSet<nu
         const user = api.cache!.users.get(user_id)!
         return (
           <div
-            class="group flex items-center px-2 py-1.5 rounded-lg hover:bg-gray-700 transition duration-200 cursor-pointer"
+            class="group flex items-center px-2 py-1.5 rounded-lg hover:bg-3 transition duration-200 cursor-pointer"
             onContextMenu={contextMenu.getHandler(
               <ContextMenu>
                 <Show when={api.cache!.clientId !== user_id}>
@@ -52,21 +52,21 @@ export function GuildMemberGroup({ members, offline }: { members: ReactiveSet<nu
             )}
           >
             <div class="indicator flex-shrink-0">
-              <StatusIndicator status={api.cache!.presences.get(user_id)?.status} tailwind="m-[0.1rem]" indicator />
+              <StatusIndicator status={api.cache!.presences.get(user_id)?.status} tailwind="m-[0.2rem]" indicator />
               <img
                 src={api.cache!.avatarOf(user_id)}
                 alt=""
                 classList={{
-                  "w-7 h-7 rounded-full": true,
+                  "w-8 h-8 rounded-full": true,
                   "filter grayscale group-hover:grayscale-0 transition duration-1000": offline,
                 }}
               />
             </div>
-            <span class="ml-2 w-full overflow-ellipsis overflow-hidden text-sm">
-            <span classList={{ "text-base-content": true, "text-opacity-50": offline, "!text-opacity-80": !offline }}>
-              {displayName(user)}
+            <span class="ml-3 w-full overflow-ellipsis overflow-hidden text-sm">
+              <span classList={{ "text-fg": true, "text-opacity-50": offline, "!text-opacity-80": !offline }}>
+                {displayName(user)}
+              </span>
             </span>
-          </span>
           </div>
         )
       }}

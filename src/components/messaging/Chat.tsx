@@ -103,11 +103,11 @@ function MessageLoadingSkeleton() {
       <For each={skeletalData}>
         {(data: SkeletalData, i) => (
           <div class="flex flex-col animate-pulse" style={{ 'animation-delay': `${i() * 100}ms` }}>
-            <div class="flex flex-col relative pl-[62px] py-px hover:bg-gray-850/60 transition-all duration-200">
-              <div class="absolute left-3.5 w-9 h-9 mt-0.5 rounded-full bg-gray-400" />
-              <div class="h-5 bg-gray-600 rounded-full" style={{ width: data.headerWidth }} />
+            <div class="flex flex-col relative pl-[62px] py-px hover:bg-bg-1/60 transition-all duration-200">
+              <div class="absolute left-3.5 w-9 h-9 mt-0.5 rounded-full bg-fg/50" />
+              <div class="h-5 bg-fg/25 rounded-full" style={{ width: data.headerWidth }} />
               {data.contentLines.map((width) => (
-                <div class="h-5 bg-gray-700 rounded-full" style={{ width }} />
+                <div class="h-5 bg-fg/10 rounded-full" style={{ width }} />
               ))}
             </div>
           </div>
@@ -129,8 +129,8 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
     <span
       data-message-id={message().id}
       classList={{
-        "text-base-content/50": message()._nonceState === 'pending',
-        "text-error": message()._nonceState === 'error',
+        "text-fg/50": message()._nonceState === 'pending',
+        "text-danger": message()._nonceState === 'error',
         "break-words text-sm font-light overflow-hidden": true,
       }}
       style={{
@@ -145,12 +145,12 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
       <For each={message().embeds}>
         {(embed) => (
           <div class="rounded overflow-hidden inline-flex my-1">
-            <div class="inline-flex flex-col p-2 bg-gray-900 border-l-accent border-l-4">
+            <div class="inline-flex flex-col p-2 bg-0 border-l-accent border-l-4">
               <Show when={embed.title}>
                 <h1 class="text-lg font-title font-bold">{embed.title}</h1>
               </Show>
               <Show when={embed.description}>
-                <div class="text-base-content/80 text-sm">{embed.description}</div>
+                <div class="text-fg/80 text-sm">{embed.description}</div>
               </Show>
             </div>
           </div>
@@ -173,7 +173,7 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
                   class="max-w-[clamp(56rem,60vw,90%)] max-h-80 object-contain object-left"
                 />
               ) : (
-                <div class="flex justify-between bg-gray-900 w-[min(60vw,24rem)] p-4 rounded-lg">
+                <div class="flex justify-between bg-0 w-[min(60vw,24rem)] p-4 rounded-lg">
                   <div>
                     <a
                       class="text-lg font-medium font-title hover:underline"
@@ -183,7 +183,7 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
                     >
                       {attachment.filename}
                     </a>
-                    <div class="text-base-content/60 text-sm">{humanizeSize(attachment.size)}</div>
+                    <div class="text-fg/60 text-sm">{humanizeSize(attachment.size)}</div>
                   </div>
                 </div>
               )
@@ -193,7 +193,7 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
       </For>
       {/* Error */}
       <Show when={message()._nonceError} keyed={false}>
-        <p class="p-2 bg-error-content rounded-lg text-sm font-medium">
+        <p class="p-2 bg-danger-content rounded-lg text-sm font-medium">
           <b>Error: </b>
           {message()._nonceError}
         </p>
@@ -519,14 +519,14 @@ export default function Chat(props: { channelId: number, guildId?: number, title
           <Show when={grouper().noMoreMessages() && !loading()} keyed={false}>
             <div class="pl-4 pt-8">
               <h1 class="font-title font-bold text-xl">{props.title}</h1>
-              <p class="text-base-content/60 text-sm">{props.startMessage}</p>
+              <p class="text-fg/60 text-sm">{props.startMessage}</p>
             </div>
           </Show>
           <Show when={!loading()} keyed={false} fallback={<MessageLoadingSkeleton />}>
             <For each={grouper().groups}>
               {(group: MessageGroup) => {
                 if (group.isDivider) return (
-                  <div class="divider text-base-content/50 mx-4 h-0 text-sm">{group.content}</div>
+                  <div class="divider text-fg/50 mx-4 h-0 text-sm">{group.content}</div>
                 )
 
                 const firstMessage = group[0]
@@ -539,7 +539,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                 return (
                   <div class="flex flex-col">
                     <div
-                      class="flex flex-col relative pl-[62px] py-px hover:bg-gray-850/60 transition-all duration-200 rounded-r-lg"
+                      class="flex flex-col relative pl-[62px] py-px hover:bg-bg-1/60 transition-all duration-200 rounded-r-lg"
                       onContextMenu={contextMenu.getHandler(<MessageContextMenu message={firstMessage} />)}
                     >
                       <img
@@ -550,7 +550,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                       <div class="inline text-sm">
                         <span class="font-medium">{displayName(author)}</span>
                         <span
-                          class="text-base-content/50 text-xs ml-2"
+                          class="text-fg/50 text-xs ml-2"
                           use:tooltip={timestampTooltip(firstMessage.id)}
                         >
                           {humanizeTimestamp(snowflakes.timestamp(firstMessage.id))}
@@ -561,11 +561,11 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                     <For each={group.slice(1)}>
                       {(message: Message) => (
                         <div
-                          class="relative group flex items-center hover:bg-gray-850/60 py-px transition-all duration-200 rounded-r-lg"
+                          class="relative group flex items-center hover:bg-bg-1/60 py-px transition-all duration-200 rounded-r-lg"
                           onContextMenu={contextMenu.getHandler(<MessageContextMenu message={message} />)}
                         >
                           <span
-                            class="w-[62px] invisible text-center group-hover:visible text-[0.65rem] text-base-content/40"
+                            class="w-[62px] invisible text-center group-hover:visible text-[0.65rem] text-fg/40"
                             use:tooltip={timestampTooltip(message.id)}
                           >
                             {humanizeTime(snowflakes.timestamp(message.id))}
@@ -584,7 +584,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
       <div class="ml-11 mr-2 relative">
         <div
           classList={{
-            "absolute inset-x-4 bottom-2 rounded-lg bg-gray-900 p-2 flex flex-col": true,
+            "absolute inset-x-4 bottom-2 rounded-lg bg-0 p-2 flex flex-col": true,
             "hidden": !autocompleteResult()?.length,
           }}
         >
@@ -595,7 +595,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                   <div
                     classList={{
                       "flex items-center px-1 py-1.5 cursor-pointer transition duration-200 rounded-lg": true,
-                      "bg-gray-800": idx() === autocompleteState()?.selected,
+                      "bg-2": idx() === autocompleteState()?.selected,
                     }}
                     onClick={() => executeAutocomplete(idx())}
                     onMouseOver={() => setAutocompleteSelection(idx())}
@@ -614,16 +614,16 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                   <div
                     classList={{
                       "flex items-center px-1 py-1.5 cursor-pointer transition duration-200 rounded-lg": true,
-                      "bg-gray-800": idx() === autocompleteState()?.selected,
+                      "bg-2": idx() === autocompleteState()?.selected,
                     }}
                     onClick={() => executeAutocomplete(idx())}
                     onMouseOver={() => setAutocompleteSelection(idx())}
                   >
-                    <Icon icon={Hashtag} class="w-5 h-5 fill-base-content/60" />
+                    <Icon icon={Hashtag} class="w-5 h-5 fill-fg/60" />
                     <div class="ml-2 text-sm">
                       <span>{channel.name}</span>
                       <Show when={channel.guild_id != props.guildId} keyed={false}>
-                      <span class="text-base-content/60 text-sm">
+                      <span class="text-fg/60 text-sm">
                         &nbsp;in <b>{api?.cache?.guilds?.get(channel.guild_id)?.name}</b>
                       </span>
                       </Show>
@@ -635,9 +635,9 @@ export default function Chat(props: { channelId: number, guildId?: number, title
           </Switch>
         </div>
       </div>
-      <div class="relative flex items-center bg-gray-800 w-full px-4">
+      <div class="relative flex items-center bg-2 w-full px-4">
         <button
-          class="w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-gray-700 mr-2 transition-all duration-200 hover:bg-accent"
+          class="w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-3 mr-2 transition-all duration-200 hover:bg-accent"
           onClick={() => {
             // Upload attachment
             const input = document.createElement('input')
@@ -668,11 +668,11 @@ export default function Chat(props: { channelId: number, guildId?: number, title
           }}
           use:tooltip="Upload"
         >
-          <Icon icon={Plus} title="Upload" class="fill-base-content w-[18px] h-[18px]" />
+          <Icon icon={Plus} title="Upload" class="fill-fg w-[18px] h-[18px]" />
         </button>
         <div
           classList={{
-            "w-full bg-gray-700 rounded-lg py-2 max-h-[40vh] overflow-y-auto": true,
+            "w-full bg-3 rounded-lg py-2 max-h-[40vh] overflow-y-auto": true,
             "w-[calc(100%-5.75rem)]": mobile,
             "w-[calc(100%-2.75rem)]": !mobile,
           }}
@@ -681,34 +681,34 @@ export default function Chat(props: { channelId: number, guildId?: number, title
             <div class="flex flex-wrap gap-x-2 gap-y-1 px-2">
               <For each={uploadedAttachments()}>
                 {(attachment, idx) => (
-                  <div class="flex flex-col rounded-xl bg-gray-800 w-52 h-40 overflow-hidden box-border relative group">
+                  <div class="flex flex-col rounded-xl bg-2 w-52 h-40 overflow-hidden box-border relative group">
                     <div
-                      class="absolute inset-0 flex items-center justify-center gap-x-2 bg-gray-900/70 opacity-0
+                      class="absolute inset-0 flex items-center justify-center gap-x-2 bg-bg-0/70 opacity-0
                         group-hover:opacity-100 transition-all duration-200 group-hover:backdrop-blur-md overflow-hidden
                         box-border rounded-xl"
                     >
                       <button
-                        class="rounded-full p-4 bg-transparent hover:bg-error transition-all duration-200"
+                        class="rounded-full p-4 bg-transparent hover:bg-danger transition-all duration-200"
                         onClick={() => {
                           setUploadedAttachments(prev => prev.filter((_, i) => i !== idx()))
                           updateSendable()
                         }}
                       >
-                        <Icon icon={Trash} class="w-5 h-5 fill-base-content" />
+                        <Icon icon={Trash} class="w-5 h-5 fill-fg" />
                       </button>
                     </div>
                     <div class="overflow-hidden w-52 h-[6.75rem]">
                       {attachment.preview ? (
                         <img src={attachment.preview} alt={attachment.filename} class="w-60 h-[6.75rem] object-contain" />
                       ) : (
-                        <span class="w-full h-full flex items-center justify-center text-base-content/60 p-2 bg-gray-900 break-words">
+                        <span class="w-full h-full flex items-center justify-center text-fg/60 p-2 bg-0 break-words">
                           {attachment.type || attachment.filename}
                         </span>
                       )}
                     </div>
-                    <div class="break-words flex-grow p-2 bg-gray-850">
+                    <div class="break-words flex-grow p-2 bg-1">
                       <h2 class="text-sm font-title font-medium justify-self-center">{attachment.filename}</h2>
-                      <div class="text-xs text-base-content/60">
+                      <div class="text-xs text-fg/60">
                         {humanizeSize(attachment.file.size)} {attachment.alt && <> - {attachment.alt}</>}
                       </div>
                     </div>
@@ -716,7 +716,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                 )}
               </For>
               <Show when={uploadedAttachments().length > 1} keyed={false}>
-                <div class="self-center justify-self-center text-base-content/60">
+                <div class="self-center justify-self-center text-fg/60">
                   = {humanizeSize(uploadedAttachments().reduce((acc, cur) => acc + cur.file.size, 0))}
                 </div>
               </Show>
@@ -725,7 +725,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
           </Show>
           <div
             ref={messageInputRef!}
-            class="mx-2 empty:before:content-[attr(data-placeholder)] text-sm empty:before:text-base-content/50 outline-none break-words"
+            class="mx-2 empty:before:content-[attr(data-placeholder)] text-sm empty:before:text-fg/50 outline-none break-words"
             contentEditable
             data-placeholder="Send a message..."
             spellcheck={false}
@@ -811,7 +811,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
         <button
           classList={{
             [
-              "w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-gray-700 ml-2 transition-all duration-200"
+              "w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-3 ml-2 transition-all duration-200"
             ]: true,
             "opacity-50 cursor-not-allowed": !sendable(),
             "hover:bg-accent": sendable(),
@@ -825,7 +825,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
             await createMessage()
           }}
         >
-          <Icon icon={PaperPlaneTop} title="Send" class="fill-base-content w-[18px] h-[18px]" />
+          <Icon icon={PaperPlaneTop} title="Send" class="fill-fg w-[18px] h-[18px]" />
         </button>
       </div>
       <div class="mx-4 h-5 text-xs flex-shrink-0">
@@ -835,15 +835,15 @@ export default function Chat(props: { channelId: number, guildId?: number, title
               <>
                 <span class="font-bold">{username}</span>
                 {index() < typing.users.size - 1 && typing.users.size > 2 && (
-                  <span class="text-base-content/50">, </span>
+                  <span class="text-fg/50">, </span>
                 )}
                 {index() === typing.users.size - 2 && (
-                  <span class="text-base-content/50"> and </span>
+                  <span class="text-fg/50"> and </span>
                 )}
               </>
             )}
           </For>
-          <span class="text-base-content/50 font-medium"> {typing.users.size === 1 ? 'is' : 'are'} typing...</span>
+          <span class="text-fg/50 font-medium"> {typing.users.size === 1 ? 'is' : 'are'} typing...</span>
         </Show>
       </div>
     </div>

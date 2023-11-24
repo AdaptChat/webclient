@@ -24,7 +24,7 @@ import RocketLaunch from "../icons/svg/RocketLaunch";
 
 noop(tooltip)
 
-const Separator = () => <hr class="h-[3px] bg-gray-800 border-none rounded-full my-1.5 mx-1" />
+const Separator = () => <hr class="h-[3px] bg-2 border-none rounded-full my-1.5 mx-1" />
 
 function BasicButton({ icon, alt, href }: { icon: IconElement, alt: string, href: string }) {
   let anchor: HTMLAnchorElement | null = null
@@ -37,7 +37,7 @@ function BasicButton({ icon, alt, href }: { icon: IconElement, alt: string, href
       <Icon
         icon={icon}
         title={alt}
-        class="select-none w-5 h-5 fill-base-content opacity-70 group-hover:opacity-100 transition duration-200"
+        class="select-none w-5 h-5 fill-fg opacity-70 group-hover:opacity-100 transition duration-200"
       />
     </A>
   )
@@ -53,7 +53,7 @@ export default function GuildSideSelect() {
   const [modalSubject, setModalSubject] = createSignal<Guild>()
 
   return (
-    <div class="flex flex-col items-center justify-between bg-gray-900 mobile:hidden">
+    <div class="flex flex-col items-center justify-between bg-0 mobile:hidden">
       <div class="h-[calc(100%-1.25rem)] overflow-y-auto hide-scrollbar">
         <div class="flex flex-col p-2 gap-y-2 min-h-full">
           <NewGuildModal />
@@ -110,7 +110,7 @@ export default function GuildSideSelect() {
           </Show>
           <button
             use:tooltip={{ content: "New Server", placement: 'right' }}
-            class="flex group items-center justify-center bg-gray-800 hover:bg-accent rounded-[50%]
+            class="flex group items-center justify-center bg-2 hover:bg-accent rounded-[50%]
               hover:rounded-[25%] transition-all duration-300 w-12 h-12"
             onClick={() => setShowNewGuildModal(true)}
             onContextMenu={contextMenu.getHandler(
@@ -137,7 +137,7 @@ export default function GuildSideSelect() {
           >
             <Icon
               icon={PlusIcon}
-              class="w-5 h-5 fill-accent-300 group-hover:fill-base-content transition duration-200"
+              class="w-5 h-5 fill-accent-light group-hover:fill-fg transition duration-200"
               title="New Server"
             />
           </button>
@@ -145,7 +145,7 @@ export default function GuildSideSelect() {
       </div>
       <div class="flex flex-col items-center justify-center pb-5 pt-2 w-full relative">
         <div
-          class="absolute left-0 right-0 bottom-full w-full flex-grow bg-gradient-to-t from-gray-900 to-transparent h-5
+          class="absolute left-0 right-0 bottom-full w-full flex-grow bg-gradient-to-t from-bg-0 to-transparent h-5
             pointer-events-none"
         />
         <BasicButton icon={Gear} alt="Settings" href="/settings" />

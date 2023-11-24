@@ -34,9 +34,9 @@ export default function SidebarButton(props: ParentProps<Props>) {
       href={typeof props.href == 'string' ? props.href : props.href?.[0]!}
       classList={{
         "w-full group flex items-center gap-x-2 p-2 rounded-lg transition-all duration-200": true,
-        "hover:bg-gray-700": !props.danger,
-        "hover:bg-error": props.danger,
-        "bg-gray-900": active(),
+        "hover:bg-3": !props.danger,
+        "hover:bg-danger": props.danger,
+        "bg-0": active(),
       }}
       onClick={() => {
         if (window.innerWidth < 768) setShowSidebar(false)
@@ -50,8 +50,8 @@ export default function SidebarButton(props: ParentProps<Props>) {
             "w-4 h-4 select-none transition-all duration-200": true,
             "opacity-100": active() || props.danger,
             "opacity-50": !active() && !props.danger,
-            "group-hover:opacity-80 fill-base-content": !props.danger,
-            "fill-error group-hover:fill-base-content": props.danger,
+            "group-hover:opacity-80 fill-fg": !props.danger,
+            "fill-danger group-hover:fill-fg": props.danger,
           }}
         />
       )}
@@ -60,8 +60,8 @@ export default function SidebarButton(props: ParentProps<Props>) {
         "font-medium text-sm transition-all duration-200": true,
         "text-opacity-100": active() || props.danger,
         "text-opacity-60": !active() && !props.danger,
-        "text-base-content group-hover:text-opacity-80": !props.danger,
-        "text-error group-hover:text-base-content": props.danger,
+        "text-fg group-hover:text-opacity-80": !props.danger,
+        "text-danger group-hover:text-fg": props.danger,
       }}>
         {props.children}
       </span>

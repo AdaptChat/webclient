@@ -21,7 +21,7 @@ interface Props {
 function Card({ title, children, ...props }: ParentProps<{ title: string }> & JSX.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
-      class="flex justify-between gap-2 border-2 border-gray-700 rounded-lg p-4 w-full hover:bg-gray-900
+      class="flex justify-between gap-2 border-2 border-bg-3 rounded-lg p-4 w-full hover:bg-0
         transition-colors cursor-pointer items-center mt-4"
       {...props}
     > {/* TODO */}
@@ -29,7 +29,7 @@ function Card({ title, children, ...props }: ParentProps<{ title: string }> & JS
         <h3 class="text-left font-medium font-title text-lg">{title}</h3>
         <p class="text-sm text-left">{children}</p>
       </div>
-      <Icon icon={ChevronRight} title="Click to go" class="fill-base-content select-none w-4 h-4"/>
+      <Icon icon={ChevronRight} title="Click to go" class="fill-fg select-none w-4 h-4"/>
     </button>
   )
 }
@@ -93,20 +93,20 @@ function Base(props: ParentProps<ExtendedProps>) {
           ref={input!}
           name="name"
           type="text"
-          class="w-full bg-gray-900 rounded-lg text-sm font-medium p-3 mt-4 outline-none focus:ring-2 ring-accent"
+          class="w-full bg-0 rounded-lg text-sm font-medium p-3 mt-4 outline-none focus:ring-2 ring-accent"
           placeholder={props.placeholder}
           minLength={props.minLength}
           maxLength={props.maxLength}
           required
         />
         <Show when={error()} keyed={false}>
-          <div class="w-full text-error rounded-lg p-1">
+          <div class="w-full text-danger rounded-lg p-1">
             {error()}
           </div>
         </Show>
         {/* If a button component was used, some browsers will not recognize the button after it. */}
         <div class="flex gap-x-2 btn btn-neutral" onClick={() => props.setPage(ModalPage.New)}>
-          <Icon icon={ChevronLeft} class="fill-base-content/60 select-none w-4 h-4" />
+          <Icon icon={ChevronLeft} class="fill-fg/60 select-none w-4 h-4" />
           Back
         </div>
         <button
@@ -114,7 +114,7 @@ function Base(props: ParentProps<ExtendedProps>) {
           type="submit"
           class="btn btn-primary flex-grow disabled:bg-accent/50 disabled:text-opacity-50"
         >
-          {props.buttonIcon && <Icon icon={props.buttonIcon} class="fill-base-content/80 w-4 h-4 mr-2" />}
+          {props.buttonIcon && <Icon icon={props.buttonIcon} class="fill-fg/80 w-4 h-4 mr-2" />}
           <span>{props.buttonLabel}</span>
         </button>
       </form>
@@ -167,9 +167,9 @@ function NewGuildModal(
             maxLength={50}
             updateOptions={{ updateChannels: true }}
           >
-            <p class="flex flex-col text-base-content/70 text-center text-sm mt-2 mx-2">
+            <p class="flex flex-col text-fg/70 text-center text-sm mt-2 mx-2">
               <span>Before we create your server, let's give it a name.</span>
-              <span class="text-base-content/50">You can always change this later.</span>
+              <span class="text-fg/50">You can always change this later.</span>
             </p>
           </Base>
         </Match>
@@ -196,7 +196,7 @@ function NewGuildModal(
             maxLength={38}
             updateOptions={{ updateChannels: true, updateUsers: true }}
           >
-            <div class="mt-2 mx-2 text-base-content/70">
+            <div class="mt-2 mx-2 text-fg/70">
               <span class="block text-center">Enter an invite code to join an existing server.</span>
               <h2 class="font-bold mt-2 text-sm">Examples of valid invite codes:</h2>
               <ul class="text-sm list-disc pl-4">

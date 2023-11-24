@@ -28,7 +28,7 @@ interface GuildDropdownButtonProps {
 function GuildDropdownButton(props: GuildDropdownButtonProps) {
   const svgClasses = "w-4 h-4 " + (props.svgClass ?? "")
   const labelClasses = "ml-2 " + (props.labelClass ?? "")
-  const groupHoverClass = props.groupHoverColor ? `hover:bg-error` : "hover:bg-accent"
+  const groupHoverClass = props.groupHoverColor ? `hover:bg-danger` : "hover:bg-accent"
 
   return (
     <li class={`w-full group/gdb ${groupHoverClass} transition-all duration-300`}>
@@ -71,8 +71,8 @@ export default function GuildSidebar() {
         <GuildRemoveComponent guild={guild} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
       </Modal>
       <div
-        class="w-[calc(100%-1rem)] mt-2 card box-border overflow-hidden flex border-2 border-gray-700
-          group hover:bg-gray-800 transition-all duration-200 cursor-pointer"
+        class="w-[calc(100%-1rem)] rounded-xl mt-2 box-border overflow-hidden flex flex-col border-2 border-bg-3
+          group hover:bg-2 transition-all duration-200 cursor-pointer"
         onClick={() => setDropdownExpanded(prev => !prev)}
       >
         {guild.banner && (
@@ -84,7 +84,7 @@ export default function GuildSidebar() {
           "flex justify-between items-center px-4 pt-3": true,
           "pb-3": !guild.description,
         }}>
-          <span class="inline-block font-title card-title text-base text-ellipsis w-40 break-words">
+          <span class="inline-block font-title font-bold text-base text-ellipsis w-40 break-words">
             {guild.name}
           </span>
           <label tabIndex={0} classList={{
@@ -95,22 +95,22 @@ export default function GuildSidebar() {
             <Icon
               icon={ChevronDown}
               title="Server Options"
-              class="w-3 fill-base-content/50"
+              class="w-3 fill-fg/50"
             />
           </label>
         </div>
         {guild.description && (
           <div class="card-body px-4 pt-1 pb-3">
-            <p class="text-xs text-base-content/50">{guild.description}</p>
+            <p class="text-xs text-fg/50">{guild.description}</p>
           </div>
         )}
         <Show when={dropdownExpanded()}>
-          <div class="bg-gray-700/50 mx-2 h-0.5 rounded-full flex" />
+          <div class="bg-bg-3/50 mx-2 h-0.5 rounded-full flex" />
           <ul tabIndex={0} class="flex flex-col">
             <GuildDropdownButton
               icon={UserPlus}
               label="Invite People"
-              svgClass="fill-base-content"
+              svgClass="fill-fg"
               onClick={() => setShowInviteModal(true)}
               py="pt-2 pb-1.5"
             />
@@ -118,8 +118,8 @@ export default function GuildSidebar() {
               icon={isOwner() ? Trash : RightFromBracket}
               label={isOwner() ? "Delete Server" : "Leave Server"}
               groupHoverColor="error"
-              svgClass="fill-error group-hover/gdb:fill-base-content"
-              labelClass="text-error group-hover/gdb:text-base-content"
+              svgClass="fill-danger group-hover/gdb:fill-fg"
+              labelClass="text-danger group-hover/gdb:text-fg"
               onClick={() => setConfirmGuildLeaveModal(true)}
               py="pt-1.5 pb-2"
             />

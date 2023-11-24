@@ -24,7 +24,7 @@ export default function Modal({ get, set, children }: ParentProps<{ get: Accesso
       onClick={(event) => event.currentTarget == event.target && set(false)}
     >
       <div classList={{
-        "relative bg-gray-800 p-6 rounded-lg max-w-xl transition-all duration-200 mx-2": true,
+        "relative bg-2 p-6 rounded-lg max-w-xl transition-all duration-200 mx-2": true,
         "scale-50": !get(),
         "scale-100": get(),
       }}>
@@ -32,7 +32,7 @@ export default function Modal({ get, set, children }: ParentProps<{ get: Accesso
           <Icon
             icon={Xmark}
             title="Close Modal"
-            class="w-5 h-5 fill-base-content absolute right-4 top-4 select-none opacity-50 hover:opacity-100 transition-all duration-200"
+            class="w-5 h-5 fill-fg absolute right-4 top-4 select-none opacity-50 hover:opacity-100 transition-all duration-200"
             onClick={() => set(false)}
           />
         </button>

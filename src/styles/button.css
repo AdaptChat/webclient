@@ -1,0 +1,72 @@
+@layer utilities {
+  .btn {
+    @apply font-semibold no-underline duration-200 ease-out inline-flex items-center justify-center p-3.5
+      rounded-lg cursor-pointer select-none whitespace-nowrap text-sm;
+
+    --bg: rgb(var(--c-neutral));
+    --hover: rgb(var(--c-neutral-hover));
+    --fg: rgb(var(--c-neutral-fg));
+
+    background-color: var(--bg);
+    color: var(--fg);
+
+    &:not(:disabled) {
+      &:active:hover,
+      &:active:focus {
+        animation: button-pop 0s ease-out;
+        transform: scale(0.97);
+      }
+
+      &:hover {
+        background-color: var(--hover);
+      }
+    }
+
+    &:focus-visible {
+      @apply outline outline-2 outline-offset-2;
+      outline-color: var(--bg);
+    }
+
+    &:disabled {
+      @apply cursor-not-allowed opacity-60;
+    }
+
+    &.btn-sm {
+      @apply px-3 py-2;
+    }
+
+    &.btn-primary {
+      --bg: rgb(var(--c-primary));
+      --hover: rgb(var(--c-primary-hover));
+      --fg: rgb(var(--c-primary-fg));
+    }
+    &.btn-accent {
+      --bg: rgb(var(--c-accent));
+      --hover: rgb(var(--c-accent-light));
+      --fg: rgb(var(--c-fg));
+    }
+    &.btn-neutral { /* default */ }
+    &.btn-danger {
+      --bg: rgb(var(--c-danger));
+      --hover: rgb(var(--c-danger-hover));
+      --fg: rgb(var(--c-danger-fg));
+    }
+    &.btn-ghost {
+      --bg: transparent;
+      --hover: rgba(var(--c-fg) / 0.1);
+      --fg: rgb(var(--c-fg));
+    }
+  }
+}
+
+@keyframes button-pop {
+  0% {
+    transform: scale(0.98);
+  }
+  40% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

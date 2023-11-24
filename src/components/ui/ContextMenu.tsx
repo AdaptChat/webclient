@@ -33,7 +33,7 @@ function BaseContextMenuButton(props: ContextMenuButtonProps) {
         <span>{props.label}</span>
       </div>
       {props._chevron && (
-        <Icon icon={ChevronRight} class="w-4 h-4 ml-auto fill-base-content/50" />
+        <Icon icon={ChevronRight} class="w-4 h-4 ml-auto fill-fg/50" />
       )}
     </button>
   )
@@ -42,8 +42,8 @@ function BaseContextMenuButton(props: ContextMenuButtonProps) {
 export function ContextMenuButton(props: ContextMenuButtonProps) {
   return (
     <BaseContextMenuButton
-      buttonClass="hover:bg-gray-800"
-      iconClass="fill-base-content"
+      buttonClass="hover:bg-2"
+      iconClass="fill-fg"
       textClass=""
       {...props}
     />
@@ -53,9 +53,9 @@ export function ContextMenuButton(props: ContextMenuButtonProps) {
 export function DangerContextMenuButton(props: ContextMenuButtonProps) {
   return (
     <BaseContextMenuButton
-      buttonClass="hover:bg-error"
-      iconClass="fill-error group-hover:fill-base-content"
-      textClass="text-error group-hover:text-base-content"
+      buttonClass="hover:bg-danger"
+      iconClass="fill-danger group-hover:fill-fg"
+      textClass="text-danger group-hover:text-fg"
       {...props}
     />
   )
@@ -63,7 +63,7 @@ export function DangerContextMenuButton(props: ContextMenuButtonProps) {
 
 export default function ContextMenu({ children }: ParentProps) {
   return (
-    <div class="flex flex-col p-2 min-w-[200px] bg-gray-900 rounded-lg">
+    <div class="flex flex-col p-2 min-w-[200px] bg-0 rounded-lg">
       {children}
     </div>
   )

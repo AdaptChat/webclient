@@ -102,7 +102,7 @@ const App: Component = () => {
 
   return (
     <main
-      class="relative font-sans m-0 w-[100vw] h-[100vh] bg-gray-800 text-base-content"
+      class="relative font-sans m-0 w-[100vw] h-[100vh] bg-2 text-fg"
       onClick={(event) => contextMenu.setMenu(prev => {
         if (prev != null && contextMenuRef != null) {
           if (contextMenuRef.contains(event.target)) return prev
@@ -134,6 +134,7 @@ const App: Component = () => {
         <Show when={ws()} fallback={<Loading />}>
           <Routes>
             <Route path="/" component={Home} />
+            <Route path="/loading" component={Loading} />
             <Route path="/select" component={GuildSelect} />
             <Route path="/friends/*" component={Friends} />
             <Route path="/dms/:channelId" component={DmChannel} />

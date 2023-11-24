@@ -114,7 +114,7 @@ export default function Register() {
             "text-xs text-right pr-1 pt-1 h-4": true,
             "text-green-500": usernameHint()![1] === UsernameCheckState.success,
             "text-red-500": usernameHint()![1] === UsernameCheckState.error,
-            "text-gray-500": usernameHint()![1] === UsernameCheckState.loading,
+            "text-fg/50": usernameHint()![1] === UsernameCheckState.loading,
           }}>
             {usernameHint()![0]}
           </p>

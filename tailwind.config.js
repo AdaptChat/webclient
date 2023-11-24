@@ -2,36 +2,50 @@ const defaultTheme = require('tailwindcss/defaultTheme')
 const colors = require('tailwindcss/colors')
 const plugin = require("tailwindcss/plugin")
 
+const variable = (color) => `rgb(var(--c-${color}) / <alpha-value>)`
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./src/**/*.{html,js,jsx,ts,tsx}'],
   theme: {
     extend: {
       colors: {
+        bg: {
+          0: variable('bg-0'),
+          1: variable('bg-1'),
+          2: variable('bg-2'),
+          3: variable('bg-3'),
+        },
+        fg: variable('fg'),
         accent: {
-          DEFAULT: '#0586ff',
-          50: '#bddfff',
-          100: '#a8d5ff',
-          200: '#7fc1ff',
-          300: '#57adff',
-          400: '#2e9aff',
-          500: '#0586ff',
-          600: '#0069cc',
-          700: '#004c94',
-          800: '#002f5c',
-          900: '#001224',
+          DEFAULT: variable('accent'),
+          light: variable('accent-light'),
         },
-        secondary: '#be3dff',
+        primary: {
+          DEFAULT: variable('primary'),
+          hover: variable('primary-hover'),
+          content: variable('primary-fg'),
+        },
+        secondary: variable('secondary'),
+        success: {
+          DEFAULT: variable('success'),
+          hover: variable('success-hover'),
+          content: variable('success-fg'),
+        },
+        danger: {
+          DEFAULT: variable('danger'),
+          hover: variable('danger-hover'),
+          content: variable('danger-fg'),
+        },
+        neutral: {
+          DEFAULT: variable('neutral'),
+          hover: variable('neutral-hover'),
+          content: variable('neutral-fg'),
+        },
         link: {
-          DEFAULT: '#4bd5ff',
-          hover: '#9be7ff',
-          visited: '#4bd5ff',
-        },
-        base: {
-          content: '#ffffff',
-        },
-        gray: {
-          850: '#19222d',
+          DEFAULT: variable('link'),
+          hover: variable('link-hover'),
+          visited: variable('link-visited'),
         },
         highlight: {
           DEFAULT: colors.yellow[400],
@@ -53,7 +67,6 @@ module.exports = {
     },
   },
   plugins: [
-    require('daisyui'),
     plugin(({ addComponents, addVariant }) => {
       addComponents({
         '.hide-scrollbar': {
@@ -68,21 +81,4 @@ module.exports = {
       addVariant('all-children', '& *')
     })
   ],
-  daisyui: {
-    themes: [{
-      default: {
-        primary: '#0078e1',
-        secondary: '#be3dff',
-        accent: '#0586ff',
-        neutral: '#3a3a41',
-        error: '#ee3434',
-        base: {
-          content: '#ffffff',
-        },
-        '.btn': {
-          'text-transform': 'initial',
-        },
-      },
-    }],
-  }
 }

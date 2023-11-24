@@ -11,7 +11,7 @@ export function FormInput({ id, label, ...props }: { label: string } & Component
       <input
         id={id}
         placeholder={label}
-        class="relative block w-full appearance-none px-3 py-2 placeholder-white placeholder-opacity-50 bg-gray-900/70
+        class="relative block w-full appearance-none px-3 py-2 placeholder-white placeholder-opacity-50 bg-bg-0/70
           focus:placeholder-accent focus:placeholder-opacity-100 focus:z-10 focus:outline-none sm:text-sm"
         {...props}
       />
@@ -55,13 +55,13 @@ export default function Layout(props: ParentProps<Props>) {
       ref={backgroundRef!}
       class="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-cover"
     >
-      <div class="bg-gray-800/60 px-10 py-8 backdrop-blur rounded-lg w-full max-w-md space-y-8 z-10">
+      <div class="bg-bg-2/60 px-10 py-8 backdrop-blur rounded-lg w-full max-w-md space-y-8 z-10">
         <div class="text-center">
           <a href="https://adapt.chat" class="select-none">
             <img class="mx-auto h-10 w-auto" src="/banner-white-fg.svg" alt="Adapt" />
           </a>
           <h2 class="mt-5 text-3xl font-bold font-title">{props.title}</h2>
-          <p class="mt-2 text-sm text-base-content text-opacity-50">
+          <p class="mt-2 text-sm text-fg text-opacity-50">
             {props.switchScreenCondition}{' '}
             <A
               href={props.switchScreenHref}

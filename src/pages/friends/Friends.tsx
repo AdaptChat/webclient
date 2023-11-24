@@ -19,8 +19,9 @@ export function NavEntry({ href, label }: NavEntryProps) {
     <A
       href={href}
       classList={{
-        "text-sm py-1 px-2 rounded-lg": true,
+        "text-sm py-1 px-2 rounded-lg transition": true,
         "bg-accent": useLocation().pathname == href,
+        "hover:bg-3": useLocation().pathname != href,
       }}
     >
       {label}

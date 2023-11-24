@@ -3,6 +3,8 @@ import {createSignal, Show} from "solid-js";
 import {useNavigate} from "@solidjs/router";
 import {getApi} from "../../api/Api";
 import type {Props} from "./ConfirmGuildLeaveModal"
+import Trash from "../icons/svg/Trash";
+import Icon from "../icons/Icon";
 
 export default function ConfirmGuildDeleteModal({ guild, setConfirmGuildLeaveModal }: Props) {
   const [confirmGuildLeaveModalError, setConfirmGuildLeaveModalError] = createSignal<string>()
@@ -17,7 +19,7 @@ export default function ConfirmGuildDeleteModal({ guild, setConfirmGuildLeaveMod
 
   return (
     <ModalTemplate title="Delete Server">
-      <p class="text-base-content/70 text-center text-sm mt-4">
+      <p class="text-fg/70 text-center text-sm mt-4">
         Are you sure you want to delete <b>{guild.name}</b>? You will not be able to undo this action.
         All data associated with this server will be deleted and you will not be able to recover them in the future.
       </p>
@@ -51,13 +53,13 @@ export default function ConfirmGuildDeleteModal({ guild, setConfirmGuildLeaveMod
       >
         <div class="w-full">
           <label
-            class="flex flex-col mt-4 pl-1 text-sm font-medium text-base-content/60 "
+            class="flex flex-col mt-4 pl-1 text-sm font-medium text-fg/60 "
             for="guild-name"
           >
             Type the name of the server to confirm
           </label>
           <input
-            class="input outline-none w-full bg-gray-900 mt-2 focus:outline-none focus:ring-2 focus:ring-accent"
+            class="input outline-none w-full bg-0 mt-2 focus:outline-none focus:ring-2 focus:ring-accent"
             ref={guildNameInput!}
             id="guild-name"
             name="guild-name"
@@ -72,13 +74,13 @@ export default function ConfirmGuildDeleteModal({ guild, setConfirmGuildLeaveMod
         </div>
         <div class="w-full">
           <label
-            class="flex flex-col mt-4 pl-1 text-sm font-medium text-base-content/60 w-full"
+            class="flex flex-col mt-4 pl-1 text-sm font-medium text-fg/60 w-full"
             for="password"
           >
             Enter your password
           </label>
           <input
-            class="input outline-none w-full bg-gray-900 mt-2 focus:outline-none focus:ring-2 focus:ring-accent"
+            class="input outline-none w-full bg-0 mt-2 focus:outline-none focus:ring-2 focus:ring-accent"
             ref={passwordInput!}
             id="password"
             name="password"
@@ -92,18 +94,19 @@ export default function ConfirmGuildDeleteModal({ guild, setConfirmGuildLeaveMod
           />
         </div>
         <Show when={confirmGuildLeaveModalError()} keyed={false}>
-          <p class="text-error mt-4 w-full">{confirmGuildLeaveModalError()}</p>
+          <p class="text-danger mt-4 w-full">{confirmGuildLeaveModalError()}</p>
         </Show>
         {/* Use a div to prevent it being treated as the target when pressing enter */}
-        <div class="btn border-none bg-none mt-4" onClick={() => setConfirmGuildLeaveModal(false)}>
+        <div class="btn border-none btn-ghost mt-4" onClick={() => setConfirmGuildLeaveModal(false)}>
           Cancel
         </div>
         <button
           ref={submitButton!}
           type="submit"
-          class="btn btn-error bg-error/80 border-none hover:bg-error/60 mt-4 ml-4"
+          class="btn btn-danger border-none mt-4 ml-4"
           disabled={!guildNameIsCorrect()}
         >
+          <Icon icon={Trash} class="fill-fg w-4 h-4 mr-2" />
           Delete Server
         </button>
       </form>
