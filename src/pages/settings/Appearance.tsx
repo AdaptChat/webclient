@@ -30,7 +30,7 @@ function PaletteColor<Key extends keyof Theme>({ key, label }: { key: Key | [Key
       } else {
         const [key1, key2] = key
         // @ts-ignore
-        theme[key1][key2] = color
+        theme[key1] = { ...theme[key1], [key2]: color }
       }
       return theme
     })
