@@ -33,12 +33,44 @@ export namespace snowflakes {
   /**
    * Generates a snowflake from a Unix timestamp or Date in milliseconds.
    */
-  export function fromTimestamp(timestamp?: number | Date): Snowflake {
+  export function fromTimestamp(timestamp?: number | Date): bigint {
     timestamp ??= Date.now()
     if (timestamp instanceof Date)
       timestamp = timestamp.getTime()
 
     return BigInt(timestamp - EPOCH_MILLIS) << 18n
+  }
+
+  /**
+   * The model type stored in a snowflake.
+   */
+  export enum ModelType {
+    // The model is a guild.
+    Guild = 0,
+    // The model is a user account.
+    User = 1,
+    // The model is a channel.
+    Channel = 2,
+    // The model is a message.
+    Message = 3,
+    // The model is a message attachment.
+    Attachment = 4,
+    // The model is a role.
+    Role = 5,
+    // The model is used internally, e.g. a nonce.
+    Internal = 6,
+    // Unknown model.
+    Unknown = 31,
+  }
+
+  /**
+   * Returns the snowflake replaced with the given model type.
+   */
+  export function withModelType(snowflake: Snowflake, modelType: ModelType): bigint {
+    if (typeof snowflake !== "bigint")
+      snowflake = BigInt(snowflake)
+
+    return (snowflake & ~(0b11111n << 13n)) | (BigInt(modelType) << 13n)
   }
 }
 
@@ -50,8 +82,8 @@ export namespace snowflakes {
  * handled separately.
  */
 export function calculatePermissions(userId: number, roles: Role[], overwrites?: PermissionOverwrite[]): Permissions {
-  let perms = roles.reduce((acc, role) => acc | role.permissions.allow, 0n)
-    & ~roles.reduce((acc, role) => acc | role.permissions.deny, 0n)
+  let perms = roles.reduce((acc, role) => acc | BigInt(role.permissions.allow), 0n)
+    & ~roles.reduce((acc, role) => acc | BigInt(role.permissions.deny), 0n)
 
   if (Permissions.fromValue(perms).has('ADMINISTRATOR'))
     return Permissions.of('ADMINISTRATOR')
@@ -64,14 +96,14 @@ export function calculatePermissions(userId: number, roles: Role[], overwrites?:
       .sort((a, b) => a[1] - b[1])
 
     for (const [{ allow, deny }] of roleOverwrites) {
-      perms |= allow
-      perms &= ~deny
+      perms |= BigInt(allow)
+      perms &= ~BigInt(deny)
     }
 
     const memberOverwrite = overwrites.find((overwrite) => overwrite.id === userId)
     if (memberOverwrite != null) {
-      perms |= memberOverwrite.allow
-      perms &= ~memberOverwrite.deny
+      perms |= BigInt(memberOverwrite.allow)
+      perms &= ~BigInt(memberOverwrite.deny)
     }
   }
 

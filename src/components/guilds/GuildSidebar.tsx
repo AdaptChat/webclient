@@ -6,7 +6,7 @@ import {GuildChannel} from "../../types/channel";
 import GuildInviteModal from "./GuildInviteModal";
 import Modal from "../ui/Modal";
 import ConfirmGuildLeaveModal, {type Props} from "./ConfirmGuildLeaveModal";
-import ConfirmGuildDeleteModal from "./ConfirmGuildDelete";
+import ConfirmGuildDeleteModal from "./ConfirmGuildDeleteModal";
 import Icon, {IconElement} from "../icons/Icon";
 import ChevronDown from "../icons/svg/ChevronDown";
 import UserPlus from "../icons/svg/UserPlus";
@@ -14,6 +14,10 @@ import Trash from "../icons/svg/Trash";
 import RightFromBracket from "../icons/svg/RightFromBracket";
 import HomeIcon from "../icons/svg/Home";
 import Hashtag from "../icons/svg/Hashtag";
+import useContextMenu from "../../hooks/useContextMenu";
+import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../ui/ContextMenu";
+import Clipboard from "../icons/svg/Clipboard";
+import ConfirmChannelDeleteModal from "../channels/ConfirmChannelDeleteModal";
 
 interface GuildDropdownButtonProps {
   icon: IconElement,
@@ -41,19 +45,25 @@ function GuildDropdownButton(props: GuildDropdownButtonProps) {
 }
 
 export default function GuildSidebar() {
-  const { guildId } = useParams()
+  const { guildId: guildIdString } = useParams()
+  const guildId = parseInt(guildIdString)
+
   const channelId = createMemo(() => {
     const { channelId } = useParams()
     return parseInt(channelId)
   })
+  const contextMenu = useContextMenu()!
 
   const api = getApi()!
-  const guild = api.cache!.guilds.get(parseInt(guildId))
+  const guild = api.cache!.guilds.get(guildId)
   if (!guild) return
 
   const [dropdownExpanded, setDropdownExpanded] = createSignal(false)
   const [showInviteModal, setShowInviteModal] = createSignal(false)
   const [confirmGuildLeaveModal, setConfirmGuildLeaveModal] = createSignal(false)
+
+  const [channelToDelete, setChannelToDelete] = createSignal<GuildChannel | null>(null)
+  const [confirmChannelDeleteModal, setConfirmChannelDeleteModal] = createSignal(false)
 
   const isOwner = createMemo(() => guild.owner_id === api.cache?.clientUser?.id)
   const GuildRemoveComponent = (props: Props) => {
@@ -69,6 +79,11 @@ export default function GuildSidebar() {
       </Modal>
       <Modal get={confirmGuildLeaveModal} set={setConfirmGuildLeaveModal}>
         <GuildRemoveComponent guild={guild} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
+      </Modal>
+      <Modal get={confirmChannelDeleteModal} set={setConfirmChannelDeleteModal}>
+        <Show when={channelToDelete()}>
+          <ConfirmChannelDeleteModal channel={channelToDelete()!} setConfirmChannelDeleteModal={setConfirmChannelDeleteModal} />
+        </Show>
       </Modal>
       <div
         class="w-[calc(100%-1rem)] rounded-xl mt-2 box-border overflow-hidden flex flex-col border-2 border-bg-3
@@ -128,9 +143,36 @@ export default function GuildSidebar() {
       </div>
       <div class="flex flex-col w-full p-2">
         <SidebarButton href={`/guilds/${guildId}`} svg={HomeIcon} active={!channelId()}>Home</SidebarButton>
-        <For each={guild.channels}>
+        <For each={
+          api.cache!.guildChannelReactor
+            .get(guildId)
+            ?.map(id => api.cache!.channels.get(id) as GuildChannel)
+            .filter(c => c)
+        }>
           {(channel: GuildChannel) => (
-            <SidebarButton href={`/guilds/${guildId}/${channel.id}`} svg={Hashtag}>
+            <SidebarButton
+              href={`/guilds/${guildId}/${channel.id}`}
+              svg={Hashtag}
+              onContextMenu={contextMenu.getHandler(
+                <ContextMenu>
+                  <ContextMenuButton
+                    icon={Clipboard}
+                    label="Copy Channel ID"
+                    onClick={() => window.navigator.clipboard.writeText(channel.id.toString())}
+                  />
+                  <Show when={api.cache!.getClientPermissions(guildId, channel.id).has('MANAGE_CHANNELS')}>
+                    <DangerContextMenuButton
+                      icon={Trash}
+                      label="Delete Channel"
+                      onClick={() => {
+                        setChannelToDelete(channel)
+                        setConfirmChannelDeleteModal(true)
+                      }}
+                    />
+                  </Show>
+                </ContextMenu>
+              )}
+            >
               {channel.name}
             </SidebarButton>
           )}

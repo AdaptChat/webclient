@@ -57,14 +57,16 @@ export default function GuildSideSelect() {
       <div class="h-[calc(100%-1.25rem)] overflow-y-auto hide-scrollbar">
         <div class="flex flex-col p-2 gap-y-2 min-h-full">
           <NewGuildModal />
-          <Show when={modalSubject()}>
-            <Modal get={showInviteModal} set={setShowInviteModal}>
+          <Modal get={showInviteModal} set={setShowInviteModal}>
+            <Show when={modalSubject()}>
               <GuildInviteModal guild={modalSubject()!} show={showInviteModal} />
-            </Modal>
-            <Modal get={confirmGuildLeaveModal} set={setConfirmGuildLeaveModal}>
+            </Show>
+          </Modal>
+          <Modal get={confirmGuildLeaveModal} set={setConfirmGuildLeaveModal}>
+            <Show when={modalSubject()}>
               <ConfirmGuildLeaveModal guild={modalSubject()!} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
-            </Modal>
-          </Show>
+            </Show>
+          </Modal>
           <div class="flex flex-col px-3 pt-3 items-center">
             <BasicButton icon={HomeIcon} alt="Home" href="/" />
           </div>

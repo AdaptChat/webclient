@@ -1,8 +1,8 @@
 import Api from "./Api";
-import ApiCache from "./ApiCache";
+import ApiCache, {memberKey} from "./ApiCache";
 import Backoff from "./Backoff";
 import {
-  ChannelCreateEvent,
+  ChannelCreateEvent, ChannelDeleteEvent,
   GuildCreateEvent,
   GuildRemoveEvent,
   MemberJoinEvent,
@@ -49,13 +49,30 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
     ws.api.cache?.updateUser(data.after)
   },
   guild_create(ws: WsClient, data: GuildCreateEvent) {
-    ws.api.cache?.updateGuild(data.guild, { updateUsers: true, updateChannels: true })
+    ws.api.cache?.updateGuild(data.guild)
   },
   guild_remove(ws: WsClient, data: GuildRemoveEvent) {
     ws.api.cache?.removeGuild(data.guild_id)
   },
   channel_create(ws: WsClient, data: ChannelCreateEvent) {
     ws.api.cache?.updateChannel(data.channel)
+    if ('guild_id' in data.channel) {
+      const guildId = data.channel.guild_id
+      ws.api.cache?.guildChannelReactor.set(
+        guildId,
+        ws.api.cache?.guildChannelReactor.get(guildId)?.concat(data.channel.id) ?? [data.channel.id]
+      )
+    }
+  },
+  channel_delete(ws: WsClient, data: ChannelDeleteEvent) {
+    ws.api.cache?.channels.delete(data.channel_id)
+    if (data.guild_id) {
+      const guildId = data.guild_id
+      ws.api.cache?.guildChannelReactor.set(
+        guildId,
+        ws.api.cache?.guildChannelReactor.get(guildId)?.filter(id => id != data.channel_id) ?? []
+      )
+    }
   },
   message_create(ws: WsClient, data: MessageCreateEvent) {
     let grouper = ws.api.cache?.messages?.get(data.message.channel_id)
@@ -74,10 +91,12 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
     ws.api.cache?.messages?.get(data.channel_id)?.removeMessage(data.message_id)
   },
   member_join(ws: WsClient, data: MemberJoinEvent) {
+    ws.api.cache?.updateMember(data.member)
     ws.api.cache?.updateUser(data.member as User)
     ws.api.cache?.trackMember(data.member.guild_id, data.member.id)
   },
   member_remove(ws: WsClient, data: MemberRemoveEvent) {
+    ws.api.cache?.members.delete(memberKey(data.guild_id, data.user_id))
     ws.api.cache?.untrackMember(data.guild_id, data.user_id)
   },
   relationship_create(ws: WsClient, data: RelationshipCreateEvent) {
@@ -205,6 +224,12 @@ export default class WsClient {
   }
 
   updatePresence(presence: UpdatePresencePayload) {
+    // For responsiveness, synthesise the presence update locally
+    // TODO: remove this when harmony's presence fanout is made faster
+    this.api.cache?.updatePresence({
+      ...this.api.cache?.presences.get(this.api.cache?.clientId!)!,
+      ...presence,
+    })
     this.connection?.send(msgpack.encode({
       op: 'update_presence',
       ...presence,

@@ -10,6 +10,7 @@ const WrappedButtonComponent = (props: ParentProps<JSX.ButtonHTMLAttributes<HTML
 export interface Props {
   href?: string | string[],
   onClick?: () => void,
+  onContextMenu?: (event: MouseEvent) => any,
   svg?: IconElement,
   iconUrl?: string,
   active?: boolean,
@@ -42,6 +43,7 @@ export default function SidebarButton(props: ParentProps<Props>) {
         if (window.innerWidth < 768) setShowSidebar(false)
         props.onClick?.()
       }}
+      onContextMenu={props.onContextMenu}
     >
       {props.svg && (
         <Icon

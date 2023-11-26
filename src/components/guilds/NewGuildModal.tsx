@@ -3,7 +3,6 @@ import {createSignal, type JSX, Match, type ParentProps, Setter, Show, Signal, S
 import {getApi} from "../../api/Api";
 import type {Guild, Member} from "../../types/guild";
 import {useNavigate} from "@solidjs/router";
-import {type UpdateGuildOptions} from "../../api/ApiCache";
 import {snowflakes} from "../../utils";
 import {GuildCreateEvent} from "../../types/ws";
 import Icon, {IconElement} from "../icons/Icon";
@@ -42,7 +41,6 @@ interface ExtendedProps extends Props {
   buttonLabel: string,
   minLength: number,
   maxLength: number,
-  updateOptions: UpdateGuildOptions,
 }
 
 function Base(props: ParentProps<ExtendedProps>) {
@@ -165,7 +163,6 @@ function NewGuildModal(
             buttonLabel="Create Server"
             minLength={2}
             maxLength={50}
-            updateOptions={{ updateChannels: true }}
           >
             <p class="flex flex-col text-fg/70 text-center text-sm mt-2 mx-2">
               <span>Before we create your server, let's give it a name.</span>
@@ -194,7 +191,6 @@ function NewGuildModal(
             buttonLabel="Join Server"
             minLength={6}
             maxLength={38}
-            updateOptions={{ updateChannels: true, updateUsers: true }}
           >
             <div class="mt-2 mx-2 text-fg/70">
               <span class="block text-center">Enter an invite code to join an existing server.</span>

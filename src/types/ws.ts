@@ -29,6 +29,8 @@ export type WsEvent = WsEventMapping<'hello'>
   | WsEventMapping<'user_update', UserUpdateEvent>
   | WsEventMapping<'message_create', MessageCreateEvent>
   | WsEventMapping<'message_delete', MessageDeleteEvent>
+  | WsEventMapping<'channel_create', ChannelCreateEvent>
+  | WsEventMapping<'channel_delete', ChannelDeleteEvent>
   | WsEventMapping<'guild_create', GuildCreateEvent>
   | WsEventMapping<'guild_remove', GuildRemoveEvent>
   | WsEventMapping<'member_join', MemberJoinEvent>
@@ -119,6 +121,24 @@ export interface ChannelCreateEvent {
    * The channel that was created.
    */
   channel: Channel;
+  /**
+   * The nonce of the channel, if any.
+   */
+  nonce?: string;
+}
+
+/**
+ * Sent by harmony when a channel is removed.
+ */
+export interface ChannelDeleteEvent {
+  /**
+   * The ID of the channel that was removed.
+   */
+  channel_id: number;
+  /**
+   * The ID of the guild that the channel was removed from, if any.
+   */
+  guild_id: number | null;
 }
 
 /**

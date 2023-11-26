@@ -154,14 +154,14 @@ function StatusSelect(props: StatusIndicatorProps & { label: string }) {
   )
 }
 
-function StatusSelectDropdown({ status }: { status: 'online' | 'idle' | 'dnd' | 'offline' }) {
+function StatusSelectDropdown(props: { status: 'online' | 'idle' | 'dnd' | 'offline' }) {
   const [show, setShow] = createSignal(false)
 
   return (
     <>
       <label tabIndex="0" class="btn btn-sm text-[1rem]" onClick={() => setShow(prev => !prev)}>
-        <StatusIndicator status={status} />
-        <span class="ml-2">{humanizeStatus(status)}</span>
+        <StatusIndicator status={props.status} />
+        <span class="ml-2">{humanizeStatus(props.status)}</span>
       </label>
       <ul
         tabIndex="0"

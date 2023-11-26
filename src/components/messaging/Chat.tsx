@@ -237,7 +237,7 @@ function setSelectionRange(element: HTMLDivElement, selectionStart: number, sele
   selection?.addRange(range)
 }
 
-function MessageContextMenu({ message }: { message: Message }) {
+function MessageContextMenu({ message, guildId }: { message: Message, guildId?: number }) {
   const api = getApi()!
 
   return (
@@ -261,7 +261,12 @@ function MessageContextMenu({ message }: { message: Message }) {
         label="Copy Message ID"
         onClick={() => navigator.clipboard.writeText(message.id.toString())}
       />
-      <Show when={message.author_id == api.cache!.clientId}>
+      <Show when={
+        message.author_id == api.cache!.clientId
+        || (
+          guildId && api.cache!.getClientPermissions(guildId, message.channel_id).has('MANAGE_MESSAGES')
+        )
+      }>
         <DangerContextMenuButton
           icon={Trash}
           label="Delete Message"
@@ -540,7 +545,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                   <div class="flex flex-col">
                     <div
                       class="flex flex-col relative pl-[62px] py-px hover:bg-bg-1/60 transition-all duration-200 rounded-r-lg"
-                      onContextMenu={contextMenu.getHandler(<MessageContextMenu message={firstMessage} />)}
+                      onContextMenu={contextMenu.getHandler(<MessageContextMenu message={firstMessage} guildId={props.guildId} />)}
                     >
                       <img
                         class="absolute left-3.5 w-9 h-9 mt-0.5 rounded-full"
@@ -562,7 +567,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                       {(message: Message) => (
                         <div
                           class="relative group flex items-center hover:bg-bg-1/60 py-px transition-all duration-200 rounded-r-lg"
-                          onContextMenu={contextMenu.getHandler(<MessageContextMenu message={message} />)}
+                          onContextMenu={contextMenu.getHandler(<MessageContextMenu message={message} guildId={props.guildId} />)}
                         >
                           <span
                             class="w-[62px] invisible text-center group-hover:visible text-[0.65rem] text-fg/40"

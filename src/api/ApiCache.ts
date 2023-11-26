@@ -1,21 +1,15 @@
 import type {ClientUser, Relationship, RelationshipType, User} from "../types/user";
-import type {Guild} from "../types/guild";
+import type {Guild, Member, Role} from "../types/guild";
 import type {ReadyEvent} from "../types/ws";
-import type {Channel} from "../types/channel";
+import type {Channel, GuildChannel} from "../types/channel";
 import type {Presence} from "../types/presence";
 import type Api from "./Api";
 import MessageGrouper from "./MessageGrouper";
 import {createSignal, Signal} from "solid-js";
 import {ReactiveMap} from "@solid-primitives/map";
 import {TypingManager} from "./TypingManager";
-
-/**
- * Options when updating guild cache.
- */
-export interface UpdateGuildOptions {
-  updateUsers?: boolean
-  updateChannels?: boolean
-}
+import {Permissions} from "./Bitflags";
+import {calculatePermissions, snowflakes} from "../utils";
 
 function sortedIndex<T extends number>(array: T[], value: T) {
   let low = 0, high = array.length
@@ -29,6 +23,18 @@ function sortedIndex<T extends number>(array: T[], value: T) {
 }
 
 /**
+ * Generates a unique hash key for the guild ID and user ID pair using the Cantor pairing function.
+ *
+ * @param guildId The guild ID.
+ * @param userId The user ID.
+ * @returns The unique hash key.
+ */
+export function memberKey(guildId: number, userId: number): bigint {
+  const a = BigInt(guildId), b = BigInt(userId)
+  return (a + b) * (a + b + 1n) / 2n + a
+}
+
+/**
  * Caches data returned from the API.
  */
 export default class ApiCache {
@@ -36,8 +42,11 @@ export default class ApiCache {
   users: Map<number, User>
   guilds: Map<number, Guild>
   guildListReactor: Signal<number[]> // TODO this should sort by order
+  members: ReactiveMap<bigint, Member>
   memberReactor: ReactiveMap<number, number[]>
-  channels: Map<number, Channel>
+  roles: ReactiveMap<number, Role>
+  channels: ReactiveMap<number, Channel>
+  guildChannelReactor: ReactiveMap<number, number[]>
   dmChannelOrder: Signal<number[]> // TODO this should be stored on the server
   messages: Map<number, MessageGrouper>
   inviteCodes: Map<number, string>
@@ -50,8 +59,11 @@ export default class ApiCache {
     this.users = new Map()
     this.guilds = new Map()
     this.guildListReactor = createSignal([])
+    this.members = new ReactiveMap()
     this.memberReactor = new ReactiveMap()
-    this.channels = new Map()
+    this.roles = new ReactiveMap()
+    this.channels = new ReactiveMap()
+    this.guildChannelReactor = new ReactiveMap()
     this.dmChannelOrder = createSignal([])
     this.messages = new Map()
     this.inviteCodes = new Map()
@@ -68,7 +80,7 @@ export default class ApiCache {
       cache.updateRelationship(relationship)
 
     for (const guild of ready.guilds)
-      cache.updateGuild(guild, { updateUsers: true, updateChannels: true })
+      cache.updateGuild(guild)
 
     for (const presence of ready.presences)
       cache.updatePresence(presence)
@@ -92,20 +104,33 @@ export default class ApiCache {
     this.clientUserReactor?.[1](prev => ({ ...prev, ...user }))
   }
 
-  updateGuild(guild: Guild, options: UpdateGuildOptions = {}) {
+  updateGuild(guild: Guild) {
     this.guilds.set(guild.id, guild)
 
-    if (guild.members)
-      this.memberReactor.set(guild.id, guild.members.map(member => member.id).sort((a, b) => a - b))
+    if (guild.members) {
+      this.memberReactor.set(
+        guild.id,
+        guild.members.map(member => member.id).sort((a, b) => a - b),
+      )
+      for (const member of guild.members)
+        this.updateMember(member)
+    }
 
-    if (options.updateUsers && guild.members)
+    if (guild.members)
       for (const member of guild.members)
         if ('username' in member)
           this.updateUser(member as User)
 
-    if (options.updateChannels && guild.channels)
+    if (guild.channels) {
       for (const channel of guild.channels)
         this.updateChannel(channel)
+
+      this.guildChannelReactor.set(guild.id, guild.channels.map(channel => channel.id))
+    }
+
+    if (guild.roles)
+      for (const role of guild.roles)
+        this.updateRole(role)
 
     this.guildListReactor[1](prev => {
       // TODO: sort by true order, this is just creation date
@@ -122,11 +147,28 @@ export default class ApiCache {
   }
 
   updateUser(user: User) {
-    this.users.set(user.id, user)
+    if ('username' in user) // Ensure this is not a partial user
+      this.users.set(user.id, user)
   }
 
   updatePresence(presence: Presence) {
     this.presences.set(presence.user_id, presence)
+  }
+
+  updateMember(member: Member) {
+    const key = memberKey(member.guild_id, member.id)
+    const base = this.members.get(key) ?? member
+    // This is different from just `Object.assign(base, member)` because we don't want to
+    // overwrite with nullish values.
+    if (member.nick) base.nick = member.nick
+    if (member.roles) base.roles = member.roles
+    if (member.joined_at) base.joined_at = member.joined_at
+
+    this.members.set(key, base)
+  }
+
+  updateRole(role: Role) {
+    this.roles.set(role.id, role)
   }
 
   updateChannel(channel: Channel) {
@@ -184,6 +226,32 @@ export default class ApiCache {
       this.typing.set(channelId, manager = new TypingManager(this.api))
 
     return manager
+  }
+
+  getMemberRoles(guildId: number, userId: number): Role[] {
+    const member = this.members.get(memberKey(guildId, userId))
+    if (!member) return []
+
+    const roles = (member.roles ?? []).map(id => this.roles.get(id)).filter(role => role != null) as Role[]
+
+    const defaultRoleId = Number(snowflakes.withModelType(guildId, snowflakes.ModelType.Role))
+    if (!roles.find(role => role.id === defaultRoleId)) roles.push(this.roles.get(defaultRoleId)!)
+    return roles
+  }
+
+  getMemberPermissions(guildId: number, userId: number, channelId?: number): Permissions {
+    if (this.guilds.get(guildId)?.owner_id === userId) return Permissions.all()
+
+    const member = this.members.get(memberKey(guildId, userId))
+    if (!member) return Permissions.empty()
+
+    const roles = this.getMemberRoles(guildId, userId)
+    const overwrites = channelId && (this.channels.get(channelId) as GuildChannel).permission_overwrites || undefined
+    return calculatePermissions(userId, roles, overwrites)
+  }
+
+  getClientPermissions(guildId: number, channelId?: number): Permissions {
+    return this.getMemberPermissions(guildId, this.clientId!, channelId)
   }
 }
 
