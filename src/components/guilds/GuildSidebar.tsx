@@ -16,8 +16,8 @@ import HomeIcon from "../icons/svg/Home";
 import Hashtag from "../icons/svg/Hashtag";
 import useContextMenu from "../../hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../ui/ContextMenu";
-import Clipboard from "../icons/svg/Clipboard";
 import ConfirmChannelDeleteModal from "../channels/ConfirmChannelDeleteModal";
+import Code from "../icons/svg/Code";
 
 interface GuildDropdownButtonProps {
   icon: IconElement,
@@ -156,7 +156,7 @@ export default function GuildSidebar() {
               onContextMenu={contextMenu.getHandler(
                 <ContextMenu>
                   <ContextMenuButton
-                    icon={Clipboard}
+                    icon={Code}
                     label="Copy Channel ID"
                     onClick={() => window.navigator.clipboard.writeText(channel.id.toString())}
                   />
