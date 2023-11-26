@@ -193,7 +193,7 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
       </For>
       {/* Error */}
       <Show when={message()._nonceError} keyed={false}>
-        <p class="p-2 bg-danger-content rounded-lg text-sm font-medium">
+        <p class="inline-block p-2 bg-danger/20 rounded-lg text-sm font-medium">
           <b>Error: </b>
           {message()._nonceError}
         </p>
