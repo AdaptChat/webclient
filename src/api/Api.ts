@@ -1,6 +1,10 @@
 import {createRoot, createSignal} from "solid-js";
 import WsClient from "./WsClient";
 import ApiCache from "./ApiCache";
+/**
+ * Maximum number of times to retry a request if we get a 429
+ */
+const MAX_RETRIES = 3
 
 /**
  * Adapt REST API endpoint
@@ -98,7 +102,7 @@ export class ApiResponse<T> {
     return this.$json
   }
 
-  errorJsonOrThrow(): { message: string } {
+  errorJsonOrThrow(): { message: string, retry_after?: number } {
     return this.jsonOrThrow() as any
   }
 
@@ -146,12 +150,25 @@ export default class Api {
     if (options.params)
       endpoint += '?' + new URLSearchParams(options.params).toString()
 
-    let response = await fetch(BASE_URL + endpoint, {
+    const execute = () => fetch(BASE_URL + endpoint, {
       method,
       headers: headers as unknown as Headers,
       body: options.multipart ?? (options.json && JSON.stringify(options.json)),
-    })
-    return await ApiResponse.fromResponse<T>(method, endpoint, response)
+    }).then(
+      response => ApiResponse.fromResponse<T>(method, endpoint, response)
+    )
+
+    let response = await execute()
+    let remaining = MAX_RETRIES
+    // Retry once if we get a 429
+    while (response.status == 429 && remaining-- > 0) {
+      const retryAfter = response.errorJsonOrThrow().retry_after
+      if (retryAfter) {
+        await new Promise(resolve => setTimeout(resolve, retryAfter * 1000))
+        response = await execute()
+      }
+    }
+    return response
   }
 }
 
