@@ -138,3 +138,5 @@ details > summary::-webkit-details-marker { display: none }
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.shiki { @apply !bg-bg-0 rounded px-2 py-1 my-1 whitespace-pre-wrap break-words all-children:!px-0 }

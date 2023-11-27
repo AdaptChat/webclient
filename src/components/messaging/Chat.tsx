@@ -527,7 +527,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
               <p class="text-fg/60 text-sm">{props.startMessage}</p>
             </div>
           </Show>
-          <Show when={!loading()} keyed={false} fallback={<MessageLoadingSkeleton />}>
+          <Show when={!loading()} fallback={<MessageLoadingSkeleton />}>
             <For each={grouper().groups}>
               {(group: MessageGroup) => {
                 if (group.isDivider) return (

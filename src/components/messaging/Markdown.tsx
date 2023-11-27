@@ -9,6 +9,7 @@ import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import remarkMath from "remark-math";
+import rehypeShikiji from "./markdown/rehype-shikiji";
 import rehypeKatex from "rehype-katex";
 import {Root as HtmlRoot} from "rehype-stringify/lib";
 import {Root as MdRoot} from "remark-parse/lib";
@@ -246,10 +247,6 @@ export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.
   img: (props: any) => <Anchor {...props} isImage href={props.src}>{props.alt || props.src}</Anchor>,
   span: (props) => <span {...props} />,
   code: (props) => <code {...props} class="bg-0 rounded px-1 py-0.5" />,
-  // TODO: syntax highlighting
-  pre: (props) => (
-    <pre class="bg-0 rounded px-2 py-1 my-1 whitespace-pre-wrap break-words all-children:!px-0" {...props} />
-  ),
   ul: (props) => <ul class="list-disc ml-4" {...props} />,
   ol: (props) => <ol class="list-decimal ml-4" {...props} />,
   spoiler: Spoiler,
@@ -289,6 +286,7 @@ export const render = unified()
     output: "html",
     errorColor: "theme(colors.error)",
   })
+  .use(rehypeShikiji)
   .use(underline)
 
 const defaults = {
@@ -311,8 +309,7 @@ const defaults = {
 
 export function DynamicMarkdown(props: { content: string }) {
   const file = new VFile();
-  file.value = props.content
-    .replace(/^([+\-*]|(\d[.)]))\s*$/, '\u200E$1')
+  file.value = props.content.replace(/^([+\-*]|(\d[.)]))\s*$/, '\u200E$1')
 
   const root = render.runSync(render.parse(file), file);
   if (root.type !== "root" as any)
@@ -328,5 +325,5 @@ export function DynamicMarkdown(props: { content: string }) {
       listDepth: 0,
     },
     root,
-  );
+  )
 }
