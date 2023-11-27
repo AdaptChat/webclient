@@ -4,7 +4,7 @@ import {GuildChannel} from "../../types/channel";
 import {getApi} from "../../api/Api";
 import {useNavigate, useParams} from "@solidjs/router";
 import Icon from "../icons/Icon";
-import RightFromBracket from "../icons/svg/RightFromBracket";
+import Trash from "../icons/svg/Trash";
 
 type Props = {
   channel: GuildChannel,
@@ -45,7 +45,7 @@ export default function ConfirmChannelDeleteModal({ channel, setConfirmChannelDe
           Cancel
         </button>
         <button type="submit" class="btn btn-danger border-none" disabled={isDeleting()}>
-          <Icon icon={RightFromBracket} class="fill-fg w-4 h-4 mr-2" />
+          <Icon icon={Trash} class="fill-fg w-4 h-4 mr-2" />
           Delete #{channel.name}
         </button>
       </form>
