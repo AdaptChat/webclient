@@ -1,5 +1,5 @@
 import {ModalTemplate} from "../ui/Modal";
-import {createSignal, Setter} from "solid-js";
+import {createMemo, createSignal, Setter} from "solid-js";
 import {GuildChannel} from "../../types/channel";
 import {getApi} from "../../api/Api";
 import {useNavigate, useParams} from "@solidjs/router";
@@ -16,12 +16,13 @@ export default function ConfirmChannelDeleteModal({ channel, setConfirmChannelDe
   const navigate = useNavigate()
   const { guildId, channelId } = useParams()
 
+  const guild = createMemo(() => api.cache!.guilds.get(parseInt(guildId)))
   const [isDeleting, setIsDeleting] = createSignal<boolean>(false)
 
   return (
     <ModalTemplate title="Delete Channel">
       <p class="text-fg/70 text-center text-sm mt-4">
-        Are you sure you want to delete <b>#{channel.name}</b>? You will not be able to undo this action.
+        Are you sure you want to delete <b>#{channel.name}</b> in {guild()?.name}? You will not be able to undo this action.
         All data and messages associated with this channel will be deleted and you will not be able to recover them in the future.
       </p>
       <form

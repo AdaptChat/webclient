@@ -18,6 +18,8 @@ import useContextMenu from "../../hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../ui/ContextMenu";
 import ConfirmChannelDeleteModal from "../channels/ConfirmChannelDeleteModal";
 import Code from "../icons/svg/Code";
+import Plus from "../icons/svg/Plus";
+import CreateChannelModal from "../channels/CreateChannelModal";
 
 interface GuildDropdownButtonProps {
   icon: IconElement,
@@ -31,12 +33,12 @@ interface GuildDropdownButtonProps {
 
 function GuildDropdownButton(props: GuildDropdownButtonProps) {
   const svgClasses = "w-4 h-4 " + (props.svgClass ?? "")
-  const labelClasses = "ml-2 " + (props.labelClass ?? "")
+  const labelClasses = "ml-2 font-medium " + (props.labelClass ?? "")
   const groupHoverClass = props.groupHoverColor ? `hover:bg-danger` : "hover:bg-accent"
 
   return (
-    <li class={`w-full group/gdb ${groupHoverClass} transition-all duration-300`}>
-      <a class={`px-4 ${props.py ?? 'py-1.5'} text-sm flex items-center`} onClick={props.onClick}>
+    <li class={`mx-1.5 rounded-lg group/gdb ${groupHoverClass} transition-all duration-300`}>
+      <a class="px-2 py-1.5 text-sm flex items-center" onClick={props.onClick}>
         <Icon icon={props.icon} class={svgClasses} />
         <span class={labelClasses}>{props.label}</span>
       </a>
@@ -50,7 +52,7 @@ export default function GuildSidebar() {
 
   const channelId = createMemo(() => {
     const { channelId } = useParams()
-    return parseInt(channelId)
+    return channelId && parseInt(channelId)
   })
   const contextMenu = useContextMenu()!
 
@@ -61,6 +63,7 @@ export default function GuildSidebar() {
   const [dropdownExpanded, setDropdownExpanded] = createSignal(false)
   const [showInviteModal, setShowInviteModal] = createSignal(false)
   const [confirmGuildLeaveModal, setConfirmGuildLeaveModal] = createSignal(false)
+  const [createChannelModal, setShowCreateChannelModal] = createSignal(false)
 
   const [channelToDelete, setChannelToDelete] = createSignal<GuildChannel | null>(null)
   const [confirmChannelDeleteModal, setConfirmChannelDeleteModal] = createSignal(false)
@@ -71,9 +74,34 @@ export default function GuildSidebar() {
       ? <ConfirmGuildDeleteModal {...props} />
       : <ConfirmGuildLeaveModal {...props} />
   }
+  const BaseContextMenu = () => (
+    <Show when={guildPermissions()?.has('CREATE_INVITES')}>
+      <ContextMenuButton
+        icon={UserPlus}
+        label="Invite People"
+        buttonClass="hover:bg-accent"
+        onClick={() => setShowInviteModal(true)}
+      />
+    </Show>
+  )
+  const guildPermissions = createMemo(() => api.cache?.getClientPermissions(guildId))
 
   return (
-    <div class="flex flex-col items-center justify-center w-full">
+    <div
+      class="flex flex-col items-center w-full flex-grow"
+      onContextMenu={contextMenu.getHandler(
+        <ContextMenu>
+          <BaseContextMenu />
+          <Show when={guildPermissions()?.has('MANAGE_CHANNELS')}>
+            <ContextMenuButton
+              icon={Plus}
+              label="Create Channel"
+              onClick={() => setShowCreateChannelModal(true)}
+            />
+          </Show>
+        </ContextMenu>
+      )}
+    >
       <Modal get={showInviteModal} set={setShowInviteModal}>
         <GuildInviteModal guild={guild} show={showInviteModal} />
       </Modal>
@@ -84,6 +112,9 @@ export default function GuildSidebar() {
         <Show when={channelToDelete()}>
           <ConfirmChannelDeleteModal channel={channelToDelete()!} setConfirmChannelDeleteModal={setConfirmChannelDeleteModal} />
         </Show>
+      </Modal>
+      <Modal get={createChannelModal} set={setShowCreateChannelModal}>
+        <CreateChannelModal setter={setShowCreateChannelModal} guildId={guildId} />
       </Modal>
       <div
         class="w-[calc(100%-1rem)] rounded-xl mt-2 box-border overflow-hidden flex flex-col border-2 border-bg-3
@@ -121,14 +152,23 @@ export default function GuildSidebar() {
         )}
         <Show when={dropdownExpanded()}>
           <div class="bg-bg-3/50 mx-2 h-0.5 rounded-full flex" />
-          <ul tabIndex={0} class="flex flex-col">
-            <GuildDropdownButton
-              icon={UserPlus}
-              label="Invite People"
-              svgClass="fill-fg"
-              onClick={() => setShowInviteModal(true)}
-              py="pt-2 pb-1.5"
-            />
+          <ul tabIndex={0} class="flex flex-col my-1">
+            <Show when={guildPermissions()?.has('CREATE_INVITES')}>
+              <GuildDropdownButton
+                icon={UserPlus}
+                label="Invite People"
+                svgClass="fill-fg"
+                onClick={() => setShowInviteModal(true)}
+              />
+            </Show>
+            <Show when={guildPermissions()?.has('MANAGE_CHANNELS')}>
+              <GuildDropdownButton
+                icon={Plus}
+                label="Create Channel"
+                svgClass="fill-fg"
+                onClick={() => setShowCreateChannelModal(true)}
+              />
+            </Show>
             <GuildDropdownButton
               icon={isOwner() ? Trash : RightFromBracket}
               label={isOwner() ? "Delete Server" : "Leave Server"}
@@ -136,7 +176,6 @@ export default function GuildSidebar() {
               svgClass="fill-danger group-hover/gdb:fill-fg"
               labelClass="text-danger group-hover/gdb:text-fg"
               onClick={() => setConfirmGuildLeaveModal(true)}
-              py="pt-1.5 pb-2"
             />
           </ul>
         </Show>
@@ -147,7 +186,7 @@ export default function GuildSidebar() {
           api.cache!.guildChannelReactor
             .get(guildId)
             ?.map(id => api.cache!.channels.get(id) as GuildChannel)
-            .filter(c => c)
+            .filter(c => c && api.cache?.getClientPermissions(guildId, c.id).has('VIEW_CHANNEL'))
         }>
           {(channel: GuildChannel) => (
             <SidebarButton
@@ -155,12 +194,13 @@ export default function GuildSidebar() {
               svg={Hashtag}
               onContextMenu={contextMenu.getHandler(
                 <ContextMenu>
+                  <BaseContextMenu />
                   <ContextMenuButton
                     icon={Code}
                     label="Copy Channel ID"
                     onClick={() => window.navigator.clipboard.writeText(channel.id.toString())}
                   />
-                  <Show when={api.cache!.getClientPermissions(guildId, channel.id).has('MANAGE_CHANNELS')}>
+                  <Show when={api.cache?.getClientPermissions(guildId, channel.id).has('MANAGE_CHANNELS')}>
                     <DangerContextMenuButton
                       icon={Trash}
                       label="Delete Channel"

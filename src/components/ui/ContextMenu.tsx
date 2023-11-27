@@ -91,6 +91,7 @@ export function ContextMenuProvider(props: ParentProps) {
     getHandler(menu: JSX.Element) {
       return (event: MouseEvent) => {
         event.preventDefault()
+        event.stopPropagation()
         setPos({
           x: event.clientX,
           y: event.clientY,

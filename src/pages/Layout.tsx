@@ -91,7 +91,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
             "w-[19rem]": props.hideGuildSelect,
             "w-60": !props.hideGuildSelect,
           }}>
-            <div class="flex flex-col w-full overflow-y-auto">
+            <div class="flex flex-col w-full h-full overflow-y-auto">
               {props.sidebar!()}
             </div>
             <div class="flex items-center bg-0 rounded-lg m-4 pr-2">
