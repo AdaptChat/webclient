@@ -213,11 +213,14 @@ jobs:
       - name: Copy to artifacts dir
         run: |
           mkdir download-artifacts
-          cp -r darwin-x86_64 download-artifacts
-          cp -r darwin-aarch64 download-artifacts
-          cp -r windows-x86_64 download-artifacts
-          cp -r windows-i686 download-artifacts
-          cp -r linux-x86_64 download-artifacts
+          cp darwin-x86_64 download-artifacts
+          cp darwin-aarch64 download-artifacts
+          cp windows-x86_64 download-artifacts
+          cp windows-i686 download-artifacts
+          cp linux-x86_64 download-artifacts
+          mv download-artifacts webclient
+          mkdir download-artifacts
+          mv webclient download-artifacts/webclient
 
       - name: Generate webclient-latest.json
         run: |
@@ -226,7 +229,7 @@ jobs:
 
           v = open('src-tauri/Cargo.toml', 'r').read().split('version = "')[1].split('"')[0]
 
-          with open('download-artifacts/webclient-latest.json', 'w') as f:
+          with open('download-artifacts/webclient/webclient-latest.json', 'w') as f:
             f.write(
               json.dumps({
                 "version": v,
