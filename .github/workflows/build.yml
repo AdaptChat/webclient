@@ -35,8 +35,8 @@ jobs:
       with:
         name: app-darwin-86_64
         path: |
-          src-tauri/target/x86_64-apple-darwin/release/bundle/macos
-          src-tauri/target/x86_64-apple-darwin/release/bundle/dmg
+          src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*
+          src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*
 
   build-mac-aarch64:
     runs-on: macos-latest
@@ -62,8 +62,8 @@ jobs:
       with:
         name: app-darwin-aarch64
         path: |
-          src-tauri/target/aarch64-apple-darwin/release/bundle/macos
-          src-tauri/target/aarch64-apple-darwin/release/bundle/dmg
+          src-tauri/target/aarch64-apple-darwin/release/bundle/macos/*
+          src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*
   
   build-win-x86_64:
     runs-on: windows-latest
