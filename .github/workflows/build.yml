@@ -8,6 +8,8 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+  TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
 
 jobs:
   build-mac-x86_64:
@@ -33,7 +35,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: app-darwin-86_64
-        path: src-tauri/target/x86_64-apple-darwin/release/bundle
+        path: src-tauri/target/x86_64-apple-darwin/release/bundle/macos
 
   build-mac-aarch64:
     runs-on: macos-latest
@@ -58,9 +60,9 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: app-darwin-aarch64
-        path: src-tauri/target/aarch64-apple-darwin/release/bundle
+        path: src-tauri/target/aarch64-apple-darwin/release/bundle/macos
   
-  build-win-x86_64-64bit:
+  build-win-x86_64:
     runs-on: windows-latest
 
     steps:
@@ -82,10 +84,11 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: app-windows-86_64-64bit
-        path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle
+        name: app-windows-86_64
+        path: |
+          src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis
 
-  build-win-i686-32bit:
+  build-win-i686:
     runs-on: windows-latest
 
     steps:
@@ -107,10 +110,11 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: app-windows-i686-32bit
-        path: src-tauri/target/i686-pc-windows-msvc/release/bundle
+        name: app-windows-i686
+        path: |
+          src-tauri/target/i686-pc-windows-msvc/release/bundle/nsis
 
-  build-linux-x86_64-64bit:
+  build-linux-x86_64:
     runs-on: ubuntu-20.04
 
     steps:
@@ -144,7 +148,126 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: app-linux-x86_64-64bit
+          name: app-linux-x86_64
           path: |
-            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
-            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage
+            !src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/adapt.AppDir
+            !src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.sh
+
+  deploy-to-downloads:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    runs-on: ubuntu-20.04
+    needs: [build-mac-x86_64, build-mac-aarch64, build-win-x86_64, build-win-i686, build-linux-x86_64]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download darwin-x86_64
+        uses: actions/download-artifact@v3
+        with:
+          name: app-darwin-86_64
+          path: darwin-x86_64
+      
+      - name: Download darwin-aarch64
+        uses: actions/download-artifact@v3
+        with:
+          name: app-darwin-aarch64
+          path: darwin-aarch64
+      
+      - name: Download windows-x86_64
+        uses: actions/download-artifact@v3
+        with:
+          name: app-windows-86_64
+          path: windows-x86_64
+      
+      - name: Download windows-i686
+        uses: actions/download-artifact@v3
+        with:
+          name: app-windows-i686
+          path: windows-i686
+      
+      - name: Download linux-x86_64
+        uses: actions/download-artifact@v3
+        with:
+          name: app-linux-x86_64
+          path: linux-x86_64
+      
+      - name: Change paths
+        run: |
+          cp windows-x86_64/*-setup.exe windows-x86_64/Adapt-setup.exe
+          cp windows-x86_64/*.nsis.zip windows-x86_64/Adapt-nsis.zip
+          cp windows-x86_64/*.nsis.zip.sig windows-x86_64/Adapt-nsis.zip.sig
+          cp windows-i686/*-setup.exe windows-i686/Adapt-setup.exe
+          cp windows-i686/*.nsis.zip windows-i686/Adapt-nsis.zip
+          cp windows-i686/*.nsis.zip.sig windows-i686/Adapt-nsis.zip.sig
+          cp linux-x86_64/*.AppImage linux-x86_64/Adapt.AppImage
+          cp linux-x86_64/*.AppImage.tar.gz linux-x86_64/Adapt.AppImage.tar.gz
+          cp linux-x86_64/*.AppImage.tar.gz.sig linux-x86_64/Adapt.AppImage.tar.gz.sig
+      
+      - name: Copy to artifacts dir
+        run: |
+          mkdir download-artifacts
+          cp -r darwin-x86_64 download-artifacts
+          cp -r darwin-aarch64 download-artifacts
+          cp -r windows-x86_64 download-artifacts
+          cp -r windows-i686 download-artifacts
+          cp -r linux-x86_64 download-artifacts
+
+      - name: Generate webclient-latest.json
+        run: |
+          import json
+          import datetime
+
+          v = open('src-tauri/Cargo.toml', 'r').read().split('version = "')[1].split('"')[0]
+
+          with open('download-artifacts/webclient-latest.json', 'w') as f:
+            f.write(
+              json.dumps({
+                "version": v,
+                "pub_date": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "platforms": {
+                  "darwin-x86_64": {
+                    "signature": open('darwin-x86_64/Adapt.app.tar.gz.sig', 'r').read(),
+                    "url": "https://download.adapt.chat/webclient/darwin-x86_64/Adapt.app.tar.gz"
+                  },
+                  "darwin-aarch64": {
+                    "signature": open('darwin-aarch64/Adapt.app.tar.gz.sig', 'r').read(),
+                    "url": "https://download.adapt.chat/webclient/darwin-aarch64/Adapt.app.tar.gz"
+                  },
+                  "windows-x86_64": {
+                    "signature": open('windows-x86_64/Adapt-nsis.zip.sig', 'r').read(),
+                    "url": "https://download.adapt.chat/webclient/windows-x86_64/Adapt-nsis.zip"
+                  },
+                  "windows-i686": {
+                    "signature": open('windows-i686/Adapt-nsis.zip.sig', 'r').read(),
+                    "url": "https://download.adapt.chat/webclient/windows-i686/Adapt-nsis.zip"
+                  },
+                  "linux-x86_64": {
+                    "signature": open('linux-x86_64/Adapt.AppImage.tar.gz.sig', 'r').read(),
+                    "url": "https://download.adapt.chat/webclient/linux-x86_64/Adapt.AppImage.tar.gz"
+                  }
+                }
+              })
+            )
+        shell: python
+      
+      - name: Show artifacts
+        run: ls -R download-artifacts
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: 'download-artifacts'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
