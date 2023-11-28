@@ -35,8 +35,8 @@ jobs:
       with:
         name: app-darwin-86_64
         path: |
-          src-tauri/target/x86_64-apple-darwin/release/bundle/macos/*
-          src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*
+          src-tauri/target/x86_64-apple-darwin/release/bundle/macos
+          src-tauri/target/x86_64-apple-darwin/release/bundle/dmg
 
   build-mac-aarch64:
     runs-on: macos-latest
@@ -62,8 +62,8 @@ jobs:
       with:
         name: app-darwin-aarch64
         path: |
-          src-tauri/target/aarch64-apple-darwin/release/bundle/macos/*
-          src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*
+          src-tauri/target/aarch64-apple-darwin/release/bundle/macos
+          src-tauri/target/aarch64-apple-darwin/release/bundle/dmg
   
   build-win-x86_64:
     runs-on: windows-latest
@@ -203,6 +203,12 @@ jobs:
       
       - name: Change paths
         run: |
+          mv darwin-x86_64/macos/* darwin-x86_64
+          mv darwin-x86_64/dmg/* darwin-x86_64
+          mv darwin-aarch64/macos/* darwin-aarch64
+          mv darwin-aarch64/dmg/* darwin-aarch64
+          rm -rf darwin-x86_64/macos darwin-x86_64/dmg
+          rm -rf darwin-aarch64/macos darwin/aarch64/dmg
           cd darwin-x86_64/Adapt.app
           zip -r ../Adapt.app.zip .
           cd ../../darwin-aarch64/Adapt.app
