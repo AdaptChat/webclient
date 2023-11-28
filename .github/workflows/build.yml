@@ -199,6 +199,7 @@ jobs:
       
       - name: Change paths
         run: |
+          zip -r Adapt.app.zip Adapt.app
           cp windows-x86_64/*-setup.exe windows-x86_64/Adapt-setup.exe
           cp windows-x86_64/*.nsis.zip windows-x86_64/Adapt-nsis.zip
           cp windows-x86_64/*.nsis.zip.sig windows-x86_64/Adapt-nsis.zip.sig
