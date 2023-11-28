@@ -34,7 +34,9 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: app-darwin-86_64
-        path: src-tauri/target/x86_64-apple-darwin/release/bundle/macos
+        path: |
+          src-tauri/target/x86_64-apple-darwin/release/bundle/macos
+          src-tauri/target/x86_64-apple-darwin/release/bundle/dmg
 
   build-mac-aarch64:
     runs-on: macos-latest
@@ -59,7 +61,9 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: app-darwin-aarch64
-        path: src-tauri/target/aarch64-apple-darwin/release/bundle/macos
+        path: |
+          src-tauri/target/aarch64-apple-darwin/release/bundle/macos
+          src-tauri/target/aarch64-apple-darwin/release/bundle/dmg
   
   build-win-x86_64:
     runs-on: windows-latest
@@ -204,15 +208,17 @@ jobs:
           cd ../../darwin-aarch64/Adapt.app
           zip -r ../Adapt.app.zip .
           cd ../..
-          cp windows-x86_64/*-setup.exe windows-x86_64/Adapt-setup.exe
-          cp windows-x86_64/*.nsis.zip windows-x86_64/Adapt-nsis.zip
-          cp windows-x86_64/*.nsis.zip.sig windows-x86_64/Adapt-nsis.zip.sig
-          cp windows-i686/*-setup.exe windows-i686/Adapt-setup.exe
-          cp windows-i686/*.nsis.zip windows-i686/Adapt-nsis.zip
-          cp windows-i686/*.nsis.zip.sig windows-i686/Adapt-nsis.zip.sig
-          cp linux-x86_64/*.AppImage linux-x86_64/Adapt.AppImage
-          cp linux-x86_64/*.AppImage.tar.gz linux-x86_64/Adapt.AppImage.tar.gz
-          cp linux-x86_64/*.AppImage.tar.gz.sig linux-x86_64/Adapt.AppImage.tar.gz.sig
+          mv darwin-x86_64/*.dmg darwin-x86_64/Adapt-installer.dmg
+          mv darwin-aarch64/*.dmg darwin-aarch64/Adapt-installer.dmg
+          mv windows-x86_64/*-setup.exe windows-x86_64/Adapt-setup.exe
+          mv windows-x86_64/*.nsis.zip windows-x86_64/Adapt-nsis.zip
+          mv windows-x86_64/*.nsis.zip.sig windows-x86_64/Adapt-nsis.zip.sig
+          mv windows-i686/*-setup.exe windows-i686/Adapt-setup.exe
+          mv windows-i686/*.nsis.zip windows-i686/Adapt-nsis.zip
+          mv windows-i686/*.nsis.zip.sig windows-i686/Adapt-nsis.zip.sig
+          mv linux-x86_64/*.AppImage linux-x86_64/Adapt.AppImage
+          mv linux-x86_64/*.AppImage.tar.gz linux-x86_64/Adapt.AppImage.tar.gz
+          mv linux-x86_64/*.AppImage.tar.gz.sig linux-x86_64/Adapt.AppImage.tar.gz.sig
       
       - name: Copy to artifacts dir
         run: |
