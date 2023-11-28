@@ -54,7 +54,7 @@
     "updater": {
       "active": true,
       "endpoints": [
-        "https://download.adapt.chat/webclient-latest.json"
+        "https://download.adapt.chat/webclient/webclient-latest.json"
       ],
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEUwQUM3NTA2MDU0RkJEQjAKUldTd3ZVOEZCbldzNENLb0dYMFo4WTYwR3g3dHc3ckR2Sjh3UmlSMGZtTE5GK3F6bzMxOGhFZ24K"
