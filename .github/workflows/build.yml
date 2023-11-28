@@ -212,11 +212,11 @@ jobs:
       - name: Copy to artifacts dir
         run: |
           mkdir download-artifacts
-          cp darwin-x86_64 download-artifacts
-          cp darwin-aarch64 download-artifacts
-          cp windows-x86_64 download-artifacts
-          cp windows-i686 download-artifacts
-          cp linux-x86_64 download-artifacts
+          cp -r darwin-x86_64 download-artifacts
+          cp -r darwin-aarch64 download-artifacts
+          cp -r windows-x86_64 download-artifacts
+          cp -r windows-i686 download-artifacts
+          cp -r linux-x86_64 download-artifacts
           mv download-artifacts webclient
           mkdir download-artifacts
           mv webclient download-artifacts/webclient
