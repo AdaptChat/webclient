@@ -199,8 +199,11 @@ jobs:
       
       - name: Change paths
         run: |
-          zip -r darwin-x86_64/Adapt.app.zip darwin-x86_64/Adapt.app
-          zip -r darwin-aarch64/Adapt.app.zip darwin-aarch64/Adapt.app
+          cd darwin-x86_64/Adapt.app
+          zip -r ../Adapt.app.zip .
+          cd ../../darwin-aarch64/Adapt.app
+          zip -r ../Adapt.app.zip .
+          cd ../..
           cp windows-x86_64/*-setup.exe windows-x86_64/Adapt-setup.exe
           cp windows-x86_64/*.nsis.zip windows-x86_64/Adapt-nsis.zip
           cp windows-x86_64/*.nsis.zip.sig windows-x86_64/Adapt-nsis.zip.sig
