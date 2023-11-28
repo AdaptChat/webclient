@@ -1,0 +1,41 @@
+{
+  "name": "Adapt",
+  "short_name": "Adapt",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1f2937",
+  "description": "Adapt, Evolve, Chat. Interact with the Adapt chat platform.",
+  "theme_color": "#0586ff",
+  "icons": [
+    {
+      "src": "icons/32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/44x44.png",
+      "sizes": "44x44",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/71x71.png",
+      "sizes": "71x71",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/89x89.png",
+      "sizes": "89x89",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/107x107.png",
+      "sizes": "107x107",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
