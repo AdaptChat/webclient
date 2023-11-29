@@ -5,7 +5,7 @@
   "display": "standalone",
   "background_color": "#1f2937",
   "description": "Adapt, Evolve, Chat. Interact with the Adapt chat platform.",
-  "theme_color": "#0586ff",
+  "theme_color": "#1f2937",
   "icons": [
     {
       "src": "icons/32x32.png",
