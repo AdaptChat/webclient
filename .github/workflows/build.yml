@@ -157,6 +157,13 @@ jobs:
             !src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/adapt.AppDir
             !src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.sh
 
+      - name: Upload .deb artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-linux-x86_64
+          path: |
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb
+
   deploy-to-downloads:
     environment:
       name: github-pages
@@ -225,6 +232,7 @@ jobs:
           mv linux-x86_64/*.AppImage linux-x86_64/Adapt.AppImage
           mv linux-x86_64/*.AppImage.tar.gz linux-x86_64/Adapt.AppImage.tar.gz
           mv linux-x86_64/*.AppImage.tar.gz.sig linux-x86_64/Adapt.AppImage.tar.gz.sig
+          mv linux-x86_64/*.deb linux-x86_64/Adapt.deb
       
       - name: Copy to artifacts dir
         run: |
