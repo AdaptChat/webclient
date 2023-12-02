@@ -596,7 +596,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                           classList={(() => {
                             const mentioned = api.cache?.isMentionedIn(message)
                             return {
-                              "relative group flex items-center hover:bg-bg-1/60 py-px transition-all duration-200 rounded-r-lg": true,
+                              "relative group flex items-center py-px transition-all duration-200 rounded-r-lg": true,
                               "bg-accent/10 hover:bg-accent/20 border-l-2 border-l-accent": mentioned,
                               "hover:bg-bg-1/60": !mentioned,
                             }
