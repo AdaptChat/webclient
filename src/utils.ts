@@ -260,6 +260,17 @@ export function findIterator<T>(
 }
 
 /**
+ * Maps an iterator.
+ */
+export function* mapIterator<T, U>(
+  iterator: Iterable<T>,
+  mapper: (item: T) => U,
+): Generator<U> {
+  for (const item of iterator)
+    yield mapper(item)
+}
+
+/**
  * Flat-maps an iterator.
  */
 export function* flatMapIterator<T, U>(
@@ -269,6 +280,16 @@ export function* flatMapIterator<T, U>(
   for (const item of iterator)
     for (const mapped of mapper(item))
       yield mapped
+}
+
+/**
+ * Returns the sum of an iterator.
+ */
+export function sumIterator<T extends number>(iterator: Iterable<T>): T {
+  let sum = 0
+  for (const item of iterator)
+    sum += item
+  return sum as T
 }
 
 /**

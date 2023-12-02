@@ -25,7 +25,7 @@ export default function GuildSelect() {
           <For each={api.cache!.guildList.map(g => api.cache!.guilds.get(g)!)}>
           {(guild: Guild) => (
             <A href={`/guilds/${guild.id}`} class="hover:bg-3 transition w-full px-3 py-2 flex items-center cursor-pointer">
-              <GuildIcon guild={guild} unread={false} pings={0} sizeClass="w-14 h-14" />
+              <GuildIcon guild={guild} sizeClass="w-14 h-14" />
               <span class="ml-4 font-medium text-lg">{guild.name}</span>
             </A>
           )}

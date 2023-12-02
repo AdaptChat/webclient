@@ -1,5 +1,5 @@
 import {useParams} from "@solidjs/router";
-import {createMemo, createSignal, For, Show} from "solid-js";
+import {createMemo, createSignal, For, Match, Show, Switch} from "solid-js";
 import {getApi} from "../../api/Api";
 import SidebarButton from "../ui/SidebarButton";
 import {GuildChannel} from "../../types/channel";
@@ -85,6 +85,7 @@ export default function GuildSidebar() {
     </Show>
   )
   const guildPermissions = createMemo(() => api.cache?.getClientPermissions(guildId))
+  const mentionsIn = (channelId: number) => api.cache?.guildMentions.get(guildId)?.get(channelId)?.length
 
   return (
     <div
@@ -213,7 +214,23 @@ export default function GuildSidebar() {
                 </ContextMenu>
               )}
             >
-              {channel.name}
+              <span class="flex justify-between items-center">
+                <span classList={{
+                  "text-fg": api.cache?.isChannelUnread(channel.id) || !!mentionsIn(channel.id),
+                }}>
+                  {channel.name}
+                </span>
+                <Switch>
+                  <Match when={mentionsIn(channel.id)}>
+                    <div class="px-1 bg-red-600 text-fg rounded-full flex items-center justify-center">
+                      {mentionsIn(channel.id)}
+                    </div>
+                  </Match>
+                  <Match when={api.cache?.isChannelUnread(channel.id)}>
+                    <span class="w-2 h-2 bg-fg rounded-lg" />
+                  </Match>
+                </Switch>
+              </span>
             </SidebarButton>
           )}
         </For>

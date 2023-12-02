@@ -101,9 +101,7 @@ export default function GuildSideSelect() {
                   </Show>
                 </ContextMenu>
               )}>
-                <GuildIcon
-                  guild={guild} unread={false} pings={0} sizeClass="w-12 h-12" tooltip ringIfActive
-                />
+                <GuildIcon guild={guild} sizeClass="w-12 h-12" tooltip ringIfActive />
               </A>
             )}
           </For>

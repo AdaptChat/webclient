@@ -24,6 +24,11 @@ export type GuildChannelInfo = {
    * `0` and `86_400_000` (24 hours). `0` indicates the absence of slowmode.
    */
   slowmode: number,
+  /**
+   * The ID of the last message sent in the channel. This is `null` if no messages have
+   * been sent in the channel.
+   */
+  last_message_id: number | null,
 } | {
   /**
    * The type of the channel.

@@ -73,7 +73,7 @@ export default function InviteScreen() {
               <span>You've been invited to join a server!</span>
             </p>
             <div class="flex items-center">
-              <GuildIcon guild={invite()!.guild!} sizeClass="w-24 h-24 text-2xl" />
+              <GuildIcon guild={invite()!.guild!} pings={0} unread={false} sizeClass="w-24 h-24 text-2xl" />
               <div class="ml-4">
                 <h1 class="font-title font-bold text-4xl">{invite()!.guild!.name}</h1>
                 <p class="flex items-center gap-x-1 text-fg/50 text-sm">

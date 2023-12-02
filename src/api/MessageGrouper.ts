@@ -220,6 +220,8 @@ export default class MessageGrouper {
       embeds: [],
       flags: 0,
       stars: 0,
+      edited_at: null,
+      mentions: [],
     }
   }
 

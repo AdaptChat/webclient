@@ -312,7 +312,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
     return grouper
   })
 
-  const typing = api.cache!.useTyping(props.channelId)
+  const typing = createMemo(() => api.cache!.useTyping(props.channelId))
   const typingKeepAlive = new TypingKeepAlive(api, props.channelId)
   const focusListener = (e: KeyboardEvent) => {
     const charCode = e.key.charCodeAt(0)
@@ -348,8 +348,6 @@ export default function Chat(props: { channelId: number, guildId?: number, title
     document.execCommand('selectAll', false)
     document.execCommand('insertHTML', false, '')
 
-    messageAreaRef!.scrollTo(0, messageAreaRef!.scrollHeight)
-
     const nonce = snowflakes.fromTimestamp(Date.now()).toString()
     let mockMessage = {
       id: nonce,
@@ -368,6 +366,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
 
     const loc = grouper().pushMessage(mockMessage)
     grouper().nonced.set(nonce, loc)
+    messageAreaRef!.scrollTo(0, messageAreaRef!.scrollHeight)
 
     try {
       const json = { content, nonce }
@@ -388,6 +387,9 @@ export default function Chat(props: { channelId: number, guildId?: number, title
       const ignored = typingKeepAlive.stop()
       if (!response.ok)
         grouper().ackNonceError(nonce, mockMessage, response.errorJsonOrThrow().message)
+      else {
+        let _ = api.request('PUT', `/channels/${props.channelId}/ack/${response.jsonOrThrow().id}`)
+      }
     } catch (e: any) {
       grouper().ackNonceError(nonce, mockMessage, e)
       throw e
@@ -513,13 +515,33 @@ export default function Chat(props: { channelId: number, guildId?: number, title
     setAutocompleteState(null)
   }
 
+  let [lastAckedId, setLastAckedId] = createSignal<number | null>(null)
+
+  const ack = async () => {
+    if (!sendable()) return
+
+    const last = api.cache?.lastMessages.get(props.channelId)
+    if (!last || lastAckedId() == last) return
+
+    setLastAckedId(last)
+    await api.request('PUT', `/channels/${props.channelId}/ack/${last}`)
+  }
+
   return (
     <div class="flex flex-col justify-end w-full h-0 flex-grow">
-      <div ref={messageAreaRef!} class="overflow-auto flex flex-col-reverse pb-5" onScroll={async (event) => {
-        if (event.target.scrollTop + event.target.scrollHeight <= event.target.clientHeight + 10) {
-          await grouper().fetchMessages()
-        }
-      }}>
+      <div
+        ref={messageAreaRef!}
+        class="overflow-auto flex flex-col-reverse pb-5"
+        onScroll={async (event) => {
+          if (event.target.scrollTop + event.target.scrollHeight <= event.target.clientHeight + 10) {
+            await grouper().fetchMessages()
+          }
+          if (event.target.scrollTop > -5)
+            await ack()
+        }}
+        onClick={ack}
+        onFocus={ack}
+      >
         <div class="flex flex-col gap-y-4">
           <Show when={grouper().noMoreMessages() && !loading()} keyed={false}>
             <div class="pl-4 pt-8">
@@ -544,7 +566,14 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                 return (
                   <div class="flex flex-col">
                     <div
-                      class="flex flex-col relative pl-[62px] py-px hover:bg-bg-1/60 transition-all duration-200 rounded-r-lg"
+                      classList={(() => {
+                        const mentioned = api.cache?.isMentionedIn(firstMessage)
+                        return {
+                          "flex flex-col relative py-px transition-all duration-200 rounded-r-lg": true,
+                          "bg-accent/10 hover:bg-accent/20 border-l-2 border-l-accent pl-[60px]": mentioned,
+                          "pl-[62px] hover:bg-bg-1/60": !mentioned,
+                        }
+                      })()}
                       onContextMenu={contextMenu.getHandler(<MessageContextMenu message={firstMessage} guildId={props.guildId} />)}
                     >
                       <img
@@ -566,11 +595,25 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                     <For each={group.slice(1)}>
                       {(message: Message) => (
                         <div
-                          class="relative group flex items-center hover:bg-bg-1/60 py-px transition-all duration-200 rounded-r-lg"
+                          classList={(() => {
+                            const mentioned = api.cache?.isMentionedIn(message)
+                            return {
+                              "relative group flex items-center hover:bg-bg-1/60 py-px transition-all duration-200 rounded-r-lg": true,
+                              "bg-accent/10 hover:bg-accent/20 border-l-2 border-l-accent": mentioned,
+                              "hover:bg-bg-1/60": !mentioned,
+                            }
+                          })()}
                           onContextMenu={contextMenu.getHandler(<MessageContextMenu message={message} guildId={props.guildId} />)}
                         >
                           <span
-                            class="w-[62px] invisible text-center group-hover:visible text-[0.65rem] text-fg/40"
+                            classList={(() => {
+                              const mentioned = api.cache?.isMentionedIn(message)
+                              return {
+                                "invisible text-center group-hover:visible text-[0.65rem] text-fg/40": true,
+                                "w-[60px]": mentioned,
+                                "w-[62px]": !mentioned,
+                              }
+                            })()}
                             use:tooltip={timestampTooltip(message.id)}
                           >
                             {humanizeTime(snowflakes.timestamp(message.id))}
@@ -807,6 +850,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
                 clearTimeout(timeout)
 
               setMessageInputFocused(true)
+              let _ = ack()
             }}
             onBlur={() => setMessageInputFocusTimeout(
               setTimeout(() => setMessageInputFocused(false), 100) as any
@@ -834,21 +878,21 @@ export default function Chat(props: { channelId: number, guildId?: number, title
         </button>
       </div>
       <div class="mx-4 h-5 text-xs flex-shrink-0">
-        <Show when={typing.users.size > 0} keyed={false}>
-          <For each={[...typing.users].map(id => api.cache?.users.get(id)?.username).filter((u): u is string => !!u)}>
+        <Show when={typing().users.size > 0} keyed={false}>
+          <For each={[...typing().users].map(id => api.cache?.users.get(id)?.username).filter((u): u is string => !!u)}>
             {(username, index) => (
               <>
                 <span class="font-bold">{username}</span>
-                {index() < typing.users.size - 1 && typing.users.size > 2 && (
+                {index() < typing().users.size - 1 && typing().users.size > 2 && (
                   <span class="text-fg/50">, </span>
                 )}
-                {index() === typing.users.size - 2 && (
+                {index() === typing().users.size - 2 && (
                   <span class="text-fg/50"> and </span>
                 )}
               </>
             )}
           </For>
-          <span class="text-fg/50 font-medium"> {typing.users.size === 1 ? 'is' : 'are'} typing...</span>
+          <span class="text-fg/50 font-medium"> {typing().users.size === 1 ? 'is' : 'are'} typing...</span>
         </Show>
       </div>
     </div>

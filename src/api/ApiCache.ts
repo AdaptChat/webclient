@@ -10,6 +10,7 @@ import {ReactiveMap} from "@solid-primitives/map";
 import {TypingManager} from "./TypingManager";
 import {Permissions} from "./Bitflags";
 import {calculatePermissions, snowflakes} from "../utils";
+import {Message} from "../types/message";
 
 function sortedIndex<T extends number>(array: T[], value: T) {
   let low = 0, high = array.length
@@ -53,6 +54,10 @@ export default class ApiCache {
   presences: ReactiveMap<number, Presence>
   relationships: ReactiveMap<number, RelationshipType>
   typing: Map<number, TypingManager>
+  lastMessages: ReactiveMap<number, number>
+  lastAckedMessages: ReactiveMap<number, number | null>
+  guildMentions: ReactiveMap<number, ReactiveMap<number, number[]>>
+  dmMentions: ReactiveMap<number, number[]>
 
   constructor(private readonly api: Api) {
     this.clientUserReactor = null as any // lazy
@@ -70,6 +75,10 @@ export default class ApiCache {
     this.presences = new ReactiveMap()
     this.relationships = new ReactiveMap()
     this.typing = new Map()
+    this.lastMessages = new ReactiveMap()
+    this.lastAckedMessages = new ReactiveMap()
+    this.guildMentions = new ReactiveMap()
+    this.dmMentions = new ReactiveMap()
   }
 
   static fromReadyEvent(api: Api, ready: ReadyEvent): ApiCache {
@@ -87,6 +96,20 @@ export default class ApiCache {
 
     for (const dmChannel of ready.dm_channels)
       cache.updateChannel(dmChannel)
+
+    for (const { channel_id, last_message_id, mentions } of ready.unacked) {
+      cache.lastAckedMessages.set(channel_id, last_message_id)
+      let channel = cache.channels.get(channel_id)
+      if (!channel) continue
+      if ('guild_id' in channel) {
+        if (!cache.guildMentions.has(channel.guild_id))
+          cache.guildMentions.set(channel.guild_id, new ReactiveMap())
+
+        cache.guildMentions.get(channel.guild_id)!.set(channel_id, mentions)
+      } else {
+        cache.dmMentions.set(channel_id, mentions)
+      }
+    }
 
     cache.updateUser(ready.user)
     return cache
@@ -174,6 +197,9 @@ export default class ApiCache {
   updateChannel(channel: Channel) {
     this.channels.set(channel.id, channel)
 
+    if ('last_message_id' in channel)
+      channel.last_message_id && this.lastMessages.set(channel.id, channel.last_message_id)
+
     if (channel.type === 'dm' || channel.type === 'group')
       this.dmChannelOrder[1](prev => prev.includes(channel.id) ? prev : [channel.id, ...prev])
   }
@@ -252,6 +278,76 @@ export default class ApiCache {
 
   getClientPermissions(guildId: number, channelId?: number): Permissions {
     return this.getMemberPermissions(guildId, this.clientId!, channelId)
+  }
+
+  ack(channelId: number, messageId: number) {
+    this.lastAckedMessages.set(channelId, messageId)
+
+    let channel = this.channels.get(channelId)
+    if (!channel) return
+
+    if ('guild_id' in channel) {
+      let guildMentions = this.guildMentions.get(channel.guild_id)
+      if (!guildMentions) return
+
+      let mentions = guildMentions.get(channelId)
+      if (!mentions) return
+
+      guildMentions.set(channelId, mentions.filter(id => id > messageId))
+    } else {
+      let mentions = this.dmMentions.get(channelId)
+      if (!mentions) return
+
+      this.dmMentions.set(channelId, mentions.filter(id => id > messageId))
+    }
+  }
+
+  isChannelUnread(channelId: number) {
+    const lastReceived = this.lastMessages.get(channelId)
+    if (!lastReceived) return false
+
+    const lastAcked = this.lastAckedMessages.get(channelId)
+    if (!lastAcked) return true
+
+    return lastReceived > lastAcked
+  }
+
+  isMentionedIn(message: Message): boolean {
+    // @user
+    if (message.mentions.includes(this.clientId!)) return true
+
+    let channel = this.channels.get(message.channel_id)
+    if (!channel) return false
+
+    if ('guild_id' in channel) {
+      if (message.mentions.includes(channel.guild_id)) return true // @everyone
+      // @role
+      let roles = this.members.get(memberKey(channel.guild_id, this.clientId!))?.roles ?? []
+      return message.mentions.some(id => roles.includes(id))
+    }
+    return false
+  }
+
+  registerMention(channelId: number, messageId: number) {
+    function registerIn(map: ReactiveMap<number, number[]>) {
+      console.log('registering mention', channelId, messageId)
+      map.set(
+        channelId,
+        (map.get(channelId) ?? []).concat(messageId),
+      )
+    }
+
+    let channel = this.channels.get(channelId)
+    if (!channel) return
+
+    if ('guild_id' in channel) {
+      if (!this.guildMentions.has(channel.guild_id))
+        this.guildMentions.set(channel.guild_id, new ReactiveMap())
+
+      registerIn(this.guildMentions.get(channel.guild_id)!)
+    } else {
+      registerIn(this.dmMentions)
+    }
   }
 }
 

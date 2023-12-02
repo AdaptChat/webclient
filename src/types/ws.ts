@@ -31,6 +31,7 @@ export type WsEvent = WsEventMapping<'hello'>
   | WsEventMapping<'message_delete', MessageDeleteEvent>
   | WsEventMapping<'channel_create', ChannelCreateEvent>
   | WsEventMapping<'channel_delete', ChannelDeleteEvent>
+  | WsEventMapping<'channel_ack', ChannelAckEvent>
   | WsEventMapping<'guild_create', GuildCreateEvent>
   | WsEventMapping<'guild_remove', GuildRemoveEvent>
   | WsEventMapping<'member_join', MemberJoinEvent>
@@ -69,6 +70,14 @@ export interface ReadyEvent {
    * A list of relationships associated with the session's user.
    */
   relationships: Relationship[];
+  /**
+   * Information regarding unacknowledged messages and mentions.
+   */
+  unacked: {
+    channel_id: number,
+    last_message_id: number | null,
+    mentions: number[],
+  }[];
 }
 
 /**
@@ -139,6 +148,20 @@ export interface ChannelDeleteEvent {
    * The ID of the guild that the channel was removed from, if any.
    */
   guild_id: number | null;
+}
+
+/**
+ * Sent by harmony when updating acknowledged messages.
+ */
+export interface ChannelAckEvent {
+  /**
+   * The ID of the channel that was acknowledged.
+   */
+  channel_id: number;
+  /**
+   * Consider all messages up to this ID as acknowledged.
+   */
+  last_message_id: number;
 }
 
 /**

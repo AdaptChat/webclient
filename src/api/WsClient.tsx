@@ -2,6 +2,7 @@ import Api from "./Api";
 import ApiCache, {memberKey} from "./ApiCache";
 import Backoff from "./Backoff";
 import {
+  ChannelAckEvent,
   ChannelCreateEvent, ChannelDeleteEvent,
   GuildCreateEvent,
   GuildRemoveEvent,
@@ -74,8 +75,20 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
       )
     }
   },
+  channel_ack(ws: WsClient, data: ChannelAckEvent) {
+    ws.api.cache?.ack(data.channel_id, data.last_message_id)
+  },
   message_create(ws: WsClient, data: MessageCreateEvent) {
-    let grouper = ws.api.cache?.messages?.get(data.message.channel_id)
+    let cache = ws.api.cache
+
+    if (data.message.author_id === cache?.clientId)
+      cache?.ack(data.message.channel_id, data.message.id)
+    else if (cache?.isMentionedIn(data.message))
+      cache?.registerMention(data.message.channel_id, data.message.id)
+
+    cache?.lastMessages.set(data.message.channel_id, data.message.id)
+
+    let grouper = cache?.messages?.get(data.message.channel_id)
     if (!grouper) return
 
     if (data.nonce)

@@ -22,7 +22,8 @@ export function SettingsSidebar() {
           onClick={() => {
             window.localStorage.clear()
             window.location.pathname = '/'
-          }}>
+          }}
+        >
           Log Out
         </SidebarButton>
       </div>

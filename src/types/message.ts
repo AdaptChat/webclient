@@ -51,10 +51,6 @@ export type Message = MessageInfo & {
    */
   id: number;
   /**
-   * The revision ID of the message. This is `None` if this message is the current revision.
-   */
-  revision_id?: number;
-  /**
    * The snowflake ID of the channel this message was sent in.
    */
   channel_id: number;
@@ -88,6 +84,14 @@ export type Message = MessageInfo & {
    * The amount of stars this message has received.
    */
   stars: number;
+  /**
+   * The users and roles that this message mentions.
+   */
+  mentions: number[];
+  /**
+   * The last time this message was edited, or `None` if it has not been edited.
+   */
+  edited_at: string | null;
 
   _nonceState?: 'pending' | 'success' | 'error';
   _nonceError?: string;
