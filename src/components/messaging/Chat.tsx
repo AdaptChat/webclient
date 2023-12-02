@@ -518,8 +518,6 @@ export default function Chat(props: { channelId: number, guildId?: number, title
   let [lastAckedId, setLastAckedId] = createSignal<number | null>(null)
 
   const ack = async () => {
-    if (!sendable()) return
-
     const last = api.cache?.lastMessages.get(props.channelId)
     if (!last || lastAckedId() == last) return
 
