@@ -198,18 +198,30 @@ function parseStyle(style: string): string {
   return css.join(' ')
 }
 
-function MentionUser({ arg, children, ...props }: any) {
+function Mention({ arg, children, ...props }: any) {
   const api = getApi()!
-  const user = api.cache?.users?.get(parseInt(arg))
-  // TODO: Should there be a special fallback for when the user is not found?
-  if (!user) return <span {...props}>{children}</span>
+  const id = parseInt(arg)
+
+  let mention
+  switch (snowflakes.modelType(id)) {
+    case snowflakes.ModelType.User:
+      mention = api.cache?.users?.get(id)?.username; break
+    case snowflakes.ModelType.Role:
+      mention = api.cache?.roles?.get(id)?.name; break
+    case snowflakes.ModelType.Guild:
+      mention = 'everyone'; break
+    default:
+      mention = null
+  }
+  // TODO: Should there be a special fallback for when the mention is not found?
+  if (!mention) return <span {...props}>{children}</span>
 
   return (
     <span
       {...props}
       class="bg-accent bg-opacity-30 hover:bg-opacity-80 py-0.5 rounded cursor-pointer transition duration-200"
     >
-      @{user.username}
+      @{mention}
     </span>
   )
 }
@@ -252,7 +264,7 @@ export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.
   spoiler: Spoiler,
   highlight: (props) => <span class="bg-highlight text-highlight-content rounded py-0.5" {...props} />,
   styled: ({ arg, ...props }: any) => <span {...props} style={parseStyle(arg)} />,
-  'mention-user': MentionUser,
+  'mention-user': Mention,
   'mention-channel': MentionChannel,
   blockquote: (props) => (
     <div class="flex">
@@ -274,8 +286,8 @@ export const render = unified()
   .use(remarkRegexp(/\|\|(.+?)\|\|/s, 'spoiler'))
   .use(remarkRegexp(/!!(.+?)!!/s, 'highlight'))
   .use(remarkRegexp(/\[([^\]]+)]\{([^}]+)}/, 'styled'))
-  .use(remarkRegexp(/(<@!?(\d{14,24})>)/, 'mention-user'))
-  .use(remarkRegexp(/(<#!?(\d{14,24})>)/, 'mention-channel'))
+  .use(remarkRegexp(/(<@!?(\d{14,20})>)/, 'mention-user'))
+  .use(remarkRegexp(/(<#!?(\d{14,20})>)/, 'mention-channel'))
   .use(flattenHtml)
   .use(remarkRehype)
   .use(rehypeKatex, {
@@ -309,7 +321,9 @@ const defaults = {
 
 export function DynamicMarkdown(props: { content: string }) {
   const file = new VFile();
-  file.value = props.content.replace(/^([+\-*]|(\d[.)]))\s*$/, '\u200E$1')
+  file.value = props.content
+    .replace(/^([+\-*]|(\d[.)]))\s*$/g, '\u200E$1') // fix lists
+    .replace(/<@(\d{14,20})>/g, '<@!$1>') // fix mentions being shown as mailto links
 
   const root = render.runSync(render.parse(file), file);
   if (root.type !== "root" as any)

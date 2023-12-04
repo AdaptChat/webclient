@@ -58,7 +58,7 @@ export type Message = MessageInfo & {
    * The snowflake ID of the author of this message, or `None` if this is a system message, or if
    * the user has been deleted.
    */
-  author_id?: number;
+  author_id: number | null;
   /**
    * Resolved data about the user or member that sent this message.
    * This is only present for new messages that are received.

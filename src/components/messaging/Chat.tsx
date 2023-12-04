@@ -1,5 +1,5 @@
 import {
-  Accessor,
+  Accessor, createEffect,
   createMemo,
   createSignal,
   For,
@@ -145,12 +145,24 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
       <For each={message().embeds}>
         {(embed) => (
           <div class="rounded overflow-hidden inline-flex my-1">
-            <div class="inline-flex flex-col p-2 bg-0 border-l-accent border-l-4">
+            <div class="inline-flex flex-col p-2.5 bg-0 border-l-accent border-l-4">
               <Show when={embed.title}>
-                <h1 class="text-lg font-title font-bold">{embed.title}</h1>
+                <a
+                  classList={{
+                    "text-lg font-medium py-0.5": true,
+                    "hover:underline underline-offset-2": !!embed.url,
+                  }}
+                  href={embed.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <DynamicMarkdown content={embed.title!} />
+                </a>
               </Show>
               <Show when={embed.description}>
-                <div class="text-fg/80 text-sm">{embed.description}</div>
+                <div class="text-fg/80 text-sm">
+                  <DynamicMarkdown content={embed.description!} />
+                </div>
               </Show>
             </div>
           </div>
@@ -387,9 +399,6 @@ export default function Chat(props: { channelId: number, guildId?: number, title
       const ignored = typingKeepAlive.stop()
       if (!response.ok)
         grouper().ackNonceError(nonce, mockMessage, response.errorJsonOrThrow().message)
-      else {
-        let _ = api.request('PUT', `/channels/${props.channelId}/ack/${response.jsonOrThrow().id}`)
-      }
     } catch (e: any) {
       grouper().ackNonceError(nonce, mockMessage, e)
       throw e
@@ -519,10 +528,13 @@ export default function Chat(props: { channelId: number, guildId?: number, title
 
   const ack = async () => {
     const last = api.cache?.lastMessages.get(props.channelId)
-    if (!last || lastAckedId() == last) return
+    if (!last || lastAckedId() == last[0]) return
 
-    setLastAckedId(last)
-    await api.request('PUT', `/channels/${props.channelId}/ack/${last}`)
+    let [id, authorId] = last
+    if (authorId == api.cache?.clientId) return
+
+    setLastAckedId(id)
+    await api.request('PUT', `/channels/${props.channelId}/ack/${id}`)
   }
 
   return (

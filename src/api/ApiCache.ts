@@ -54,7 +54,7 @@ export default class ApiCache {
   presences: ReactiveMap<number, Presence>
   relationships: ReactiveMap<number, RelationshipType>
   typing: Map<number, TypingManager>
-  lastMessages: ReactiveMap<number, number>
+  lastMessages: ReactiveMap<number, [number, number | null]> // message_id, author_id?
   lastAckedMessages: ReactiveMap<number, number | null>
   guildMentions: ReactiveMap<number, ReactiveMap<number, number[]>>
   dmMentions: ReactiveMap<number, number[]>
@@ -198,7 +198,7 @@ export default class ApiCache {
     this.channels.set(channel.id, channel)
 
     if ('last_message_id' in channel)
-      channel.last_message_id && this.lastMessages.set(channel.id, channel.last_message_id)
+      channel.last_message_id && this.lastMessages.set(channel.id, [channel.last_message_id, null])
 
     if (channel.type === 'dm' || channel.type === 'group')
       this.dmChannelOrder[1](prev => prev.includes(channel.id) ? prev : [channel.id, ...prev])
@@ -303,7 +303,7 @@ export default class ApiCache {
   }
 
   isChannelUnread(channelId: number) {
-    const lastReceived = this.lastMessages.get(channelId)
+    const lastReceived = this.lastMessages.get(channelId)?.[0]
     if (!lastReceived) return false
 
     const lastAcked = this.lastAckedMessages.get(channelId)
@@ -330,7 +330,6 @@ export default class ApiCache {
 
   registerMention(channelId: number, messageId: number) {
     function registerIn(map: ReactiveMap<number, number[]>) {
-      console.log('registering mention', channelId, messageId)
       map.set(
         channelId,
         (map.get(channelId) ?? []).concat(messageId),

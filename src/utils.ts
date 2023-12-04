@@ -64,6 +64,16 @@ export namespace snowflakes {
   }
 
   /**
+   * Returns the model type of a snowflake.
+   */
+  export function modelType(snowflake: Snowflake): ModelType {
+    if (typeof snowflake !== "bigint")
+      snowflake = BigInt(snowflake)
+
+    return Number((snowflake >> 13n) & 0b11111n)
+  }
+
+  /**
    * Returns the snowflake replaced with the given model type.
    */
   export function withModelType(snowflake: Snowflake, modelType: ModelType): bigint {

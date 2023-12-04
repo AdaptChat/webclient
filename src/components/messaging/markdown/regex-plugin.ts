@@ -86,7 +86,7 @@ export default function remarkRegexp(regexp: RegExp, replace: Replacer): Plugin<
 
         const element = createHastElement(replacement, match)
         const substitution = `${newChildSubstitution}${substitutionMapping.length}.`
-        const sliced = syntheticChildren.slice(lastEnd).replace(regexp, substitution)
+        const sliced = syntheticChildren.slice(lastEnd).replace(globalRegexp, substitution)
         syntheticChildren = syntheticChildren.slice(0, lastEnd) + sliced
         substitutionMapping.push(element)
       }
