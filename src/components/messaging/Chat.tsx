@@ -512,7 +512,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
 
         const symbol = MAPPING.find(([_, ty]) => type === ty)![0]
         const text = messageInputRef!.innerText!
-        const before = text.slice(0, wordIndex) + `<${symbol}!${target.id}>`
+        const before = text.slice(0, wordIndex) + `<${symbol}${target.id}>`
         const after = text.slice(wordIndex + value.length + 1)
         messageInputRef!.innerText = before + after
 
