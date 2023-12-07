@@ -33,22 +33,11 @@ export default function GuildIcon(
   const resolvedUnread = createMemo(() => {
     return unread ?? api?.cache?.guildChannelReactor.get(guild.id)?.some(c => api?.cache?.isChannelUnread(c))
   })
-  const mx = () => {
-    const humanized = humanize(resolvedPings()).split('')
-    const fullLength = humanized.length
-    const thinLength = humanized.filter(c => c === ',' || c === '.').length
-
-    return (fullLength - thinLength) * 0.35 + thinLength * 0.1 + 'rem'
-  }
   const indicator = () =>
     resolvedPings() > 0 ? (
       <span
         class="indicator-item indicator-bottom bg-red-600 inline-flex text-xs font-medium items-center rounded-full
-               h-[18px] my-1.5 ring-bg-0 ring-[3px]"
-        style={{
-          'margin-left': mx(),
-          'margin-right': mx(),
-        }}
+               min-w-[18px] h-[18px] m-1.5 ring-bg-0 ring-[3px]"
       >
         <span class="min-w-[18px] text-center text-white px-1.5 py-2">
           {humanize(resolvedPings())}

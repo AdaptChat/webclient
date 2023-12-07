@@ -222,8 +222,10 @@ export default function GuildSidebar() {
                 </span>
                 <Switch>
                   <Match when={mentionsIn(channel.id)}>
-                    <div class="px-1 bg-red-600 text-fg rounded-full flex items-center justify-center">
-                      {mentionsIn(channel.id)}
+                    <div
+                      class="px-1.5 min-w-[1.25rem] h-5 bg-red-600 text-fg rounded-full flex items-center justify-center"
+                    >
+                      {mentionsIn(channel.id)?.toLocaleString()}
                     </div>
                   </Match>
                   <Match when={api.cache?.isChannelUnread(channel.id)}>
