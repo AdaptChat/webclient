@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 @import "./styles/button.css";
 @import "./styles/checkbox.css";
 @import "./styles/indicator.css";
@@ -5,14 +7,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@font-face {
-  font-family: 'Mona Sans';
-  src: url('/fonts/Mona-Sans.woff2') format('woff2');
-  font-weight: 200 900;
-  font-stretch: 75% 125%;
-  font-display: swap;
-}
 
 @font-face {
   font-family: 'Inter var';

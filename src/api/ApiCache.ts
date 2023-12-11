@@ -201,7 +201,18 @@ export default class ApiCache {
       channel.last_message_id && this.lastMessages.set(channel.id, [channel.last_message_id, null])
 
     if (channel.type === 'dm' || channel.type === 'group')
-      this.dmChannelOrder[1](prev => prev.includes(channel.id) ? prev : [channel.id, ...prev])
+      this.dmChannelOrder[1](prev => {
+        if (prev.includes(channel.id)) return prev
+        else {
+          let updated = [channel.id, ...prev]
+          updated.sort((a, b) => {
+            const [aId, _aAuthor] = this.lastMessages.get(a) ?? [0, 0]
+            const [bId, _bAuthor] = this.lastMessages.get(b) ?? [0, 0]
+            return aId - bId
+          })
+          return updated
+        }
+      })
   }
 
   updateRelationship(relationship: Relationship) {
@@ -347,6 +358,14 @@ export default class ApiCache {
     } else {
       registerIn(this.dmMentions)
     }
+  }
+
+  countGuildMentionsIn(guildId: number, channelId: number): number | null {
+    return this.guildMentions.get(guildId)?.get(channelId)?.length ?? null
+  }
+
+  countDmMentionsIn(channelId: number): number | null {
+    return this.dmMentions.get(channelId)?.length ?? null
   }
 }
 

@@ -85,7 +85,6 @@ export default function GuildSidebar() {
     </Show>
   )
   const guildPermissions = createMemo(() => api.cache?.getClientPermissions(guildId))
-  const mentionsIn = (channelId: number) => api.cache?.guildMentions.get(guildId)?.get(channelId)?.length
 
   return (
     <div
@@ -216,16 +215,17 @@ export default function GuildSidebar() {
             >
               <span class="flex justify-between items-center">
                 <span classList={{
-                  "text-fg": api.cache?.isChannelUnread(channel.id) || !!mentionsIn(channel.id),
+                  "text-fg": api.cache?.isChannelUnread(channel.id)
+                    || !!api.cache?.countGuildMentionsIn(guildId, channel.id),
                 }}>
                   {channel.name}
                 </span>
                 <Switch>
-                  <Match when={mentionsIn(channel.id)}>
+                  <Match when={api.cache?.countGuildMentionsIn(guildId, channel.id)}>
                     <div
                       class="px-1.5 min-w-[1.25rem] h-5 bg-red-600 text-fg rounded-full flex items-center justify-center"
                     >
-                      {mentionsIn(channel.id)?.toLocaleString()}
+                      {api.cache?.countGuildMentionsIn(guildId, channel.id)?.toLocaleString()}
                     </div>
                   </Match>
                   <Match when={api.cache?.isChannelUnread(channel.id)}>

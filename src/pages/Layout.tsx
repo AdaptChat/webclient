@@ -95,12 +95,12 @@ export default function Layout(props: ParentProps<LayoutProps>) {
               {props.sidebar!()}
             </div>
             <div class="flex items-center bg-0 rounded-lg m-4 pr-2">
-              <div class="indicator w-10">
+              <div class="indicator w-10 h-10">
                 <StatusIndicator status={api.cache!.presences.get(clientUser().id)!.status} tailwind="m-[0.1rem]" indicator />
                 <img src={api.cache!.clientAvatar} alt="" class="w-10 h-10 rounded-lg" />
               </div>
               <div
-                class="w-[calc(100%-3rem)] ml-2 font-medium overflow-ellipsis overflow-hidden cursor-pointer"
+                class="w-[calc(100%-3rem)] flex flex-col ml-2 font-medium overflow-ellipsis overflow-hidden cursor-pointer"
                 onClick={() => toast.promise(
                   navigator.clipboard.writeText(clientUser().username),
                   {

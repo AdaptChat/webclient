@@ -1,7 +1,7 @@
 import Layout, {setShowSidebar} from "./Layout";
 import {getApi} from "../api/Api";
 import StatusIndicator, {StatusIndicatorProps} from "../components/users/StatusIndicator";
-import {createMemo, createSignal, For, type JSX, ParentProps, Show} from "solid-js";
+import {createMemo, createSignal, For, type JSX, Match, ParentProps, Show, Switch} from "solid-js";
 import {A, useLocation, useNavigate} from "@solidjs/router";
 import useNewGuildModalComponent from "../components/guilds/NewGuildModal";
 import {displayName, humanizeStatus, noop} from "../utils";
@@ -67,6 +67,10 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
         : 'Leave Group'
       : 'Close DM'
 
+  const hasUnread = createMemo(() => !!(
+    api.cache?.isChannelUnread(channelId) || api.cache?.countDmMentionsIn(channelId)
+  ))
+
   return (
     <A
       href={href}
@@ -89,9 +93,9 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
         )}
         <div class="ml-0.5 text-sm">
           <span classList={{
-            "text-fg group-hover:text-opacity-80 transition-all duration-200": true,
-            "text-opacity-100": active(),
-            "text-opacity-60": !active(),
+            "text-fg transition-all duration-200": true,
+            "text-opacity-100": active() || hasUnread(),
+            "text-opacity-60 group-hover:text-opacity-80": !active() && !hasUnread(),
           }}>
             {group ? (channel() as GroupDmChannel).name : user()!.username}
           </span>
@@ -100,18 +104,31 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
           </div>
         </div>
       </div>
-      <Icon
-        icon={Xmark}
-        title={deleteMessage()}
-        tooltip={deleteMessage()}
-        class="fill-fg select-none w-4 h-4 opacity-0 hover:!opacity-80 group-hover:opacity-50 transition-opacity duration-200"
-        onClick={(event) => {
-          event.stopPropagation()
-          event.preventDefault()
+      <Switch fallback={
+        <Icon
+          icon={Xmark}
+          title={deleteMessage()}
+          tooltip={deleteMessage()}
+          class="fill-fg select-none w-4 h-4 opacity-0 hover:!opacity-80 group-hover:opacity-50 transition-opacity duration-200"
+          onClick={(event) => {
+            event.stopPropagation()
+            event.preventDefault()
 
-          toast.error('Work in progress!')
-        }}
-      />
+            toast.error('Work in progress!')
+          }}
+        />
+      }>
+        <Match when={api.cache?.countDmMentionsIn(channelId)}>
+          <div
+            class="p-1.5 text-sm min-w-[1.25rem] h-5 bg-red-600 text-fg rounded-full flex items-center justify-center"
+          >
+            {api.cache?.countDmMentionsIn(channelId)?.toLocaleString()}
+          </div>
+        </Match>
+        <Match when={api.cache?.isChannelUnread(channelId)}>
+          <span class="mx-1 w-2 h-2 bg-fg rounded-lg" />
+        </Match>
+      </Switch>
     </A>
   )
 }

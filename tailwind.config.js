@@ -58,7 +58,7 @@ module.exports = {
       },
     },
     fontFamily: {
-      title: ['"Mona Sans"', "'Inter var'", ...defaultTheme.fontFamily.sans],
+      title: ['"Plus Jakarta Sans"', "'Inter var'", ...defaultTheme.fontFamily.sans],
       sans: ["'Inter var'", ...defaultTheme.fontFamily.sans],
       mono: [
         'Menlo', 'Monaco', 'Lucida Console', 'Liberation Mono',
