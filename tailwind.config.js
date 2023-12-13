@@ -58,8 +58,8 @@ module.exports = {
       },
     },
     fontFamily: {
-      title: ['"Plus Jakarta Sans"', "'Inter var'", ...defaultTheme.fontFamily.sans],
-      sans: ["'Inter var'", ...defaultTheme.fontFamily.sans],
+      title: ['"Plus Jakarta Sans"', "Geist", ...defaultTheme.fontFamily.sans],
+      sans: ["Geist", ...defaultTheme.fontFamily.sans],
       mono: [
         'Menlo', 'Monaco', 'Lucida Console', 'Liberation Mono',
         'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', 'monospace',

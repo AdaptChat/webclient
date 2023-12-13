@@ -9,15 +9,20 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'Inter var';
-  src: url('/fonts/Inter.var.woff2') format('woff2');
+  font-family: 'Geist';
+  src: url('/fonts/GeistVariableVF.woff2') format('woff2');
   font-weight: 100 900;
   font-display: swap;
-  font-feature-settings: "ss01";
 }
 
 * {
   text-rendering: optimizeLegibility !important;
+}
+
+.font-sans {
+  font-feature-settings: "ss05", "tnum";
+  -moz-font-feature-settings: "ss05", "tnum";
+  -webkit-font-feature-settings: "ss05", "tnum";
 }
 
 html {
