@@ -1,7 +1,7 @@
 import Layout, {FormInput, FormSubmit} from "./Layout";
 import Api, {setApi} from "../../api/Api";
 import {LoginResponse} from "../../types/auth";
-import {createSignal, onMount, Show} from "solid-js";
+import {createSignal, Show} from "solid-js";
 import {useLocation, useNavigate} from "@solidjs/router";
 import {Turnstile, TurnstileRef} from "@nerimity/solid-turnstile";
 
@@ -53,8 +53,10 @@ export default function Register() {
 
         if (!response.ok) {
           setIsSubmitting(false)
-          turnstileRef?.reset()
           setError(response.errorJsonOrThrow().message)
+          setTurnstileToken(undefined)
+          turnstileRef?.reset()
+          return
         }
         let { token } = response.ensureOk().jsonOrThrow()
         if (rememberMeRef!.checked) localStorage.setItem("token", token);
@@ -135,7 +137,7 @@ export default function Register() {
         </label>
       </div>
 
-      <Show when={turnstileToken()} keyed={false} fallback={
+      <Show when={turnstileToken()} fallback={
         <Turnstile
           ref={turnstileRef!}
           sitekey={process.env.NODE_ENV === "production" ? "0x4AAAAAAACKrfJ6GCEBF1ih" : "1x00000000000000000000AA"}

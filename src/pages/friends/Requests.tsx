@@ -64,16 +64,6 @@ export default function Requests() {
           You currently have no incoming or outgoing friend requests.
         </p>
       </Show>
-      <Show when={outgoing().length} keyed={false}>
-        <div class="divider font-title font-medium text-fg/60 m-4">Outgoing Requests</div>
-        <For each={outgoing()}>
-          {([id, _]) => (
-            <FriendEntry api={api} id={id}>
-              <RelationshipDeleteButton api={api} id={id} label="Revoke Request" />
-            </FriendEntry>
-          )}
-        </For>
-      </Show>
       <Show when={incoming().length} keyed={false}>
         <div class="divider font-title font-medium text-fg/60 m-4">Incoming Requests</div>
         <For each={incoming()}>
@@ -87,6 +77,16 @@ export default function Requests() {
                 <Icon icon={Check} title="Accept Request" class="w-4 h-4 fill-fg"/>
               </button>
               <RelationshipDeleteButton api={api} id={id} label="Deny Request" />
+            </FriendEntry>
+          )}
+        </For>
+      </Show>
+      <Show when={outgoing().length} keyed={false}>
+        <div class="divider font-title font-medium text-fg/60 m-4">Outgoing Requests</div>
+        <For each={outgoing()}>
+          {([id, _]) => (
+            <FriendEntry api={api} id={id}>
+              <RelationshipDeleteButton api={api} id={id} label="Revoke Request" />
             </FriendEntry>
           )}
         </For>

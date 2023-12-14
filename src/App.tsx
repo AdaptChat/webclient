@@ -109,7 +109,7 @@ const App: Component = () => {
         }
       })}
     >
-      <Show when={getApi()} keyed={false} fallback={
+      <Show when={getApi()} fallback={
         <Routes>
           <Route path={["/", "/login"]} component={Login} />
           <Route path="/register" component={Register} />

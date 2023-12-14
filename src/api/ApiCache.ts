@@ -84,6 +84,7 @@ export default class ApiCache {
   static fromReadyEvent(api: Api, ready: ReadyEvent): ApiCache {
     let cache = new ApiCache(api)
     cache.clientUserReactor = createSignal(ready.user)
+    cache.updateUser(ready.user)
 
     for (const relationship of ready.relationships)
       cache.updateRelationship(relationship)
@@ -96,6 +97,14 @@ export default class ApiCache {
 
     for (const dmChannel of ready.dm_channels)
       cache.updateChannel(dmChannel)
+
+    let order = ready.dm_channels.map(channel => channel.id)
+    order.sort((a, b) => {
+      const [aId, _aAuthor] = cache.lastMessages.get(a) ?? [a, 0]
+      const [bId, _bAuthor] = cache.lastMessages.get(b) ?? [b, 0]
+      return bId - aId
+    })
+    cache.dmChannelOrder[1](order)
 
     for (const { channel_id, last_message_id, mentions } of ready.unacked) {
       cache.lastAckedMessages.set(channel_id, last_message_id)
@@ -111,7 +120,6 @@ export default class ApiCache {
       }
     }
 
-    cache.updateUser(ready.user)
     return cache
   }
 
@@ -199,20 +207,22 @@ export default class ApiCache {
 
     if ('last_message_id' in channel)
       channel.last_message_id && this.lastMessages.set(channel.id, [channel.last_message_id, null])
+  }
 
-    if (channel.type === 'dm' || channel.type === 'group')
-      this.dmChannelOrder[1](prev => {
-        if (prev.includes(channel.id)) return prev
-        else {
-          let updated = [channel.id, ...prev]
-          updated.sort((a, b) => {
-            const [aId, _aAuthor] = this.lastMessages.get(a) ?? [0, 0]
-            const [bId, _bAuthor] = this.lastMessages.get(b) ?? [0, 0]
-            return aId - bId
-          })
-          return updated
-        }
-      })
+  insertDmChannel(channelId: number) {
+    this.dmChannelOrder[1](prev => {
+      const index = prev.indexOf(channelId)
+      if (index === -1) return [channelId, ...prev]
+
+      const next = [...prev]
+      next.splice(index, 1)
+      next.unshift(channelId)
+      return next
+    })
+  }
+
+  removeDmChannel(channelId: number) {
+    this.dmChannelOrder[1](prev => prev.filter(id => id !== channelId))
   }
 
   updateRelationship(relationship: Relationship) {

@@ -38,8 +38,8 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
     console.info('[WS] Connected to harmony')
   },
   ready(ws: WsClient, data: ReadyEvent) {
-    ws.readyPromiseResolver?.(true)
     ws.api.cache ??= ApiCache.fromReadyEvent(ws.api, data)
+    ws.readyPromiseResolver?.(true)
     ws.resetBackoff()
     console.info('[WS] Ready event received from harmony')
   },
@@ -63,6 +63,8 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
         guildId,
         ws.api.cache?.guildChannelReactor.get(guildId)?.concat(data.channel.id) ?? [data.channel.id]
       )
+    } else {
+      ws.api.cache?.insertDmChannel(data.channel.id)
     }
   },
   channel_delete(ws: WsClient, data: ChannelDeleteEvent) {
@@ -73,6 +75,8 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
         guildId,
         ws.api.cache?.guildChannelReactor.get(guildId)?.filter(id => id != data.channel_id) ?? []
       )
+    } else {
+      ws.api.cache?.removeDmChannel(data.channel_id)
     }
   },
   channel_ack(ws: WsClient, data: ChannelAckEvent) {
@@ -80,15 +84,20 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
   },
   message_create(ws: WsClient, data: MessageCreateEvent) {
     let cache = ws.api.cache
+    if (!cache) return
 
-    if (data.message.author_id === cache?.clientId)
-      cache?.ack(data.message.channel_id, data.message.id)
-    else if (cache?.isMentionedIn(data.message))
-      cache?.registerMention(data.message.channel_id, data.message.id)
+    if (data.message.author_id === cache.clientId)
+      cache.ack(data.message.channel_id, data.message.id)
+    else if (cache.isMentionedIn(data.message))
+      cache.registerMention(data.message.channel_id, data.message.id)
 
-    cache?.lastMessages.set(data.message.channel_id, [data.message.id, data.message.author_id])
+    cache.lastMessages.set(data.message.channel_id, [data.message.id, data.message.author_id])
 
-    let grouper = cache?.messages?.get(data.message.channel_id)
+    let [dmChannels, _] = cache.dmChannelOrder
+    if (dmChannels().includes(data.message.channel_id))
+      cache.insertDmChannel(data.message.channel_id)
+
+    let grouper = cache.messages.get(data.message.channel_id)
     if (!grouper) return
 
     if (data.nonce)

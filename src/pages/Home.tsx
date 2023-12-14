@@ -15,6 +15,9 @@ import Xmark from "../components/icons/svg/Xmark";
 import HomeIcon from "../components/icons/svg/Home";
 import UserGroup from "../components/icons/svg/UserGroup";
 import ChevronRight from "../components/icons/svg/ChevronRight";
+import useContextMenu from "../hooks/useContextMenu";
+import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../components/ui/ContextMenu";
+import Code from "../components/icons/svg/Code";
 noop(tooltip)
 
 export function Card(props: ParentProps<{ title: string }>) {
@@ -58,7 +61,7 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
       ? api.cache!.users.get(channel().recipient_ids.find(id => id != api.cache!.clientId)!)
       : undefined
   )
-  const presence = createMemo(() => api.cache!.presences.get(user()!.id))
+  const presence = createMemo(() => api.cache!.presences.get(user()?.id!))
   const group = channel().type === 'group'
   const deleteMessage = () =>
     group
@@ -70,6 +73,8 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
   const hasUnread = createMemo(() => !!(
     api.cache?.isChannelUnread(channelId) || api.cache?.countDmMentionsIn(channelId)
   ))
+  const contextMenu = useContextMenu()
+  // const isFriend = createMemo(() => api.cache!.relationships.get(user()?.id!) === 'friend')
 
   return (
     <A
@@ -81,6 +86,23 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
       onClick={() => {
         if (window.innerWidth < 768) setShowSidebar(false)
       }}
+      onContextMenu={contextMenu?.getHandler(
+        <ContextMenu>
+          <ContextMenuButton
+            icon={Code} label="Copy User ID"
+            onClick={() => navigator.clipboard.writeText(user()?.id?.toString() ?? '0')}
+          />
+          <ContextMenuButton
+            icon={Code} label="Copy Channel ID"
+            onClick={() => navigator.clipboard.writeText(channelId.toString())}
+          />
+          <DangerContextMenuButton
+            icon={Xmark}
+            label="Close DM"
+            onClick={() => toast.error('Work in progress!')}
+          />
+        </ContextMenu>
+      )}
     >
       <div class="flex items-center gap-x-2">
         {group ? (
@@ -88,7 +110,7 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
         ) : (
           <div class="indicator">
             <StatusIndicator status={presence()?.status} tailwind="m-[0.1rem]" indicator />
-            <img src={api.cache!.avatarOf(user()!.id)} alt="" class="w-8 h-8 rounded-full"/>
+            <img src={api.cache!.avatarOf(user()?.id!)} alt="" class="w-8 h-8 rounded-full"/>
           </div>
         )}
         <div class="ml-0.5 text-sm">
@@ -97,7 +119,7 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
             "text-opacity-100": active() || hasUnread(),
             "text-opacity-60 group-hover:text-opacity-80": !active() && !hasUnread(),
           }}>
-            {group ? (channel() as GroupDmChannel).name : user()!.username}
+            {group ? (channel() as GroupDmChannel).name : user()?.username ?? 'Unknown User'}
           </span>
           <div class="text-xs text-fg/40">
             {group ? channel().recipient_ids.length + ' members' : presence()?.custom_status}

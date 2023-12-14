@@ -71,7 +71,7 @@ export default function Layout(props: ParentProps<Props>) {
               {props.switchScreenLabel}
             </A>
           </p>
-          <Show when={props.error} keyed={false}>
+          <Show when={props.error}>
             <div class="text-red-500">
               <p class="mt-4 font-bold">Something went wrong!</p>
               <p class="text-sm">{capitalize(props.error!)}</p>
