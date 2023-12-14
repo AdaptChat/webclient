@@ -61,7 +61,7 @@ module.exports = {
       title: ['"Plus Jakarta Sans"', "Geist", ...defaultTheme.fontFamily.sans],
       sans: ["Geist", ...defaultTheme.fontFamily.sans],
       mono: [
-        'Menlo', 'Monaco', 'Lucida Console', 'Liberation Mono',
+        '"Geist Mono"', 'Menlo', 'Monaco', 'Lucida Console', 'Liberation Mono',
         'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', 'monospace',
       ],
     },

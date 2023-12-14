@@ -76,26 +76,22 @@ export default function remarkRegexp(regexp: RegExp, replace: Replacer): Plugin<
         .join('')
 
       let match: RegExpExecArray
-      let lastEnd = 0
-      const globalRegexp = new RegExp(regexp, regexp.flags + 'g')
 
-      while (match = globalRegexp.exec(syntheticChildren.slice(lastEnd))!) {
+      while (match = regexp.exec(syntheticChildren)!) {
         const replacement = typeof replace === 'function'
           ? replace(...match)
           : replace
 
         const element = createHastElement(replacement, match)
         const substitution = `${newChildSubstitution}${substitutionMapping.length}.`
-        const sliced = syntheticChildren.slice(lastEnd).replace(regexp, substitution)
-        syntheticChildren = syntheticChildren.slice(0, lastEnd) + sliced
+        syntheticChildren = syntheticChildren.replace(regexp, substitution)
         substitutionMapping.push(element)
-        lastEnd = match.index! + substitution.length
       }
 
       const newChildren = []
 
       let buffer = 0
-      while (buffer <= syntheticChildren.length) {
+      while (buffer < syntheticChildren.length) {
         const sample = syntheticChildren.slice(buffer)
 
         if (sample.startsWith(childSubstitution)) {
@@ -117,7 +113,7 @@ export default function remarkRegexp(regexp: RegExp, replace: Replacer): Plugin<
           }
 
           element.children = children
-          newChildren.push(substitutionMapping[index]!)
+          newChildren.push(element)
           buffer += newChildSubstitution.length + index.toString().length + 1
         }
         else {
