@@ -145,11 +145,32 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
       <For each={message().embeds}>
         {(embed) => (
           <div class="rounded overflow-hidden inline-flex my-1">
-            <div class="inline-flex flex-col p-2.5 bg-0 border-l-accent border-l-4">
+            <div class="inline-flex flex-col p-2.5 border-l-accent border-l-4" style={{
+              'background-color': embed.hue != null
+                ? `color-mix(in srgb, rgb(var(--c-bg-0)), hsl(${embed.hue * 3.6}, 35%, 50%) 25%)`
+                : 'rgb(var(--c-bg-0))'
+            }}>
+              <Show when={embed.author}>
+                <a
+                  classList={{
+                    "flex items-center text-fg/70 font-normal": true,
+                    "hover:underline underline-offset-2": !!embed.author!.url,
+                    "mb-0.5": !!embed.author!.icon_url,
+                  }}
+                  href={embed.author!.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Show when={embed.author!.icon_url}>
+                    <img src={embed.author!.icon_url!} alt="" class="mr-1 w-5 h-5 rounded-full" />
+                  </Show>
+                  <DynamicMarkdown content={embed.author!.name} />
+                </a>
+              </Show>
               <Show when={embed.title}>
                 <a
                   classList={{
-                    "text-lg font-medium py-0.5": true,
+                    "text-lg font-medium font-title py-0.5 md:min-w-[128px]": true,
                     "hover:underline underline-offset-2": !!embed.url,
                   }}
                   href={embed.url}
@@ -162,6 +183,14 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
               <Show when={embed.description}>
                 <div class="text-fg/80 text-sm">
                   <DynamicMarkdown content={embed.description!} />
+                </div>
+              </Show>
+              <Show when={embed.footer}>
+                <div class="flex items-center text-fg/50 text-xs mt-1.5">
+                  <Show when={embed.footer!.icon_url}>
+                    <img src={embed.footer!.icon_url!} alt="" class="mr-1 w-5 h-5 rounded-full" />
+                  </Show>
+                  <DynamicMarkdown content={embed.footer!.text} />
                 </div>
               </Show>
             </div>
