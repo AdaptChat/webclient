@@ -130,6 +130,13 @@ export function isSameDay(date: Date, now: Date): boolean {
 }
 
 /**
+ * Returns the day of the given date, ignoring the time.
+ */
+export function day(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate())
+}
+
+/**
  * Humanizes a timestamp.
  */
 // TODO: Support for customizable locales
@@ -141,17 +148,24 @@ export function humanizeTimestamp(timestamp: number | Date): string {
 
   let prefix
   if (isSameDay(timestamp, now))
-    prefix = ''
+    return humanizeTime(timestamp)
   else if (isSameDay(timestamp, new Date(now.getTime() - 86_400_000)))
-    prefix = 'Yesterday at '
+    prefix = 'Yesterday'
+  else if (day(now).getTime() - day(timestamp).getTime() < 3 * 86_400_000)
+    prefix = timestamp.toLocaleDateString('en-US', { weekday: 'long' })
+  else if (timestamp.getFullYear() === now.getFullYear())
+    prefix = timestamp.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    })
   else
     prefix = timestamp.toLocaleDateString('en-US', {
       year: 'numeric',
-      month: '2-digit',
+      month: 'short',
       day: '2-digit',
-    }) + ' at '
+    })
 
-  return prefix + humanizeTime(timestamp)
+  return `${prefix} at ${humanizeTime(timestamp)}`
 }
 
 /**

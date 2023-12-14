@@ -258,7 +258,12 @@ export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.
   a: Anchor,
   img: (props: any) => <Anchor {...props} isImage href={props.src}>{props.alt || props.src}</Anchor>,
   span: (props) => <span {...props} />,
-  code: (props) => <code {...props} class="bg-0 rounded px-1 py-0.5" />,
+  code: (props) => <code {...props} class="bg-0 rounded text-xs px-1 py-0.5" />,
+  pre: (props) => (
+    <div class="bg-0 rounded px-2.5 py-1.5 my-1">
+      <pre {...props} />
+    </div>
+  ),
   ul: (props) => <ul class="list-disc ml-4" {...props} />,
   ol: (props) => <ol class="list-decimal ml-4" {...props} />,
   spoiler: Spoiler,

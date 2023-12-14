@@ -145,4 +145,7 @@ details > summary::-webkit-details-marker { display: none }
   -moz-osx-font-smoothing: grayscale;
 }
 
-.shiki { @apply !bg-bg-0 rounded px-2 py-1 my-1 whitespace-pre-wrap break-words all-children:!px-0 }
+.shiki {
+  @apply !bg-transparent whitespace-pre-wrap break-words;
+  @apply all-children:px-0 all-children:text-sm all-children:font-normal;
+}
