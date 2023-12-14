@@ -158,7 +158,8 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
                   classList={{
                     "flex items-center text-fg/70 font-normal": true,
                     "hover:underline underline-offset-2": !!embed.author!.url,
-                    "mb-0.5": !!embed.author!.icon_url,
+                    "mb-0.5": !!embed.author!.icon_url && !embed.title,
+                    "mb-1.5": !embed.title,
                   }}
                   href={embed.author!.url}
                   target="_blank"
