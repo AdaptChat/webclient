@@ -145,10 +145,13 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
       <For each={message().embeds}>
         {(embed) => (
           <div class="rounded overflow-hidden inline-flex my-1">
-            <div class="inline-flex flex-col p-2.5 border-l-accent border-l-4" style={{
+            <div class="inline-flex flex-col p-2.5 border-l-4" style={{
               'background-color': embed.hue != null
                 ? `color-mix(in srgb, rgb(var(--c-bg-0)), hsl(${embed.hue * 3.6}, 35%, 50%) 25%)`
-                : 'rgb(var(--c-bg-0))'
+                : 'rgb(var(--c-bg-0))',
+              'border-left-color': embed.color != null
+                ? '#' + embed.color!.toString(16)
+                : 'rgb(var(--c-accent))',
             }}>
               <Show when={embed.author}>
                 <a
