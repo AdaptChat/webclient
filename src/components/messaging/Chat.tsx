@@ -150,7 +150,7 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
                 ? `color-mix(in srgb, rgb(var(--c-bg-0)), hsl(${embed.hue * 3.6}, 35%, 50%) 25%)`
                 : 'rgb(var(--c-bg-0))',
               'border-left-color': embed.color != null
-                ? '#' + embed.color!.toString(16)
+                ? '#' + embed.color!.toString(16).padStart(6, '0')
                 : 'rgb(var(--c-accent))',
             }}>
               <Show when={embed.author}>
