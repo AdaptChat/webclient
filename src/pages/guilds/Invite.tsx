@@ -5,17 +5,58 @@ import UserTie from "../../components/icons/svg/UserTie";
 import ChevronLeft from "../../components/icons/svg/ChevronLeft";
 import Plus from "../../components/icons/svg/Plus";
 import UserPlus from "../../components/icons/svg/UserPlus";
-import {useNavigate, useParams} from "@solidjs/router";
+import {Navigator, useNavigate, useParams} from "@solidjs/router";
 import {getApi} from "../../api/Api";
 import {createEffect, createSignal, onMount, Show} from "solid-js";
 import type {Invite} from "../../types/guild";
 import type {User as UserObject} from "../../types/user";
 import GuildIcon from "../../components/guilds/GuildIcon";
-import {joinGuild} from "../../components/messaging/Markdown";
+import {snowflakes} from "../../utils";
+import {GuildCreateEvent} from "../../types/ws";
+import {Member} from "../../types/guild";
 
 const Fallback = () => (
   <p class="text-fg/50 animate-pulse text-2xl font-bold font-title">Loading...</p>
 )
+
+export const INVITE_REGEX = /(?:(?:https?:\/\/(?:www\.)?)?adapt\.chat\/invite\/)?(\w{6,12})\/?/;
+
+export async function joinGuild(code: string, navigate: Navigator) {
+  const api = getApi()!
+
+  let acked = false
+  let ack = (guildId: number) => {
+    acked = true
+    navigate(`/guilds/${guildId}`)
+  }
+
+  const nonce = snowflakes.fromTimestamp(Date.now())
+  api.ws?.on("guild_create", (event: GuildCreateEvent, remove) => {
+    if (acked)
+      return remove()
+    if (!event.nonce || event.nonce != nonce.toString())
+      return
+
+    ack(event.guild.id)
+    remove()
+  })
+
+  const matches = code.match(INVITE_REGEX)
+  if (!matches || matches.length < 1)
+    throw new Error('Invite code did not match expected format.')
+
+  const response = await api.request<Member>(
+    'POST',
+    `/invites/${matches[1]}`,
+    { params: { nonce } },
+  )
+  if (!response.ok)
+    throw new Error(response.errorJsonOrThrow().message)
+
+  const { guild_id } = response.ensureOk().jsonOrThrow()
+  if (api.cache?.guildList?.includes(guild_id))
+    ack(guild_id)
+}
 
 export default function InviteScreen() {
   const code = useParams().code
@@ -28,19 +69,21 @@ export default function InviteScreen() {
   let backgroundRef: HTMLDivElement | null = null
 
   onMount(async () => {
-    const response = await api.request('GET', `/invites/${code}`)
-    if (response.status === 404) {
-      navigate('/404', { replace: true })
-      return
+    let invite: Invite = api.cache!.invites.get(code)!
+    if (!invite) {
+      const response = await api.request('GET', `/invites/${code}`)
+      if (response.status === 404) {
+        navigate('/404', { replace: true })
+        return
+      }
+      invite = response.jsonOrThrow()
     }
-    const invite: Invite = response.jsonOrThrow()
     if (api.cache?.guildList.includes(invite.guild_id)) {
       navigate(`/guilds/${invite.guild_id}`, { replace: true })
       return
     }
 
     setInvite(invite)
-
     let banner = invite.guild?.banner;
     if (banner != null)
       backgroundRef!.style.backgroundImage = `url(${banner})` // TODO: this should be the splash image
@@ -75,11 +118,11 @@ export default function InviteScreen() {
             <div class="flex items-center">
               <GuildIcon guild={invite()!.guild!} pings={0} unread={false} sizeClass="w-24 h-24 text-2xl" />
               <div class="ml-4">
-                <h1 class="font-title font-bold text-4xl">{invite()!.guild!.name}</h1>
+                <h1 class="font-title font-bold text-4xl mobile:text-2xl mb-1">{invite()!.guild!.name}</h1>
                 <p class="flex items-center gap-x-1 text-fg/50 text-sm">
                   <Icon icon={Users} class="w-4 h-4 fill-fg/50" />
                   <span class="mr-2">{invite()!.guild!.member_count!.total.toLocaleString()}</span>
-
+                  {/* TODO: Online users */}
                   <Show when={owner()} keyed={false}>
                     <Icon icon={UserTie} class="w-4 h-4 fill-fg/50" />
                     <span>@{owner()!.username}</span>

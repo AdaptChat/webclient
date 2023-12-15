@@ -15,12 +15,10 @@ import {Root as HtmlRoot} from "rehype-stringify/lib";
 import {Root as MdRoot} from "remark-parse/lib";
 
 import {createSignal, JSX, Show} from "solid-js";
-import {A, Navigator, useNavigate, useParams} from "@solidjs/router";
+import {A, useNavigate, useParams} from "@solidjs/router";
 
-import {Member} from "../../types/guild";
 import {getApi} from "../../api/Api";
 import {snowflakes} from "../../utils";
-import {GuildCreateEvent} from "../../types/ws";
 import {childrenToSolid} from "./markdown/ast-to-solid";
 import {html} from "property-information";
 import remarkRegexp from "./markdown/regex-plugin";
@@ -63,7 +61,7 @@ function Anchor(props: JSX.HTMLAttributes<HTMLAnchorElement> & { isImage?: boole
     const url = new URL(href)
     if (url.hostname === 'adapt.chat' && url.pathname.startsWith("/invite/")) {
       e.preventDefault()
-      return joinGuild(href, navigate)
+      return navigate(url.pathname)
     }
     else if (url.hostname === 'app.adapt.chat') {
       e.preventDefault()
@@ -116,43 +114,6 @@ function Spoiler(props: JSX.HTMLAttributes<HTMLSpanElement>) {
       {props.children}
     </span>
   )
-}
-
-export async function joinGuild(code: string, navigate: Navigator) {
-  const api = getApi()!
-
-  let acked = false
-  let ack = (guildId: number) => {
-    acked = true
-    navigate(`/guilds/${guildId}`)
-  }
-
-  const nonce = snowflakes.fromTimestamp(Date.now())
-  api.ws?.on("guild_create", (event: GuildCreateEvent, remove) => {
-    if (acked)
-      return remove()
-    if (!event.nonce || event.nonce != nonce.toString())
-      return
-
-    ack(event.guild.id)
-    remove()
-  })
-
-  const matches = code.match(/(?:(?:https?:\/\/(?:www\.)?)?adapt\.chat\/invite\/)?(\w{6,12})\/?/) ?? code
-  if (!matches || matches.length < 1)
-    throw new Error('Invite code did not match expected format.')
-
-  const response = await api.request<Member>(
-    'POST',
-    `/invites/${matches[1]}`,
-    { params: { nonce } },
-  )
-  if (!response.ok)
-    throw new Error(response.errorJsonOrThrow().message)
-
-  const { guild_id } = response.ensureOk().jsonOrThrow()
-  if (api.cache?.guildList?.includes(guild_id))
-    ack(guild_id)
 }
 
 function sanitizeCSSValue(value: string) {

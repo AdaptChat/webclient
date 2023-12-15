@@ -20,7 +20,7 @@ import {
   humanizeFullTimestamp,
   humanizeSize,
   humanizeTime,
-  humanizeTimestamp,
+  humanizeTimestamp, mapIterator,
   snowflakes,
   uuid
 } from "../../utils";
@@ -41,6 +41,11 @@ import useContextMenu from "../../hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../ui/ContextMenu";
 import {toast} from "solid-toast";
 import Code from "../icons/svg/Code";
+import {Invite} from "../../types/guild";
+import GuildIcon from "../guilds/GuildIcon";
+import UserPlus from "../icons/svg/UserPlus";
+import {joinGuild} from "../../pages/guilds/Invite";
+import {useNavigate} from "@solidjs/router";
 
 noop(tooltip)
 
@@ -121,9 +126,36 @@ function shouldDisplayImage(filename: string): boolean {
   return ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].some((ext) => filename.endsWith(ext))
 }
 
+const INVITE_REGEX = /https:\/\/adapt\.chat\/invite\/([a-zA-Z0-9]+)/g
+
 export function MessageContent(props: { message: Message, largePadding?: boolean }) {
   const message = () => props.message
   const largePadding = () => props.largePadding
+  const navigate = useNavigate()
+
+  const api = getApi()!
+  const [invites, setInvites] = createSignal<Invite[]>([])
+  onMount(() => {
+    const codes = new Set(
+      mapIterator(message().content?.matchAll(INVITE_REGEX) ?? [], (match) => match[1])
+    )
+    if (codes.size == 0) return
+
+    let tasks = [...codes].slice(0, 5).map(async (code) => {
+      const cached = api.cache!.invites.get(code)
+      if (cached) return cached
+
+      const response = await api.request('GET', `/invites/${code}`)
+      if (!response.ok) return null
+
+      const invite: Invite = response.jsonOrThrow()
+      api.cache!.invites.set(code, invite)
+      return invite
+    })
+    Promise.all(tasks).then((invites) => {
+      setInvites(invites.filter((invite): invite is Invite => !!invite))
+    })
+  })
 
   return (
     <span
@@ -233,6 +265,30 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
                 </div>
               )
             })()}
+          </div>
+        )}
+      </For>
+      {/* Invites */}
+      <For each={invites()}>
+        {(invite) => (
+          <div class="my-1 bg-0 rounded-lg p-4 max-w-[360px]">
+            <p class="pb-2 flex items-center justify-center text-sm text-fg/40 font-title font-bold">
+              <Icon icon={UserPlus} class="w-5 h-5 mr-2 fill-fg/40" />
+              <span>You've been invited to join a server!</span>
+            </p>
+            <div class="flex gap-x-2 items-center">
+              <GuildIcon guild={invite!.guild!} pings={0} unread={false} sizeClass="w-16 h-16 text-lg" />
+              <div class="flex flex-col flex-grow">
+                <h1 class="font-title text-lg font-medium">{invite.guild?.name}</h1>
+                <Show when={invite.guild?.description}>
+                  <p class="text-fg/50 text-sm">{invite.guild?.description}</p>
+                </Show>
+                <button class="btn btn-primary btn-sm mt-2" onClick={() => joinGuild(invite.code, navigate)}>
+                  <Icon icon={Plus} class="w-4 h-4 mr-1 fill-fg" />
+                  Join Server
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </For>

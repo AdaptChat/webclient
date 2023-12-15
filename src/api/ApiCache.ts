@@ -1,5 +1,5 @@
 import type {ClientUser, Relationship, RelationshipType, User} from "../types/user";
-import type {Guild, Member, Role} from "../types/guild";
+import type {Guild, Invite, Member, Role} from "../types/guild";
 import type {ReadyEvent} from "../types/ws";
 import type {Channel, GuildChannel} from "../types/channel";
 import type {Presence} from "../types/presence";
@@ -51,6 +51,7 @@ export default class ApiCache {
   dmChannelOrder: Signal<number[]> // TODO this should be stored on the server
   messages: Map<number, MessageGrouper>
   inviteCodes: Map<number, string>
+  invites: Map<string, Invite>
   presences: ReactiveMap<number, Presence>
   relationships: ReactiveMap<number, RelationshipType>
   typing: Map<number, TypingManager>
@@ -72,6 +73,7 @@ export default class ApiCache {
     this.dmChannelOrder = createSignal([])
     this.messages = new Map()
     this.inviteCodes = new Map()
+    this.invites = new Map()
     this.presences = new ReactiveMap()
     this.relationships = new ReactiveMap()
     this.typing = new Map()
