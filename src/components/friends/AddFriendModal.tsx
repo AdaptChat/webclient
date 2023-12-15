@@ -7,6 +7,7 @@ import Icon from "../icons/Icon";
 import Check from "../icons/svg/Check";
 import Plus from "../icons/svg/Plus";
 import {displayName} from "../../utils";
+import At from "../icons/svg/At";
 
 export default function AddFriendModal() {
   let inputRef: HTMLInputElement | null = null
@@ -66,13 +67,15 @@ export default function AddFriendModal() {
           submitRef!.disabled = false
         }}
       >
-        <span class="bg-0 text-fg/80 font-title flex items-center pl-2 font-bold text-xl">@</span>
+        <span class="bg-0 flex items-center pl-3">
+          <Icon icon={At} class="w-4 h-4 fill-fg/80" />
+        </span>
         <input
           ref={inputRef!}
           type="text"
           name="tag"
           autocomplete="off"
-          class="flex-1 p-2 bg-0 focus:outline-none"
+          class="flex-1 px-1.5 py-2 bg-0 focus:outline-none"
           placeholder="Username"
           onInput={() => setError()}
           required
