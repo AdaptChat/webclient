@@ -84,7 +84,10 @@ const App: Component = () => {
 
     if (api != null) {
       const ws = new WsClient(api)
-      ws.connect().then(() => setWs(ws))
+      ws.connect().then(() => {
+        setWs(ws)
+        api?.pushNotifications.subscribe()
+      })
       api.ws = ws
     }
   })

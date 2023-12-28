@@ -1,5 +1,5 @@
 import {initializeApp, FirebaseApp} from "firebase/app";
-import {getMessaging, getToken, onMessage} from "firebase/messaging";
+import {Messaging, getMessaging, getToken, onMessage} from "firebase/messaging";
 import Api from "./Api";
 
 const FIREBASE_CONFIG = {
@@ -19,19 +19,20 @@ const VAPID = 'BJ4XIJ_C9AHBXox8b5Ivm7F37ynaKEz0EAui1U9TwUWTs_qgnpz6PD3bVOaFNo9lT
  */
 export default class PushNotifications {
   app: FirebaseApp
+  messaging: Messaging
 
   constructor(public api: Api) {
     this.app = initializeApp(FIREBASE_CONFIG)
     const messaging = getMessaging(this.app)
+    this.messaging = messaging
 
-    onMessage(messaging, (payload) => {
+    onMessage(this.messaging, (payload) => {
       console.log('[FIREBASE] Message received. ', payload)
     })
   }
 
   subscribe() {
-    const messaging = getMessaging(this.app)
-    getToken(messaging, { vapidKey: VAPID }).then((currentToken) => {
+    getToken(this.messaging, { vapidKey: VAPID }).then((currentToken) => {
       return this.api.request('POST', '/users/me/notifications', {
         json: { key: currentToken }
       })
