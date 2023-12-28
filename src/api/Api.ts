@@ -1,6 +1,8 @@
 import {createRoot, createSignal} from "solid-js";
 import WsClient from "./WsClient";
 import ApiCache from "./ApiCache";
+import PushNotifications from "./PushNotifications";
+
 /**
  * Maximum number of times to retry a request if we get a 429
  */
@@ -125,8 +127,11 @@ export class ApiResponse<T> {
 export default class Api {
   ws?: WsClient
   cache?: ApiCache
+  pushNotifications: PushNotifications
 
-  constructor(public token: string) {}
+  constructor(public token: string) {
+    this.pushNotifications = new PushNotifications(this)
+  }
 
   request<T = any>(
     method: RequestMethod,
