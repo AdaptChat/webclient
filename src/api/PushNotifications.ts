@@ -22,6 +22,11 @@ export default class PushNotifications {
 
   constructor(public api: Api) {
     this.app = initializeApp(FIREBASE_CONFIG)
+    const messaging = getMessaging(this.app)
+
+    onMessage(messaging, (payload) => {
+      console.log('[FIREBASE] Message received. ', payload)
+    })
   }
 
   subscribe() {
@@ -32,10 +37,6 @@ export default class PushNotifications {
       })
     }).catch((err) => {
       console.log('An error occurred while retrieving token. ', err)
-    })
-
-    onMessage(messaging, (payload) => {
-      console.log('[FIREBASE] Message received. ', payload)
     })
   }
 }
