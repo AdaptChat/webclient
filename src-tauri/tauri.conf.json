@@ -13,6 +13,9 @@
     "allowlist": {
       "dialog": {
         "all": true
+      },
+      "notification": {
+        "all": true
       }
     },
     "bundle": {
