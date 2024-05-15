@@ -9,26 +9,24 @@ import GuildMemberList from "../../components/guilds/GuildMemberList";
 import {type GuildChannel as GuildChannelType} from "../../types/channel";
 
 export default function GuildChannel() {
+  const params = useParams()
+  const api = getApi()!, cache = api.cache!
+
   const channel = createMemo(() => {
-    const params = useParams()
-    const api = getApi()!, cache = api.cache!
     return cache.channels.get(parseInt(params.channelId)) as GuildChannelType
   })
-
   if (!channel()) {
-    return <NotFound sidebar={GuildSidebar} />
+    return <NotFound />
   }
 
   return (
-    <Layout sidebar={GuildSidebar} rightSidebar={GuildMemberList} title={'#' + channel().name}>
-      <Chat
-        channelId={channel().id}
-        guildId={channel().guild_id}
-        title={`#${channel().name}`}
-        startMessage={
-          <>This is the start of the conversation in <b>#{channel().name}</b>.</>
-        }
-      />
-    </Layout>
+    <Chat
+      channelId={channel().id}
+      guildId={channel().guild_id}
+      title={`#${channel().name}`}
+      startMessage={
+        <>This is the start of the conversation in <b>#{channel().name}</b>.</>
+      }
+    />
   )
 }

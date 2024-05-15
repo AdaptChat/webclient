@@ -56,7 +56,7 @@ function getPlaceholderCandidates(type: string): string[] {
   }
 }
 
-export default function CreateChannelModal({ setter, guildId }: Props) {
+export default function CreateChannelModal(props: Props) {
   let channelNameRef: HTMLInputElement | null = null, signal: Signal<string>
   let api = getApi()!
   let navigate = useNavigate()
@@ -83,12 +83,12 @@ export default function CreateChannelModal({ setter, guildId }: Props) {
           const removeListener = api.ws!.on('channel_create', (data, remove) => {
             if (data.nonce === nonce) {
               remove()
-              navigate(`/guilds/${guildId}/${data.channel.id}`)
+              navigate(`/guilds/${props.guildId}/${data.channel.id}`)
             }
           })
 
           const nonce = snowflakes.fromTimestamp(Date.now()).toString()
-          const response = await api.request('POST', `/guilds/${guildId}/channels`, {
+          const response = await api.request('POST', `/guilds/${props.guildId}/channels`, {
             json: { type, name, nonce }
           })
 
@@ -98,7 +98,7 @@ export default function CreateChannelModal({ setter, guildId }: Props) {
             return setError(response.errorJsonOrThrow().message)
           }
 
-          setter(false)
+          props.setter(false)
         }}
       >
         <p class="text-fg/70 text-center text-sm mt-4">
@@ -150,7 +150,7 @@ export default function CreateChannelModal({ setter, guildId }: Props) {
           </p>
         </Show>
         <div class="flex gap-3 mt-3">
-          <div class="flex gap-x-2 btn btn-neutral" onClick={() => setter(false)}>
+          <div class="flex gap-x-2 btn btn-neutral" onClick={() => props.setter(false)}>
             <Icon icon={ChevronLeft} class="fill-neutral-content/60 select-none w-4 h-4" />
             Back
           </div>

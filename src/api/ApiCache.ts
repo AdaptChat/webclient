@@ -55,7 +55,7 @@ export default class ApiCache {
   presences: ReactiveMap<number, Presence>
   relationships: ReactiveMap<number, RelationshipType>
   typing: Map<number, TypingManager>
-  lastMessages: ReactiveMap<number, [number, number | null]> // message_id, author_id?
+  lastMessages: ReactiveMap<number, { id: number } | Message>
   lastAckedMessages: ReactiveMap<number, number | null>
   guildMentions: ReactiveMap<number, ReactiveMap<number, number[]>>
   dmMentions: ReactiveMap<number, number[]>
@@ -64,13 +64,13 @@ export default class ApiCache {
     this.clientUserReactor = null as any // lazy
     this.users = new Map()
     this.guilds = new Map()
-    this.guildListReactor = createSignal([])
+    this.guildListReactor = createSignal([] as number[])
     this.members = new ReactiveMap()
     this.memberReactor = new ReactiveMap()
     this.roles = new ReactiveMap()
     this.channels = new ReactiveMap()
     this.guildChannelReactor = new ReactiveMap()
-    this.dmChannelOrder = createSignal([])
+    this.dmChannelOrder = createSignal([] as number[])
     this.messages = new Map()
     this.inviteCodes = new Map()
     this.invites = new Map()
@@ -102,8 +102,8 @@ export default class ApiCache {
 
     let order = ready.dm_channels.map(channel => channel.id)
     order.sort((a, b) => {
-      const [aId, _aAuthor] = cache.lastMessages.get(a) ?? [a, 0]
-      const [bId, _bAuthor] = cache.lastMessages.get(b) ?? [b, 0]
+      const { id: aId } = cache.lastMessages.get(a) ?? { id: 0 }
+      const { id: bId } = cache.lastMessages.get(b) ?? { id: 0 }
       return bId - aId
     })
     cache.dmChannelOrder[1](order)
@@ -207,8 +207,8 @@ export default class ApiCache {
   updateChannel(channel: Channel) {
     this.channels.set(channel.id, channel)
 
-    if ('last_message_id' in channel)
-      channel.last_message_id && this.lastMessages.set(channel.id, [channel.last_message_id, null])
+    if ('last_message' in channel)
+      channel.last_message && this.lastMessages.set(channel.id, channel.last_message)
   }
 
   insertDmChannel(channelId: number) {
@@ -326,7 +326,7 @@ export default class ApiCache {
   }
 
   isChannelUnread(channelId: number) {
-    const lastReceived = this.lastMessages.get(channelId)?.[0]
+    const lastReceived = this.lastMessages.get(channelId)?.id
     if (!lastReceived) return false
 
     const lastAcked = this.lastAckedMessages.get(channelId)

@@ -52,13 +52,13 @@ details > summary { list-style-type: none }
 details > summary::-webkit-details-marker { display: none }
 
 ::-webkit-scrollbar {
-  width: 0.4rem;
-  height: 0.4rem;
+  width: 0.3rem;
+  height: 0.3rem;
 }
 ::-webkit-scrollbar-track { background: transparent }
 ::-webkit-scrollbar-thumb {
   background-color: rgb(var(--c-fg) / 0.3);
-  border-radius: 0.2rem;
+  border-radius: 0.15rem;
   &:hover { background-color: rgb(var(--c-fg) / 0.5) }
 }
 ::-webkit-scrollbar-corner { background: transparent }
@@ -71,8 +71,8 @@ details > summary::-webkit-details-marker { display: none }
 @layer base {
   :root {
     --c-bg-0: 17 24 39;
-    --c-bg-1: 25 34 45;
-    --c-bg-2: 31 41 55;
+    --c-bg-1: 23 32 46;
+    --c-bg-2: 29 39 52;
     --c-bg-3: 55 65 81;
     --c-fg: 255 255 255;
     --c-accent: 5 134 255;
@@ -94,6 +94,13 @@ details > summary::-webkit-details-marker { display: none }
     --c-link-hover: 155 232 255;
     --c-link-visited: 75 213 255;
   }
+}
+
+main {
+  background-color: rgb(var(--c-bg-2));
+  background-image:
+    radial-gradient(at 75% 25%, rgb(var(--c-accent) / 0.11) 0px, transparent 60%),
+    radial-gradient(at 10% 90%, rgb(var(--c-secondary) / 0.11) 0px, transparent 60%);
 }
 
 @layer utilities {
@@ -149,3 +156,10 @@ details > summary::-webkit-details-marker { display: none }
   @apply !bg-transparent whitespace-pre-wrap break-words;
   @apply all-children:px-0 all-children:text-sm all-children:font-normal;
 }
+
+.tippy-box[data-theme~="default"] {
+  background-color: rgb(var(--c-bg-3));
+  color: rgb(var(--c-fg));
+}
+
+.tippy-box .tippy-arrow::before { color: rgb(var(--c-bg-3)) }

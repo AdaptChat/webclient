@@ -1,23 +1,29 @@
-import Layout, {setShowSidebar} from "./Layout";
+import {createMemo, createSignal, For, type JSX, ParentProps, Show, useContext} from "solid-js";
+import {A, useNavigate} from "@solidjs/router";
 import {getApi} from "../api/Api";
 import StatusIndicator, {StatusIndicatorProps} from "../components/users/StatusIndicator";
-import {createMemo, createSignal, For, type JSX, Match, ParentProps, Show, Switch} from "solid-js";
-import {A, useLocation, useNavigate} from "@solidjs/router";
 import useNewGuildModalComponent from "../components/guilds/NewGuildModal";
-import {displayName, humanizeStatus, noop} from "../utils";
-import SidebarSection from "../components/ui/SidebarSection";
-import SidebarButton from "../components/ui/SidebarButton";
-import {DmChannel, GroupDmChannel} from "../types/channel";
-import tooltip from "../directives/tooltip";
-import {toast} from "solid-toast";
-import Icon from "../components/icons/Icon";
-import Xmark from "../components/icons/svg/Xmark";
-import HomeIcon from "../components/icons/svg/Home";
+import {
+  displayChannel,
+  displayName,
+  filterIterator,
+  filterMapIterator,
+  humanizeStatus,
+  mapIterator,
+  noop,
+  snowflakes
+} from "../utils";
+import Icon, {IconElement} from "../components/icons/Icon";
 import UserGroup from "../components/icons/svg/UserGroup";
 import ChevronRight from "../components/icons/svg/ChevronRight";
-import useContextMenu from "../hooks/useContextMenu";
-import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../components/ui/ContextMenu";
-import Code from "../components/icons/svg/Code";
+import UserTie from "../components/icons/svg/UserTie";
+import Server from "../components/icons/svg/Server";
+import GuildIcon from "../components/guilds/GuildIcon";
+import {openDms} from "./friends/FriendsList";
+import {GroupDmChannel, GuildChannel} from "../types/channel";
+import {Message} from "../types/message";
+import tooltip from "../directives/tooltip";
+import {NewGuildModalContext} from "../Entrypoint";
 noop(tooltip)
 
 export function Card(props: ParentProps<{ title: string }>) {
@@ -32,148 +38,27 @@ export function Card(props: ParentProps<{ title: string }>) {
 }
 
 function LearnAdaptSubcard(
-  { title, children, ...props }: ParentProps<{ title: string }> & JSX.ButtonHTMLAttributes<HTMLButtonElement>
+  { title, icon, children, ...props }: (
+    ParentProps<{ title: string, icon: IconElement }>
+    & JSX.ButtonHTMLAttributes<HTMLButtonElement>
+  )
 ) {
   return (
     <button
       class="flex justify-between gap-2 border-2 border-fg/10 transparent hover:bg-2 hover:border-bg-2 rounded-lg p-4
        w-full transition-colors cursor-pointer items-center"
       {...props}
-    > {/* TODO */}
-      <div>
-        <h3 class="text-left font-medium font-title text-lg">{title}</h3>
-        <p class="text-sm text-left">{children}</p>
-      </div>
-      <Icon icon={ChevronRight} title="Click to go" class="fill-fg select-none w-4 h-4"/>
-    </button>
-  )
-}
-
-function DirectMessageButton({ channelId }: { channelId: number }) {
-  const href = `/dms/${channelId}`
-  const location = useLocation()
-  const active = createMemo(() => location.pathname.startsWith(href))
-
-  const api = getApi()!
-  const channel = createMemo(() => api.cache!.channels.get(channelId)! as DmChannel)
-  const user = createMemo(() =>
-    channel().type == 'dm'
-      ? api.cache!.users.get(channel().recipient_ids.find(id => id != api.cache!.clientId)!)
-      : undefined
-  )
-  const presence = createMemo(() => api.cache!.presences.get(user()?.id!))
-  const group = channel().type === 'group'
-  const deleteMessage = () =>
-    group
-      ? (channel() as GroupDmChannel).owner_id == user()?.id
-        ? 'Delete Group'
-        : 'Leave Group'
-      : 'Close DM'
-
-  const hasUnread = createMemo(() => !!(
-    api.cache?.isChannelUnread(channelId) || api.cache?.countDmMentionsIn(channelId)
-  ))
-  const contextMenu = useContextMenu()
-  // const isFriend = createMemo(() => api.cache!.relationships.get(user()?.id!) === 'friend')
-
-  return (
-    <A
-      href={href}
-      classList={{
-        "w-full group flex items-center justify-between px-2 h-12 rounded-lg transition-all duration-200 hover:bg-3": true,
-        "bg-0": active(),
-      }}
-      onClick={() => {
-        if (window.innerWidth < 768) setShowSidebar(false)
-      }}
-      onContextMenu={contextMenu?.getHandler(
-        <ContextMenu>
-          <ContextMenuButton
-            icon={Code} label="Copy User ID"
-            onClick={() => navigator.clipboard.writeText(user()?.id?.toString() ?? '0')}
-          />
-          <ContextMenuButton
-            icon={Code} label="Copy Channel ID"
-            onClick={() => navigator.clipboard.writeText(channelId.toString())}
-          />
-          <DangerContextMenuButton
-            icon={Xmark}
-            label="Close DM"
-            onClick={() => toast.error('Work in progress!')}
-          />
-        </ContextMenu>
-      )}
     >
-      <div class="flex items-center gap-x-2">
-        {group ? (
-          <img src={(channel() as GroupDmChannel).icon} alt="" class="w-8 h-8 rounded-full"/>
-        ) : (
-          <div class="indicator">
-            <StatusIndicator status={presence()?.status} tailwind="m-[0.1rem]" indicator />
-            <img src={api.cache!.avatarOf(user()?.id!)} alt="" class="w-8 h-8 rounded-full"/>
-          </div>
-        )}
-        <div class="ml-0.5 text-sm">
-          <span classList={{
-            "text-fg transition-all duration-200": true,
-            "text-opacity-100": active() || hasUnread(),
-            "text-opacity-60 group-hover:text-opacity-80": !active() && !hasUnread(),
-          }}>
-            {group ? (channel() as GroupDmChannel).name : user()?.username ?? 'Unknown User'}
-          </span>
-          <div class="text-xs text-fg/40">
-            {group ? channel().recipient_ids.length + ' members' : presence()?.custom_status}
-          </div>
+      <div class="flex gap-x-2 items-center">
+        <Icon icon={icon} class="w-6 h-6 mx-1 fill-fg" />
+        <div>
+          <h3 class="text-left font-semibold font-title">{title}</h3>
+          <p class="text-sm text-left text-fg/80">{children}</p>
         </div>
       </div>
-      <Switch fallback={
-        <Icon
-          icon={Xmark}
-          title={deleteMessage()}
-          tooltip={deleteMessage()}
-          class="fill-fg select-none w-4 h-4 opacity-0 hover:!opacity-80 group-hover:opacity-50 transition-opacity duration-200"
-          onClick={(event) => {
-            event.stopPropagation()
-            event.preventDefault()
-
-            toast.error('Work in progress!')
-          }}
-        />
-      }>
-        <Match when={api.cache?.countDmMentionsIn(channelId)}>
-          <div
-            class="p-1.5 text-sm min-w-[1.25rem] h-5 bg-red-600 text-fg rounded-full flex items-center justify-center"
-          >
-            {api.cache?.countDmMentionsIn(channelId)?.toLocaleString()}
-          </div>
-        </Match>
-        <Match when={api.cache?.isChannelUnread(channelId)}>
-          <span class="mx-1 w-2 h-2 bg-fg rounded-lg" />
-        </Match>
-      </Switch>
-    </A>
-  )
-}
-
-export function Sidebar() {
-  const api = getApi()!
-  const dmChannelOrder = api.cache!.dmChannelOrder[0]
-
-  return (
-    <div class="flex flex-col items-center justify-center w-full">
-      <div class="flex flex-col w-full p-2">
-        <SidebarButton href="/" svg={HomeIcon}>Home</SidebarButton>
-        <SidebarButton href={["/friends", "/friends/requests"]} svg={UserGroup}>Friends</SidebarButton>
-        <Show when={dmChannelOrder().length > 0} keyed={false}>
-          <SidebarSection plusAction={() => toast.error("Work in progress")} plusTooltip="New Direct Message">
-            Direct Messages
-          </SidebarSection>
-          <For each={dmChannelOrder()}>
-            {(channelId) => <DirectMessageButton channelId={channelId} />}
-          </For>
-        </Show>
+      <div class="border-2 border-fg/10 rounded-full w-8 h-8 p-4">
       </div>
-    </div>
+    </button>
   )
 }
 
@@ -224,52 +109,141 @@ export default function Home() {
   const clientUser = api.cache!.clientUser!
   const status = createMemo(() => api.cache!.presences.get(clientUser.id)?.status ?? 'online')
 
-  const { NewGuildModal, setShow: setShowNewGuildModal } = useNewGuildModalComponent()
+  const { setShow: setShowNewGuildModal } = useContext(NewGuildModalContext)!
 
   // onMount(() => api.pushNotifications.subscribe())
 
+  const activeFriends = createMemo(() => [...mapIterator(
+    filterIterator(
+      api.cache!.relationships.entries(),
+      ([userId, type]) => type === 'friend' && ['online', 'dnd'].includes(
+        api.cache!.presences.get(userId)?.status ?? ''
+      )
+    ),
+    ([userId, _]) => userId,
+  )])
+  const activeConversations = createMemo(() => [...filterMapIterator(
+    api.cache!.channels.values(),
+    (channel) => {
+      let lastMessage = api.cache!.lastMessages.get(channel.id)
+      if (!lastMessage || (lastMessage as Message).author_id === api.cache!.clientId) return null
+
+      if (Date.now() - snowflakes.timestampMillis(lastMessage.id) > 1_800_000) // 30 minutes
+        return null
+
+      return { ...displayChannel(channel), lastMessage }
+    }
+  )].sort((a, b) => b.lastMessage.id - a.lastMessage.id))
+
   return (
-    <Layout sidebar={Sidebar} title="Home" showBottomNav>
-      <NewGuildModal />
-      <div class="flex flex-col items-center w-full h-full p-8 mobile-xs:p-4 xl:p-12 2xl:p-16 overflow-auto">
-        <div class="flex items-center mobile:justify-center px-8 bg-0 rounded-xl py-12 w-full mobile:flex-col">
-          <img src={api.cache?.clientAvatar} alt="" class="w-24 h-24 rounded-xl mr-4" />
-          <div class="flex flex-col mobile:items-center">
-            <h1 class="text-4xl mobile:text-3xl text-center font-title font-bold">
-              Welcome,{' '}
-              <span class="bg-gradient-to-r bg-clip-text overflow-ellipsis text-transparent from-accent to-secondary">
-                {displayName(clientUser)}
-              </span>!
-            </h1>
-            <div class="mt-2 relative">
-              <StatusSelectDropdown status={status()} />
-            </div>
+    <div class="flex flex-wrap gap-2 mobile:flex-col my-2 px-2">
+      <Show when={activeFriends().length}>
+        <div class="p-5 bg-bg-0/60 backdrop-blur rounded-xl w-full">
+          <div class="flex justify-between">
+            <h1 class="font-title font-bold text-xl ml-1">Active Now</h1>
+            <A href="/friends" class="btn btn-sm btn-neutral">All Friends</A>
+          </div>
+          <div class="flex gap-x-3 mt-2 overflow-x-auto pb-1">
+            <For each={activeFriends()}>
+              {(userId) => (
+                <button
+                  class="flex flex-col items-center rounded-lg
+                    bg-gradient-to-bl from-accent/20 to-transparent hover:from-accent/50 px-3 py-2"
+                  onClick={() => openDms(api, navigate, userId)}
+                >
+                  <div class="indicator">
+                    <img src={api.cache!.avatarOf(userId)} alt="" class="w-16 h-16 rounded-full" />
+                    <StatusIndicator
+                      status={api.cache!.presences.get(userId)?.status}
+                      indicator
+                      tailwind="m-2 w-4 h-4"
+                     />
+                  </div>
+                  <span class="mt-1 text-xs font-medium text-fg/80">
+                    {displayName(api.cache!.users.get(userId)!)}
+                  </span>
+                </button>
+              )}
+            </For>
           </div>
         </div>
-        <div class="flex items-center justify-center mt-4 gap-4 w-full mobile:flex-col">
-          <Card title="Learn Adapt">
-            <LearnAdaptSubcard title="Connect with friends" onClick={() => navigate('/friends')}>
-              Find your friends on Adapt and add them to your friends list.
-              <span class="block text-fg/60 mt-1">
-                Your username is <code>@{clientUser.username}</code>!
-              </span>
-            </LearnAdaptSubcard>
-            <LearnAdaptSubcard title="Create a community" onClick={() => setShowNewGuildModal(true)}>
-              Create and develop a new server for you, your friends, or whoever you desire.
-              You can also join an existing server as long as you have its invite link.
-            </LearnAdaptSubcard>
-            <LearnAdaptSubcard title="Discover communities">
-              Find new servers to join that suit your interests. You can also join our{' '}
-              <A class="underline" href="/invite/Sy0HSbiR">official server</A>.
-            </LearnAdaptSubcard>
-          </Card>
-          <Card title="Recent Activity">
-            <div class="w-full h-full flex items-center justify-center">
-              <p class="text-center">This card is a <b>Work in Progress.</b></p> {/* TODO */}
-            </div>
-          </Card>
+      </Show>
+      <div class="p-5 bg-bg-0/60 backdrop-blur rounded-xl flex-grow xl:w-1/2">
+        <h1 class="font-title font-bold text-xl ml-1 mb-3">Learn Adapt</h1> {/* add onboarding and hide if user has fully onboarded */}
+        <div class="flex flex-col gap-y-2">
+          <LearnAdaptSubcard
+            title="Customize your profile"
+            icon={UserTie}
+            onClick={() => navigate('/settings')}
+          >
+            Let others on Adapt know who you are. Give yourself a display name, change your avatar, and write a bio.
+          </LearnAdaptSubcard>
+          <LearnAdaptSubcard
+            title="Connect with friends"
+            icon={UserGroup}
+            onClick={() => navigate('/friends')}
+          >
+            Find your friends on Adapt, add them to your friends list, and start chatting with them.
+          </LearnAdaptSubcard>
+          <LearnAdaptSubcard
+            title="Join a community"
+            icon={Server}
+            onClick={() => setShowNewGuildModal(true)}
+          >
+            Create, discover, join, and chat in communities that suit your interests. You may also join the official&nbsp;
+            <A href="/invite/ozLGrKT9" class="font-medium underline underline-offset-2">Adapt Community</A>.
+          </LearnAdaptSubcard>
         </div>
       </div>
-    </Layout>
+      <Show when={activeConversations().length}>
+        <div class="p-5 bg-bg-0/60 backdrop-blur rounded-xl flex-grow max-w-1/3">
+          <h1 class="font-title font-bold text-xl ml-1 mb-3">Ongoing Conversations</h1>
+          <div class="flex flex-col gap-y-2">
+            <For each={activeConversations().slice(0, 5)}>
+              {({ channel, user, guild, icon, lastMessage }) => (
+                <A
+                  href={'recipient_ids' in channel ? `/dms/${channel.id}` : `/guilds/${guild!.id}/${channel.id}`}
+                  class="p-2 flex items-center border-2 border-fg/10 rounded-lg hover:bg-fg/10 transition-all duration-200"
+                >
+                  {guild ? (
+                    <GuildIcon guild={guild} sizeClass="w-12 h-12" unread={false} pings={0} />
+                  ) : (
+                    <img src={icon!} alt="" class="w-12 h-12 rounded-full" />
+                  )}
+                  <div class="ml-2 mr-1 flex-grow">
+                    <div class="font-medium flex items-center">
+                      {guild ? (
+                        <>
+                          <span class="text-fg/60 font-title overflow-ellipsis overflow-hidden whitespace-nowrap">
+                            {guild.name}
+                          </span>
+                          <Icon icon={ChevronRight} class="fill-fg/60 w-4 h-4 mx-1" />
+                          #{(channel as GuildChannel).name}
+                        </>
+                      ) : (
+                        user ? displayName(user) : (channel as GroupDmChannel).name
+                      )}
+                    </div>
+                    <div class="text-fg/80 text-sm whitespace-break-spaces break-words">
+                      {'author_id' in lastMessage && lastMessage.author_id ? (
+                        <>
+                          <span class="font-medium">
+                            {displayName(lastMessage.author ?? api.cache!.users.get(lastMessage.author_id)!)}:
+                          </span>&nbsp;
+                          {lastMessage.content?.slice(0, 100)}{(lastMessage.content?.length ?? 0) > 100 && '...'}
+                        </>
+                      ) : (
+                        'Message not loaded yet. (Message data will be provided in a future update)'
+                      )}
+                    </div>
+                  </div>
+                  <Icon icon={ChevronRight} class="fill-fg/60 w-4 h-4 mx-1" />
+                </A>
+              )}
+            </For>
+          </div>
+        </div>
+      </Show>
+    </div>
   )
 }

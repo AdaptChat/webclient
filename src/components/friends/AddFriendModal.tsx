@@ -8,6 +8,7 @@ import Check from "../icons/svg/Check";
 import Plus from "../icons/svg/Plus";
 import {displayName} from "../../utils";
 import At from "../icons/svg/At";
+import {toast} from "solid-toast";
 
 export default function AddFriendModal() {
   let inputRef: HTMLInputElement | null = null
@@ -18,6 +19,7 @@ export default function AddFriendModal() {
   const [newRequests, setNewRequests] = createSignal<User[]>([])
   const [unsubscribe, setUnsubscribe] = createSignal<() => void>()
   const [error, setError] = createSignal<string>()
+  const [copyingUsername, setCopyingUsername] = createSignal(false)
 
   createEffect(() => {
     if (added()) {
@@ -38,8 +40,29 @@ export default function AddFriendModal() {
   return (
     <ModalTemplate title="Add Friend">
       <p class="mt-2 text-fg/50 text-center text-sm">
-        Ask your friend to give you their unique username.
-        It can be found at the bottom of the left sidebar, and you can copy it by clicking on it.
+        Ask your friend to give you their unique username, and enter it below.
+      </p>
+      <p class="flex items-center mt-1 text-sm w-full justify-center text-fg/70">
+        <span>Your username is</span>
+        <button
+          class="font-medium font-mono bg-0 rounded-lg py-0.5 px-1 ml-1 text-fg/80 hover:bg-3"
+          onClick={() => {
+            setCopyingUsername(true)
+            navigator.clipboard.writeText(api.cache?.clientUser?.username!).then(() => {
+              setTimeout(() => setCopyingUsername(false), 1000)
+            })
+          }}
+        >
+          <Show when={!copyingUsername()} fallback={(
+            <span class="text-success flex items-center gap-x-1">
+              <Icon icon={Check} class="w-4 h-4 mr-1 fill-success" />
+              Copied!
+            </span>
+          )}>
+            @{api.cache?.clientUser?.username}
+          </Show>
+        </button>
+        .
       </p>
       <form
         class="mt-4 flex rounded-lg overflow-hidden"

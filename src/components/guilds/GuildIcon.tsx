@@ -1,7 +1,7 @@
 import type {Guild} from "../../types/guild";
 import {createMemo, Show} from "solid-js";
 import tooltip from "../../directives/tooltip";
-import {mapIterator, noop, sumIterator} from "../../utils";
+import {humanizePings, mapIterator, noop, sumIterator} from "../../utils";
 import {useParams} from "@solidjs/router";
 import {getApi} from "../../api/Api";
 noop(tooltip)
@@ -13,11 +13,6 @@ interface GuildIconProps {
   sizeClass: string,
   tooltip?: boolean,
   ringIfActive?: boolean,
-}
-
-function humanize(n: number): string {
-  if (n < 1000) return n.toLocaleString()
-  return Math.round(n / 100) / 10 + 'k'
 }
 
 export default function GuildIcon(
@@ -40,7 +35,7 @@ export default function GuildIcon(
                min-w-[18px] h-[18px] m-1.5 ring-bg-0 ring-[3px]"
       >
         <span class="min-w-[18px] text-center text-white px-1.5 py-2">
-          {humanize(resolvedPings())}
+          {humanizePings(resolvedPings())}
         </span>
       </span>
     )

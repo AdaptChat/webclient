@@ -91,7 +91,7 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
     else if (cache.isMentionedIn(data.message))
       cache.registerMention(data.message.channel_id, data.message.id)
 
-    cache.lastMessages.set(data.message.channel_id, [data.message.id, data.message.author_id])
+    cache.lastMessages.set(data.message.channel_id, data.message)
 
     let [dmChannels, _] = cache.dmChannelOrder
     if (dmChannels().includes(data.message.channel_id))

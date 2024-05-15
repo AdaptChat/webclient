@@ -617,9 +617,9 @@ export default function Chat(props: { channelId: number, guildId?: number, title
 
   const ack = async () => {
     const last = api.cache?.lastMessages.get(props.channelId)
-    if (!last || lastAckedId() == last[0]) return
+    if (!last || lastAckedId() == last?.id) return
 
-    let [id, authorId] = last
+    let { id, author_id: authorId } = last as Message
     if (authorId == api.cache?.clientId) return
 
     setLastAckedId(id)
@@ -782,7 +782,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
           </Switch>
         </div>
       </div>
-      <div class="relative flex items-center bg-2 w-full px-4">
+      <div class="relative flex items-center w-full px-4">
         <button
           class="w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-3 mr-2 transition-all duration-200 hover:bg-accent"
           onClick={() => {

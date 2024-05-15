@@ -47,18 +47,14 @@ function GuildDropdownButton(props: GuildDropdownButtonProps) {
 }
 
 export default function GuildSidebar() {
-  const { guildId: guildIdString } = useParams()
-  const guildId = parseInt(guildIdString)
-
-  const channelId = createMemo(() => {
-    const { channelId } = useParams()
-    return channelId && parseInt(channelId)
-  })
+  const params = useParams()
+  const guildId = createMemo(() => parseInt(params.guildId))
+  const channelId = createMemo(() => params.channelId && parseInt(params.channelId))
   const contextMenu = useContextMenu()!
 
   const api = getApi()!
-  const guild = api.cache!.guilds.get(guildId)
-  if (!guild) return
+  const guild = createMemo(() => api.cache!.guilds.get(guildId())!)
+  if (!guild()) return
 
   const [dropdownExpanded, setDropdownExpanded] = createSignal(false)
   const [showInviteModal, setShowInviteModal] = createSignal(false)
@@ -68,7 +64,7 @@ export default function GuildSidebar() {
   const [channelToDelete, setChannelToDelete] = createSignal<GuildChannel | null>(null)
   const [confirmChannelDeleteModal, setConfirmChannelDeleteModal] = createSignal(false)
 
-  const isOwner = createMemo(() => guild.owner_id === api.cache?.clientUser?.id)
+  const isOwner = createMemo(() => guild().owner_id === api.cache?.clientUser?.id)
   const GuildRemoveComponent = (props: Props) => {
     return isOwner()
       ? <ConfirmGuildDeleteModal {...props} />
@@ -84,11 +80,11 @@ export default function GuildSidebar() {
       />
     </Show>
   )
-  const guildPermissions = createMemo(() => api.cache?.getClientPermissions(guildId))
+  const guildPermissions = createMemo(() => api.cache?.getClientPermissions(guildId()))
 
   return (
     <div
-      class="flex flex-col items-center w-full flex-grow"
+      class="flex flex-col items-center flex-grow"
       onContextMenu={contextMenu.getHandler(
         <ContextMenu>
           <BaseContextMenu />
@@ -103,10 +99,10 @@ export default function GuildSidebar() {
       )}
     >
       <Modal get={showInviteModal} set={setShowInviteModal}>
-        <GuildInviteModal guild={guild} show={showInviteModal} />
+        <GuildInviteModal guild={guild()} show={showInviteModal} />
       </Modal>
       <Modal get={confirmGuildLeaveModal} set={setConfirmGuildLeaveModal}>
-        <GuildRemoveComponent guild={guild} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
+        <GuildRemoveComponent guild={guild()} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
       </Modal>
       <Modal get={confirmChannelDeleteModal} set={setConfirmChannelDeleteModal}>
         <Show when={channelToDelete()}>
@@ -114,24 +110,24 @@ export default function GuildSidebar() {
         </Show>
       </Modal>
       <Modal get={createChannelModal} set={setShowCreateChannelModal}>
-        <CreateChannelModal setter={setShowCreateChannelModal} guildId={guildId} />
+        <CreateChannelModal setter={setShowCreateChannelModal} guildId={guildId()} />
       </Modal>
       <div
         class="w-[calc(100%-1rem)] rounded-xl mt-2 box-border overflow-hidden flex flex-col border-2 border-bg-3
           group hover:bg-2 transition-all duration-200 cursor-pointer"
         onClick={() => setDropdownExpanded(prev => !prev)}
       >
-        {guild.banner && (
+        {guild().banner && (
           <figure class="h-20 overflow-hidden flex items-center justify-center">
-            <img src={guild.banner} alt="" class="w-full" width="100%" />
+            <img src={guild().banner} alt="" class="w-full" width="100%" />
           </figure>
         )}
         <div classList={{
           "flex justify-between items-center px-4 pt-3": true,
-          "pb-3": !guild.description,
+          "pb-3": !guild().description,
         }}>
           <span class="inline-block font-title font-bold text-base text-ellipsis w-40 break-words">
-            {guild.name}
+            {guild().name}
           </span>
           <label tabIndex={0} classList={{
             "cursor-pointer transition-transform transform": true,
@@ -145,9 +141,9 @@ export default function GuildSidebar() {
             />
           </label>
         </div>
-        {guild.description && (
+        {guild().description && (
           <div class="card-body px-4 pt-1 pb-3">
-            <p class="text-xs text-fg/50">{guild.description}</p>
+            <p class="text-xs text-fg/50">{guild().description}</p>
           </div>
         )}
         <Show when={dropdownExpanded()}>
@@ -181,16 +177,16 @@ export default function GuildSidebar() {
         </Show>
       </div>
       <div class="flex flex-col w-full p-2">
-        <SidebarButton href={`/guilds/${guildId}`} svg={HomeIcon} active={!channelId()}>Home</SidebarButton>
+        <SidebarButton href={`/guilds/${guildId()}`} svg={HomeIcon} active={!channelId()}>Home</SidebarButton>
         <For each={
           api.cache!.guildChannelReactor
-            .get(guildId)
+            .get(guildId())
             ?.map(id => api.cache!.channels.get(id) as GuildChannel)
-            .filter(c => c && api.cache?.getClientPermissions(guildId, c.id).has('VIEW_CHANNEL'))
+            .filter(c => c && api.cache?.getClientPermissions(guildId(), c.id).has('VIEW_CHANNEL'))
         }>
           {(channel: GuildChannel) => (
             <SidebarButton
-              href={`/guilds/${guildId}/${channel.id}`}
+              href={`/guilds/${guildId()}/${channel.id}`}
               svg={Hashtag}
               onContextMenu={contextMenu.getHandler(
                 <ContextMenu>
@@ -200,7 +196,7 @@ export default function GuildSidebar() {
                     label="Copy Channel ID"
                     onClick={() => window.navigator.clipboard.writeText(channel.id.toString())}
                   />
-                  <Show when={api.cache?.getClientPermissions(guildId, channel.id).has('MANAGE_CHANNELS')}>
+                  <Show when={api.cache?.getClientPermissions(guildId(), channel.id).has('MANAGE_CHANNELS')}>
                     <DangerContextMenuButton
                       icon={Trash}
                       label="Delete Channel"
@@ -216,16 +212,16 @@ export default function GuildSidebar() {
               <span class="flex justify-between items-center">
                 <span classList={{
                   "text-fg": api.cache?.isChannelUnread(channel.id)
-                    || !!api.cache?.countGuildMentionsIn(guildId, channel.id),
+                    || !!api.cache?.countGuildMentionsIn(guildId(), channel.id),
                 }}>
                   {channel.name}
                 </span>
                 <Switch>
-                  <Match when={api.cache?.countGuildMentionsIn(guildId, channel.id)}>
+                  <Match when={api.cache?.countGuildMentionsIn(guildId(), channel.id)}>
                     <div
                       class="px-1.5 min-w-[1.25rem] h-5 bg-red-600 text-fg rounded-full flex items-center justify-center"
                     >
-                      {api.cache?.countGuildMentionsIn(guildId, channel.id)?.toLocaleString()}
+                      {api.cache?.countGuildMentionsIn(guildId(), channel.id)?.toLocaleString()}
                     </div>
                   </Match>
                   <Match when={api.cache?.isChannelUnread(channel.id)}>

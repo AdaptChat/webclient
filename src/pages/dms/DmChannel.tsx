@@ -2,11 +2,17 @@ import {useParams} from "@solidjs/router";
 import {createMemo} from "solid-js";
 import {getApi} from "../../api/Api";
 import NotFound from "../NotFound";
-import Layout from "../Layout";
 import Chat from "../../components/messaging/Chat";
-import {Sidebar} from "../Home";
 import {type DmChannel as DmChannelType, GroupDmChannel} from "../../types/channel";
 import {displayName} from "../../utils";
+
+export function getDmChannelName(channel: DmChannelType) {
+  const cache = getApi()!.cache!
+  const user = channel.type == 'dm'
+    ? cache.users.get(channel.recipient_ids.find(id => id != cache.clientId)!)
+    : undefined
+  return channel.type == 'group' ? (channel as GroupDmChannel).name : user ? displayName(user!) : 'Unknown User'
+}
 
 export default function DmChannel() {
   const api = getApi()!
@@ -16,28 +22,17 @@ export default function DmChannel() {
     return cache.channels.get(parseInt(params.channelId))! as DmChannelType
   })
 
-  if (!channel()) {
-    return <NotFound sidebar={Sidebar} />
-  }
-
-  const user = createMemo(() =>
-    channel().type == 'dm'
-      ? api.cache!.users.get(channel().recipient_ids.find(id => id != api.cache!.clientId)!)
-      : undefined
-  )
-  const group = channel().type == 'group'
-  const name = () => group ? (channel() as GroupDmChannel).name : user() ? displayName(user()!) : 'Unknown User'
+  if (!channel()) return <NotFound />
+  const name = createMemo(() => getDmChannelName(channel()!))
 
   // TODO: right sidebar
   return (
-    <Layout sidebar={Sidebar} title={name()}>
-      <Chat
-        channelId={channel()!.id}
-        title={name()}
-        startMessage={
-          <>This is the start of the conversation {group ? 'in' : 'with'} <b>{name()}</b>.</>
-        }
-      />
-    </Layout>
+    <Chat
+      channelId={channel()!.id}
+      title={name()}
+      startMessage={
+        <>This is the start of the conversation {channel()!.type == 'group' ? 'in' : 'with'} <b>{name()}</b>.</>
+      }
+    />
   )
 }

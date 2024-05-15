@@ -21,7 +21,7 @@ function Card({ title, children, ...props }: ParentProps<{ title: string }> & JS
   return (
     <button
       class="flex justify-between gap-2 border-2 border-bg-3 rounded-lg p-4 w-full hover:bg-0
-        transition-colors cursor-pointer items-center mt-4"
+        transition-colors cursor-pointer items-center mt-2"
       {...props}
     > {/* TODO */}
       <div>
@@ -112,7 +112,7 @@ function Base(props: ParentProps<ExtendedProps>) {
           type="submit"
           class="btn btn-primary flex-grow disabled:bg-accent/50 disabled:text-opacity-50"
         >
-          {props.buttonIcon && <Icon icon={props.buttonIcon} class="fill-primary-content/80 w-4 h-4 mr-2" />}
+          {props.buttonIcon && <Icon icon={props.buttonIcon} class="fill-fg w-4 h-4 mr-2" />}
           <span>{props.buttonLabel}</span>
         </button>
       </form>
@@ -121,14 +121,19 @@ function Base(props: ParentProps<ExtendedProps>) {
 }
 
 function NewGuild(props: Props) {
+  const navigate = useNavigate()
   return (
     <ModalTemplate title="New Server">
-      <div class="flex flex-col">
+      <div class="flex flex-col pt-2">
         <Card title="Create a server" onClick={() => props.setPage(ModalPage.Create)}>
           Start a new community. It can be a place for you and your friends, or you can grow it into a large community.
         </Card>
         <Card title="Join a server" onClick={() => props.setPage(ModalPage.Join)}>
           Enter an invite code to join an existing server.
+        </Card>
+        <Card title="Discover servers" onClick={() => navigate('/discover')}>
+          Not sure where to start? Check out the server discovery page where you can browse public servers you
+          might be interested in.
         </Card>
       </div>
     </ModalTemplate>

@@ -6,7 +6,7 @@ import type {Props} from "./ConfirmGuildLeaveModal"
 import Trash from "../icons/svg/Trash";
 import Icon from "../icons/Icon";
 
-export default function ConfirmGuildDeleteModal({ guild, setConfirmGuildLeaveModal }: Props) {
+export default function ConfirmGuildDeleteModal(props: Props) {
   const [confirmGuildLeaveModalError, setConfirmGuildLeaveModalError] = createSignal<string>()
   const [guildNameIsCorrect, setGuildNameIsCorrect] = createSignal<boolean>(false)
 
@@ -20,21 +20,21 @@ export default function ConfirmGuildDeleteModal({ guild, setConfirmGuildLeaveMod
   return (
     <ModalTemplate title="Delete Server">
       <p class="text-fg/70 text-center text-sm mt-4">
-        Are you sure you want to delete <b>{guild.name}</b>? You will not be able to undo this action.
+        Are you sure you want to delete <b>{props.guild.name}</b>? You will not be able to undo this action.
         All data associated with this server will be deleted and you will not be able to recover them in the future.
       </p>
       <form
         class="flex flex-wrap justify-end"
         onSubmit={async (event) => {
           event.preventDefault()
-          if (guildNameInput?.value !== guild.name)
+          if (guildNameInput?.value !== props.guild.name)
             setConfirmGuildLeaveModalError("Guild name does not match")
 
           submitButton!.disabled = true
 
           let response
           try {
-            response = await api.request('DELETE', `/guilds/${guild.id}`, {
+            response = await api.request('DELETE', `/guilds/${props.guild.id}`, {
               json: {
                 password: passwordInput?.value,
               },
@@ -47,7 +47,7 @@ export default function ConfirmGuildDeleteModal({ guild, setConfirmGuildLeaveMod
             return
           }
 
-          setConfirmGuildLeaveModal(false)
+          props.setConfirmGuildLeaveModal(false)
           navigate('/')
         }}
       >
@@ -65,10 +65,10 @@ export default function ConfirmGuildDeleteModal({ guild, setConfirmGuildLeaveMod
             name="guild-name"
             type="text"
             autocomplete="off"
-            placeholder={guild.name}
+            placeholder={props.guild.name}
             required
             onInput={(event) => {
-              setGuildNameIsCorrect(event.currentTarget.value === guild.name)
+              setGuildNameIsCorrect(event.currentTarget.value === props.guild.name)
             }}
           />
         </div>
@@ -97,7 +97,7 @@ export default function ConfirmGuildDeleteModal({ guild, setConfirmGuildLeaveMod
           <p class="text-danger mt-4 w-full">{confirmGuildLeaveModalError()}</p>
         </Show>
         {/* Use a div to prevent it being treated as the target when pressing enter */}
-        <div class="btn border-none btn-ghost mt-4" onClick={() => setConfirmGuildLeaveModal(false)}>
+        <div class="btn border-none btn-ghost mt-4" onClick={() => props.setConfirmGuildLeaveModal(false)}>
           Cancel
         </div>
         <button

@@ -14,6 +14,7 @@ export default function tooltip(element: HTMLElement, accessor: () => string | P
       return tippy(element,  {
         arrow: true,
         animation: 'shift-away',
+        theme: 'default',
         ...props
       })
     })

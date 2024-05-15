@@ -1,3 +1,5 @@
+import {Message} from "./message";
+
 /**
  * Represents the type along with type-specific information of a guild channel.
  */
@@ -28,7 +30,7 @@ export type GuildChannelInfo = {
    * The ID of the last message sent in the channel. This is `null` if no messages have
    * been sent in the channel.
    */
-  last_message_id: number | null,
+  last_message: { id: number } | Message | null,
 } | {
   /**
    * The type of the channel.

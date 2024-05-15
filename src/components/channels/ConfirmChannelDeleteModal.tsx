@@ -11,18 +11,18 @@ type Props = {
   setConfirmChannelDeleteModal: Setter<boolean>,
 }
 
-export default function ConfirmChannelDeleteModal({ channel, setConfirmChannelDeleteModal }: Props) {
+export default function ConfirmChannelDeleteModal(props: Props) {
   const api = getApi()!
   const navigate = useNavigate()
-  const { guildId, channelId } = useParams()
+  const params = useParams()
 
-  const guild = createMemo(() => api.cache!.guilds.get(parseInt(guildId)))
+  const guild = createMemo(() => api.cache!.guilds.get(parseInt(params.guildId)))
   const [isDeleting, setIsDeleting] = createSignal<boolean>(false)
 
   return (
     <ModalTemplate title="Delete Channel">
       <p class="text-fg/70 text-center text-sm mt-4">
-        Are you sure you want to delete <b>#{channel.name}</b> in {guild()?.name}? You will not be able to undo this action.
+        Are you sure you want to delete <b>#{props.channel.name}</b> in {guild()?.name}? You will not be able to undo this action.
         All data and messages associated with this channel will be deleted and you will not be able to recover them in the future.
       </p>
       <form
@@ -31,22 +31,22 @@ export default function ConfirmChannelDeleteModal({ channel, setConfirmChannelDe
           event.preventDefault()
           setIsDeleting(true)
           try {
-            await api.request('DELETE', `/channels/${channel.id}`)
+            await api.request('DELETE', `/channels/${props.channel.id}`)
           } catch (err) {
             setIsDeleting(false)
             throw err
           }
           setIsDeleting(false)
-          setConfirmChannelDeleteModal(false)
-          if (channelId && parseInt(channelId) === channel.id) navigate(`/guilds/${guildId}`)
+          props.setConfirmChannelDeleteModal(false)
+          if (params.channelId && parseInt(params.channelId) === props.channel.id) navigate(`/guilds/${params.guildId}`)
         }}
       >
-        <button class="btn border-none btn-ghost" onClick={() => setConfirmChannelDeleteModal(false)}>
+        <button class="btn border-none btn-ghost" onClick={() => props.setConfirmChannelDeleteModal(false)}>
           Cancel
         </button>
         <button type="submit" class="btn btn-danger border-none" disabled={isDeleting()}>
           <Icon icon={Trash} class="fill-fg w-4 h-4 mr-2" />
-          Delete #{channel.name}
+          Delete #{props.channel.name}
         </button>
       </form>
     </ModalTemplate>

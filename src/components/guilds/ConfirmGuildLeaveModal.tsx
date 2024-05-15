@@ -11,7 +11,7 @@ export interface Props {
   setConfirmGuildLeaveModal: Setter<boolean>,
 }
 
-export default function ConfirmGuildLeaveModal({ guild, setConfirmGuildLeaveModal }: Props) {
+export default function ConfirmGuildLeaveModal(props: Props) {
   const [confirmGuildLeaveModalError, setConfirmGuildLeaveModalError] = createSignal<string>()
 
   const api = getApi()!
@@ -20,13 +20,13 @@ export default function ConfirmGuildLeaveModal({ guild, setConfirmGuildLeaveModa
   return (
     <ModalTemplate title="Leave Server">
       <p class="text-fg/80 mt-4 text-center">
-        Are you sure you want to leave <b>{guild.name}</b>? You will be unable to rejoin unless you are re-invited.
+        Are you sure you want to leave <b>{props.guild.name}</b>? You will be unable to rejoin unless you are re-invited.
       </p>
       <Show when={confirmGuildLeaveModalError()} keyed={false}>
         <p class="text-danger mt-2">{confirmGuildLeaveModalError()}</p>
       </Show>
       <div class="flex justify-end mt-4 gap-x-4">
-        <button class="btn border-none btn-ghost" onClick={() => setConfirmGuildLeaveModal(false)}>
+        <button class="btn border-none btn-ghost" onClick={() => props.setConfirmGuildLeaveModal(false)}>
           Cancel
         </button>
         <button
@@ -35,14 +35,14 @@ export default function ConfirmGuildLeaveModal({ guild, setConfirmGuildLeaveModa
             const currentTarget = event.currentTarget
             currentTarget.disabled = true
 
-            const response = await api.request('DELETE', `/guilds/${guild.id}/members/me`)
+            const response = await api.request('DELETE', `/guilds/${props.guild.id}/members/me`)
             if (!response.ok) {
               currentTarget.disabled = false
               setConfirmGuildLeaveModalError(response.errorJsonOrThrow().message)
               return
             }
 
-            setConfirmGuildLeaveModal(false)
+            props.setConfirmGuildLeaveModal(false)
             navigate('/')
           }}
         >

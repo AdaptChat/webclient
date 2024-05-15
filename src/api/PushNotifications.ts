@@ -1,5 +1,5 @@
-import {initializeApp, FirebaseApp} from "firebase/app";
-import {Messaging, getMessaging, getToken, onMessage} from "firebase/messaging";
+import {FirebaseApp, initializeApp} from "firebase/app";
+import {getMessaging, getToken, Messaging, onMessage} from "firebase/messaging";
 import Api from "./Api";
 
 const FIREBASE_CONFIG = {
@@ -23,8 +23,7 @@ export default class PushNotifications {
 
   constructor(public api: Api) {
     this.app = initializeApp(FIREBASE_CONFIG)
-    const messaging = getMessaging(this.app)
-    this.messaging = messaging
+    this.messaging = getMessaging(this.app)
 
     onMessage(this.messaging, (payload) => {
       console.log('[FIREBASE] Message received. ', payload)

@@ -1,7 +1,8 @@
-import {Member, Role} from "./types/guild";
-import {PermissionOverwrite} from "./types/channel";
+import {Guild, Member, Role} from "./types/guild";
+import {Channel, PermissionOverwrite} from "./types/channel";
 import {Permissions} from "./api/Bitflags";
 import {User} from "./types/user";
+import {getApi} from "./api/Api";
 
 /**
  * Utilities related to snowflakes.
@@ -215,6 +216,71 @@ export function humanizeTime(timestamp: number | Date): string {
   })
 }
 
+export interface DeltaUnits {
+  year: string
+  month: string
+  day: string
+  hour: string
+  minute: string
+  second: string
+  plural: string
+}
+
+export const DEFAULT_DELTA_UNITS = {
+  year: ' year',
+  month: ' month',
+  day: ' day',
+  hour: ' hour',
+  minute: ' minute',
+  second: ' second',
+  plural: 's',
+}
+export const SHORT_DELTA_UNITS = {
+  year: 'y',
+  month: 'mo',
+  day: 'd',
+  hour: 'h',
+  minute: 'm',
+  second: 's',
+  plural: '',
+}
+
+/**
+ * Humanizes elapsed time.
+ */
+export function humanizeTimeDelta(deltaMs: number, units: DeltaUnits = DEFAULT_DELTA_UNITS): string {
+  const delta = Math.abs(deltaMs)
+  const seconds = Math.floor(delta / 1000)
+  const minutes = Math.floor(seconds / 60)
+  const hours = Math.floor(minutes / 60)
+  const days = Math.floor(hours / 24)
+  const months = Math.floor(days / 30)
+  const years = Math.floor(months / 12)
+
+  let params
+  if (years > 0)
+    params = [years, units.year]
+  else if (months > 0)
+    params = [months, units.month]
+  else if (days > 0)
+    params = [days, units.day]
+  else if (hours > 0)
+    params = [hours, units.hour]
+  else if (minutes > 0)
+    params = [minutes, units.minute]
+  else
+    params = [seconds, units.second]
+
+  if (params[0] !== 1)
+    params[1] += units.plural
+
+  return `${params[0]}${params[1]}`
+}
+
+export function humanizeTimeDeltaShort(deltaMs: number): string {
+  return humanizeTimeDelta(deltaMs, SHORT_DELTA_UNITS)
+}
+
 /**
  * Capitalizes a string.
  * @param s The string to capitalize.
@@ -256,6 +322,15 @@ export function humanizeSize(bytes: number): string {
 }
 
 /**
+ * Returns a humanized version of a mention count.
+ * @param n The number of mentions.
+ */
+export function humanizePings(n: number): string {
+  if (n < 1000) return n.toLocaleString()
+  return Math.round(n / 100) / 10 + 'k'
+}
+
+/**
  * Does nothing with the given values. Useful for ignoring unused imports that you don't want TypeScript to remove.
  */
 export function noop(..._values: unknown[]) {}
@@ -292,6 +367,20 @@ export function* mapIterator<T, U>(
 ): Generator<U> {
   for (const item of iterator)
     yield mapper(item)
+}
+
+/**
+ * Filter-maps an iterator.
+ */
+export function* filterMapIterator<T, U>(
+  iterator: Iterable<T>,
+  mapper: (item: T) => U | null,
+): Generator<U> {
+  for (const item of iterator) {
+    const mapped = mapper(item)
+    if (mapped != null)
+      yield mapped
+  }
 }
 
 /**
@@ -354,4 +443,25 @@ function userDisplayName(user: User): string {
  */
 export function displayName(member: Member | User): string {
   return (member as Member).nick ?? userDisplayName(member as User)
+}
+
+export interface ChannelDisplayMetadata {
+  channel: Channel
+  user: User | null
+  guild: Guild | null
+  icon: string | null
+}
+
+/**
+ * Returns display metadata about a channel.
+ */
+export function displayChannel(channel: Channel): ChannelDisplayMetadata {
+  const cache = getApi()!.cache!
+  const user = channel.type === 'dm'
+    ? cache.users.get(channel.recipient_ids.find((id) => id !== cache.clientId)!)
+    : null
+  const guild = 'guild_id' in channel ? cache.guilds.get(channel.guild_id) : null
+  const icon = 'icon' in channel ? channel.icon : user && cache.avatarOf(user.id)
+
+  return { channel, user: user ?? null, guild: guild ?? null, icon: icon ?? null }
 }

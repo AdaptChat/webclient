@@ -128,7 +128,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
           <Icon icon={ChevronLeft} class="fa-xs opacity-50 fill-fg w-5 h-5" title="Collapse Sidebar" />
         </div>
         <div classList={{
-          "flex flex-col items-center": true,
+          "flex flex-col": true,
           "w-[calc(100%-19rem)]": sidebar() || rightSidebar(), // 4rem (guild sidebar) + 15rem (large sidebar)
           "w-[calc(100%-4rem)] mobile:w-full": !sidebar() && !props.hideGuildSelect, // 4rem (guild sidebar)
           "w-full": !sidebar() && props.hideGuildSelect,
@@ -136,7 +136,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
         }}>
           {props.title && (
             <div classList={{
-              "flex items-center justify-between w-full bg-0": true,
+              "flex flex-grow items-center justify-between bg-bg-0/80 rounded-xl m-2": true,
               "mobile:hidden": sidebar(),
             }}>
               <div class="flex items-center pl-4 h-14 mobile:overflow-x-auto mobile:hide-scrollbar">
@@ -196,7 +196,7 @@ export default function Layout(props: ParentProps<LayoutProps>) {
             <div classList={{
               "flex flex-col": true,
               "w-full": !rightSidebar(),
-              "w-[calc(100%-15rem)] mobile:hidden": rightSidebar(),
+              "w-[calc(100%-15.5rem)] mobile:hidden": rightSidebar(),
             }}>
               {props.children}
             </div>
@@ -214,8 +214,8 @@ export default function Layout(props: ParentProps<LayoutProps>) {
             </div>
             <Show when={rightSidebar()} keyed={false}>
               <div
-                class="absolute right-0 top-14 inset-y-0 mobile:relative mobile:top-0 flex flex-col w-60
-                  overflow-y-auto bg-1 mobile:w-[calc(100%-3rem)]"
+                class="m-2 rounded-xl absolute right-0 top-16 inset-y-0 mobile:relative mobile:top-0 flex flex-col w-60
+                  overflow-y-auto bg-bg-1/80 mobile:w-[calc(100%-3rem)]"
               >
                 {props.rightSidebar!()}
               </div>

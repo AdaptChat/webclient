@@ -210,12 +210,12 @@ function MentionChannel({ arg, children, ...props }: any) {
 
 export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.Element> = {
   strong: (props) => <strong class="font-bold" {...props} />,
-  h1: (props) => <h1 class="text-2xl font-bold" {...props} />,
-  h2: (props) => <h2 class="text-xl font-bold" {...props} />,
-  h3: (props) => <h3 class="text-lg font-bold" {...props} />,
-  h4: (props) => <h4 class="text-base font-bold" {...props} />,
-  h5: (props) => <h5 class="text-sm font-bold" {...props} />,
-  h6: (props) => <h6 class="text-xs font-bold" {...props} />,
+  h1: (props) => <h1 class="text-2xl font-bold my-[0.3em]" {...props} />,
+  h2: (props) => <h2 class="text-xl font-bold my-[0.4em]" {...props} />,
+  h3: (props) => <h3 class="text-lg font-bold my-[0.5em]" {...props} />,
+  h4: (props) => <h4 class="text-base font-bold my-[0.6em]" {...props} />,
+  h5: (props) => <h5 class="text-sm font-bold my-[0.7em]" {...props} />,
+  h6: (props) => <h6 class="text-xs font-bold my-[0.8em]" {...props} />,
   a: Anchor,
   img: (props: any) => <Anchor {...props} isImage href={props.src}>{props.alt || props.src}</Anchor>,
   span: (props) => <span {...props} />,

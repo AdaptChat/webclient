@@ -1,9 +1,8 @@
 /* @refresh reload */
 import {render} from 'solid-js/web';
-import {Router} from "@solidjs/router";
 
 import './index.css';
-import App from './App';
+import Entrypoint from './Entrypoint';
 import {ContextMenuProvider} from "./components/ui/ContextMenu";
 import {ThemeProvider} from "./client/themes";
 
@@ -17,9 +16,7 @@ console.log(
 const app = () => (
   <ThemeProvider>
     <ContextMenuProvider>
-      <Router>
-        <App />
-      </Router>
+      <Entrypoint />
     </ContextMenuProvider>
   </ThemeProvider>
 );

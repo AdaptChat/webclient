@@ -6,7 +6,7 @@ import Check from "../icons/svg/Check";
 import Icon from "../icons/Icon";
 import ClipboardIcon from "../icons/svg/Clipboard";
 
-export default function GuildInviteModal({ guild, show }: { guild: Guild, show: Accessor<boolean> }) {
+export default function GuildInviteModal(props: { guild: Guild, show: Accessor<boolean> }) {
   let inputRef: HTMLInputElement | null = null
 
   const api = getApi()!
@@ -14,28 +14,28 @@ export default function GuildInviteModal({ guild, show }: { guild: Guild, show: 
   const [copied, setCopied] = createSignal(false)
 
   createEffect(async () => {
-    if (!show())
+    if (!props.show())
       return
 
-    const code = api.cache!.inviteCodes.get(guild.id)
+    const code = api.cache!.inviteCodes.get(props.guild.id)
     if (code) {
       setCode(code)
       return
     }
 
-    const response = await api.request('POST', `/guilds/${guild.id}/invites`, {
+    const response = await api.request('POST', `/guilds/${props.guild.id}/invites`, {
       json: {},
     })
     const { code: inviteCode } = response.ensureOk().jsonOrThrow()
 
-    api.cache!.inviteCodes.set(guild.id, inviteCode)
+    api.cache!.inviteCodes.set(props.guild.id, inviteCode)
     setCode(inviteCode)
   })
 
   return (
     <ModalTemplate title="Invite People">
       <p class="text-fg/70 text-center mt-2">
-        Invite people to join <b>{guild.name}</b> by sending them this link:
+        Invite people to join <b>{props.guild.name}</b> by sending them this link:
       </p>
       <div class="flex items-center justify-between bg-0 mt-4 rounded-lg box-border overflow-hidden">
         <input
