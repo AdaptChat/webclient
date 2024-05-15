@@ -365,15 +365,13 @@ function HomeSidebar(props: { tabSignal: Signal<Tab> }) {
     .filter(([id, lastAckedId, lastMessageId]) =>
       lastAckedId != null && lastMessageId && lastMessageId > lastAckedId && mentions().every(({ channel }) => channel.id !== id)
     )
-  )
-  const unreadMessages = createMemo(() => allUnreadMessages()
     .sort(([_0, _1, a], [_2, _3, b]) => b! - a!)
-    .slice(0, 5)
     .map(([id, _, lastMessageId]) => ({
       ...displayChannel(cache.channels.get(id)!),
       lastMessage: snowflakes.timestampMillis(lastMessageId!)
     }))
   )
+  const unreadMessages = createMemo(() => allUnreadMessages().slice(0, 5)) // TODO: make this more efficient
   const anyUnreadFactory = (predicate: (metadata: ChannelDisplayMetadata) => boolean) => createMemo(() => allUnreadMessages().some(predicate))
   const anyDmsUnread = anyUnreadFactory((metadata) => metadata.guild == null)
   const anyGuildsUnread = anyUnreadFactory((metadata) => metadata.guild != null)
