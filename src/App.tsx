@@ -214,7 +214,7 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
             "text-opacity-100": active() || hasUnread(),
             "text-opacity-60 group-hover:text-opacity-80": !active() && !hasUnread(),
           }}>
-            {group ? (channel() as GroupDmChannel).name : displayName(user()!) ?? 'Unknown User'}
+            {group ? (channel() as GroupDmChannel).name : user() ? displayName(user()!) : 'Unknown User'}
           </span>
           <div class="relative">
             &nbsp;
