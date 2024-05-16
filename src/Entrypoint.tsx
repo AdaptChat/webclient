@@ -1,11 +1,14 @@
 import {
   type Component,
+  createContext,
   createEffect,
   createSignal,
   lazy,
   onMount,
   onCleanup,
-  Show, createContext, ParentProps, JSX,
+  Show,
+  ParentProps,
+  JSX,
 } from 'solid-js';
 import {Navigate, Route, Router, useLocation} from "@solidjs/router";
 import Api, { getApi, setApi } from "./api/Api";
@@ -20,6 +23,8 @@ import useNewGuildModalComponent, {ModalPage} from "./components/guilds/NewGuild
 import ContextMenu, {ContextMenuButton} from "./components/ui/ContextMenu";
 import RocketLaunch from "./components/icons/svg/RocketLaunch";
 import UserPlus from "./components/icons/svg/UserPlus";
+import {HeaderContextProvider} from "./components/ui/Header";
+import Settings from "./pages/settings/SettingsLayout";
 
 const Loading = lazy(() => import('./pages/Loading'))
 
@@ -179,21 +184,25 @@ const Entrypoint: Component = () => {
         <Show when={ws()} fallback={<Loading />}>
           <div class="w-full h-full overflow-hidden">
             <NewGuildModalContextProvider>
-              <Router>
-                <Route component={App}>
-                  <Route path="/loading" component={Loading} />
-                  <Route path="/friends/requests" component={FriendRequests} />
-                  <Route path="/friends/*" component={FriendsList} />
-                  <Route path="/dms/:channelId" component={DmChannel} />
-                  <Route path="/guilds/:guildId/:channelId" component={GuildChannel} />
-                  <Route path="/guilds/:guildId" component={GuildHome} />
-                  <Route path="/invite/:code" component={Invite} />
-                  <Route path="/settings/appearance" component={AppearanceSettings} />
-                  <Route path={["/settings", "/settings/account"]} component={AccountSettings} />
-                  <Route path="/" component={Home} />
-                  <Route path="*" component={NotFound} />
-                </Route>
-              </Router>
+              <HeaderContextProvider>
+                <Router>
+                  <Route path="/settings" component={Settings}>
+                    <Route path={["/", "/account"]} component={AccountSettings} />
+                    <Route path="/appearance" component={AppearanceSettings} />
+                  </Route>
+                  <Route component={App}>
+                    <Route path="/loading" component={Loading} />
+                    <Route path="/friends/requests" component={FriendRequests} />
+                    <Route path="/friends/*" component={FriendsList} />
+                    <Route path="/dms/:channelId" component={DmChannel} />
+                    <Route path="/guilds/:guildId/:channelId" component={GuildChannel} />
+                    <Route path="/guilds/:guildId" component={GuildHome} />
+                    <Route path="/invite/:code" component={Invite} />
+                    <Route path="/" component={Home} />
+                    <Route path="*" component={NotFound} />
+                  </Route>
+                </Router>
+              </HeaderContextProvider>
             </NewGuildModalContextProvider>
           </div>
         </Show>

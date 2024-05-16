@@ -7,6 +7,7 @@ import Chat from "../../components/messaging/Chat";
 import {createMemo} from "solid-js";
 import GuildMemberList from "../../components/guilds/GuildMemberList";
 import {type GuildChannel as GuildChannelType} from "../../types/channel";
+import Header from "../../components/ui/Header";
 
 export default function GuildChannel() {
   const params = useParams()
@@ -20,13 +21,16 @@ export default function GuildChannel() {
   }
 
   return (
-    <Chat
-      channelId={channel().id}
-      guildId={channel().guild_id}
-      title={`#${channel().name}`}
-      startMessage={
-        <>This is the start of the conversation in <b>#{channel().name}</b>.</>
-      }
-    />
+    <>
+      <Header>#{channel().name}</Header>
+      <Chat
+        channelId={channel().id}
+        guildId={channel().guild_id}
+        title={`#${channel().name}`}
+        startMessage={
+          <>This is the start of the conversation in <b>#{channel().name}</b>.</>
+        }
+      />
+    </>
   )
 }

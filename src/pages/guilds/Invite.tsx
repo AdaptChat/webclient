@@ -1,4 +1,3 @@
-import Layout from "../Layout";
 import Icon from "../../components/icons/Icon";
 import Users from "../../components/icons/svg/Users";
 import UserTie from "../../components/icons/svg/UserTie";
@@ -14,6 +13,7 @@ import GuildIcon from "../../components/guilds/GuildIcon";
 import {snowflakes} from "../../utils";
 import {GuildCreateEvent} from "../../types/ws";
 import {Member} from "../../types/guild";
+import Header from "../../components/ui/Header";
 
 const Fallback = () => (
   <p class="text-fg/50 animate-pulse text-2xl font-bold font-title">Loading...</p>
@@ -104,46 +104,45 @@ export default function InviteScreen() {
   })
 
   return (
-    <Layout title={invite() ? `Accept server invite?` : 'Resolving invite...'} showBottomNav>
-      <div class="flex items-center justify-center w-full h-full bg-cover" ref={backgroundRef!}>
-        <Show when={invite()} fallback={<Fallback />}>
-          <div
-            class="flex flex-col bg-bg-0/80 px-8 rounded-xl w-[clamp(512px,70%,768px)]
-              mobile:w-[90%] backdrop-blur"
-          >
-            <p class="py-6 flex items-center justify-center text-sm text-fg/40 font-title font-bold">
-              <Icon icon={UserPlus} class="w-5 h-5 mr-2 fill-fg/40" />
-              <span>You've been invited to join a server!</span>
-            </p>
-            <div class="flex items-center">
-              <GuildIcon guild={invite()!.guild!} pings={0} unread={false} sizeClass="w-24 h-24 text-2xl" />
-              <div class="ml-4">
-                <h1 class="font-title font-bold text-4xl mobile:text-2xl mb-1">{invite()!.guild!.name}</h1>
-                <p class="flex items-center gap-x-1 text-fg/50 text-sm">
-                  <Icon icon={Users} class="w-4 h-4 fill-fg/50" />
-                  <span class="mr-2">{invite()!.guild!.member_count!.total.toLocaleString()}</span>
-                  {/* TODO: Online users */}
-                  <Show when={owner()} keyed={false}>
-                    <Icon icon={UserTie} class="w-4 h-4 fill-fg/50" />
-                    <span>@{owner()!.username}</span>
-                  </Show>
-                </p>
-                <p class="text-fg/30">{invite()!.guild!.description}</p>
-              </div>
-            </div>
-            <div class="flex gap-x-2 mt-6 mb-8">
-              <button class="btn btn-accent flex-grow" onClick={() => joinGuild(code, navigate)}>
-                <Icon icon={Plus} class="w-4 h-4 mr-2 fill-fg" />
-                <span>Join {invite()!.guild!.name}</span>
-              </button>
-              <button class="btn" onClick={() => navigate(-1)}>
-                <Icon icon={ChevronLeft} class="w-4 h-4 mr-2 fill-fg" />
-                <span>Back</span>
-              </button>
+    <div class="flex items-center justify-center w-full h-full bg-cover" ref={backgroundRef!}>
+      <Header>{invite() ? `Accept server invite?` : 'Resolving invite...'}</Header>
+      <Show when={invite()} fallback={<Fallback />}>
+        <div
+          class="flex flex-col bg-bg-0/80 px-8 rounded-xl w-[clamp(512px,70%,768px)]
+            mobile:w-[90%] backdrop-blur"
+        >
+          <p class="py-6 flex items-center justify-center text-sm text-fg/40 font-title font-bold">
+            <Icon icon={UserPlus} class="w-5 h-5 mr-2 fill-fg/40" />
+            <span>You've been invited to join a server!</span>
+          </p>
+          <div class="flex items-center">
+            <GuildIcon guild={invite()!.guild!} pings={0} unread={false} sizeClass="w-24 h-24 text-2xl" />
+            <div class="ml-4">
+              <h1 class="font-title font-bold text-4xl mobile:text-2xl mb-1">{invite()!.guild!.name}</h1>
+              <p class="flex items-center gap-x-1 text-fg/50 text-sm">
+                <Icon icon={Users} class="w-4 h-4 fill-fg/50" />
+                <span class="mr-2">{invite()!.guild!.member_count!.total.toLocaleString()}</span>
+                {/* TODO: Online users */}
+                <Show when={owner()} keyed={false}>
+                  <Icon icon={UserTie} class="w-4 h-4 fill-fg/50" />
+                  <span>@{owner()!.username}</span>
+                </Show>
+              </p>
+              <p class="text-fg/30">{invite()!.guild!.description}</p>
             </div>
           </div>
-        </Show>
-      </div>
-    </Layout>
+          <div class="flex gap-x-2 mt-6 mb-8">
+            <button class="btn btn-accent flex-grow" onClick={() => joinGuild(code, navigate)}>
+              <Icon icon={Plus} class="w-4 h-4 mr-2 fill-fg" />
+              <span>Join {invite()!.guild!.name}</span>
+            </button>
+            <button class="btn" onClick={() => navigate(-1)}>
+              <Icon icon={ChevronLeft} class="w-4 h-4 mr-2 fill-fg" />
+              <span>Back</span>
+            </button>
+          </div>
+        </div>
+      </Show>
+    </div>
   )
 }

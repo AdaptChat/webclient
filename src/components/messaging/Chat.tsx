@@ -422,6 +422,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
         && e.key.length == 1
         && charCode >= 32 && charCode <= 126
         && !e.ctrlKey && !e.altKey && !e.metaKey
+        || ((e.ctrlKey || e.metaKey) && e.key == 'v')
     ) {
       messageInputRef!.focus()
     }

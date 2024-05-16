@@ -6,6 +6,7 @@ import {getApi} from "../../api/Api";
 import NotFound from "../NotFound";
 import GuildSidebar from "../../components/guilds/GuildSidebar";
 import GuildMemberList from "../../components/guilds/GuildMemberList";
+import Header from "../../components/ui/Header";
 
 export default function GuildHome() {
   const api = getApi()!
@@ -16,6 +17,7 @@ export default function GuildHome() {
 
   return (
     <div class="flex flex-col items-center w-full h-full p-8 mobile-xs:p-4 xl:p-12 2xl:p-16 overflow-auto">
+      <Header>Server Home</Header>
       <div class="flex items-center mobile:justify-center px-8 bg-0 rounded-xl py-12 w-full mobile:flex-col">
         <Show when={guild()!.icon} keyed={false}>
           <img src={guild()!.icon} alt="" class="w-24 rounded-lg mr-4"/>

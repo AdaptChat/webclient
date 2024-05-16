@@ -41,7 +41,6 @@ import Bolt from "./components/icons/svg/Bolt";
 import MagnifyingGlass from "./components/icons/svg/MagnifyingGlass";
 import Xmark from "./components/icons/svg/Xmark";
 import GuildIcon from "./components/guilds/GuildIcon";
-import {getDmChannelName} from "./pages/dms/DmChannel";
 import {DmChannel as DmChannelType, GroupDmChannel} from "./types/channel";
 import GuildSidebar from "./components/guilds/GuildSidebar";
 import {toast} from "solid-toast";
@@ -49,10 +48,9 @@ import useContextMenu from "./hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "./components/ui/ContextMenu";
 import Code from "./components/icons/svg/Code";
 import GuildMemberList from "./components/guilds/GuildMemberList";
-import UserPlus from "./components/icons/svg/UserPlus";
 import Plus from "./components/icons/svg/Plus";
-import useNewGuildModalComponent from "./components/guilds/NewGuildModal";
 import {NewGuildModalContext} from "./Entrypoint";
+import {HeaderContext} from "./components/ui/Header";
 
 enum Tab { Quick, Conversations, Servers, Discover }
 
@@ -597,38 +595,9 @@ export function ActionButton(props: ActionButtonProps) {
   )
 }
 
-const FriendsNav = lazy(() => import('./pages/friends/Friends').then(m => ({ default: m.FriendsNav })))
 const FriendActions = lazy(() => import('./pages/friends/Friends').then(m => ({ default: m.FriendActions })))
 
-function Header() {
-  const cache = getApi()!.cache!
-  const pathname = createMemo(() => useLocation().pathname)
-  const params = useParams()
-
-  const getChannel = () => cache.channels.get(parseInt(params.channelId))! as any
-
-  return (
-    <Switch>
-      <Match when={pathname() === '/'}>
-        Welcome,&nbsp;
-        <span class="bg-gradient-to-r from-accent to-secondary bg-clip-text text-transparent">
-          {displayName(cache.clientUser!)}
-        </span>!
-      </Match>
-      <Match when={pathname().startsWith('/friends')}>
-        <FriendsNav />
-      </Match>
-      <Match when={pathname().startsWith('/guilds')}>
-        <Show when={params.channelId} fallback={'Home'}>
-          #{getChannel().name}
-        </Show>
-      </Match>
-      <Match when={pathname().startsWith('/dms')}>
-        {getDmChannelName(getChannel())}
-      </Match>
-    </Switch>
-  )
-}
+export const [previousPage, setPreviousPage] = createSignal<string>('/')
 
 export default function App(props: ParentProps) {
   const isMobile = createMediaQuery("(max-width: 768px)")
@@ -651,12 +620,16 @@ export default function App(props: ParentProps) {
   const [noRightSidebar, setNoRightSidebar] = createSignal(false)
   const actualShowRightSidebar = createMemo(() => showRightSidebar() && !noRightSidebar())
 
-  createEffect(on(() => location.pathname, () => setNoRightSidebar(false)))
+  createEffect(on(() => location.pathname, () => {
+    setNoRightSidebar(false)
+    if (!location.pathname.startsWith('/settings')) setPreviousPage(location.pathname)
+  }))
 
   const sidebarSignal = createSignal(Tab.Quick)
   const [swipeStart, setSwipeStart] = createSignal(0)
 
   const { NewGuildModal } = useContext(NewGuildModalContext)!
+  const [headers] = useContext(HeaderContext)!
 
   return (
     <div
@@ -707,7 +680,7 @@ export default function App(props: ParentProps) {
               />
             </button>
             <span class="font-title font-bold">
-              <Header />
+              {headers()[headers().length - 1] ?? 'Unknown'}
             </span>
           </div>
           <Switch>
@@ -738,7 +711,7 @@ export default function App(props: ParentProps) {
             }}
           >
             <ErrorBoundary fallback={(err) => (
-              <div class="text-red-900 bg-red-300 rounded-lg p-4 mr-2 mt-2 flex flex-col">
+              <div class="text-red-900 bg-red-300 rounded-lg p-4 m-2 flex flex-col">
                 <p class="font-bold">Error: {err.message}</p>
                 <p class="font-light text-sm">
                   If this error persists, please&nbsp;

@@ -8,6 +8,8 @@ import {ChannelCreateEvent} from "../../types/ws";
 import {Channel} from "../../types/channel";
 import MessageIcon from "../../components/icons/svg/Message";
 import Icon from "../../components/icons/Icon";
+import Header from "../../components/ui/Header";
+import {FriendsNav} from "./Friends";
 noop(tooltip)
 
 export async function openDms(api: Api, navigate: Navigator, userId: number) {
@@ -34,6 +36,9 @@ export default function FriendsList() {
 
   return (
     <div class="p-2 h-full flex flex-col overflow-auto">
+      <Header>
+        <FriendsNav />
+      </Header>
       <Show when={friends().length} fallback={(
         <div class="text-center font-medium text-fg/60 p-4">
           You currently have no friends (just like Cryptex).

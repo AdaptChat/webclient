@@ -24,6 +24,7 @@ import {GroupDmChannel, GuildChannel} from "../types/channel";
 import {Message} from "../types/message";
 import tooltip from "../directives/tooltip";
 import {NewGuildModalContext} from "../Entrypoint";
+import Header from "../components/ui/Header";
 noop(tooltip)
 
 export function Card(props: ParentProps<{ title: string }>) {
@@ -107,9 +108,9 @@ export default function Home() {
   const api = getApi()!
   const navigate = useNavigate()
   const clientUser = api.cache!.clientUser!
-  const status = createMemo(() => api.cache!.presences.get(clientUser.id)?.status ?? 'online')
+  // const status = createMemo(() => api.cache!.presences.get(clientUser.id)?.status ?? 'online')
 
-  const { setShow: setShowNewGuildModal } = useContext(NewGuildModalContext)!
+  const newGuildModal = useContext(NewGuildModalContext)
 
   // onMount(() => api.pushNotifications.subscribe())
 
@@ -137,6 +138,12 @@ export default function Home() {
 
   return (
     <div class="flex flex-wrap gap-2 mobile:flex-col my-2 px-2">
+      <Header>
+        Welcome,&nbsp;
+        <span class="bg-gradient-to-r from-accent to-secondary bg-clip-text text-transparent">
+          {displayName(api.cache!.clientUser!)}
+        </span>!
+      </Header>
       <Show when={activeFriends().length}>
         <div class="p-5 bg-bg-0/60 backdrop-blur rounded-xl w-full">
           <div class="flex justify-between">
@@ -188,7 +195,7 @@ export default function Home() {
           <LearnAdaptSubcard
             title="Join a community"
             icon={Server}
-            onClick={() => setShowNewGuildModal(true)}
+            onClick={() => newGuildModal?.setShow(true)}
           >
             Create, discover, join, and chat in communities that suit your interests. You may also join the official&nbsp;
             <A href="/invite/ozLGrKT9" class="font-medium underline underline-offset-2">Adapt Community</A>.

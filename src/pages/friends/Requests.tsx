@@ -11,6 +11,8 @@ import useContextMenu from "../../hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton} from "../../components/ui/ContextMenu";
 import Code from "../../components/icons/svg/Code";
 import StatusIndicator from "../../components/users/StatusIndicator";
+import Header from "../../components/ui/Header";
+import {FriendsNav} from "./Friends";
 noop(tooltip)
 
 export function relationshipFilterFactory(api: Api, targetType: RelationshipType): Accessor<[number, RelationshipType][]> {
@@ -87,6 +89,9 @@ export default function Requests() {
 
   return (
     <div class="px-2 pt-2 h-full flex flex-col overflow-auto">
+      <Header>
+        <FriendsNav />
+      </Header>
       <Show when={!outgoing().length && !incoming().length} keyed={false}>
         <p class="text-center font-medium text-fg/60 p-4">
           You currently have no incoming or outgoing friend requests.

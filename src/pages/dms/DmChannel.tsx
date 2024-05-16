@@ -5,6 +5,7 @@ import NotFound from "../NotFound";
 import Chat from "../../components/messaging/Chat";
 import {type DmChannel as DmChannelType, GroupDmChannel} from "../../types/channel";
 import {displayName} from "../../utils";
+import Header from "../../components/ui/Header";
 
 export function getDmChannelName(channel: DmChannelType) {
   const cache = getApi()!.cache!
@@ -27,12 +28,15 @@ export default function DmChannel() {
 
   // TODO: right sidebar
   return (
-    <Chat
-      channelId={channel()!.id}
-      title={name()}
-      startMessage={
-        <>This is the start of the conversation {channel()!.type == 'group' ? 'in' : 'with'} <b>{name()}</b>.</>
-      }
-    />
+    <>
+      <Header>{name()}</Header>
+      <Chat
+        channelId={channel()!.id}
+        title={name()}
+        startMessage={
+          <>This is the start of the conversation {channel()!.type == 'group' ? 'in' : 'with'} <b>{name()}</b>.</>
+        }
+      />
+    </>
   )
 }
