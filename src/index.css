@@ -46,7 +46,10 @@ html {
   }
 }
 
-body { @apply hide-scrollbar }
+body {
+  @apply hide-scrollbar;
+  touch-action: none;
+}
 
 details > summary { list-style-type: none }
 details > summary::-webkit-details-marker { display: none }
