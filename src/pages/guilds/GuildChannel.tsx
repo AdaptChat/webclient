@@ -1,11 +1,8 @@
-import Layout from "../Layout";
 import {getApi} from "../../api/Api";
 import {useParams} from "@solidjs/router";
 import NotFound from "../NotFound";
-import GuildSidebar from "../../components/guilds/GuildSidebar"
 import Chat from "../../components/messaging/Chat";
 import {createMemo} from "solid-js";
-import GuildMemberList from "../../components/guilds/GuildMemberList";
 import {type GuildChannel as GuildChannelType} from "../../types/channel";
 import Header from "../../components/ui/Header";
 

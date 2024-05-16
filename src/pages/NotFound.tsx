@@ -1,5 +1,3 @@
-import Layout from "./Layout";
-import {JSX} from "solid-js";
 import Icon from "../components/icons/Icon";
 import Hand from "../components/icons/svg/Hand";
 import Header from "../components/ui/Header";

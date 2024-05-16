@@ -1,11 +1,8 @@
-import Layout from "../Layout";
 import {createMemo, Show} from "solid-js";
 import {Card} from "../Home";
 import {useParams} from "@solidjs/router";
 import {getApi} from "../../api/Api";
 import NotFound from "../NotFound";
-import GuildSidebar from "../../components/guilds/GuildSidebar";
-import GuildMemberList from "../../components/guilds/GuildMemberList";
 import Header from "../../components/ui/Header";
 
 export default function GuildHome() {

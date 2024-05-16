@@ -1,6 +1,6 @@
 import {createMemo, JSX, ParentProps} from "solid-js";
 import {A, useLocation} from "@solidjs/router";
-import {setShowSidebar} from "../../pages/Layout";
+import {setShowSidebar} from "../../App";
 import Icon, {IconElement} from "../icons/Icon";
 
 const WrappedButtonComponent = (props: ParentProps<JSX.ButtonHTMLAttributes<HTMLButtonElement>>) => (
@@ -36,7 +36,7 @@ export default function SidebarButton(props: ParentProps<Props>) {
       href={typeof props.href == 'string' ? props.href : props.href?.[0]!}
       classList={{
         "w-full group flex items-center gap-x-2 rounded-lg transition-all duration-200": true,
-        [props.large ? "p-2.5" : "p-2"]: true,
+        [props.large ? "p-2.5 mobile:px-2.5 mobile:py-4 mobile:gap-x-4" : "p-2"]: true,
         "hover:bg-3": !props.danger,
         "hover:bg-danger": props.danger,
         "bg-0": active(),
@@ -52,7 +52,7 @@ export default function SidebarButton(props: ParentProps<Props>) {
           icon={props.svg}
           classList={{
             "select-none transition-all duration-200": true,
-            [props.large ? "w-6 h-6" : "w-4 h-4"]: true,
+            [props.large ? "w-5 h-5" : "w-4 h-4"]: true,
             "opacity-100": active() || props.danger,
             "opacity-50": !active() && !props.danger,
             "group-hover:opacity-80 fill-fg": !props.danger,
