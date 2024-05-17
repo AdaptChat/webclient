@@ -202,7 +202,7 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
           <img src={(channel() as GroupDmChannel).icon} alt="" class="w-9 h-9 rounded-full"/>
         ) : (
           <div class="indicator">
-            <StatusIndicator status={presence()?.status} tailwind="m-[0.1rem]" indicator />
+            <StatusIndicator status={presence()?.status} tailwind="m-[0.1rem] w-3 h-3" indicator />
             <img src={api.cache!.avatarOf(user()?.id!)} alt="" class="w-9 h-9 rounded-full"/>
           </div>
         )}

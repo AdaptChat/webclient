@@ -24,7 +24,7 @@ import ContextMenu, {ContextMenuButton} from "./components/ui/ContextMenu";
 import RocketLaunch from "./components/icons/svg/RocketLaunch";
 import UserPlus from "./components/icons/svg/UserPlus";
 import {HeaderContextProvider} from "./components/ui/Header";
-import Settings from "./pages/settings/SettingsLayout";
+import {Settings, SettingsRoot} from "./pages/settings/SettingsLayout";
 
 const Loading = lazy(() => import('./pages/Loading'))
 
@@ -187,9 +187,10 @@ const Entrypoint: Component = () => {
               <HeaderContextProvider>
                 <Router>
                   <Route path="/settings" component={Settings}>
-                    <Route path={["/", "/account"]} component={AccountSettings} />
+                    <Route path="/account" component={AccountSettings} />
                     <Route path="/appearance" component={AppearanceSettings} />
                   </Route>
+                  <Route path="/settings" component={SettingsRoot} />
                   <Route component={App}>
                     <Route path="/loading" component={Loading} />
                     <Route path="/friends/requests" component={FriendRequests} />

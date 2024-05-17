@@ -14,7 +14,6 @@ import MagnifyingGlass from "../icons/svg/MagnifyingGlass";
 import Icon from "../icons/Icon";
 import Xmark from "../icons/svg/Xmark";
 import Fuse from "fuse.js";
-import type {DmChannel} from "../../types/channel";
 import {User} from "../../types/user";
 
 export function GuildMemberGroup(props: { members: Iterable<User | number>, offline?: boolean }) {
@@ -59,7 +58,7 @@ export function GuildMemberGroup(props: { members: Iterable<User | number>, offl
             )}
           >
             <div class="indicator flex-shrink-0">
-              <StatusIndicator status={api.cache!.presences.get(user_id)?.status} tailwind="m-[0.2rem]" indicator />
+              <StatusIndicator status={api.cache!.presences.get(user_id)?.status} tailwind="m-[0.2rem] w-2.5 h-2.5" indicator />
               <img
                 src={api.cache!.avatarOf(user_id)}
                 alt=""

@@ -1,4 +1,3 @@
-import SettingsLayout from "./SettingsLayout";
 import {presets, Rgb, Theme, useTheme} from "../../client/themes";
 import ThemePreview from "../../components/settings/ThemePreview";
 import {createMemo, createSignal, ParentProps} from "solid-js";
@@ -111,7 +110,7 @@ function PresetTheme({ name, theme }: { name: string, theme: Theme }) {
 
   return (
     <div
-      class="flex flex-col mobile:w-full w-[calc(50%-0.5rem)] xl:w-[unset] items-center cursor-pointer group"
+      class="flex flex-col mobile:w-full md:min-w-[256px] items-center cursor-pointer group"
       onClick={() => setTheme(theme, true)}
     >
       <div classList={{
@@ -151,10 +150,12 @@ export default function Appearance() {
     <div class="flex flex-col w-full h-full">
       <Header>Appearance</Header>
       <h2 class="font-bold px-4 pt-4 pb-2 text-fg/50 mobile:text-center">Preset Themes</h2>
-      <div class="flex flex-wrap gap-4 mx-4 mobile:flex-col">
+      <div>
+        <div class="flex overflow-x-auto gap-4 mx-4 mobile:flex-col">
         <PresetTheme name="Light" theme={presets.light} />
         <PresetTheme name="Dim" theme={presets.dim} />
         <PresetTheme name="Dark" theme={presets.dark} />
+        </div>
       </div>
 
       <Details title="Theme Colors">

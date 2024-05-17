@@ -25,9 +25,9 @@ export default function Account() {
   )
 
   return (
-    <div class="flex flex-col items-center w-full p-4">
+    <div class="flex flex-col items-center w-full px-2 py-4">
       <Header>Account</Header>
-      <div class="relative flex items-center p-2 bg-1 rounded-lg w-full">
+      <div class="relative flex items-center p-2 bg-bg-1/80 rounded-xl w-full">
         <button
           class="group relative m-4 rounded-[50%] hover:rounded-lg overflow-hidden transition-all duration-200"
           onClick={() => {
@@ -55,9 +55,9 @@ export default function Account() {
               opacity-0 group-hover:opacity-100 transition duration-200"
           >
             <Icon icon={PenToSquare} class="w-6 h-6 fill-fg" title="Edit Avatar" />
-            <span class="uppercase font-bold text-xs mt-1">Edit Avatar</span>
+            <span class="uppercase font-bold text-xs mt-1">Edit</span>
           </div>
-          <img src={api.cache!.clientAvatar} alt="" class="w-24 h-24" />
+          <img src={api.cache!.clientAvatar} alt="" class="w-20 h-20" />
         </button>
         <form
           id={formId}
@@ -80,23 +80,7 @@ export default function Account() {
           }}
         >
           <div>
-            {editing() ? (
-              <input
-                ref={usernameInputRef!}
-                type="text"
-                name="username"
-                autocomplete="username"
-                minLength={2}
-                maxLength={32}
-                placeholder="Username"
-                required
-                value={clientUser().username}
-                class="bg-0 text-xl font-medium text-fg rounded-lg p-2 mr-1"
-                onInput={updateChanged}
-              />
-            ) : (
-              <span class="font-medium text-2xl">{clientUser().username}</span>
-            )}
+            <span class="font-medium text-2xl">{clientUser().username}</span>
           </div>
           <span class="font-medium text-sm text-fg/50">{clientUser().email}</span>
         </form>
