@@ -29,7 +29,7 @@ function Exit() {
 }
 
 export function generateSettingsRoot(breadcrumb: Breadcrumb, sidebar: JSX.Element) {
-  const isMobile = createMediaQuery("(max-width: 768px)")
+  const isMobile = createMediaQuery("(max-width: 767px)")
   const navigate = useNavigate()
 
   createEffect(() => {
@@ -56,7 +56,7 @@ export function generateSettingsLayout(breadcrumb: Breadcrumb, sidebar: JSX.Elem
   onMount(() => document.addEventListener('keydown', handleKeyDown))
   onCleanup(() => document.removeEventListener('keydown', handleKeyDown))
 
-  const isMobile = createMediaQuery("(max-width: 768px)")
+  const isMobile = createMediaQuery("(max-width: 767px)")
   const [header] = useContext(HeaderContext)!
 
   return (

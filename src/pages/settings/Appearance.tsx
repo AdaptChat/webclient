@@ -148,7 +148,7 @@ export default function Appearance() {
 
   return (
     <div class="flex flex-col w-full h-full">
-      <Header>Appearance</Header>
+      <Header>Theme</Header>
       <h2 class="font-bold px-4 pt-4 pb-2 text-fg/50 mobile:text-center">Preset Themes</h2>
       <div>
         <div class="flex overflow-x-auto gap-4 mx-4 mobile:flex-col">
