@@ -1,4 +1,4 @@
-import {createEffect, createSignal, JSX, onCleanup, onMount, ParentProps, Show, useContext} from "solid-js";
+import {createEffect, JSX, onCleanup, onMount, ParentProps, useContext} from "solid-js";
 import Xmark from "../../components/icons/svg/Xmark";
 import Icon from "../../components/icons/Icon";
 import User from "../../components/icons/svg/User";
@@ -11,6 +11,7 @@ import {A, useNavigate} from "@solidjs/router";
 import {previousPage} from "../../App";
 import {createMediaQuery} from "@solid-primitives/media";
 import ChevronRight from "../../components/icons/svg/ChevronRight";
+import ArrowUpRightFromSquare from "../../components/icons/svg/ArrowUpRightFromSquare";
 void tooltip
 
 export interface Breadcrumb {
@@ -28,7 +29,7 @@ function Exit() {
   )
 }
 
-export function generateSettingsRoot(breadcrumb: Breadcrumb, sidebar: JSX.Element) {
+export function generateSettingsRoot(breadcrumb: Breadcrumb, Sidebar: () => JSX.Element) {
   const isMobile = createMediaQuery("(max-width: 767px)")
   const navigate = useNavigate()
 
@@ -42,12 +43,12 @@ export function generateSettingsRoot(breadcrumb: Breadcrumb, sidebar: JSX.Elemen
         <span>{breadcrumb.name}</span>
         <Exit />
       </h1>
-      {sidebar}
+      <Sidebar />
     </div>
   )
 }
 
-export function generateSettingsLayout(breadcrumb: Breadcrumb, sidebar: JSX.Element, children: JSX.Element) {
+export function generateSettingsLayout(breadcrumb: Breadcrumb, Sidebar: () => JSX.Element, children: JSX.Element) {
   const navigate = useNavigate()
 
   function handleKeyDown(e: KeyboardEvent) {
@@ -68,7 +69,7 @@ export function generateSettingsLayout(breadcrumb: Breadcrumb, sidebar: JSX.Elem
         "overflow-hidden w-0": isMobile(),
       }}>
         <div class="flex flex-col px-2 pt-4 xl:pt-[clamp(1rem,3vh,4rem)] w-56 overflow-auto">
-          {sidebar}
+          <Sidebar />
         </div>
       </div>
       <div class="h-full flex-grow max-w-[60rem] pt-4 xl:pt-[clamp(1rem,3vh,4rem)] px-2 overflow-auto hide-scrollbar">
@@ -110,14 +111,13 @@ export function SettingsSection(props: ParentProps) {
 
 export function generateSettingsComponents(breadcrumb: Breadcrumb, sidebar: () => JSX.Element) {
   return [
-    () => generateSettingsRoot(breadcrumb, sidebar()),
-    (props: ParentProps) => generateSettingsLayout(breadcrumb, sidebar(), props.children),
+    () => generateSettingsRoot(breadcrumb, sidebar),
+    (props: ParentProps) => generateSettingsLayout(breadcrumb, sidebar, props.children),
   ]
 }
 
-export const [SettingsRoot, Settings] = generateSettingsComponents(
-  { name: "Settings", root: "/settings", init: "/account" },
-  () => (
+function SettingsSidebar() {
+  return (
     <>
       <SettingsSection>User Settings</SettingsSection>
       <SidebarButton large href="/settings/account" svg={User}>
@@ -143,11 +143,28 @@ export const [SettingsRoot, Settings] = generateSettingsComponents(
       </SidebarButton>
 
       <div class="h-4" />
-      <p class="text-fg/30 text-sm font-light p-2">
-        <a href="//github.com/adaptchat/webclient" class="cursor-pointer underline underline-offset-2">
-          AdaptChat/webclient
-        </a> v{APP_VERSION}
+      <p class="text-fg/30 flex flex-col text-sm font-light p-2">
+        <span>
+          <a
+            href="//github.com/adaptchat/webclient"
+            class="cursor-pointer hover:text-fg/70 underline underline-offset-2"
+          >
+            AdaptChat/webclient
+          </a> v{APP_VERSION}
+        </span>
+        <a
+          class="flex items-center cursor-pointer group hover:text-fg/70 hover:underline underline-offset-2"
+          href="//github.com/adaptchat/webclient/issues/new"
+        >
+          Report an issue
+          <Icon icon={ArrowUpRightFromSquare} class="w-3 h-3 fill-fg/30 group-hover:fill-fg/70 ml-1.5" />
+        </a>
       </p>
     </>
   )
+}
+
+export const [SettingsRoot, Settings] = generateSettingsComponents(
+  { name: "Settings", root: "/settings", init: "/account" },
+  SettingsSidebar,
 )
