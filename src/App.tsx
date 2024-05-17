@@ -51,6 +51,7 @@ import GuildMemberList from "./components/guilds/GuildMemberList";
 import Plus from "./components/icons/svg/Plus";
 import {NewGuildModalContext} from "./Entrypoint";
 import {HeaderContext} from "./components/ui/Header";
+import {relationshipFilterFactory} from "./pages/friends/Requests";
 
 enum Tab { Quick, Conversations, Servers, Discover }
 
@@ -72,10 +73,10 @@ function SidebarNavButton(props: {
           class="indicator-item indicator-bottom bg-red-600 inline-flex text-xs font-medium items-center rounded-full
                min-w-[18px] h-[18px] m-1.5 ring-bg-0/80 ring-[3px]"
         >
-        <span class="min-w-[18px] text-center text-white px-1.5 py-2">
-          {humanizePings(props.pings!)}
+          <span class="min-w-[18px] text-center text-white px-1.5 py-2">
+            {humanizePings(props.pings!)}
+          </span>
         </span>
-      </span>
       </Show>
       <button
         classList={{
@@ -374,6 +375,8 @@ function HomeSidebar(props: { tabSignal: Signal<Tab> }) {
   const anyDmsUnread = anyUnreadFactory((metadata) => metadata.guild == null)
   const anyGuildsUnread = anyUnreadFactory((metadata) => metadata.guild != null)
 
+  const incomingFriends = relationshipFilterFactory(getApi()!, 'incoming_request')
+
   let searchRef: HTMLInputElement | null = null
   const Section = ({ children }: any) => <h2 class="font-title font-medium text-fg/50 text-sm mx-2 my-2">{children}</h2>
   const ChannelPreview = ({ metadata: { guild, user, icon, channel, mentionCount, lastMessage } }: {
@@ -421,11 +424,23 @@ function HomeSidebar(props: { tabSignal: Signal<Tab> }) {
         "h-14 opacity-100 p-2": searchQuery().length <= 0,
       }}>
         <SidebarTopPageButton href="/" label="Home" icon={HomeIcon} />
-        <SidebarTopPageButton
-          href="/friends" label="Friends" icon={UserGroup}
-          check={(path) => path.startsWith('/friends')}
-          tooltip
-        />
+        <div class="indicator">
+          <Show when={incomingFriends()?.length}>
+            <span
+              class="indicator-item indicator-bottom bg-red-600 inline-flex text-xs font-medium items-center rounded-full
+                     min-w-[18px] h-[18px] m-1.5 ring-bg-0/80 ring-[3px]"
+            >
+              <span class="min-w-[18px] text-center text-white px-1.5 py-2">
+                {humanizePings(incomingFriends()!.length)}
+              </span>
+            </span>
+          </Show>
+          <SidebarTopPageButton
+            href="/friends" label="Friends" icon={UserGroup}
+            check={(path) => path.startsWith('/friends')}
+            tooltip
+          />
+        </div>
       </div>
       <div class="flex mx-2 bg-bg-2/80 rounded-lg">
         <Icon icon={MagnifyingGlass} class="w-4 h-4 fill-fg/50 my-3 ml-3" />
