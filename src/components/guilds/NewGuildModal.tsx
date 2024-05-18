@@ -36,7 +36,7 @@ function Card({ title, children, ...props }: ParentProps<{ title: string }> & JS
 interface ExtendedProps extends Props {
   title: string,
   placeholder: string,
-  onSubmit: (name: string, nonce: string, acker: (guildId: number) => void) => Promise<string | void>,
+  onSubmit: (name: string, nonce: string, acker: (guildId: bigint) => void) => Promise<string | void>,
   buttonIcon?: IconElement,
   buttonLabel: string,
   minLength: number,
@@ -63,7 +63,7 @@ function Base(props: ParentProps<ExtendedProps>) {
           submit!.disabled = true
 
           let acked = false
-          let ack = (guildId: number) => {
+          let ack = (guildId: bigint) => {
             acked = true
             props.setShowModal(false)
             navigate(`/guilds/${guildId}`)

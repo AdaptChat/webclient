@@ -1,7 +1,7 @@
 import * as tippy from "tippy.js";
 
 declare global {
-  export type Snowflake = number | bigint
+  export type Snowflake = bigint
 }
 
 declare module 'solid-js' {

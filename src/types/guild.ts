@@ -8,7 +8,7 @@ export interface PartialGuild {
   /**
    * The snowflake ID of the guild.
    */
-  id: number;
+  id: Snowflake;
   /**
    * The name of the guild.
    */
@@ -28,7 +28,7 @@ export interface PartialGuild {
   /**
    * The ID of the owner of the guild.
    */
-  owner_id: number;
+  owner_id: Snowflake;
   /**
    * Extra information about the guild represented through bitflags.
    */
@@ -80,7 +80,7 @@ type MaybePartialUser = User | {
   /**
    * The snowflake ID of the user.
    */
-  id: number;
+  id: Snowflake;
 }
 
 /**
@@ -90,7 +90,7 @@ export type Member = MaybePartialUser & {
   /**
    * The ID of the guild this member is in.
    */
-  guild_id: number;
+  guild_id: Snowflake;
   /**
    * The nickname of the member. `None` if the member has no nickname.
    */
@@ -98,7 +98,7 @@ export type Member = MaybePartialUser & {
   /**
    * A list of IDs of the roles that the member has. This could be `None` in some cases.
    */
-  roles?: number[];
+  roles?: (number | bigint)[];
   /**
    * The time that the member joined the guild.
    */
@@ -116,7 +116,7 @@ export interface Invite {
   /**
    * The ID of the user that created this invite.
    */
-  inviter_id: number;
+  inviter_id: Snowflake;
   /**
    * Partial guild information about the guild this invite leads to. This is `None` when this is
    * already fetched from a guild.
@@ -125,7 +125,7 @@ export interface Invite {
   /**
    * The ID of the guild this invite leads to.
    */
-  guild_id: number;
+  guild_id: Snowflake;
   /**
    * A timestamp representing when this invite was created.
    */
@@ -152,11 +152,11 @@ export interface Role {
   /**
    * The snowflake ID of the role.
    */
-  id: number;
+  id: Snowflake;
   /**
    * The ID of the guild this role belongs to.
    */
-  guild_id: number;
+  guild_id: Snowflake;
   /**
    * The name of the role.
    *

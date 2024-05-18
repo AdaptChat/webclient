@@ -17,7 +17,7 @@ export type MessageInfo = {
   /**
    * The ID of the user who joined.
    */
-  user_id: number;
+  user_id: Snowflake;
 } | {
   /**
    * The type of this message.
@@ -26,7 +26,7 @@ export type MessageInfo = {
   /**
    * The ID of the user who left.
    */
-  user_id: number;
+  user_id: Snowflake;
 } | {
   /**
    * The type of this message.
@@ -35,11 +35,11 @@ export type MessageInfo = {
   /**
    * The ID of the message that was pinned.
    */
-  pinned_message_id: number;
+  pinned_message_id: Snowflake;
   /**
    * The ID of the user that pinned the message.
    */
-  pinned_by: number;
+  pinned_by: number | bigint;
 }
 
 /*
@@ -49,16 +49,16 @@ export type Message = MessageInfo & {
   /**
    * The snowflake ID of the message.
    */
-  id: number;
+  id: Snowflake;
   /**
    * The snowflake ID of the channel this message was sent in.
    */
-  channel_id: number;
+  channel_id: Snowflake;
   /**
    * The snowflake ID of the author of this message, or `None` if this is a system message, or if
    * the user has been deleted.
    */
-  author_id: number | null;
+  author_id: Snowflake | null;
   /**
    * Resolved data about the user or member that sent this message.
    * This is only present for new messages that are received.
@@ -87,7 +87,7 @@ export type Message = MessageInfo & {
   /**
    * The users and roles that this message mentions.
    */
-  mentions: number[];
+  mentions: (number | bigint)[];
   /**
    * The last time this message was edited, or `None` if it has not been edited.
    */

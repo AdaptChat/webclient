@@ -46,8 +46,9 @@ export default function GuildIcon(
   let baseClass = "indicator group";
   if (showTooltip) baseClass += " cursor-pointer"
 
+  const params = useParams()
   const extraClasses = createMemo(() => {
-    const active = ringIfActive && guild.id === parseInt(useParams().guildId)
+    const active = ringIfActive && params.guildId as any && guild.id === BigInt(params.guildId)
     return {
       "transition-all duration-200 overflow-hidden": true,
       "ring-accent ring-2 rounded-[30%]": active,

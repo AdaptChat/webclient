@@ -17,7 +17,7 @@ export namespace snowflakes {
   /**
    * Returns the timestamp of a snowflake in milliseconds.
    */
-  export function timestampMillis(snowflake: Snowflake): number {
+  export function timestampMillis(snowflake: number | bigint): number {
     if (typeof snowflake !== "bigint")
       snowflake = BigInt(snowflake)
 
@@ -67,7 +67,7 @@ export namespace snowflakes {
   /**
    * Returns the model type of a snowflake.
    */
-  export function modelType(snowflake: Snowflake): ModelType {
+  export function modelType(snowflake: number | bigint): ModelType {
     if (typeof snowflake !== "bigint")
       snowflake = BigInt(snowflake)
 
@@ -77,7 +77,7 @@ export namespace snowflakes {
   /**
    * Returns the snowflake replaced with the given model type.
    */
-  export function withModelType(snowflake: Snowflake, modelType: ModelType): bigint {
+  export function withModelType(snowflake: number | bigint, modelType: ModelType): bigint {
     if (typeof snowflake !== "bigint")
       snowflake = BigInt(snowflake)
 
@@ -92,7 +92,7 @@ export namespace snowflakes {
  * This does not account for guild owners (they should have all permissions), this should be
  * handled separately.
  */
-export function calculatePermissions(userId: number, roles: Role[], overwrites?: PermissionOverwrite[]): Permissions {
+export function calculatePermissions(userId: bigint, roles: Role[], overwrites?: PermissionOverwrite[]): Permissions {
   let perms = roles.reduce((acc, role) => acc | BigInt(role.permissions.allow), 0n)
     & ~roles.reduce((acc, role) => acc | BigInt(role.permissions.deny), 0n)
 

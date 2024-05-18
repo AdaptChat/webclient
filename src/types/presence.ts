@@ -5,7 +5,7 @@ export interface Presence {
   /**
    * The ID of the user whose presence this is.
    */
-  user_id: number
+  user_id: Snowflake
   /**
    * The status of the user.
    */

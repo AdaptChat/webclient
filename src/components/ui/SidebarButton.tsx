@@ -16,6 +16,7 @@ export interface Props {
   active?: boolean,
   danger?: boolean,
   large?: boolean,
+  disabled?: boolean,
 }
 
 export default function SidebarButton(props: ParentProps<Props>) {
@@ -39,11 +40,12 @@ export default function SidebarButton(props: ParentProps<Props>) {
         [props.large ? "p-2.5 mobile:px-2.5 mobile:py-4 mobile:gap-x-4" : "p-2"]: true,
         "hover:bg-3": !props.danger,
         "hover:bg-danger": props.danger,
+        "opacity-50 disabled cursor-not-allowed": props.disabled,
         "bg-0": active(),
       }}
       onClick={() => {
         if (window.innerWidth < 768) setShowSidebar(false)
-        props.onClick?.()
+        if (!props.disabled) props.onClick?.()
       }}
       onContextMenu={props.onContextMenu}
     >

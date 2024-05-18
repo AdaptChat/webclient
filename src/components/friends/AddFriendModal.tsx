@@ -8,7 +8,6 @@ import Check from "../icons/svg/Check";
 import Plus from "../icons/svg/Plus";
 import {displayName} from "../../utils";
 import At from "../icons/svg/At";
-import {toast} from "solid-toast";
 
 export default function AddFriendModal() {
   let inputRef: HTMLInputElement | null = null

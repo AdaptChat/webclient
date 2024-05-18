@@ -7,7 +7,7 @@ import RightFromBracket from "../../components/icons/svg/RightFromBracket";
 import SidebarButton from "../../components/ui/SidebarButton";
 import tooltip from "../../directives/tooltip";
 import {HeaderContext} from "../../components/ui/Header";
-import {A, useNavigate} from "@solidjs/router";
+import {A, useNavigate, useParams} from "@solidjs/router";
 import {previousPage} from "../../App";
 import {createMediaQuery} from "@solid-primitives/media";
 import ChevronRight from "../../components/icons/svg/ChevronRight";
@@ -16,7 +16,7 @@ void tooltip
 
 export interface Breadcrumb {
   name: string,
-  root: string,
+  root: (params: Record<string, string>) => string,
   init: string,
 }
 
@@ -32,9 +32,10 @@ function Exit() {
 export function generateSettingsRoot(breadcrumb: Breadcrumb, Sidebar: () => JSX.Element) {
   const isMobile = createMediaQuery("(max-width: 767px)")
   const navigate = useNavigate()
+  const params = useParams()
 
   createEffect(() => {
-    if (!isMobile()) navigate(breadcrumb.root + breadcrumb.init)
+    if (!isMobile()) navigate(breadcrumb.root(params) + breadcrumb.init)
   })
 
   return (
@@ -50,6 +51,7 @@ export function generateSettingsRoot(breadcrumb: Breadcrumb, Sidebar: () => JSX.
 
 export function generateSettingsLayout(breadcrumb: Breadcrumb, Sidebar: () => JSX.Element, children: JSX.Element) {
   const navigate = useNavigate()
+  const params = useParams()
 
   function handleKeyDown(e: KeyboardEvent) {
     if (e.key === 'Escape') navigate(previousPage())
@@ -63,7 +65,7 @@ export function generateSettingsLayout(breadcrumb: Breadcrumb, Sidebar: () => JS
   return (
     <div class="w-full h-full flex">
       <div classList={{
-        "flex justify-end bg-bg-0/70 backdrop-blur": true,
+        "flex justify-end bg-bg-0/60 backdrop-blur": true,
         "mobile:transition-all mobile:duration-300": true,
         "w-[max(14rem,calc(50vw-23rem))] mobile:w-full": !isMobile(),
         "overflow-hidden w-0": isMobile(),
@@ -75,7 +77,10 @@ export function generateSettingsLayout(breadcrumb: Breadcrumb, Sidebar: () => JS
       <div class="h-full flex-grow max-w-[60rem] pt-4 xl:pt-[clamp(1rem,3vh,4rem)] px-2 overflow-auto hide-scrollbar">
         <h1 class="flex items-center justify-between pt-2 px-4">
           <span class="font-bold font-title text-xl flex items-center">
-            <A href={breadcrumb.root} class="select-none opacity-50 md:hidden flex hover:underline hover:underline-offset-2 items-center">
+            <A
+              href={breadcrumb.root(params)}
+              class="select-none opacity-50 md:hidden flex hover:underline hover:underline-offset-2 items-center"
+            >
               <span>{breadcrumb.name}</span>
               <Icon icon={ChevronRight} class="fill-fg w-5 h-5 mr-1.5" />
             </A>
@@ -165,6 +170,6 @@ function SettingsSidebar() {
 }
 
 export const [SettingsRoot, Settings] = generateSettingsComponents(
-  { name: "Settings", root: "/settings", init: "/account" },
+  { name: "Settings", root: () => "/settings", init: "/account" },
   SettingsSidebar,
 )

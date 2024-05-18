@@ -134,7 +134,7 @@ export default function Home() {
 
       return { ...displayChannel(channel), lastMessage }
     }
-  )].sort((a, b) => b.lastMessage.id - a.lastMessage.id))
+  )].sort((a, b) => Number(b.lastMessage.id - a.lastMessage.id)))
 
   return (
     <div class="flex flex-wrap gap-2 mobile:flex-col my-2 px-2">

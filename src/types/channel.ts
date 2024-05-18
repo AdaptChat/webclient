@@ -30,7 +30,7 @@ export type GuildChannelInfo = {
    * The ID of the last message sent in the channel. This is `null` if no messages have
    * been sent in the channel.
    */
-  last_message: { id: number } | Message | null,
+  last_message: { id: Snowflake } | Message | null,
 } | {
   /**
    * The type of the channel.
@@ -55,11 +55,11 @@ export type GuildChannel = GuildChannelInfo & {
   /**
    * The ID of the channel.
    */
-  id: number,
+  id: Snowflake,
   /**
    * The ID of the guild that this channel is in.
    */
-  guild_id: number,
+  guild_id: Snowflake,
   /**
    * The name of the channel.
    */
@@ -93,7 +93,7 @@ export interface PermissionOverwrite {
    * The ID of the role or user that this overwrite applies to. The model type can be extracted from
    * the ID.
    */
-  id: number;
+  id: Snowflake;
   /**
    * Allowed permissions.
    */
@@ -124,11 +124,11 @@ export interface GroupDmChannelInfo {
   /**
    * The ID of the owner of the group chat.
    */
-  owner_id: number,
+  owner_id: Snowflake,
   /**
    * A list of recipients in the group chat by user ID.
    */
-  recipient_ids: number[],
+  recipient_ids: Snowflake[],
 }
 
 /**
@@ -142,14 +142,14 @@ export type DmChannelInfo = {
   /**
    * The two IDs of the recipients of the DM.
    */
-  recipient_ids: [number, number],
+  recipient_ids: [bigint, bigint],
 } | GroupDmChannelInfo
 
 type _DmChannel = {
   /**
    * The ID of the channel.
    */
-  id: number,
+  id: Snowflake,
 }
 
 /**

@@ -25,7 +25,7 @@ export async function joinGuild(code: string, navigate: Navigator) {
   const api = getApi()!
 
   let acked = false
-  let ack = (guildId: number) => {
+  let ack = (guildId: bigint) => {
     acked = true
     navigate(`/guilds/${guildId}`)
   }

@@ -7,7 +7,7 @@ import Header from "../../components/ui/Header";
 
 export default function GuildHome() {
   const api = getApi()!
-  const guild = createMemo(() => api.cache!.guilds.get(parseInt(useParams().guildId)))
+  const guild = createMemo(() => api.cache!.guilds.get(BigInt(useParams().guildId)))
 
   if (!guild())
     return <NotFound />

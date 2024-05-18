@@ -3,7 +3,7 @@ import Api from "./Api";
 export default class TypingKeepAlive {
   private lastTyping: number = 0
 
-  constructor(private readonly api: Api, private readonly channelId: number) {}
+  constructor(private readonly api: Api, private readonly channelId: bigint) {}
 
   private elapsedSinceLastTyping() {
     return performance.now() - this.lastTyping

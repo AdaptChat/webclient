@@ -35,7 +35,7 @@ export default class MessageGrouper {
   private readonly groupsSignal: Signal<MessageGroup[]>
   private currentGroup?: Message[]
 
-  private fetchBefore?: number
+  private fetchBefore?: bigint
   private fetchLock: boolean = false
   nonced: Map<string, [number, number]>
   noMoreMessages: Accessor<boolean>
@@ -43,9 +43,9 @@ export default class MessageGrouper {
 
   constructor(
     private readonly api: Api,
-    private readonly channelId: number,
+    private readonly channelId: bigint,
   ) {
-    this.groupsSignal = createSignal([])
+    this.groupsSignal = createSignal([] as MessageGroup[])
     this.nonced = new Map();
     [this.noMoreMessages, this.setNoMoreMessages] = createSignal(false)
   }
@@ -71,7 +71,7 @@ export default class MessageGrouper {
   /**
    * Removes a message from the grouper.
    */
-  removeMessage(id: number) {
+  removeMessage(id: bigint) {
     const [groupIndex, messageIndex] = this.findCloseMessageIndex(id)
     if (groupIndex < 0) return
 
@@ -88,7 +88,7 @@ export default class MessageGrouper {
   /**
    * Finds the indices of the message with the highest ID but still at most the given message ID.
    */
-  findCloseMessageIndex(id: number): [number, number] {
+  findCloseMessageIndex(id: bigint): [number, number] {
     let groupIndex = this.groups.length - 1
     let messageIndex = 0
 
@@ -227,7 +227,7 @@ export default class MessageGrouper {
 
   get authorDefault(): User {
     return {
-      id: 0,
+      id: BigInt(0),
       username: 'Unknown User',
       display_name: null,
       flags: 0,

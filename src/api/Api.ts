@@ -1,7 +1,31 @@
+import jsonBigint from "json-bigint";
 import {createRoot, createSignal} from "solid-js";
 import WsClient from "./WsClient";
 import ApiCache from "./ApiCache";
 import PushNotifications from "./PushNotifications";
+
+const JSONbig = jsonBigint({ useNativeBigInt: true })
+
+export function sanitizeSnowflakes(json: any): any {
+  if (json == null)
+    return json
+
+  if (typeof json === 'object') {
+    if (Array.isArray(json))
+      return json.map(sanitizeSnowflakes)
+
+    for (const [key, value] of Object.entries(json)) {
+      if (typeof value === 'number' && (key.endsWith('_id') || key === 'id'))
+        json[key] = BigInt(json[key])
+      else if (key.endsWith('_ids') && Array.isArray(json[key]))
+        json[key] = json[key].map(BigInt)
+      else
+        json[key] = sanitizeSnowflakes(json[key])
+    }
+  }
+
+  return json
+}
 
 /**
  * Maximum number of times to retry a request if we get a 429
@@ -63,7 +87,7 @@ export class ApiResponse<T> {
 
     try {
       if (contentType == "application/json")
-        json = await response.json()
+        json = await response.text().then(JSONbig.parse).then(sanitizeSnowflakes)
       else
         text = await response.text()
     } catch (ignored) {}
@@ -112,7 +136,7 @@ export class ApiResponse<T> {
     this.throwForError()
 
     if (this.$json != null)
-      return JSON.stringify(this.$json)
+      return JSONbig.stringify(this.$json)
 
     if (this.$text == null) {
       throw new Error(`API Error (${this.status} ${this.response.statusText}): Received non-text response`)
@@ -158,7 +182,7 @@ export default class Api {
     const execute = () => fetch(BASE_URL + endpoint, {
       method,
       headers: headers as unknown as Headers,
-      body: options.multipart ?? (options.json && JSON.stringify(options.json)),
+      body: options.multipart ?? (options.json && JSONbig.stringify(options.json)),
     }).then(
       response => ApiResponse.fromResponse<T>(method, endpoint, response)
     )

@@ -16,15 +16,15 @@ import Xmark from "../icons/svg/Xmark";
 import Fuse from "fuse.js";
 import {User} from "../../types/user";
 
-export function GuildMemberGroup(props: { members: Iterable<User | number>, offline?: boolean }) {
+export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offline?: boolean }) {
   const api = getApi()!
   const contextMenu = useContextMenu()!
 
   return (
     <For each={[...props.members]}>
       {(userOrId) => {
-        const user_id = typeof userOrId === "number" ? userOrId : userOrId.id
-        const user = typeof userOrId === "number" ? api.cache!.users.get(userOrId)! : userOrId
+        const user_id = typeof userOrId === "bigint" ? userOrId : userOrId.id
+        const user = typeof userOrId === "bigint" ? api.cache!.users.get(userOrId)! : userOrId
         return (
           <div
             class="group flex items-center px-2 py-1.5 rounded-lg hover:bg-3 transition duration-200 cursor-pointer"
@@ -89,14 +89,14 @@ const fuse = function<T>(value: string, index: Accessor<Fuse<T>>, fallback: Acce
 export default function GuildMemberList() {
   const api = getApi()!
   const params = useParams()
-  const guildMemo = createMemo(() => api.cache!.guilds.get(parseInt(params.guildId)))
+  const guildMemo = createMemo(() => api.cache!.guilds.get(BigInt(params.guildId)))
   if (!guildMemo()) return
 
-  const online = new ReactiveSet<number>()
-  const offline = new ReactiveSet<number>()
+  const online = new ReactiveSet<bigint>()
+  const offline = new ReactiveSet<bigint>()
 
   const membersMemo = createMemo(() => api.cache!.memberReactor.get(guildMemo()!.id))
-  createEffect<Set<number> | undefined>((tracked) => {
+  createEffect<Set<bigint> | undefined>((tracked) => {
     const members = membersMemo()
     if (members == null) return
 
@@ -124,7 +124,7 @@ export default function GuildMemberList() {
       offline.delete(removed)
     }
     return updated
-  }, new Set<number>())
+  }, new Set<bigint>())
 
   let searchRef: HTMLInputElement | null = null
   const [searchQuery, setSearchQuery] = createSignal('')
@@ -134,7 +134,7 @@ export default function GuildMemberList() {
     if (!cache) return []
 
     const m =
-      cache.memberReactor.get(parseInt(params.guildId))?.map(u => cache.users.get(u)) ?? []
+      cache.memberReactor.get(BigInt(params.guildId))?.map(u => cache.users.get(u)) ?? []
     return m.filter((u): u is User => !!u)
   })
   const fuseMemberIndex = createMemo(() => new Fuse(members()!, {
@@ -146,7 +146,7 @@ export default function GuildMemberList() {
     const cache = api.cache
     if (!cache) return []
 
-    return [...cache.guilds.get(parseInt(params.guildId))?.channels?.values() ?? []]
+    return [...cache.guilds.get(BigInt(params.guildId))?.channels?.values() ?? []]
   })
   const fuseChannelIndex = createMemo(() => new Fuse(channels()!, { keys: ['name'] }))
   const channelResults = createMemo(() => searchQuery() ? fuse(searchQuery(), fuseChannelIndex, channels) : null)

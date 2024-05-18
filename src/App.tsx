@@ -141,7 +141,7 @@ function SidebarTopPageButton(props: {
   )
 }
 
-function DirectMessageButton({ channelId }: { channelId: number }) {
+function DirectMessageButton({ channelId }: { channelId: bigint }) {
   const href = `/dms/${channelId}`
   const location = useLocation()
   const active = createMemo(() => location.pathname.startsWith(href))
@@ -269,7 +269,7 @@ function DirectMessageButton({ channelId }: { channelId: number }) {
   )
 }
 
-function GuildButton({ guildId }: { guildId: number }) {
+function GuildButton({ guildId }: { guildId: bigint }) {
   const href = `/guilds/${guildId}`
   const api = getApi()!
   const guild = createMemo(() => api.cache!.guilds.get(guildId)!)
@@ -328,8 +328,9 @@ function HomeSidebar(props: { tabSignal: Signal<Tab> }) {
   const { setShow: setShowNewGuildModal, NewGuildModalContextMenu } = useContext(NewGuildModalContext)!
 
   const recentlyViewed = createMemo(() => [...cache.lastAckedMessages.entries()]
-    .filter((entry): entry is [number, number] => !!entry[1])
-    .sort(([_0, a], [_1, b]) => b - a)
+    .filter((entry): entry is [bigint, bigint] => !!entry[1])
+    .sort(([_0, a], [_1, b]) => Number(b - a))
+    .filter(([id]) => cache.channels.has(id))
     .slice(0, 5)
     .map(([id, lastAcked]) => ({
       ...displayChannel(cache.channels.get(id)!),
@@ -364,7 +365,7 @@ function HomeSidebar(props: { tabSignal: Signal<Tab> }) {
     .filter(([id, lastAckedId, lastMessageId]) =>
       lastAckedId != null && lastMessageId && lastMessageId > lastAckedId && mentions().every(({ channel }) => channel.id !== id)
     )
-    .sort(([_0, _1, a], [_2, _3, b]) => b! - a!)
+    .sort(([_0, _1, a], [_2, _3, b]) => Number(b! - a!))
     .map(([id, _, lastMessageId]) => ({
       ...displayChannel(cache.channels.get(id)!),
       lastMessage: snowflakes.timestampMillis(lastMessageId!)
@@ -381,40 +382,44 @@ function HomeSidebar(props: { tabSignal: Signal<Tab> }) {
   const Section = ({ children }: any) => <h2 class="font-title font-medium text-fg/50 text-sm mx-2 my-2">{children}</h2>
   const ChannelPreview = ({ metadata: { guild, user, icon, channel, mentionCount, lastMessage } }: {
     metadata: ChannelDisplayMetadata & { mentionCount?: number, lastMessage?: number }
-  }) => (
-    <A
-      classList={{
-        "rounded-xl flex items-center justify-between overflow-hidden backdrop-blur transition": true,
-        "bg-fg/10": channel.id === parseInt(useParams().channelId),
-        "bg-bg-2/80 hover:bg-bg-3/80": channel.id !== parseInt(useParams().channelId),
-      }}
-      href={guild ? `/guilds/${guild.id}/${channel.id}` : `/dms/${channel.id}`}
-    >
-      <div class="flex items-center">
-        {guild ? (
-          <GuildIcon guild={guild} sizeClass="w-10 h-10 rounded-none" unread={false} pings={0} />
-        ) : (
-          <img src={icon!} alt="" class="w-10 h-10" />
-        )}
-        <div class="pl-2">
-          <h2 class="font-title text-sm font-semibold text-fg/80">
-            {channel.type === 'text' ? '#' : ''}{'name' in channel ? channel.name : displayName(user!)}
-          </h2>
-          <p class="text-xs text-fg/40">
-            {guild ? guild.name : user ? 'Direct Messages' : 'Group Messages'}
-          </p>
+  }) => {
+    const params = useParams()
+    return (
+      <A
+        classList={{
+          "rounded-xl flex items-center justify-between overflow-hidden backdrop-blur transition": true,
+          [params.channelId as any && channel.id === BigInt(params.channelId)
+            ? "bg-fg/10"
+            : "bg-bg-2/80 hover:bg-bg-3/80"]: true,
+        }}
+        href={guild ? `/guilds/${guild.id}/${channel.id}` : `/dms/${channel.id}`}
+      >
+        <div class="flex items-center">
+          {guild ? (
+            <GuildIcon guild={guild} sizeClass="w-10 h-10 rounded-none" unread={false} pings={0} />
+          ) : (
+            <img src={icon!} alt="" class="w-10 h-10" />
+          )}
+          <div class="pl-2">
+            <h2 class="font-title text-sm font-semibold text-fg/80">
+              {channel.type === 'text' ? '#' : ''}{'name' in channel ? channel.name : displayName(user!)}
+            </h2>
+            <p class="text-xs text-fg/40">
+              {guild ? guild.name : user ? 'Direct Messages' : 'Group Messages'}
+            </p>
+          </div>
         </div>
-      </div>
-      <Show when={lastMessage && !mentionCount}>
-        <div class="bg-accent rounded-full mx-2 w-3 h-3">&nbsp;</div>
-      </Show>
-      <Show when={mentionCount}>
-        <div class="px-1.5 min-w-[1.25rem] text-sm h-5 bg-red-600 text-fg rounded-full flex items-center justify-center mx-1">
-          {humanizePings(mentionCount!)}
-        </div>
-      </Show>
-    </A>
-  )
+        <Show when={lastMessage && !mentionCount}>
+          <div class="bg-accent rounded-full mx-2 w-3 h-3">&nbsp;</div>
+        </Show>
+        <Show when={mentionCount}>
+          <div class="px-1.5 min-w-[1.25rem] text-sm h-5 bg-red-600 text-fg rounded-full flex items-center justify-center mx-1">
+            {humanizePings(mentionCount!)}
+          </div>
+        </Show>
+      </A>
+    )
+  }
 
   return (
     <>

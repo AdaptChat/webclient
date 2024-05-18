@@ -74,9 +74,9 @@ export interface ReadyEvent {
    * Information regarding unacknowledged messages and mentions.
    */
   unacked: {
-    channel_id: number,
-    last_message_id: number | null,
-    mentions: number[],
+    channel_id: Snowflake,
+    last_message_id: Snowflake | null,
+    mentions: Snowflake[],
   }[];
 }
 
@@ -115,11 +115,11 @@ export interface MessageDeleteEvent {
   /**
    * The ID of the channel that the message was deleted from.
    */
-  channel_id: number;
+  channel_id: Snowflake;
   /**
    * The ID of the message that was deleted.
    */
-  message_id: number;
+  message_id: Snowflake;
 }
 
 /**
@@ -143,11 +143,11 @@ export interface ChannelDeleteEvent {
   /**
    * The ID of the channel that was removed.
    */
-  channel_id: number;
+  channel_id: Snowflake;
   /**
    * The ID of the guild that the channel was removed from, if any.
    */
-  guild_id: number | null;
+  guild_id: Snowflake | null;
 }
 
 /**
@@ -157,11 +157,11 @@ export interface ChannelAckEvent {
   /**
    * The ID of the channel that was acknowledged.
    */
-  channel_id: number;
+  channel_id: Snowflake;
   /**
    * Consider all messages up to this ID as acknowledged.
    */
-  last_message_id: number;
+  last_message_id: Snowflake;
 }
 
 /**
@@ -187,7 +187,7 @@ interface MemberRemoveInfo {
    * The ID of the user that kicked or banned the client user.
    * Only present if the type is 'kick' or 'ban'.
    */
-  moderator_id?: number,
+  moderator_id?: Snowflake,
 }
 
 /**
@@ -197,7 +197,7 @@ export interface GuildRemoveEvent extends MemberRemoveInfo {
   /**
    * The ID of the guild that was removed.
    */
-  guild_id: number;
+  guild_id: Snowflake;
 }
 
 /**
@@ -221,11 +221,11 @@ export interface MemberRemoveEvent extends MemberRemoveInfo {
   /**
    * The ID of the guild that the user left.
    */
-  guild_id: number;
+  guild_id: Snowflake;
   /**
    * The ID of the user that left.
    */
-  user_id: number;
+  user_id: Snowflake;
 }
 
 /**
@@ -245,7 +245,7 @@ export interface RelationshipRemoveEvent {
   /**
    * The ID of the user that the relationship was removed for.
    */
-  user_id: number;
+  user_id: Snowflake;
 }
 
 /**
@@ -265,11 +265,11 @@ export interface TypingStartEvent {
   /**
    * The ID of the channel that the user started typing in.
    */
-  channel_id: number;
+  channel_id: Snowflake;
   /**
    * The ID of the user that started typing.
    */
-  user_id: number;
+  user_id: Snowflake;
 }
 
 /**

@@ -1,12 +1,11 @@
-import {useParams} from "@solidjs/router";
+import {useNavigate, useParams} from "@solidjs/router";
 import {createMemo, createSignal, For, Match, Show, Switch} from "solid-js";
 import {getApi} from "../../api/Api";
 import SidebarButton from "../ui/SidebarButton";
 import {GuildChannel} from "../../types/channel";
 import GuildInviteModal from "./GuildInviteModal";
 import Modal from "../ui/Modal";
-import ConfirmGuildLeaveModal, {type Props} from "./ConfirmGuildLeaveModal";
-import ConfirmGuildDeleteModal from "./ConfirmGuildDeleteModal";
+import ConfirmGuildLeaveModal from "./ConfirmGuildLeaveModal";
 import Icon, {IconElement} from "../icons/Icon";
 import ChevronDown from "../icons/svg/ChevronDown";
 import UserPlus from "../icons/svg/UserPlus";
@@ -20,6 +19,7 @@ import ConfirmChannelDeleteModal from "../channels/ConfirmChannelDeleteModal";
 import Code from "../icons/svg/Code";
 import Plus from "../icons/svg/Plus";
 import CreateChannelModal from "../channels/CreateChannelModal";
+import Gear from "../icons/svg/Gear";
 
 interface GuildDropdownButtonProps {
   icon: IconElement,
@@ -34,7 +34,9 @@ interface GuildDropdownButtonProps {
 function GuildDropdownButton(props: GuildDropdownButtonProps) {
   const svgClasses = "w-4 h-4 " + (props.svgClass ?? "")
   const labelClasses = "ml-2 font-medium " + (props.labelClass ?? "")
-  const groupHoverClass = props.groupHoverColor ? `hover:bg-danger` : "hover:bg-accent"
+  const groupHoverClass = props.groupHoverColor
+    ? `hover:bg-${props.groupHoverColor}`
+    : "hover:bg-accent"
 
   return (
     <li class={`mx-1.5 rounded-lg group/gdb ${groupHoverClass} transition-all duration-300`}>
@@ -48,8 +50,9 @@ function GuildDropdownButton(props: GuildDropdownButtonProps) {
 
 export default function GuildSidebar() {
   const params = useParams()
-  const guildId = createMemo(() => parseInt(params.guildId))
-  const channelId = createMemo(() => params.channelId && parseInt(params.channelId))
+  const navigate = useNavigate()
+  const guildId = createMemo(() => BigInt(params.guildId))
+  const channelId = createMemo(() => params.channelId && BigInt(params.channelId))
   const contextMenu = useContextMenu()!
 
   const api = getApi()!
@@ -65,11 +68,7 @@ export default function GuildSidebar() {
   const [confirmChannelDeleteModal, setConfirmChannelDeleteModal] = createSignal(false)
 
   const isOwner = createMemo(() => guild().owner_id === api.cache?.clientUser?.id)
-  const GuildRemoveComponent = (props: Props) => {
-    return isOwner()
-      ? <ConfirmGuildDeleteModal {...props} />
-      : <ConfirmGuildLeaveModal {...props} />
-  }
+
   const BaseContextMenu = () => (
     <Show when={guildPermissions()?.has('CREATE_INVITES')}>
       <ContextMenuButton
@@ -102,7 +101,7 @@ export default function GuildSidebar() {
         <GuildInviteModal guild={guild()} show={showInviteModal} />
       </Modal>
       <Modal get={confirmGuildLeaveModal} set={setConfirmGuildLeaveModal}>
-        <GuildRemoveComponent guild={guild()} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
+        <ConfirmGuildLeaveModal guild={guild()} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
       </Modal>
       <Modal get={confirmChannelDeleteModal} set={setConfirmChannelDeleteModal}>
         <Show when={channelToDelete()}>
@@ -165,14 +164,25 @@ export default function GuildSidebar() {
                 onClick={() => setShowCreateChannelModal(true)}
               />
             </Show>
-            <GuildDropdownButton
-              icon={isOwner() ? Trash : RightFromBracket}
-              label={isOwner() ? "Delete Server" : "Leave Server"}
-              groupHoverColor="error"
-              svgClass="fill-danger group-hover/gdb:fill-fg"
-              labelClass="text-danger group-hover/gdb:text-fg"
-              onClick={() => setConfirmGuildLeaveModal(true)}
-            />
+            <Show when={guildPermissions()?.has('MANAGE_GUILD')}>
+              <GuildDropdownButton
+                icon={Gear}
+                label="Server Settings"
+                groupHoverColor="fg/10"
+                svgClass="fill-fg"
+                onClick={() => navigate(`/guilds/${guildId()}/settings`)}
+              />
+            </Show>
+            <Show when={!isOwner()}>
+              <GuildDropdownButton
+                icon={RightFromBracket}
+                label="Leave Server"
+                groupHoverColor="danger"
+                svgClass="fill-danger group-hover/gdb:fill-fg"
+                labelClass="text-danger group-hover/gdb:text-fg"
+                onClick={() => setConfirmGuildLeaveModal(true)}
+              />
+            </Show>
           </ul>
         </Show>
       </div>

@@ -1,5 +1,5 @@
 import {
-  Accessor, createEffect,
+  Accessor,
   createMemo,
   createSignal,
   For,
@@ -338,7 +338,7 @@ function setSelectionRange(element: HTMLDivElement, selectionStart: number, sele
   selection?.addRange(range)
 }
 
-function MessageContextMenu({ message, guildId }: { message: Message, guildId?: number }) {
+function MessageContextMenu({ message, guildId }: { message: Message, guildId?: bigint }) {
   const api = getApi()!
 
   return (
@@ -391,7 +391,7 @@ interface UploadedAttachment {
   preview?: string,
 }
 
-export default function Chat(props: { channelId: number, guildId?: number, title: string, startMessage: JSX.Element }) {
+export default function Chat(props: { channelId: bigint, guildId?: bigint, title: string, startMessage: JSX.Element }) {
   const api = getApi()!
   const contextMenu = useContextMenu()!
 
@@ -495,7 +495,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
     }
   }
 
-  const timestampTooltip = (messageId: number) => ({
+  const timestampTooltip = (messageId: bigint) => ({
     content: humanizeFullTimestamp(snowflakes.timestamp(messageId)),
     delay: [1000, null] as [number, null],
     interactive: true
@@ -614,7 +614,7 @@ export default function Chat(props: { channelId: number, guildId?: number, title
     setAutocompleteState(null)
   }
 
-  let [lastAckedId, setLastAckedId] = createSignal<number | null>(null)
+  let [lastAckedId, setLastAckedId] = createSignal<bigint | null>(null)
 
   const ack = async () => {
     const last = api.cache?.lastMessages.get(props.channelId)

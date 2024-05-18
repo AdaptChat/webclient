@@ -16,7 +16,7 @@ export default function ConfirmChannelDeleteModal(props: Props) {
   const navigate = useNavigate()
   const params = useParams()
 
-  const guild = createMemo(() => api.cache!.guilds.get(parseInt(params.guildId)))
+  const guild = createMemo(() => api.cache!.guilds.get(BigInt(params.guildId)))
   const [isDeleting, setIsDeleting] = createSignal<boolean>(false)
 
   return (
@@ -38,7 +38,7 @@ export default function ConfirmChannelDeleteModal(props: Props) {
           }
           setIsDeleting(false)
           props.setConfirmChannelDeleteModal(false)
-          if (params.channelId && parseInt(params.channelId) === props.channel.id) navigate(`/guilds/${params.guildId}`)
+          if (params.channelId && BigInt(params.channelId) === props.channel.id) navigate(`/guilds/${params.guildId}`)
         }}
       >
         <button class="btn border-none btn-ghost" onClick={() => props.setConfirmChannelDeleteModal(false)}>

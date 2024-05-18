@@ -15,13 +15,13 @@ import Header from "../../components/ui/Header";
 import {FriendsNav} from "./Friends";
 noop(tooltip)
 
-export function relationshipFilterFactory(api: Api, targetType: RelationshipType): Accessor<[number, RelationshipType][]> {
+export function relationshipFilterFactory(api: Api, targetType: RelationshipType): Accessor<[bigint, RelationshipType][]> {
   return createMemo(() => [
     ...filterIterator(api.cache!.relationships.entries(), ([_, type]) => type === targetType)
   ])
 }
 
-export function RelationshipDeleteButton({ api, id, label }: { api: Api, id: number, label: string }) {
+export function RelationshipDeleteButton({ api, id, label }: { api: Api, id: bigint, label: string }) {
   return (
     <button
       class="p-2 rounded-full bg-bg-3/70 hover:bg-danger transition duration-200"
@@ -33,7 +33,7 @@ export function RelationshipDeleteButton({ api, id, label }: { api: Api, id: num
   )
 }
 
-export function FriendEntry({ api, id, index, children }: ParentProps<{ api: Api, id: number, index: Accessor<number> }>) {
+export function FriendEntry({ api, id, index, children }: ParentProps<{ api: Api, id: bigint, index: Accessor<number> }>) {
   const user = api.cache!.users.get(id)!
   const presence = createMemo(() => api.cache!.presences.get(id))
   const contextMenu = useContextMenu()

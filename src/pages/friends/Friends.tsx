@@ -5,7 +5,6 @@ import AddFriendModal from "../../components/friends/AddFriendModal";
 import UserPlus from "../../components/icons/svg/UserPlus";
 import {ActionButton} from "../../App";
 import {createMediaQuery} from "@solid-primitives/media";
-import {humanizePings} from "../../utils";
 import {relationshipFilterFactory} from "./Requests";
 import {getApi} from "../../api/Api";
 

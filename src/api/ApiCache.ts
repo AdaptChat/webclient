@@ -12,7 +12,7 @@ import {Permissions} from "./Bitflags";
 import {calculatePermissions, snowflakes} from "../utils";
 import {Message} from "../types/message";
 
-function sortedIndex<T extends number>(array: T[], value: T) {
+function sortedIndex<T extends number | bigint>(array: T[], value: T) {
   let low = 0, high = array.length
 
   while (low < high) {
@@ -23,6 +23,9 @@ function sortedIndex<T extends number>(array: T[], value: T) {
   return low;
 }
 
+const ONE = BigInt(1)
+const TWO = BigInt(2)
+
 /**
  * Generates a unique hash key for the guild ID and user ID pair using the Cantor pairing function.
  *
@@ -30,9 +33,8 @@ function sortedIndex<T extends number>(array: T[], value: T) {
  * @param userId The user ID.
  * @returns The unique hash key.
  */
-export function memberKey(guildId: number, userId: number): bigint {
-  const a = BigInt(guildId), b = BigInt(userId)
-  return (a + b) * (a + b + 1n) / 2n + a
+export function memberKey(guildId: bigint, userId: bigint): bigint {
+  return (guildId + userId) * (guildId + userId + ONE) / TWO + guildId
 }
 
 /**
@@ -40,37 +42,37 @@ export function memberKey(guildId: number, userId: number): bigint {
  */
 export default class ApiCache {
   clientUserReactor: Signal<ClientUser>
-  users: Map<number, User>
-  guilds: Map<number, Guild>
-  guildListReactor: Signal<number[]> // TODO this should sort by order
+  users: Map<bigint, User>
+  guilds: Map<bigint, Guild>
+  guildListReactor: Signal<bigint[]> // TODO this should sort by order
   members: ReactiveMap<bigint, Member>
-  memberReactor: ReactiveMap<number, number[]>
-  roles: ReactiveMap<number, Role>
-  channels: ReactiveMap<number, Channel>
-  guildChannelReactor: ReactiveMap<number, number[]>
-  dmChannelOrder: Signal<number[]> // TODO this should be stored on the server
-  messages: Map<number, MessageGrouper>
-  inviteCodes: Map<number, string>
+  memberReactor: ReactiveMap<bigint, bigint[]>
+  roles: ReactiveMap<bigint, Role>
+  channels: ReactiveMap<bigint, Channel>
+  guildChannelReactor: ReactiveMap<bigint, bigint[]>
+  dmChannelOrder: Signal<bigint[]> // TODO this should be stored on the server
+  messages: Map<bigint, MessageGrouper>
+  inviteCodes: Map<bigint, string>
   invites: Map<string, Invite>
-  presences: ReactiveMap<number, Presence>
-  relationships: ReactiveMap<number, RelationshipType>
-  typing: Map<number, TypingManager>
-  lastMessages: ReactiveMap<number, { id: number } | Message>
-  lastAckedMessages: ReactiveMap<number, number | null>
-  guildMentions: ReactiveMap<number, ReactiveMap<number, number[]>>
-  dmMentions: ReactiveMap<number, number[]>
+  presences: ReactiveMap<bigint, Presence>
+  relationships: ReactiveMap<bigint, RelationshipType>
+  typing: Map<bigint, TypingManager>
+  lastMessages: ReactiveMap<bigint, { id: bigint } | Message>
+  lastAckedMessages: ReactiveMap<bigint, bigint | null>
+  guildMentions: ReactiveMap<bigint, ReactiveMap<bigint, bigint[]>>
+  dmMentions: ReactiveMap<bigint, bigint[]>
 
   constructor(private readonly api: Api) {
     this.clientUserReactor = null as any // lazy
     this.users = new Map()
     this.guilds = new Map()
-    this.guildListReactor = createSignal([] as number[])
+    this.guildListReactor = createSignal([] as bigint[])
     this.members = new ReactiveMap()
     this.memberReactor = new ReactiveMap()
     this.roles = new ReactiveMap()
     this.channels = new ReactiveMap()
     this.guildChannelReactor = new ReactiveMap()
-    this.dmChannelOrder = createSignal([] as number[])
+    this.dmChannelOrder = createSignal([] as bigint[])
     this.messages = new Map()
     this.inviteCodes = new Map()
     this.invites = new Map()
@@ -102,21 +104,22 @@ export default class ApiCache {
 
     let order = ready.dm_channels.map(channel => channel.id)
     order.sort((a, b) => {
-      const { id: aId } = cache.lastMessages.get(a) ?? { id: 0 }
-      const { id: bId } = cache.lastMessages.get(b) ?? { id: 0 }
-      return bId - aId
+      const { id: aId } = cache.lastMessages.get(a) ?? { id: BigInt(0) }
+      const { id: bId } = cache.lastMessages.get(b) ?? { id: BigInt(0) }
+      return Number(bId - aId)
     })
     cache.dmChannelOrder[1](order)
 
-    for (const { channel_id, last_message_id, mentions } of ready.unacked) {
+    for (let { channel_id, last_message_id, mentions } of ready.unacked) {
       cache.lastAckedMessages.set(channel_id, last_message_id)
       let channel = cache.channels.get(channel_id)
       if (!channel) continue
       if ('guild_id' in channel) {
-        if (!cache.guildMentions.has(channel.guild_id))
-          cache.guildMentions.set(channel.guild_id, new ReactiveMap())
+        const guildId = BigInt(channel.guild_id)
+        if (!cache.guildMentions.has(guildId))
+          cache.guildMentions.set(guildId, new ReactiveMap())
 
-        cache.guildMentions.get(channel.guild_id)!.set(channel_id, mentions)
+        cache.guildMentions.get(guildId)!.set(channel_id, mentions)
       } else {
         cache.dmMentions.set(channel_id, mentions)
       }
@@ -129,7 +132,7 @@ export default class ApiCache {
     return this.clientUserReactor?.[0]()
   }
 
-  get clientId(): number | undefined {
+  get clientId(): bigint | undefined {
     return this.clientUser?.id
   }
 
@@ -143,7 +146,7 @@ export default class ApiCache {
     if (guild.members) {
       this.memberReactor.set(
         guild.id,
-        guild.members.map(member => member.id).sort((a, b) => a - b),
+        guild.members.map(member => member.id).sort((a, b) => Number(a - b)),
       )
       for (const member of guild.members)
         this.updateMember(member)
@@ -174,7 +177,7 @@ export default class ApiCache {
     })
   }
 
-  removeGuild(guildId: number) {
+  removeGuild(guildId: bigint) {
     this.guilds.delete(guildId)
     this.guildListReactor[1](prev => prev.filter(id => id !== guildId))
   }
@@ -211,7 +214,7 @@ export default class ApiCache {
       channel.last_message && this.lastMessages.set(channel.id, channel.last_message)
   }
 
-  insertDmChannel(channelId: number) {
+  insertDmChannel(channelId: bigint) {
     this.dmChannelOrder[1](prev => {
       const index = prev.indexOf(channelId)
       if (index === -1) return [channelId, ...prev]
@@ -223,7 +226,7 @@ export default class ApiCache {
     })
   }
 
-  removeDmChannel(channelId: number) {
+  removeDmChannel(channelId: bigint) {
     this.dmChannelOrder[1](prev => prev.filter(id => id !== channelId))
   }
 
@@ -232,7 +235,7 @@ export default class ApiCache {
     this.relationships.set(relationship.user.id, relationship.type)
   }
 
-  trackMember(guildId: number, userId: number) {
+  trackMember(guildId: bigint, userId: bigint) {
     const previous = this.memberReactor.get(guildId) ?? []
     if (previous.includes(userId)) return
 
@@ -242,14 +245,14 @@ export default class ApiCache {
     this.memberReactor.set(guildId, next)
   }
 
-  untrackMember(guildId: number, userId: number) {
+  untrackMember(guildId: bigint, userId: bigint) {
     const previous = this.memberReactor.get(guildId) ?? []
     if (!previous.includes(userId)) return
 
     this.memberReactor.set(guildId, previous.filter(id => id !== userId))
   }
 
-  get guildList(): number[] {
+  get guildList(): bigint[] {
     return this.guildListReactor[0]()
   }
 
@@ -257,11 +260,11 @@ export default class ApiCache {
     return this.clientUser && (this.clientUser.avatar ?? defaultAvatar(this.clientUser.id))
   }
 
-  avatarOf(userId: number): string | undefined {
+  avatarOf(userId: bigint): string | undefined {
     return this.users.get(userId)?.avatar ?? defaultAvatar(userId)
   }
 
-  useChannelMessages(channelId: number): { grouper: MessageGrouper, cached: boolean } {
+  useChannelMessages(channelId: bigint): { grouper: MessageGrouper, cached: boolean } {
     let grouper = this.messages.get(channelId)
     const cached = !!grouper
 
@@ -269,7 +272,7 @@ export default class ApiCache {
     return { grouper, cached }
   }
 
-  useTyping(channelId: number): TypingManager {
+  useTyping(channelId: bigint): TypingManager {
     let manager = this.typing.get(channelId)
     if (!manager)
       this.typing.set(channelId, manager = new TypingManager(this.api))
@@ -277,18 +280,18 @@ export default class ApiCache {
     return manager
   }
 
-  getMemberRoles(guildId: number, userId: number): Role[] {
+  getMemberRoles(guildId: bigint, userId: bigint): Role[] {
     const member = this.members.get(memberKey(guildId, userId))
     if (!member) return []
 
-    const roles = (member.roles ?? []).map(id => this.roles.get(id)).filter(role => role != null) as Role[]
+    const roles = (member.roles ?? []).map(id => this.roles.get(BigInt(id))).filter(role => role != null) as Role[]
 
-    const defaultRoleId = Number(snowflakes.withModelType(guildId, snowflakes.ModelType.Role))
+    const defaultRoleId = snowflakes.withModelType(guildId, snowflakes.ModelType.Role)
     if (!roles.find(role => role.id === defaultRoleId)) roles.push(this.roles.get(defaultRoleId)!)
     return roles
   }
 
-  getMemberPermissions(guildId: number, userId: number, channelId?: number): Permissions {
+  getMemberPermissions(guildId: bigint, userId: bigint, channelId?: bigint): Permissions {
     if (this.guilds.get(guildId)?.owner_id === userId) return Permissions.all()
 
     const member = this.members.get(memberKey(guildId, userId))
@@ -299,11 +302,11 @@ export default class ApiCache {
     return calculatePermissions(userId, roles, overwrites)
   }
 
-  getClientPermissions(guildId: number, channelId?: number): Permissions {
+  getClientPermissions(guildId: bigint, channelId?: bigint): Permissions {
     return this.getMemberPermissions(guildId, this.clientId!, channelId)
   }
 
-  ack(channelId: number, messageId: number) {
+  ack(channelId: bigint, messageId: bigint) {
     this.lastAckedMessages.set(channelId, messageId)
 
     let channel = this.channels.get(channelId)
@@ -325,7 +328,7 @@ export default class ApiCache {
     }
   }
 
-  isChannelUnread(channelId: number) {
+  isChannelUnread(channelId: bigint) {
     const lastReceived = this.lastMessages.get(channelId)?.id
     if (!lastReceived) return false
 
@@ -337,7 +340,7 @@ export default class ApiCache {
 
   isMentionedIn(message: Message): boolean {
     // @user
-    if (message.mentions.includes(this.clientId!)) return true
+    if (message.mentions.map(BigInt).includes(this.clientId!)) return true
 
     let channel = this.channels.get(message.channel_id)
     if (!channel) return false
@@ -351,8 +354,8 @@ export default class ApiCache {
     return false
   }
 
-  registerMention(channelId: number, messageId: number) {
-    function registerIn(map: ReactiveMap<number, number[]>) {
+  registerMention(channelId: bigint, messageId: bigint) {
+    function registerIn(map: ReactiveMap<bigint, bigint[]>) {
       map.set(
         channelId,
         (map.get(channelId) ?? []).concat(messageId),
@@ -372,15 +375,15 @@ export default class ApiCache {
     }
   }
 
-  countGuildMentionsIn(guildId: number, channelId: number): number | null {
+  countGuildMentionsIn(guildId: bigint, channelId: bigint): number | null {
     return this.guildMentions.get(guildId)?.get(channelId)?.length ?? null
   }
 
-  countDmMentionsIn(channelId: number): number | null {
+  countDmMentionsIn(channelId: bigint): number | null {
     return this.dmMentions.get(channelId)?.length ?? null
   }
 }
 
-function defaultAvatar(userId: number): string {
+function defaultAvatar(userId: bigint): string {
   return `https://convey.adapt.chat/avatars/${userId}/default.png?theme=dark&width=96`
 }

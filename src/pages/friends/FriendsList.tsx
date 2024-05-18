@@ -12,7 +12,7 @@ import Header from "../../components/ui/Header";
 import {FriendsNav} from "./Friends";
 noop(tooltip)
 
-export async function openDms(api: Api, navigate: Navigator, userId: number) {
+export async function openDms(api: Api, navigate: Navigator, userId: bigint) {
   const predicate = (channel: Channel) => channel.type === 'dm' && channel.recipient_ids.includes(userId)
   const found = findIterator(api.cache?.channels.values(), predicate)
   if (found)

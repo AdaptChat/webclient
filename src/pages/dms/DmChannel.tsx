@@ -17,10 +17,11 @@ export function getDmChannelName(channel: DmChannelType) {
 
 export default function DmChannel() {
   const api = getApi()!
+  const params = useParams()
+
   const channel = createMemo(() => {
-    const params = useParams()
     const cache = api.cache!
-    return cache.channels.get(parseInt(params.channelId))! as DmChannelType
+    return cache.channels.get(BigInt(params.channelId))! as DmChannelType
   })
 
   if (!channel()) return <NotFound />

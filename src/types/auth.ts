@@ -9,5 +9,5 @@ export interface LoginResponse {
   /**
    * The user ID of the logged-in user.
    */
-  user_id: number;
+  user_id: Snowflake;
 }

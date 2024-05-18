@@ -9,7 +9,7 @@ import {getApi} from "../../api/Api";
 import {useNavigate} from "@solidjs/router";
 import {snowflakes} from "../../utils";
 
-type Props = { setter: Setter<boolean>, guildId: number }
+type Props = { setter: Setter<boolean>, guildId: bigint }
 
 function ChannelTypeButton(props: {
   type: string, name: string, description: string, signal: Signal<string>

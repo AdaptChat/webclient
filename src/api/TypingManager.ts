@@ -2,15 +2,15 @@ import Api from "./Api";
 import {ReactiveSet} from "@solid-primitives/set";
 
 export class TypingManager {
-  users: ReactiveSet<number>
-  private timeouts: Map<number, NodeJS.Timeout>
+  users: ReactiveSet<bigint>
+  private timeouts: Map<bigint, NodeJS.Timeout>
 
   constructor(private readonly api: Api) {
     this.users = new ReactiveSet()
     this.timeouts = new Map()
   }
 
-  updateTyping(userId: number, typing: boolean) {
+  updateTyping(userId: bigint, typing: boolean) {
     if (userId === this.api.cache?.clientUser?.id)
       return // ignore self typing
 

@@ -1,4 +1,4 @@
-import Api from "./Api";
+import Api, {sanitizeSnowflakes} from "./Api";
 import ApiCache, {memberKey} from "./ApiCache";
 import Backoff from "./Backoff";
 import {
@@ -22,7 +22,7 @@ import {
 } from "../types/ws";
 import {User} from "../types/user";
 import {toast} from "solid-toast";
-import msgpack from "msgpack-lite";
+import msgpack from "tiny-msgpack";
 
 /**
  * WebSocket endpoint
@@ -206,7 +206,7 @@ export default class WsClient {
       if (data instanceof Blob)
         data = new Uint8Array(await data.arrayBuffer())
 
-      json = msgpack.decode(data)
+      json = sanitizeSnowflakes(msgpack.decode(data))
     } catch (e) {
       return console.debug('[WS] Received undeserializable message from harmony', e, message.data)
     }

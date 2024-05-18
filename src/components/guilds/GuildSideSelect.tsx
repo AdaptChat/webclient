@@ -18,7 +18,6 @@ import Modal from "../ui/Modal";
 import GuildInviteModal from "./GuildInviteModal";
 import ConfirmGuildLeaveModal from "./ConfirmGuildLeaveModal";
 import UserPlus from "../icons/svg/UserPlus";
-import RocketLaunch from "../icons/svg/RocketLaunch";
 import {NewGuildModalContext} from "../../Entrypoint";
 
 noop(tooltip)
