@@ -1,5 +1,15 @@
 # Adapt Web Client
+
 Interact with Adapt directly from your browser: https://app.adapt.chat
+
+## What's this? 
+
+This is the official web-based client and Progressive Web App (PWA) for the [Adapt chat platform](https://adapt.chat). 
+
+## Roadmap
+
+See the [project board](https://github.com/orgs/AdaptChat/projects/2/views/4?layout=board) for the current status of the
+web client.
 
 ## Desktop Builds
 
