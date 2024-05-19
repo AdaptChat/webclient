@@ -62,14 +62,15 @@ export default function Account() {
     const diff = changed()
     const json: any = {}
 
-    if (diff.username) {
+    if (diff.username)
       json.username = usernameInputRef!.value
-      if (!json.username) return setError("Username cannot be empty")
-    }
-    if (diff.displayName) {
-      json.display_name = displayNameInputRef!.value
-      if (!json.display_name) return setError("Display name cannot be empty")
-    }
+
+    // Only send display_name if it's different from the username
+    if (diff.username || diff.displayName)
+      json.display_name = usernameInputRef!.value == displayNameInputRef!.value
+        ? null
+        : displayNameInputRef!.value
+
     if (diff.avatar)
       json.avatar = avatarData()
 
@@ -225,7 +226,7 @@ function AccountField(props: FieldProps) {
           required
           value={props.value}
           classList={{
-            "text-xl text-fg bg-transparent transition outline-none border-b-2 focus:border-accent": true,
+            "text-xl text-fg bg-transparent transition outline-none border-b-2 focus:border-accent disabled:text-opacity-80": true,
             [props.editing != EditingState.NotEditing ? "border-fg/10 text-opacity-100" : "border-transparent text-opacity-80"]: true,
           }}
           onInput={props.onInput}

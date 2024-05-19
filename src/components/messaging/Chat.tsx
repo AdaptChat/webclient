@@ -533,7 +533,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
     return m.filter((u): u is User => !!u)
   })
   const fuseMemberIndex = createMemo(() => new Fuse(members()!, {
-    keys: ['username'], // TODO: nickname
+    keys: ['username', 'display_name'], // TODO: nickname
   }))
 
   const recipientId = createMemo(() => {
@@ -749,7 +749,12 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                     onMouseOver={() => setAutocompleteSelection(idx())}
                   >
                     <img src={api.cache!.avatarOf(user.id)} class="w-6 h-6 rounded-full" alt="" />
-                    <div class="ml-2 text-sm">{user.username}</div>
+                    <div class="mx-2 flex-grow text-sm flex justify-between">
+                      <span>{displayName(user)}</span>
+                      <Show when={user.display_name != null}>
+                        <span class="text-fg/60">@{user.username}</span>
+                      </Show>
+                    </div>
                   </div>
                 )}
               </For>
