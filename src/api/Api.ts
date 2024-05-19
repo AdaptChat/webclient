@@ -1,10 +1,8 @@
-import jsonBigint from "json-bigint";
 import {createRoot, createSignal} from "solid-js";
 import WsClient from "./WsClient";
 import ApiCache from "./ApiCache";
 import PushNotifications from "./PushNotifications";
-
-const JSONbig = jsonBigint({ useNativeBigInt: true })
+import {parseJSON, stringifyJSON} from "./parseJSON";
 
 export function sanitizeSnowflakes(json: any): any {
   if (json == null)
@@ -87,10 +85,12 @@ export class ApiResponse<T> {
 
     try {
       if (contentType == "application/json")
-        json = await response.text().then(JSONbig.parse).then(sanitizeSnowflakes)
+        json = await response.text().then(parseJSON).then(sanitizeSnowflakes)
       else
         text = await response.text()
-    } catch (ignored) {}
+    } catch (err) {
+      console.error(err)
+    }
 
     return new this(method, endpoint, response, json, text)
   }
@@ -136,7 +136,7 @@ export class ApiResponse<T> {
     this.throwForError()
 
     if (this.$json != null)
-      return JSONbig.stringify(this.$json)
+      return stringifyJSON(this.$json)
 
     if (this.$text == null) {
       throw new Error(`API Error (${this.status} ${this.response.statusText}): Received non-text response`)
@@ -182,7 +182,7 @@ export default class Api {
     const execute = () => fetch(BASE_URL + endpoint, {
       method,
       headers: headers as unknown as Headers,
-      body: options.multipart ?? (options.json && JSONbig.stringify(options.json)),
+      body: options.multipart ?? (options.json && stringifyJSON(options.json)),
     }).then(
       response => ApiResponse.fromResponse<T>(method, endpoint, response)
     )

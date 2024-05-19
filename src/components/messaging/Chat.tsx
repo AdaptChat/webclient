@@ -450,9 +450,8 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
     document.execCommand('selectAll', false)
     document.execCommand('insertHTML', false, '')
 
-    const nonce = snowflakes.fromTimestamp(Date.now()).toString()
     let mockMessage = {
-      id: nonce,
+      id: snowflakes.fromTimestamp(Date.now()),
       type: 'default',
       content,
       author_id: api.cache!.clientUser!.id,
@@ -466,6 +465,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
       ...grouper().nonceDefault,
     } as Message
 
+    const nonce = mockMessage.id.toString()
     const loc = grouper().pushMessage(mockMessage)
     grouper().nonced.set(nonce, loc)
     messageAreaRef!.scrollTo(0, messageAreaRef!.scrollHeight)
@@ -486,7 +486,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
       }
 
       const response = await api.request('POST', `/channels/${props.channelId}/messages`, options)
-      const ignored = typingKeepAlive.stop()
+      let ignored = typingKeepAlive.stop()
       if (!response.ok)
         grouper().ackNonceError(nonce, mockMessage, response.errorJsonOrThrow().message)
     } catch (e: any) {

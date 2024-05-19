@@ -19,7 +19,7 @@ export type MessageGroup = Message[] & { isDivider?: false } | MessageDivider
 /**
  * Difference in snowflakes within 15 minutes.
  */
-export const SNOWFLAKE_BOUNDARY: number = 235_929_600_000
+export const SNOWFLAKE_BOUNDARY: bigint = BigInt(235_929_600_000)
 
 /**
  * Shortcut function for getting the last element of an array.
