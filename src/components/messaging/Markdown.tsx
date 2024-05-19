@@ -161,21 +161,31 @@ function parseStyle(style: string): string {
 
 function Mention({ arg, children, ...props }: any) {
   const api = getApi()!
-  const id = parseInt(arg)
+  const fallback = () => <span {...props}>{children}</span>
+
+  let id: bigint
+  try {
+    id = BigInt(arg)
+  } catch {
+    return fallback()
+  }
 
   let mention
   switch (snowflakes.modelType(id)) {
     case snowflakes.ModelType.User:
-      mention = api.cache?.users?.get(id)?.username; break
+      mention = api.cache?.users?.get(id)?.username;
+      break
     case snowflakes.ModelType.Role:
-      mention = api.cache?.roles?.get(id)?.name; break
+      mention = api.cache?.roles?.get(id)?.name;
+      break
     case snowflakes.ModelType.Guild:
-      mention = 'everyone'; break
+      mention = 'everyone';
+      break
     default:
       mention = null
   }
   // TODO: Should there be a special fallback for when the mention is not found?
-  if (!mention) return <span {...props}>{children}</span>
+  if (!mention) return fallback()
 
   return (
     <span
@@ -187,10 +197,10 @@ function Mention({ arg, children, ...props }: any) {
   )
 }
 
-function MentionChannel({ arg, children, ...props }: any) {
+function MentionChannel({arg, children, ...props }: any) {
   const api = getApi()!
-  const currentGuild = useParams().guildId
-  const channel = api.cache?.channels?.get(parseInt(arg)) as GuildChannel | undefined
+  const params = useParams()
+  const channel = api.cache?.channels?.get(BigInt(arg)) as GuildChannel | undefined
   // TODO: Should there be a special fallback for when the channel is not found?
   if (!channel) return <span {...props}>{children}</span>
 
@@ -201,7 +211,7 @@ function MentionChannel({ arg, children, ...props }: any) {
       href={`/guilds/${channel.guild_id}/${channel.id}`}
     >
       #{channel.name}
-      <Show when={channel.guild_id != currentGuild as any as number} keyed={false}>
+      <Show when={channel.guild_id != params.guildId as any as bigint} keyed={false}>
         <span class="text-fg/80"> ({api.cache?.guilds.get(channel.guild_id)?.name})</span>
       </Show>
     </A>
