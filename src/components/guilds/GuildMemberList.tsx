@@ -138,7 +138,7 @@ export default function GuildMemberList() {
     return m.filter((u): u is User => !!u)
   })
   const fuseMemberIndex = createMemo(() => new Fuse(members()!, {
-    keys: ['username'], // TODO: nickname
+    keys: ['username', 'display_name'], // TODO: nickname
   }))
   const memberResults = createMemo(() => searchQuery() ? fuse(searchQuery(), fuseMemberIndex, members) : null)
 

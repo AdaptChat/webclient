@@ -1,6 +1,6 @@
 import {getApi} from "../../api/Api";
 import tooltip from "../../directives/tooltip";
-import {noop} from "../../utils";
+import {displayName, noop} from "../../utils";
 import {createEffect, createSignal, createUniqueId, on, Show} from "solid-js";
 import Icon, {IconElement} from "../../components/icons/Icon";
 import PenToSquare from "../../components/icons/svg/PenToSquare";
@@ -54,6 +54,7 @@ export default function Account() {
     updateChanged()
   }))
 
+  const [usernameValue, setUsernameValue] = createSignal(clientUser().username)
   const [showEmail, setShowEmail] = createSignal(false)
 
   const submitEdit = async (e: Event) => {
@@ -66,10 +67,10 @@ export default function Account() {
       json.username = usernameInputRef!.value
 
     // Only send display_name if it's different from the username
-    if (diff.username || diff.displayName)
-      json.display_name = usernameInputRef!.value == displayNameInputRef!.value
-        ? null
-        : displayNameInputRef!.value
+    if (diff.username || diff.displayName) {
+      const displayName = displayNameInputRef!.value
+      json.display_name = usernameInputRef!.value == displayName || !displayName ? null : displayName
+    }
 
     if (diff.avatar)
       json.avatar = avatarData()
@@ -154,8 +155,12 @@ export default function Account() {
             autocomplete="username"
             value={clientUser().username}
             placeholder="Username"
+            required={true}
             editing={editing()}
-            onInput={updateChanged}
+            onInput={() => {
+              setUsernameValue(usernameInputRef!.value)
+              updateChanged()
+            }}
           />
           <AccountField
             ref={displayNameInputRef}
@@ -163,8 +168,9 @@ export default function Account() {
             label="Display Name"
             icon={IdCardClip}
             autocomplete="username"
-            value={clientUser().display_name || clientUser().username}
-            placeholder={editing() ? "Display Name" : clientUser().display_name || clientUser().username}
+            value={clientUser().display_name || ''}
+            placeholder={usernameValue() || 'Display Name'}
+            required={false}
             editing={editing()}
             onInput={updateChanged}
           />
@@ -203,6 +209,7 @@ interface FieldProps {
   autocomplete: 'username'
   value: string
   placeholder: string
+  required: boolean
   editing: EditingState
   onInput: () => void
 }
@@ -223,7 +230,7 @@ function AccountField(props: FieldProps) {
           minLength={2}
           maxLength={32}
           placeholder={props.placeholder}
-          required
+          required={props.required}
           value={props.value}
           classList={{
             "text-xl text-fg bg-transparent transition outline-none border-b-2 focus:border-accent disabled:text-opacity-80": true,
