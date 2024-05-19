@@ -172,7 +172,7 @@ export default function Account() {
           <p class="p-3 text-sm bg-danger/20 text-danger w-full">{error()}</p>
         </Show>
       </div>
-      <h2 class="py-4 px-2 font-title font-bold text-xl">Credentials</h2>
+      <h2 class="pt-6 pb-3 px-2 font-title font-bold text-xl">Credentials</h2>
       <div class="flex items-center">
         <div class="p-4 rounded-full bg-bg-0/80">
           <Icon icon={Envelope} class="w-6 h-6 fill-fg/80" />
