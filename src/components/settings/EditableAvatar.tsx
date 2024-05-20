@@ -3,7 +3,7 @@ import PenToSquare from "../icons/svg/PenToSquare";
 import {ParentProps, Setter} from "solid-js";
 
 export interface Props {
-  setImageData: Setter<string | null>
+  setImageData: Setter<string | null | undefined>
 }
 
 export default function EditableAvatar(props: ParentProps<Props>) {

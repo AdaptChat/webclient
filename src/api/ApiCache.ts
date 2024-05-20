@@ -1,5 +1,5 @@
 import type {ClientUser, Relationship, RelationshipType, User} from "../types/user";
-import type {Guild, Invite, Member, Role} from "../types/guild";
+import type {Guild, Invite, Member, PartialGuild, Role} from "../types/guild";
 import type {ReadyEvent} from "../types/ws";
 import type {Channel, GuildChannel} from "../types/channel";
 import type {Presence} from "../types/presence";
@@ -175,6 +175,13 @@ export default class ApiCache {
       next.splice(index, 0, guild.id)
       return next
     })
+  }
+
+  patchGuild(partialGuild: PartialGuild) {
+    const guild = this.guilds.get(partialGuild.id)
+    if (!guild) return
+
+    this.guilds.set(partialGuild.id, { ...guild, ...partialGuild })
   }
 
   removeGuild(guildId: bigint) {
@@ -384,6 +391,6 @@ export default class ApiCache {
   }
 }
 
-function defaultAvatar(userId: bigint): string {
+export function defaultAvatar(userId: bigint): string {
   return `https://convey.adapt.chat/avatars/${userId}/default.png?theme=dark&width=96`
 }

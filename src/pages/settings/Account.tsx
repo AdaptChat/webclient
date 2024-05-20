@@ -1,7 +1,7 @@
 import {getApi} from "../../api/Api";
 import tooltip from "../../directives/tooltip";
-import {displayName, noop} from "../../utils";
-import {createEffect, createSignal, createUniqueId, on, Show} from "solid-js";
+import {noop} from "../../utils";
+import {Accessor, createEffect, createMemo, createSignal, createUniqueId, on, Setter, Show} from "solid-js";
 import Icon, {IconElement} from "../../components/icons/Icon";
 import PenToSquare from "../../components/icons/svg/PenToSquare";
 import Check from "../../components/icons/svg/Check";
@@ -16,9 +16,10 @@ import Spinner from "../../components/icons/svg/Spinner";
 import Envelope from "../../components/icons/svg/Envelope";
 import Eye from "../../components/icons/svg/Eye";
 import EyeSlash from "../../components/icons/svg/EyeSlash";
+import {defaultAvatar} from "../../api/ApiCache";
 noop(tooltip)
 
-enum EditingState {
+export enum EditingState {
   NotEditing,
   Editing,
   Saving,
@@ -43,13 +44,17 @@ export default function Account() {
   const updateChanged = () => setChanged({
     username: usernameInputRef?.value !== clientUser().username,
     displayName: displayNameInputRef?.value !== clientUser().display_name,
-    avatar: avatarData() !== null,
+    avatar: avatarData() !== undefined,
   })
   const anyChanged = () => Object.values(changed()).some(Boolean)
 
-  const [avatarData, setAvatarData] = createSignal<string | null>(null)
+  const [avatarData, setAvatarData] = createSignal<string | null | undefined>(undefined)
+  const previewAvatar = createMemo(() => avatarData() === undefined
+    ? api.cache!.clientAvatar!
+    : avatarData() ?? defaultAvatar(clientUser().id)
+  )
   createEffect(on(avatarData, () => {
-    if (!avatarData()) return
+    if (avatarData() === undefined) return
     setEditing(EditingState.Editing)
     updateChanged()
   }))
@@ -77,9 +82,8 @@ export default function Account() {
 
     setEditing(EditingState.Saving)
     const response = await api.request('PATCH', '/users/me', { json })
-    if (!response.ok) {
-      return setError(response.errorJsonOrThrow().message)
-    }
+    if (!response.ok)
+      setError(response.errorJsonOrThrow().message)
 
     setEditing(EditingState.NotEditing)
   }
@@ -92,7 +96,7 @@ export default function Account() {
           <div class="indicator m-4">
             <StatusIndicator status={api.cache?.presences.get(api.cache!.clientId!)?.status} indicator tailwind="w-4 h-4 m-2" />
             <EditableAvatar setImageData={setAvatarData}>
-              <img src={avatarData() ?? api.cache!.clientAvatar} alt="" class="w-16 h-16" />
+              <img src={previewAvatar()} alt="" class="w-16 h-16" />
             </EditableAvatar>
           </div>
           <div class="flex flex-col justify-center">
@@ -106,45 +110,19 @@ export default function Account() {
               {clientUser().id.toString()}
             </span>
           </div>
-          <div class="flex absolute right-4 top-4 gap-x-2">
-            <Show when={editing() != EditingState.NotEditing && anyChanged()}>
-              <button
-                type="submit"
-                form={formId}
-                class="select-none transition duration-200 animate-pulse disabled:animate-spin hover:animate-none"
-                disabled={editing() == EditingState.Saving}
-              >
-                <Icon
-                  icon={editing() == EditingState.Saving ? Spinner : Check}
-                  class="w-6 h-6 fill-fg"
-                  title="Save"
-                  tooltip={{ content: "Save", placement: 'left' }}
-                />
-              </button>
-            </Show>
-            <button
-              class="select-none opacity-60 hover:opacity-100 transition duration-200"
-              onClick={() => {
-                setEditing(prev =>
-                  prev == EditingState.NotEditing ? EditingState.Editing : EditingState.NotEditing
-                )
-                if (!editing()) {
-                  setChanged({...initial})
-                  setError("")
-                  usernameInputRef!.value = clientUser().username
-                  displayNameInputRef!.value = clientUser().display_name ?? ""
-                  setAvatarData(null)
-                }
-              }}
-            >
-              <Icon
-                icon={editing() ? Xmark : PenToSquare}
-                class="w-6 h-6 fill-fg"
-                title={editing() ? "Cancel" : "Edit"}
-                tooltip={{ content: editing() ? "Cancel" : "Edit", placement: 'left' }}
-              />
-            </button>
-          </div>
+          <SaveCancel
+            editing={editing}
+            setEditing={setEditing}
+            anyChanged={anyChanged}
+            formId={formId}
+            onCancel={() => {
+              setChanged({...initial})
+              setError("")
+              usernameInputRef!.value = clientUser().username
+              displayNameInputRef!.value = clientUser().display_name ?? ""
+              setAvatarData(null)
+            }}
+          />
         </div>
         <form class="flex flex-col gap-y-4 items-center p-4 bg-bg-1/60 w-full" id={formId} onSubmit={submitEdit}>
           <AccountField
@@ -175,7 +153,7 @@ export default function Account() {
             onInput={updateChanged}
           />
         </form>
-        <Show when={error()} keyed={false}>
+        <Show when={error()}>
           <p class="p-3 text-sm bg-danger/20 text-danger w-full">{error()}</p>
         </Show>
       </div>
@@ -205,21 +183,28 @@ interface FieldProps {
   ref: HTMLInputElement | null
   name: string
   label: string
-  icon: IconElement
-  autocomplete: 'username'
+  icon?: IconElement
+  autocomplete?: string
   value: string
   placeholder: string
   required: boolean
   editing: EditingState
+  tailwind?: string
+  inputTailwind?: string
   onInput: () => void
 }
 
-function AccountField(props: FieldProps) {
+export function AccountField(props: FieldProps) {
   return (
-    <div class="flex items-center gap-x-2.5 w-full">
-      <div class="p-3 rounded-full bg-3">
-        <Icon icon={props.icon} class="w-6 h-6 fill-fg/50" />
-      </div>
+    <div classList={{
+      "flex items-center gap-x-2.5 w-full": true,
+      [props.tailwind ?? ""]: true,
+    }}>
+      <Show when={props.icon}>
+        <div class="p-3 rounded-full bg-3">
+          <Icon icon={props.icon!} class="w-6 h-6 fill-fg/50" />
+        </div>
+      </Show>
       <div class="flex flex-col flex-grow">
         <label for={props.name} class="font-bold text-xs uppercase text-fg/60">{props.label}</label>
         <input
@@ -233,13 +218,60 @@ function AccountField(props: FieldProps) {
           required={props.required}
           value={props.value}
           classList={{
-            "text-xl text-fg bg-transparent transition outline-none border-b-2 focus:border-accent disabled:text-opacity-80": true,
+            "text-fg bg-transparent transition outline-none border-b-2 focus:border-accent disabled:text-opacity-80": true,
             [props.editing != EditingState.NotEditing ? "border-fg/10 text-opacity-100" : "border-transparent text-opacity-80"]: true,
+            [props.inputTailwind ?? 'text-xl']: true,
           }}
           onInput={props.onInput}
           disabled={props.editing == EditingState.NotEditing}
         />
       </div>
+    </div>
+  )
+}
+
+interface SaveCancelProps {
+  editing: Accessor<EditingState>
+  setEditing: Setter<EditingState>
+  anyChanged: () => boolean
+  formId: string
+  onCancel: () => void
+}
+
+export function SaveCancel(props: SaveCancelProps) {
+  return (
+    <div class="flex absolute right-4 top-4 gap-x-2">
+      <Show when={props.editing() != EditingState.NotEditing && props.anyChanged()}>
+        <button
+          type="submit"
+          form={props.formId}
+          class="select-none transition duration-200 animate-pulse disabled:animate-spin hover:animate-none"
+          disabled={props.editing() == EditingState.Saving}
+        >
+          <Icon
+            icon={props.editing() == EditingState.Saving ? Spinner : Check}
+            class="w-6 h-6 fill-fg"
+            title="Save"
+            tooltip={{content: "Save", placement: 'left'}}
+          />
+        </button>
+      </Show>
+      <button
+        class="select-none opacity-60 hover:opacity-100 transition duration-200"
+        onClick={() => {
+          props.setEditing(prev =>
+            prev == EditingState.NotEditing ? EditingState.Editing : EditingState.NotEditing
+          )
+          if (!props.editing()) props.onCancel()
+        }}
+      >
+        <Icon
+          icon={props.editing() ? Xmark : PenToSquare}
+          class="w-6 h-6 fill-fg"
+          title={props.editing() ? "Cancel" : "Edit"}
+          tooltip={{content: props.editing() ? "Cancel" : "Edit", placement: 'left'}}
+        />
+      </button>
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import {ClientUser, Relationship, User} from "./user";
-import {Guild, Invite, Member} from "./guild";
+import {Guild, Invite, Member, PartialGuild} from "./guild";
 import {Message} from "./message";
 import {Presence} from "./presence";
 import {Channel, DmChannel} from "./channel";
@@ -176,6 +176,20 @@ export interface GuildCreateEvent {
    * The nonce of the guild, if any.
    */
   nonce?: string;
+}
+
+/**
+ * Sent by harmony when a guild is updated.
+ */
+export interface GuildUpdateEvent {
+  /**
+   * The guild before it was updated.
+   */
+  before: PartialGuild;
+  /**
+   * The guild after it was updated.
+   */
+  after: PartialGuild;
 }
 
 interface MemberRemoveInfo {

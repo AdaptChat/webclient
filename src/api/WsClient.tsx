@@ -5,7 +5,7 @@ import {
   ChannelAckEvent,
   ChannelCreateEvent, ChannelDeleteEvent,
   GuildCreateEvent,
-  GuildRemoveEvent,
+  GuildRemoveEvent, GuildUpdateEvent,
   MemberJoinEvent,
   MemberRemoveEvent,
   MessageCreateEvent,
@@ -51,6 +51,9 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
   },
   guild_create(ws: WsClient, data: GuildCreateEvent) {
     ws.api.cache?.updateGuild(data.guild)
+  },
+  guild_update(ws: WsClient, data: GuildUpdateEvent) {
+    ws.api.cache?.patchGuild(data.after)
   },
   guild_remove(ws: WsClient, data: GuildRemoveEvent) {
     ws.api.cache?.removeGuild(data.guild_id)

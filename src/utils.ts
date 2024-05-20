@@ -465,3 +465,10 @@ export function displayChannel(channel: Channel): ChannelDisplayMetadata {
 
   return { channel, user: user ?? null, guild: guild ?? null, icon: icon ?? null }
 }
+
+/**
+ * Returns the acronym of a phrase (guild name).
+ */
+export function acronym(phrase: string): string {
+  return phrase.split(/ +/).map(word => word[0] ?? '').join('')
+}

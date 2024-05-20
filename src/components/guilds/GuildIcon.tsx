@@ -1,7 +1,7 @@
 import type {Guild} from "../../types/guild";
 import {createMemo, Show} from "solid-js";
 import tooltip from "../../directives/tooltip";
-import {humanizePings, mapIterator, noop, sumIterator} from "../../utils";
+import {acronym, humanizePings, mapIterator, noop, sumIterator} from "../../utils";
 import {useParams} from "@solidjs/router";
 import {getApi} from "../../api/Api";
 noop(tooltip)
@@ -65,7 +65,7 @@ export default function GuildIcon(
           ["relative bg-neutral-hover text-neutral-content flex items-center justify-center " + sizeClass]: true,
           ...extraClasses(),
         }}>
-          <span class="rounded-[inherit]">{guild.name.split(/ +/).map(word => word[0] ?? '').join('')}</span>
+          <span class="rounded-[inherit]">{acronym(guild.name)}</span>
         </div>
       </div>
     } keyed={false}>
