@@ -18,7 +18,7 @@ import {createSignal, JSX, Show} from "solid-js";
 import {A, useNavigate, useParams} from "@solidjs/router";
 
 import {getApi} from "../../api/Api";
-import {snowflakes} from "../../utils";
+import {displayName, snowflakes} from "../../utils";
 import {childrenToSolid} from "./markdown/ast-to-solid";
 import {html} from "property-information";
 import remarkRegexp from "./markdown/regex-plugin";
@@ -173,7 +173,8 @@ function Mention({ arg, children, ...props }: any) {
   let mention
   switch (snowflakes.modelType(id)) {
     case snowflakes.ModelType.User:
-      mention = api.cache?.users?.get(id)?.username;
+      const user = api.cache?.users?.get(id);
+      mention = user && displayName(user);
       break
     case snowflakes.ModelType.Role:
       mention = api.cache?.roles?.get(id)?.name;
