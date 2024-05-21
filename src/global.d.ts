@@ -9,6 +9,7 @@ declare module 'solid-js' {
     interface Directives {
       tooltip?: string | Partial<tippy.Props>;
       sortable: boolean;
+      sortableDirective: boolean;
     }
   }
 }

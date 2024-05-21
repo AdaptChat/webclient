@@ -47,7 +47,7 @@ export default function CreateRoleModal(props: Props) {
     const name = currentName()!
     const json: Record<string, any> = { name }
 
-    if (color)
+    if (color != null)
       json.color = (color[0] << 16) + (color[1] << 8) + color[2]
 
     setSubmitting(true)

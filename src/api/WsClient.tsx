@@ -13,7 +13,7 @@ import {
   PresenceUpdateEvent,
   ReadyEvent,
   RelationshipCreateEvent,
-  RelationshipRemoveEvent,
+  RelationshipRemoveEvent, RoleCreateEvent,
   TypingStartEvent,
   TypingStopEvent,
   UpdatePresencePayload,
@@ -123,6 +123,16 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
   member_remove(ws: WsClient, data: MemberRemoveEvent) {
     ws.api.cache?.members.delete(memberKey(data.guild_id, data.user_id))
     ws.api.cache?.untrackMember(data.guild_id, data.user_id)
+  },
+  role_create(ws: WsClient, data: RoleCreateEvent) {
+    ws.api.cache?.updateRole(data.role)
+
+    // TODO: move this into api cache
+    const guild = ws.api.cache!.guilds.get(data.role.guild_id)!
+    ws.api.cache?.guilds.set(
+      data.role.guild_id,
+      {...guild, roles: [...guild.roles!, data.role].sort((a, b) => a.position - b.position)}
+    )
   },
   relationship_create(ws: WsClient, data: RelationshipCreateEvent) {
     const prev = ws.api.cache?.relationships.get(data.relationship.user.id)

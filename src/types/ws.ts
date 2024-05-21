@@ -1,5 +1,5 @@
 import {ClientUser, Relationship, User} from "./user";
-import {Guild, Invite, Member, PartialGuild} from "./guild";
+import {Guild, Invite, Member, PartialGuild, Role} from "./guild";
 import {Message} from "./message";
 import {Presence} from "./presence";
 import {Channel, DmChannel} from "./channel";
@@ -190,6 +190,19 @@ export interface GuildUpdateEvent {
    * The guild after it was updated.
    */
   after: PartialGuild;
+}
+
+export interface RoleCreateEvent {
+  role: Role
+}
+
+export interface RoleUpdateEvent {
+  before: Role
+  after: Role
+}
+
+export interface RoleDeleteEvent {
+  role_id: Snowflake
 }
 
 interface MemberRemoveInfo {

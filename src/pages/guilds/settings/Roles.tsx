@@ -30,32 +30,38 @@ function roleColor(provided: number | undefined) {
   return provided ? '#' + provided.toString(16) : 'rgb(var(--c-fg) / 0.8)'
 }
 
-function LargeRolePreview(props: { guildId: bigint, members: Member[], role: Role, draggable: boolean }) {
+function LargeRolePreview(
+  props: { guildId: bigint, members: Member[], role: Role, draggable: boolean, gripping?: boolean }
+) {
   const membersInRole = createMemo(() => sumIterator(mapIterator(
     props.members,
     (member) => member.roles?.includes(props.role.id) ? 1 : 0 as number
   )))
 
-  const sortable = createSortable(props.role.id.toString())
-  const [state] = useDragDropContext() ?? []
+  const sortable = props.draggable ? createSortable(props.role.id.toString()) : {} as any
+  const sortableDirective = props.draggable ? sortable : () => {}
+  void sortableDirective
 
   return (
     <div
       ref={sortable.ref}
       classList={{
-        "flex rounded-lg overflow-hidden": true,
+        "flex rounded-lg overflow-hidden transition-transform": true,
         "opacity-25": sortable.isActiveDraggable,
-        "transition-transform": !!state?.active.draggable,
       }}
+      use:sortableDirective
     >
-      <Show when={props.draggable}>
+      <Show when={props.draggable || props.gripping}>
         <div
           class="flex group items-center justify-center px-3 bg-bg-0 transition hover:bg-3 cursor-grab"
-          {...sortable.dragActivators}
+          {...(!props.gripping && sortable.dragActivators)}
         >
           <Icon
             icon={GripDotsVertical}
-            class="w-6 h-6 fill-fg/50 transition-all group-hover:fill-fg/80"
+            classList={{
+              "w-6 h-6 transition-all": true,
+              [props.gripping ? "fill-fg/100" : "fill-fg/50 group-hover:fill-fg/80"]: true,
+            }}
           />
         </div>
       </Show>
@@ -63,8 +69,8 @@ function LargeRolePreview(props: { guildId: bigint, members: Member[], role: Rol
         class="flex flex-grow bg-bg-1/80 hover:bg-3 transition items-center justify-between p-4"
         href={`/guilds/${props.guildId}/settings/roles/${props.role.id}`}
       >
-        <div class="flex items-center gap-x-4">
-          <div class="w-4 h-4 rounded-full" style={{ background: roleColor(props.role.color) }} />
+        <div class="flex items-center gap-x-4 text-fg">
+          <div class="w-4 h-4 rounded-full" style={{ "background-color": roleColor(props.role.color) }} />
           <div class="flex-grow">
             <h3 class="text-lg font-title">{props.role.name}</h3>
             <p class="text-fg/60 text-sm">{membersInRole()} members</p>
@@ -200,6 +206,7 @@ export function SortableRoles(props: Props) {
             members={members()}
             role={cache.roles.get(BigInt(activeRole()!))!}
             draggable={false}
+            gripping={true}
           />
         </Show>
       </DragOverlay>
