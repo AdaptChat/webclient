@@ -58,6 +58,7 @@ const AppearanceSettings = lazy(() => import('./pages/settings/Appearance'))
 
 // Guild Settings
 const GuildSettingsOverview = lazy(() => import('./pages/guilds/settings/Overview'))
+const GuildSettingsRoles = lazy(() => import('./pages/guilds/settings/Roles'))
 
 const RedirectingLogin = lazy(async () => {
   const redirectTo = useLocation().pathname
@@ -198,7 +199,7 @@ const Entrypoint: Component = () => {
                   <Route path="/settings" component={SettingsRoot} />
                   <Route path="/guilds/:guildId/settings" component={GuildSettings}>
                     <Route path="/overview" component={GuildSettingsOverview} />
-                    <Route path="/roles" component={() => 'wip'} />
+                    <Route path="/roles" component={GuildSettingsRoles} />
                     <Route path="/invites" component={() => 'wip'} />
                   </Route>
                   <Route path="/guilds/:guildId/settings" component={GuildSettingsRoot} />

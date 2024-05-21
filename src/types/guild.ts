@@ -69,7 +69,7 @@ export interface Guild extends PartialGuild {
   /**
    * A list of resolved roles in the guild.
    */
-  roles?: any // TODO Role[];
+  roles?: Role[];
   /**
    * A list of resolved channels in the guild.
    */

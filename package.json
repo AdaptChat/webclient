@@ -27,6 +27,7 @@
     "@solid-primitives/media": "^2.1.1",
     "@solid-primitives/set": "^0.4.2",
     "@solidjs/router": "^0.13",
+    "@thisbeyond/solid-dnd": "^0.7.5",
     "cssnano": "^5.1.14",
     "firebase": "^10.6",
     "fuse.js": "^7",

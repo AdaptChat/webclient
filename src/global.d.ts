@@ -8,6 +8,7 @@ declare module 'solid-js' {
   namespace JSX {
     interface Directives {
       tooltip?: string | Partial<tippy.Props>;
+      sortable: boolean;
     }
   }
 }
