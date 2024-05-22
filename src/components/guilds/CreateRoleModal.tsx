@@ -1,14 +1,16 @@
 import {ModalTemplate} from "../ui/Modal";
-import {createMemo, createSignal, Show} from "solid-js";
+import {createMemo, createSignal, Setter, Show} from "solid-js";
 import {Rgb} from "../../client/themes";
 import PenToSquare from "../icons/svg/PenToSquare";
 import Icon from "../icons/Icon";
 import Plus from "../icons/svg/Plus";
 import {getApi} from "../../api/Api";
 import Palette from "../icons/svg/Palette";
+import {useNavigate} from "@solidjs/router";
 
 interface Props {
   guildId: bigint
+  setShow: Setter<boolean>
 }
 
 export default function CreateRoleModal(props: Props) {
@@ -40,6 +42,8 @@ export default function CreateRoleModal(props: Props) {
   const [error, setError] = createSignal<string>("")
   const [submitting, setSubmitting] = createSignal(false)
 
+  const navigate = useNavigate()
+
   const onSubmit = async (e: Event) => {
     e.preventDefault()
 
@@ -52,10 +56,13 @@ export default function CreateRoleModal(props: Props) {
 
     setSubmitting(true)
     const response = await api.request('POST', `/guilds/${props.guildId}/roles`, { json })
-    if (!response.ok)
-      setError(response.errorJsonOrThrow().message)
-
     setSubmitting(false)
+
+    if (response.ok) {
+      props.setShow(false)
+      navigate(`/guilds/${props.guildId}/settings/roles/${response.jsonOrThrow().id}`)
+    } else
+      setError(response.errorJsonOrThrow().message)
   }
 
   return (

@@ -34,7 +34,13 @@ function GuildSettingsSidebar() {
       <SidebarButton large href={root() + '/overview'} svg={CircleInfo} disabled={!perms().has('MANAGE_GUILD')}>
         Overview
       </SidebarButton>
-      <SidebarButton large href={root() + '/roles'} svg={UserTag} disabled={!perms().has('MANAGE_ROLES')}>
+      <SidebarButton
+        large
+        href={root() + '/roles'}
+        active={(pathname) => pathname.startsWith(root() + '/roles')}
+        svg={UserTag}
+        disabled={!perms().has('MANAGE_ROLES')}
+      >
         Roles
       </SidebarButton>
 

@@ -405,6 +405,20 @@ export function sumIterator<T extends number>(iterator: Iterable<T>): T {
   return sum as T
 }
 
+export function maxIterator(iterator: Iterable<number>): number
+export function maxIterator<T>(iterator: Iterable<T>, mapper: (item: T) => number): T
+
+/**
+ * Returns the maximum value in an iterator.
+ */
+export function maxIterator<T>(iterator: Iterable<T>, mapper?: (item: T) => number): T {
+  let max = -Infinity
+  for (const item of iterator)
+    if (item > max)
+      max = mapper ? mapper(item) : item as number
+  return max as T
+}
+
 /**
  * Yields elements in the difference between two sets.
  */

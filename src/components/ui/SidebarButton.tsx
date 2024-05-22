@@ -13,7 +13,7 @@ export interface Props {
   onContextMenu?: (event: MouseEvent) => any,
   svg?: IconElement,
   iconUrl?: string,
-  active?: boolean,
+  active?: boolean | ((pathname: string) => boolean),
   danger?: boolean,
   large?: boolean,
   disabled?: boolean,
@@ -23,6 +23,9 @@ export default function SidebarButton(props: ParentProps<Props>) {
   const Component = props.href ? A : WrappedButtonComponent
   const location = useLocation()
   const active = createMemo(() => {
+    if (typeof props.active == 'function')
+      return props.active(location.pathname)
+
     if (props.active) return true
     if (!props.href) return false
 

@@ -9,6 +9,7 @@ import {visit} from 'unist-util-visit'
 import type {Plugin} from 'unified'
 import type {Root} from 'hast'
 import {Theme} from "../../../client/themes";
+import {filterIterator} from "../../../utils";
 
 // <https://github.com/antfu/shikiji/blob/main/packages/shared/line-highlight.ts>
 export function parseHighlightLines(attrs: string) {
@@ -33,7 +34,7 @@ export const DARK_THEME: BuiltinTheme = 'github-dark'
 
 const options = {
   langs: [
-    ...Object.keys(bundledLanguages) as BuiltinLanguage[],
+    ...filterIterator(Object.keys(bundledLanguages) as BuiltinLanguage[], (lang) => lang !== 'clarity'),
     () => fetch('/terbium.tmLanguage.json').then(r => r.json()),
   ],
   langAlias: {
