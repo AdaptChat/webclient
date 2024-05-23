@@ -263,8 +263,10 @@ export function parseJSON(source: string) {
 }
 
 export function stringifyJSON(json: any) {
-  (BigInt.prototype as any).toJSON = function() {
-    return this.toString();
-  }
-  return JSON.stringify(json);
+  const hash = Math.random().toString(36).slice(2);
+
+  return JSON.stringify(json, (_, value) => (
+    typeof value === 'bigint' ? `__$BIGINT${hash}${value}` : value
+  ))
+  .replace(new RegExp(`"__\\$BIGINT${hash}(-?\\d+)"`, 'g'), (_, value) => value);
 }

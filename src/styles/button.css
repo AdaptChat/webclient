@@ -45,6 +45,11 @@
       --hover: rgb(var(--c-accent-light));
       --fg: rgb(var(--c-fg));
     }
+    &.btn-success {
+      --bg: rgb(var(--c-success));
+      --hover: rgb(var(--c-success-hover));
+      --fg: rgb(var(--c-success-fg));
+    }
     &.btn-neutral { /* default */ }
     &.btn-danger {
       --bg: rgb(var(--c-danger));

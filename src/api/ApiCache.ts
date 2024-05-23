@@ -43,7 +43,7 @@ export function memberKey(guildId: bigint, userId: bigint): bigint {
 export default class ApiCache {
   clientUserReactor: Signal<ClientUser>
   users: Map<bigint, User>
-  guilds: Map<bigint, Guild>
+  guilds: ReactiveMap<bigint, Guild>
   guildListReactor: Signal<bigint[]> // TODO this should sort by order
   members: ReactiveMap<bigint, Member>
   memberReactor: ReactiveMap<bigint, bigint[]>
@@ -65,7 +65,7 @@ export default class ApiCache {
   constructor(private readonly api: Api) {
     this.clientUserReactor = null as any // lazy
     this.users = new Map()
-    this.guilds = new Map()
+    this.guilds = new ReactiveMap()
     this.guildListReactor = createSignal([] as bigint[])
     this.members = new ReactiveMap()
     this.memberReactor = new ReactiveMap()
@@ -212,6 +212,40 @@ export default class ApiCache {
 
   updateRole(role: Role) {
     this.roles.set(role.id, role)
+
+    const guild = this.guilds.get(role.guild_id)
+    if (!guild || !guild.roles) return
+
+    const idx = guild.roles.findIndex(r => r.id === role.id)
+    let newRoles: Role[]
+    if (idx !== -1) {
+      newRoles = [...guild.roles]
+      newRoles[idx] = role
+    } else {
+      newRoles = [...guild.roles]
+      for (let i = role.position; i < newRoles.length; i++)
+        newRoles[i].position++
+
+      newRoles.splice(role.position, 0, role)
+    }
+
+    this.guilds.set(role.guild_id, { ...guild, roles: newRoles })
+  }
+
+  deleteRole(roleId: bigint) {
+    const role = this.roles.get(roleId)
+    if (!role) return
+
+    const guild = this.guilds.get(role.guild_id)
+    if (!guild || !guild.roles) return
+
+    const newRoles = [...guild.roles]
+    newRoles.splice(role.position, 1)
+    for (let i = role.position; i < newRoles.length; i++)
+      newRoles[i].position--
+
+    this.guilds.set(role.guild_id, { ...guild, roles: newRoles })
+    this.roles.delete(roleId)
   }
 
   updateChannel(channel: Channel) {

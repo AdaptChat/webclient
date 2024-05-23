@@ -36,7 +36,7 @@ import Trash from "../../../components/icons/svg/Trash";
 import ConfirmRoleDeleteModal from "../../../components/guilds/ConfirmRoleDeleteModal";
 
 function roleColor(provided: number | undefined) {
-  return provided ? '#' + provided.toString(16) : 'rgb(var(--c-fg) / 0.8)'
+  return provided ? '#' + provided.toString(16).padStart(6, '0') : 'rgb(var(--c-fg) / 0.8)'
 }
 
 interface SmallRolePreviewParams {
@@ -372,6 +372,11 @@ export function SortableRoles(props: Props) {
   )
 }
 
+export async function updateRolePositions(guildId: bigint, roleIds: bigint[]) {
+  const api = getApi()!
+  await api.request('PATCH', `/guilds/${guildId}/roles`, { json: roleIds.reverse() })
+}
+
 export default function Roles() {
   const params = useParams()
 
@@ -382,16 +387,25 @@ export default function Roles() {
   const defaultRoleId = createMemo(() => snowflakes.withModelType(guildId(), snowflakes.ModelType.Role))
   const guildRoles = createMemo(() => guild().roles!.filter(r => r.id != defaultRoleId()))
 
+  const originalOrder = createMemo(() => guildRoles().map(r => r.id).reverse())
   const [roleIds, setRoleIds] = createSignal<bigint[]>([])
-  createEffect(() => setRoleIds(guildRoles().map(r => r.id).reverse()))
+  createEffect(() => setRoleIds(originalOrder()))
 
   return (
-    <div class="px-3 py-2">
+    <div class="px-3 pt-2 relative pb-16">
       <Header>Roles</Header>
       <p class="mb-4 px-1 font-light text-sm text-fg/50">
         Roles are used to group members in your server and grant them permissions.
       </p>
-      <SortableRoles guildId={guildId()} roleIds={[roleIds, setRoleIds]} roles={guildRoles()} large />
+      <SortableRoles guildId={guildId()} roleIds={[roleIds, setRoleIds]} roles={guildRoles()} large/>
+      <Show when={roleIds().some((id, i) => id != originalOrder()[i])}>
+        <button
+          class="absolute btn btn-success w-[calc(100%-1.5rem)] bottom-0 my-2 animate-pulse hover:animate-none"
+          onClick={() => updateRolePositions(guildId(), roleIds())}
+        >
+          Save Role Order
+        </button>
+      </Show>
     </div>
   )
 }

@@ -201,6 +201,11 @@ export interface RoleUpdateEvent {
   after: Role
 }
 
+export interface RolePositionsUpdateEvent {
+  guild_id: Snowflake
+  role_ids: bigint[]
+}
+
 export interface RoleDeleteEvent {
   role_id: Snowflake
 }

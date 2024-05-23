@@ -13,7 +13,7 @@ import {
   PresenceUpdateEvent,
   ReadyEvent,
   RelationshipCreateEvent,
-  RelationshipRemoveEvent, RoleCreateEvent,
+  RelationshipRemoveEvent, RoleCreateEvent, RoleDeleteEvent, RolePositionsUpdateEvent, RoleUpdateEvent,
   TypingStartEvent,
   TypingStopEvent,
   UpdatePresencePayload,
@@ -126,13 +126,27 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
   },
   role_create(ws: WsClient, data: RoleCreateEvent) {
     ws.api.cache?.updateRole(data.role)
+  },
+  role_update(ws: WsClient, data: RoleUpdateEvent) {
+    ws.api.cache?.updateRole(data.after)
+  },
+  role_positions_update(ws: WsClient, data: RolePositionsUpdateEvent) {
+    for (const [i, id] of data.role_ids.entries()) {
+      const role = ws.api.cache?.roles.get(id)
+      if (role)
+        ws.api.cache?.roles.set(id, { ...role, position: i + 1 })
+    }
 
-    // TODO: move this into api cache
-    const guild = ws.api.cache!.guilds.get(data.role.guild_id)!
-    ws.api.cache?.guilds.set(
-      data.role.guild_id,
-      {...guild, roles: [...guild.roles!, data.role].sort((a, b) => a.position - b.position)}
-    )
+    const guild = ws.api.cache?.guilds.get(data.guild_id)
+    if (guild) {
+      ws.api.cache?.guilds.set(data.guild_id, {
+        ...guild,
+        roles: guild.roles?.sort((a, b) => data.role_ids.indexOf(a.id) - data.role_ids.indexOf(b.id))
+      })
+    }
+  },
+  role_delete(ws: WsClient, data: RoleDeleteEvent) {
+    ws.api.cache?.deleteRole(data.role_id)
   },
   relationship_create(ws: WsClient, data: RelationshipCreateEvent) {
     const prev = ws.api.cache?.relationships.get(data.relationship.user.id)

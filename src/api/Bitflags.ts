@@ -2,7 +2,7 @@ interface _BitflagsMapping<Flags> {
   flags: Flags
   of(...flags: (keyof Flags)[]): _BitflagsValue<Flags>
   fromFlags(flags: { [key in keyof Flags]?: boolean }): _BitflagsValue<Flags>
-  fromValue(value: bigint): _BitflagsValue<Flags>
+  fromValue(value: number | bigint): _BitflagsValue<Flags>
   empty(): _BitflagsValue<Flags>
   all(): _BitflagsValue<Flags>
 }
@@ -51,8 +51,8 @@ export function generateBitflags<
       return new this(value)
     }
 
-    static fromValue(value: bigint) {
-      return new this(value)
+    static fromValue(value: number | bigint) {
+      return new this(BigInt(value))
     }
 
     static empty() {
