@@ -149,6 +149,15 @@ main {
 .context-menu { animation: fade-in-up 0.2s ease-in-out }
 .dropdown { animation: fade-in-down 0.2s ease-in-out }
 
+@keyframes alert-unsaved {
+  0%, 100% { transform: translateX(0) }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-0.5rem) }
+  20%, 40%, 60%, 80% { transform: translateX(0.5rem) }
+
+  0% { background-color: rgb(var(--c-danger)) }
+  100% { background-color: rgb(var(--c-bg-0) / 0.8) }
+}
+
 .katex-display { overflow: auto hidden }
 .katex * {
   -webkit-font-smoothing: antialiased;

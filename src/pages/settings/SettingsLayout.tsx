@@ -1,4 +1,13 @@
-import {createEffect, JSX, onCleanup, onMount, ParentProps, useContext} from "solid-js";
+import {
+  Accessor,
+  createEffect,
+  createUniqueId,
+  JSX,
+  onCleanup,
+  onMount,
+  ParentProps,
+  useContext
+} from "solid-js";
 import Xmark from "../../components/icons/svg/Xmark";
 import Icon from "../../components/icons/Icon";
 import User from "../../components/icons/svg/User";
@@ -7,11 +16,13 @@ import RightFromBracket from "../../components/icons/svg/RightFromBracket";
 import SidebarButton from "../../components/ui/SidebarButton";
 import tooltip from "../../directives/tooltip";
 import {HeaderContext} from "../../components/ui/Header";
-import {A, useNavigate, useParams} from "@solidjs/router";
+import {A, useBeforeLeave, useNavigate, useParams} from "@solidjs/router";
 import {previousPage} from "../../App";
 import {createMediaQuery} from "@solid-primitives/media";
 import ChevronRight from "../../components/icons/svg/ChevronRight";
 import ArrowUpRightFromSquare from "../../components/icons/svg/ArrowUpRightFromSquare";
+import {ReactiveMap} from "@solid-primitives/map";
+import {mapIterator} from "../../utils";
 void tooltip
 
 export interface Breadcrumb {
@@ -49,7 +60,98 @@ export function generateSettingsRoot(breadcrumb: Breadcrumb, Sidebar: () => JSX.
   )
 }
 
-export function generateSettingsLayout(breadcrumb: Breadcrumb, Sidebar: () => JSX.Element, children: JSX.Element) {
+type SaveTask = () => Promise<void>
+interface SettingsContext {
+  tasks: ReactiveMap<string, SaveTask>
+  createTask: (task: SaveTask, onCancel?: () => any) => readonly [
+    (v: boolean) => void,
+    Accessor<string | undefined>
+  ]
+  saveAll: () => Promise<void>
+  cancelAll: () => void
+}
+
+export function createSettingsContext(): SettingsContext {
+  const cached = (window as any).$settingsContext
+  if (cached) return cached
+
+  const tasks = new ReactiveMap<string, SaveTask>()
+  const errors = new ReactiveMap<string, string>()
+  const cancelTasks: (() => any)[] = []
+
+  const createTask = (task: SaveTask, onCancel?: () => any) => {
+    const id = createUniqueId()
+    if (onCancel) cancelTasks.push(onCancel)
+
+    return [
+      (v: boolean) => { v ? tasks.set(id, task) : tasks.delete(id) },
+      () => errors.get(id)
+    ] as const
+  }
+  const saveAll = async () => {
+    await Promise.all(mapIterator(tasks.entries(), ([id, task]) => (
+      task()
+        .then(() => errors.delete(id))
+        .catch((e) => errors.set(id, e.message))
+        .finally(() => tasks.delete(id))
+    )))
+    cancelTasks.length = 0
+  }
+  const cancelAll = () => {
+    tasks.clear()
+    for (const cancel of cancelTasks) cancel()
+  }
+
+  return { tasks, createTask, saveAll, cancelAll }
+}
+
+export const settingsContext = createSettingsContext();
+(window as any).$settingsContext = settingsContext
+
+export function useSaveTask(task: SaveTask, onCancel?: () => any) {
+  return settingsContext?.createTask(task, onCancel)
+}
+
+function SaveChanges() {
+  const { tasks, saveAll, cancelAll } = settingsContext
+  const saveHandler = (event: MouseEvent) => {
+    const target = event.target as HTMLButtonElement
+    target.disabled = true
+    saveAll().finally(() => target.disabled = false)
+  }
+
+  let ref: HTMLDivElement | null = null
+  useBeforeLeave((e) => {
+    if (e.to.toString() == previousPage() && tasks.size > 0) {
+      e.preventDefault()
+      ref!.style.animation = "alert-unsaved 1s"
+      setTimeout(() => ref!.style.animation = "", 1000)
+    }
+  })
+
+  return (
+    <div
+      ref={ref!}
+      class="flex justify-between items-center bg-bg-0/70 backdrop-blur p-3 bottom-0 absolute
+        left-[max(14rem,calc(50vw-23rem))] mobile:left-0 right-0 z-[9999] transition-opacity"
+      classList={{
+        "opacity-100": tasks.size > 0,
+        "opacity-0 pointer-events-none": tasks.size === 0,
+      }}
+    >
+      <span class="font-title text-lg font-bold mx-4">Save Changes?</span>
+      <div class="flex gap-x-1">
+        <button class="btn btn-success" onClick={saveHandler}>
+          Save
+        </button>
+        <button class="btn btn-ghost" onClick={cancelAll}>Cancel</button>
+      </div>
+    </div>
+  )
+}
+
+type SettingsLayoutProps = { breadcrumb: Breadcrumb, Sidebar: () => JSX.Element }
+export function SettingsLayout({ breadcrumb, Sidebar, children }: ParentProps<SettingsLayoutProps>) {
   const navigate = useNavigate()
   const params = useParams()
 
@@ -63,7 +165,7 @@ export function generateSettingsLayout(breadcrumb: Breadcrumb, Sidebar: () => JS
   const [header] = useContext(HeaderContext)!
 
   return (
-    <div class="w-full h-full flex">
+    <div class="w-full h-full flex relative">
       <div classList={{
         "flex justify-end bg-bg-0/60 backdrop-blur": true,
         "mobile:transition-all mobile:duration-300": true,
@@ -88,6 +190,7 @@ export function generateSettingsLayout(breadcrumb: Breadcrumb, Sidebar: () => JS
           </span>
           <Exit />
         </h1>
+        <SaveChanges />
         {children}
       </div>
       <div class="w-[max(0px,calc(50vw-37rem))] relative">
@@ -116,8 +219,16 @@ export function SettingsSection(props: ParentProps) {
 
 export function generateSettingsComponents(breadcrumb: Breadcrumb, sidebar: () => JSX.Element) {
   return [
-    () => generateSettingsRoot(breadcrumb, sidebar),
-    (props: ParentProps) => generateSettingsLayout(breadcrumb, sidebar, props.children),
+    function Root() {
+      return generateSettingsRoot(breadcrumb, sidebar)
+    },
+    function Body(props: ParentProps) {
+      return (
+        <SettingsLayout breadcrumb={breadcrumb} Sidebar={sidebar}>
+          {props.children}
+        </SettingsLayout>
+      )
+    },
   ]
 }
 

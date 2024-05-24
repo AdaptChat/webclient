@@ -34,6 +34,7 @@ import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../../../
 import Code from "../../../components/icons/svg/Code";
 import Trash from "../../../components/icons/svg/Trash";
 import ConfirmRoleDeleteModal from "../../../components/guilds/ConfirmRoleDeleteModal";
+import {useSaveTask} from "../../settings/SettingsLayout";
 
 function roleColor(provided: number | undefined) {
   return provided ? '#' + provided.toString(16).padStart(6, '0') : 'rgb(var(--c-fg) / 0.8)'
@@ -129,7 +130,7 @@ function LargeRolePreview(props: LargeRolePreviewParams) {
     >
       <Show when={showGripper()}>
         <div
-          class="flex group items-center justify-center px-3 bg-bg-0 transition"
+          class="flex group items-center justify-center px-3 bg-bg-0 transition touch-none"
           classList={{ [managable() ? "cursor-grab hover:bg-3" : "cursor-not-allowed"]: true }}
           {...(!props.gripping && managable() && sortable.dragActivators)}
         >
@@ -172,6 +173,7 @@ function LargeRolePreview(props: LargeRolePreviewParams) {
 
 export interface Props {
   guildId: bigint,
+  originalOrder: bigint[],
   roleIds: Signal<bigint[]>,
   roles: Role[],
   large?: boolean,
@@ -189,6 +191,12 @@ export function SortableRoles(props: Props) {
     ? -1
     : maxIterator(mapIterator(cache.getMemberRoles(props.guildId, cache.clientId!), r => r.position))
   )
+
+  const [setNeedsReorder] = useSaveTask(
+    () => updateRolePositions(props.guildId, roleIds()),
+    () => setRoleIds(props.originalOrder),
+  )
+  createEffect(() => setNeedsReorder(roleIds().some((id, i) => id != props.originalOrder[i])))
 
   const baseParams = createMemo(() => ({
     guildId: props.guildId,
@@ -397,15 +405,13 @@ export default function Roles() {
       <p class="mb-4 px-1 font-light text-sm text-fg/50">
         Roles are used to group members in your server and grant them permissions.
       </p>
-      <SortableRoles guildId={guildId()} roleIds={[roleIds, setRoleIds]} roles={guildRoles()} large/>
-      <Show when={roleIds().some((id, i) => id != originalOrder()[i])}>
-        <button
-          class="absolute btn btn-success w-[calc(100%-1.5rem)] bottom-0 my-2 animate-pulse hover:animate-none"
-          onClick={() => updateRolePositions(guildId(), roleIds())}
-        >
-          Save Role Order
-        </button>
-      </Show>
+      <SortableRoles
+        guildId={guildId()}
+        originalOrder={originalOrder()}
+        roleIds={[roleIds, setRoleIds]}
+        roles={guildRoles()}
+        large
+      />
     </div>
   )
 }

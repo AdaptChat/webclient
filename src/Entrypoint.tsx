@@ -60,6 +60,7 @@ const AppearanceSettings = lazy(() => import('./pages/settings/Appearance'))
 const GuildSettingsOverview = lazy(() => import('./pages/guilds/settings/Overview'))
 const GuildSettingsRoles = lazy(() => import('./pages/guilds/settings/Roles'))
 const GuildSettingsRole = lazy(() => import('./pages/guilds/settings/Role'))
+const GuildSettingsRoleOverview = lazy(() => import('./pages/guilds/settings/RoleOverview'))
 
 const RedirectingLogin = lazy(async () => {
   const redirectTo = useLocation().pathname
@@ -158,40 +159,40 @@ const Entrypoint: Component = () => {
   })
 
   return (
-    <main
-      class="relative font-sans m-0 w-[100vw] h-[100vh] text-fg"
-      onClick={(event) => contextMenu.setMenu(prev => {
-        if (prev != null && contextMenuRef != null) {
-          if (contextMenuRef.contains(event.target)) return prev
-        }
-      })}
-    >
-      <Show when={getApi()} fallback={
-        <Router>
-          <Route path={["/", "/login"]} component={Login} />
-          <Route path="/register" component={Register} />
-          <Route path="*" component={RedirectingLogin} />
-        </Router>
-      }>
-        <Toaster toastOptions={{
-          className: "_toast",
-          style: {
-            background: "#000000",
-          },
-        }} />
-        <Show when={contextMenu.menu()}>
-          <div
-            ref={contextMenuRef!}
-            class="z-[9999] absolute flex context-menu"
-            style={{ left: contextMenu.pos().x + 'px', top: contextMenu.pos().y + 'px'}}
-          >
-            {contextMenu.menu()}
-          </div>
-        </Show>
-        <Show when={ws()} fallback={<Loading />}>
-          <div class="w-full h-full overflow-hidden">
-            <NewGuildModalContextProvider>
-              <HeaderContextProvider>
+    <NewGuildModalContextProvider>
+      <HeaderContextProvider>
+        <main
+          class="relative font-sans m-0 w-[100vw] h-[100vh] text-fg"
+          onClick={(event) => contextMenu.setMenu(prev => {
+            if (prev != null && contextMenuRef != null) {
+              if (contextMenuRef.contains(event.target)) return prev
+            }
+          })}
+        >
+          <Show when={getApi()} fallback={
+            <Router>
+              <Route path={["/", "/login"]} component={Login} />
+              <Route path="/register" component={Register} />
+              <Route path="*" component={RedirectingLogin} />
+            </Router>
+          }>
+            <Toaster toastOptions={{
+              className: "_toast",
+              style: {
+                background: "#000000",
+              },
+            }} />
+            <Show when={contextMenu.menu()}>
+              <div
+                ref={contextMenuRef!}
+                class="z-[9999] absolute flex context-menu"
+                style={{ left: contextMenu.pos().x + 'px', top: contextMenu.pos().y + 'px'}}
+              >
+                {contextMenu.menu()}
+              </div>
+            </Show>
+            <Show when={ws()} fallback={<Loading />}>
+              <div class="w-full h-full overflow-hidden">
                 <Router>
                   <Route path="/settings" component={Settings}>
                     <Route path="/account" component={AccountSettings} />
@@ -200,7 +201,9 @@ const Entrypoint: Component = () => {
                   <Route path="/settings" component={SettingsRoot} />
                   <Route path="/guilds/:guildId/settings" component={GuildSettings}>
                     <Route path="/overview" component={GuildSettingsOverview} />
-                    <Route path="/roles/:roleId" component={GuildSettingsRole} />
+                    <Route path="/roles/:roleId" component={GuildSettingsRole}>
+                      <Route path="/" component={GuildSettingsRoleOverview} />
+                    </Route>
                     <Route path="/roles" component={GuildSettingsRoles} />
                     <Route path="/invites" component={() => 'wip'} />
                   </Route>
@@ -217,12 +220,12 @@ const Entrypoint: Component = () => {
                     <Route path="*" component={NotFound} />
                   </Route>
                 </Router>
-              </HeaderContextProvider>
-            </NewGuildModalContextProvider>
-          </div>
-        </Show>
-      </Show>
-    </main>
+              </div>
+            </Show>
+          </Show>
+        </main>
+      </HeaderContextProvider>
+    </NewGuildModalContextProvider>
   );
 };
 

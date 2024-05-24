@@ -15,6 +15,7 @@ interface _BitflagsValue<Flags> {
   toggle(...targets: (keyof Flags)[]): this
   update(newFlags: { [key in keyof Flags]?: boolean }): this
   clear(): this
+  copy(): this
   get isEmpty(): boolean
   toFlags(): { [key in keyof Flags]: boolean }
 }
@@ -93,6 +94,10 @@ export function generateBitflags<
     clear() {
       this.value = 0n
       return this
+    }
+
+    copy() {
+      return new _BitflagsGeneratedBase(this.value)
     }
 
     get isEmpty() {

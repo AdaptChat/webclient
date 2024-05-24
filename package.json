@@ -22,6 +22,7 @@
     "vite-plugin-solid": "^2.10"
   },
   "dependencies": {
+    "@jaames/iro": "^5.5.2",
     "@nerimity/solid-turnstile": "^1.1.0",
     "@solid-primitives/map": "^0.3.2",
     "@solid-primitives/media": "^2.1.1",
