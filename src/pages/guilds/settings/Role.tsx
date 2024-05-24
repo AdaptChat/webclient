@@ -8,9 +8,8 @@ import {RoleFlags} from "../../../api/Bitflags";
 import Icon from "../../../components/icons/Icon";
 import ChevronLeft from "../../../components/icons/svg/ChevronLeft";
 import Lock from "../../../components/icons/svg/Lock";
-import {useSaveTask} from "../../settings/SettingsLayout";
 
-export default function Role(props: ParentProps) {
+function RoleInner(props: ParentProps) {
   const params = useParams()
 
   const cache = getApi()!.cache!
@@ -86,5 +85,16 @@ function RoleSublink(props: {href: string, children: string}) {
     >
       {props.children}
     </A>
+  )
+}
+
+export default function Role(props: ParentProps) {
+  const params = useParams()
+  const cache = getApi()!.cache!
+
+  return (
+    <Show when={cache.roles.has(BigInt(params.roleId))} fallback="Loading...">
+      <RoleInner {...props} />
+    </Show>
   )
 }
