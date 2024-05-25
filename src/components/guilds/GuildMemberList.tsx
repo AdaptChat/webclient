@@ -4,7 +4,7 @@ import {Accessor, createEffect, createMemo, createSignal, For, Show} from "solid
 import StatusIndicator from "../users/StatusIndicator";
 import SidebarSection from "../ui/SidebarSection";
 import {ReactiveSet} from "@solid-primitives/set";
-import {displayName, setDifference} from "../../utils";
+import {displayName, maxIterator, setDifference} from "../../utils";
 import useContextMenu from "../../hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton} from "../ui/ContextMenu";
 import UserPlus from "../icons/svg/UserPlus";
@@ -15,22 +15,29 @@ import Icon from "../icons/Icon";
 import Xmark from "../icons/svg/Xmark";
 import Fuse from "fuse.js";
 import {User} from "../../types/user";
+import {Role} from "../../types/guild";
+import {RoleFlags} from "../../api/Bitflags";
+import {memberKey} from "../../api/ApiCache";
 
 export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offline?: boolean }) {
   const api = getApi()!
+  const cache = api.cache!
   const contextMenu = useContextMenu()!
+  const params = useParams()
 
   return (
     <For each={[...props.members]}>
       {(userOrId) => {
         const user_id = typeof userOrId === "bigint" ? userOrId : userOrId.id
-        const user = typeof userOrId === "bigint" ? api.cache!.users.get(userOrId)! : userOrId
+        const user = typeof userOrId === "bigint" ? cache.users.get(userOrId)! : userOrId
+        const color = createMemo(() => cache.getMemberColor(BigInt(params.guildId), user_id))
+
         return (
           <div
             class="group flex items-center px-2 py-1.5 rounded-lg hover:bg-3 transition duration-200 cursor-pointer"
             onContextMenu={contextMenu.getHandler(
               <ContextMenu>
-                <Show when={api.cache!.clientId !== user_id}>
+                <Show when={cache.clientId !== user_id}>
                   <ContextMenuButton
                     icon={UserPlus}
                     label="Add Friend"
@@ -58,9 +65,9 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
             )}
           >
             <div class="indicator flex-shrink-0">
-              <StatusIndicator status={api.cache!.presences.get(user_id)?.status} tailwind="m-[0.2rem] w-2.5 h-2.5" indicator />
+              <StatusIndicator status={cache.presences.get(user_id)?.status} tailwind="m-[0.2rem] w-2.5 h-2.5" indicator />
               <img
-                src={api.cache!.avatarOf(user_id)}
+                src={cache.avatarOf(user_id)}
                 alt=""
                 classList={{
                   "w-8 h-8 rounded-full": true,
@@ -69,7 +76,18 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
               />
             </div>
             <span class="ml-3 w-full overflow-ellipsis overflow-hidden text-sm">
-              <span classList={{ "text-fg": true, "text-opacity-50": props.offline, "!text-opacity-80": !props.offline }}>
+              <span
+                classList={{
+                  "text-fg": color() == null,
+                  "opacity-60": props.offline,
+                  "!opacity-80": !props.offline && !color(),
+                }}
+                style={
+                  color()
+                    ? { color: `#${color()!.toString(16).padStart(6, '0')}` }
+                    : undefined
+                }
+              >
                 {displayName(user)}
               </span>
             </span>
@@ -89,7 +107,8 @@ const fuse = function<T>(value: string, index: Accessor<Fuse<T>>, fallback: Acce
 export default function GuildMemberList() {
   const api = getApi()!
   const params = useParams()
-  const guildMemo = createMemo(() => api.cache!.guilds.get(BigInt(params.guildId)))
+  const guildId = () => BigInt(params.guildId)
+  const guildMemo = createMemo(() => api.cache!.guilds.get(guildId()))
   if (!guildMemo()) return
 
   const online = new ReactiveSet<bigint>()
@@ -126,6 +145,36 @@ export default function GuildMemberList() {
     return updated
   }, new Set<bigint>())
 
+  // TODO: probably inefficient to have this reevaluate every time member presence changes
+  const roleGroups = createMemo(() => {
+    const roles = api.cache!.roles
+    const groups = new Map<bigint, { name: string, position: number, members: bigint[] }>()
+    const noRoles = [] as bigint[]
+
+    for (const member of online) {
+      const memberRoles = api.cache!.members.get(memberKey(guildId(), member))?.roles?.map(BigInt) ?? []
+      const resolved = memberRoles
+        .map(r => roles.get(r))
+        .filter((r): r is Role => r! && RoleFlags.fromValue(r.flags).has('HOISTED'))
+
+      if (!resolved.length) {
+        noRoles.push(member)
+        continue
+      }
+
+      const topHoistedRole = maxIterator(resolved, r => r.position)!
+      let group = groups.get(topHoistedRole.id)
+      if (!group) {
+        group = { name: topHoistedRole.name, position: topHoistedRole.position, members: [] }
+        groups.set(topHoistedRole.id, group)
+      }
+      group.members.push(member)
+    }
+    return [noRoles, [...groups.values()].sort((a, b) => b.position - a.position)] as const
+  })
+  const noRoles = () => roleGroups()[0]
+  const groups = () => roleGroups()[1]
+
   let searchRef: HTMLInputElement | null = null
   const [searchQuery, setSearchQuery] = createSignal('')
 
@@ -142,14 +191,14 @@ export default function GuildMemberList() {
   }))
   const memberResults = createMemo(() => searchQuery() ? fuse(searchQuery(), fuseMemberIndex, members) : null)
 
-  const channels = createMemo(() => {
-    const cache = api.cache
-    if (!cache) return []
-
-    return [...cache.guilds.get(BigInt(params.guildId))?.channels?.values() ?? []]
-  })
-  const fuseChannelIndex = createMemo(() => new Fuse(channels()!, { keys: ['name'] }))
-  const channelResults = createMemo(() => searchQuery() ? fuse(searchQuery(), fuseChannelIndex, channels) : null)
+  // const channels = createMemo(() => {
+  //   const cache = api.cache
+  //   if (!cache) return []
+  //
+  //   return [...cache.guilds.get(BigInt(params.guildId))?.channels?.values() ?? []]
+  // })
+  // const fuseChannelIndex = createMemo(() => new Fuse(channels()!, { keys: ['name'] }))
+  // const channelResults = createMemo(() => searchQuery() ? fuse(searchQuery(), fuseChannelIndex, channels) : null)
 
   return (
     <div class="flex flex-col w-full">
@@ -176,11 +225,21 @@ export default function GuildMemberList() {
       </div>
       <Show when={searchQuery()} fallback={
         <>
-          <Show when={online.size} keyed={false}>
-            <SidebarSection badge={() => online.size}>
+          <For each={groups()}>
+            {(group) => (
+              <Show when={group.members.length}>
+                <SidebarSection badge={() => group.members.length}>
+                  {group.name}
+                </SidebarSection>
+                <GuildMemberGroup members={group.members} />
+              </Show>
+            )}
+          </For>
+          <Show when={noRoles().length} keyed={false}>
+            <SidebarSection badge={() => noRoles().length}>
               Online
             </SidebarSection>
-            <GuildMemberGroup members={online} />
+            <GuildMemberGroup members={noRoles()} />
           </Show>
           <Show when={offline.size} keyed={false}>
             <SidebarSection badge={() => offline.size}>

@@ -18,17 +18,6 @@ export default function RoleMembers() {
   const roleId = createMemo(() => BigInt(params.roleId))
   const [query, setQuery] = createSignal('')
 
-  const members = createMemo(() => {
-    const m = cache.memberReactor
-      .get(BigInt(params.guildId))
-      ?.map(u => ({ ...cache.users.get(u)!, ...cache.members.get(memberKey(BigInt(params.guildId), u)) }))
-      ?? []
-    return m.filter((u): u is Member & User => !!u)
-  })
-  const fuseMemberIndex = createMemo(() => new Fuse(members()!, {
-    keys: ['username', 'display_name'], // TODO: nickname
-    includeScore: true,
-  }))
   const sortFn = (a: Member, b: Member, secondary: number) => {
     const aHasRole = a.roles?.includes(roleId())
     const bHasRole = b.roles?.includes(roleId())
@@ -36,14 +25,25 @@ export default function RoleMembers() {
     if (!aHasRole && bHasRole) return 1
     return secondary
   }
-  const memberResults = createMemo(() => query()
-    ? fuseMemberIndex()
-      .search(query())
-      .sort((a, b) => sortFn(a.item, b.item, (a.score ?? 0) - (b.score ?? 0)))
-      .map(r => r.item)
-    : members()
+  const members = createMemo(() => {
+    const m = cache.memberReactor
+      .get(BigInt(params.guildId))
+      ?.map(u => ({ ...cache.users.get(u)!, ...cache.members.get(memberKey(BigInt(params.guildId), u)) }))
+      ?? []
+    return m
+      .filter((u): u is Member & User => !!u)
       .sort((a, b) => sortFn(a, b, Number(a.id - b.id)))
-  )
+  })
+  const fuseMemberIndex = createMemo(() => new Fuse(members()!, {
+    keys: ['username', 'display_name'], // TODO: nickname
+    threshold: 0.2,
+  }))
+  const memberResults = createMemo(() => {
+    let results = query()
+      ? fuseMemberIndex().search(query()).map(r => r.item)
+      : members()
+    return results.length ? results : members()
+  })
 
   let searchRef: HTMLInputElement | null = null
 
@@ -72,8 +72,8 @@ export default function RoleMembers() {
       </div>
       <For each={memberResults()}>
         {member => (
-          <div class="flex justify-between items-center py-2">
-            <div class="flex items-center gap-x-2">
+          <div class="flex justify-between items-center py-2 gap-x-2">
+            <div class="flex items-center gap-x-2 flex-grow-0">
               <img src={cache.avatarOf(member.id)} alt="" class="w-8 h-8 rounded-full" />
               <div class="flex flex-col">
                 <p class="font-title">{displayName(member)}</p>
@@ -83,7 +83,7 @@ export default function RoleMembers() {
               </div>
             </div>
             <button
-              class="btn transition btn-sm"
+              class="btn transition btn-sm flex-shrink-0"
               classList={{ [member.roles?.includes(roleId()) ? "btn-neutral hover:btn-danger" : "btn-primary"]: true }}
               onClick={async () => {
                 const json = {

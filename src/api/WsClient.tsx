@@ -7,7 +7,7 @@ import {
   GuildCreateEvent,
   GuildRemoveEvent, GuildUpdateEvent,
   MemberJoinEvent,
-  MemberRemoveEvent,
+  MemberRemoveEvent, MemberUpdateEvent,
   MessageCreateEvent,
   MessageDeleteEvent,
   PresenceUpdateEvent,
@@ -119,6 +119,9 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
     ws.api.cache?.updateMember(data.member)
     ws.api.cache?.updateUser(data.member as User)
     ws.api.cache?.trackMember(data.member.guild_id, data.member.id)
+  },
+  member_update(ws: WsClient, data: MemberUpdateEvent) {
+    ws.api.cache?.updateMember(data.after)
   },
   member_remove(ws: WsClient, data: MemberRemoveEvent) {
     ws.api.cache?.members.delete(memberKey(data.guild_id, data.user_id))

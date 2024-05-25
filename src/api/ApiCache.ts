@@ -9,7 +9,7 @@ import {createSignal, Signal} from "solid-js";
 import {ReactiveMap} from "@solid-primitives/map";
 import {TypingManager} from "./TypingManager";
 import {Permissions} from "./Bitflags";
-import {calculatePermissions, snowflakes} from "../utils";
+import {calculatePermissions, maxIterator, snowflakes} from "../utils";
 import {Message} from "../types/message";
 
 function sortedIndex<T extends number | bigint>(array: T[], value: T) {
@@ -207,7 +207,7 @@ export default class ApiCache {
     if (member.roles) base.roles = member.roles
     if (member.joined_at) base.joined_at = member.joined_at
 
-    this.members.set(key, base)
+    this.members.set(key, {...base})
   }
 
   updateRole(role: Role) {
@@ -345,6 +345,15 @@ export default class ApiCache {
 
   getClientPermissions(guildId: bigint, channelId?: bigint): Permissions {
     return this.getMemberPermissions(guildId, this.clientId!, channelId)
+  }
+
+  getMemberColor(guildId: bigint, memberId: bigint): number | undefined {
+    const member = this.members.get(memberKey(guildId, memberId))
+    if (!member) return undefined
+
+    const coloredRoles = this.getMemberRoles(guildId, memberId).filter(role => role.color != null)
+    const highest = maxIterator(coloredRoles, role => role.position)
+    return highest?.color
   }
 
   ack(channelId: bigint, messageId: bigint) {

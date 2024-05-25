@@ -247,6 +247,20 @@ export interface MemberJoinEvent {
 }
 
 /**
+ * Sent by harmony when a member is updated.
+ */
+export interface MemberUpdateEvent {
+  /**
+   * The member before it was updated.
+   */
+  before: Member;
+  /**
+   * The member after it was updated.
+   */
+  after: Member;
+}
+
+/**
  * Sent by harmony when a user is removed from a guild.
  */
 export interface MemberRemoveEvent extends MemberRemoveInfo {

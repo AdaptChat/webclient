@@ -486,7 +486,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
       }
 
       const response = await api.request('POST', `/channels/${props.channelId}/messages`, options)
-      let ignored = typingKeepAlive.stop()
+      void typingKeepAlive.stop()
       if (!response.ok)
         grouper().ackNonceError(nonce, mockMessage, response.errorJsonOrThrow().message)
     } catch (e: any) {
@@ -662,6 +662,9 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                 const author = firstMessage
                   && (firstMessage.author ?? (firstMessage.author_id && api.cache!.users.get(firstMessage.author_id)))
                   || grouper().authorDefault
+                const authorColor = props.guildId
+                  ? api.cache!.getMemberColor(props.guildId, author.id)
+                  : undefined
 
                 return (
                   <div class="flex flex-col">
@@ -682,7 +685,12 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                         alt=""
                       />
                       <div class="inline text-sm">
-                        <span class="font-medium">{displayName(author)}</span>
+                        <span
+                          class="font-medium"
+                          style={authorColor ? { color: '#' + authorColor.toString(16).padStart(6, '0') } : undefined}
+                        >
+                          {displayName(author)}
+                        </span>
                         <span
                           class="text-fg/50 text-xs ml-2"
                           use:tooltip={timestampTooltip(firstMessage.id)}
@@ -946,7 +954,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
             onTouchStart={updateAutocompleteState}
             onSelect={updateAutocompleteState}
             onInput={() => {
-              const _ = typingKeepAlive.ackTyping()
+              void typingKeepAlive.ackTyping()
               updateSendable()
             }}
             onFocus={() => {
@@ -955,7 +963,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                 clearTimeout(timeout)
 
               setMessageInputFocused(true)
-              let _ = ack()
+              void ack()
             }}
             onBlur={() => setMessageInputFocusTimeout(
               setTimeout(() => setMessageInputFocused(false), 100) as any
