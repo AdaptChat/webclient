@@ -11,6 +11,7 @@
     "types": ["vite/client", "node"],
     "include": ["./src/global.d.ts"],
     "noEmit": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "resolveJsonModule": true
   }
 }

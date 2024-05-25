@@ -140,11 +140,9 @@ function SaveChanges() {
       }}
     >
       <span class="font-title text-lg font-bold mx-4">Save Changes?</span>
-      <div class="flex gap-x-1">
-        <button class="btn btn-success" onClick={saveHandler}>
-          Save
-        </button>
+      <div class="grid grid-cols-2">
         <button class="btn btn-ghost" onClick={cancelAll}>Cancel</button>
+        <button class="btn btn-success" onClick={saveHandler}>Save</button>
       </div>
     </div>
   )

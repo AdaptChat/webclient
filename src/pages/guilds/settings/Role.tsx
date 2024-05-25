@@ -52,7 +52,7 @@ function RoleInner(props: ParentProps) {
           roles={guildRoles()}
         />
       </div>
-      <div class="px-4 mobile:px-2 w-full">
+      <div class="px-4 mobile:px-2 w-full overflow-y-auto">
         <h2 class="font-title font-bold text-lg flex items-center gap-x-1">
           <A href={root()} class="hidden mobile:block">
             <Icon icon={ChevronLeft} class="w-5 h-5 fill-fg/50 hover:fill-fg/100 transition-all" tooltip="Back" />

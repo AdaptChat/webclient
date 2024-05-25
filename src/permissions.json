@@ -1,0 +1,230 @@
+[
+  {
+    "name": "All Channels",
+    "permissions": [
+      {
+        "flag": "VIEW_CHANNEL",
+        "label": "View Channels",
+        "description": "Members with this permission can view text-based channels and receive events from them.",
+        "channels": ["text", "announcement"]
+      },
+      {
+        "flag": "MODIFY_CHANNELS",
+        "label": "Modify Channels",
+        "description": "Members with this permission can manage settings of channels, including changing the name, topic, icon, slowmode, NSFW status, and locking/unlocking.",
+        "channels": []
+      },
+      {
+        "flag": "MANAGE_CHANNELS",
+        "label": "Manage Channels",
+        "description": "Members with this permission can manage channels, including creating, deleting, changing positions, moving between categories, and editing permission overwrites.",
+        "channels": []
+      }
+    ]
+  },
+  {
+    "name": "Text Channels",
+    "permissions": [
+      {
+        "flag": "VIEW_MESSAGE_HISTORY",
+        "label": "View Message History",
+        "description": "Members with this permission can view the message history of text channels, even if they cannot send or receive new messages.",
+        "channels": ["text", "announcement"]
+      },
+      {
+        "flag": "SEND_MESSAGES",
+        "label": "Send Messages",
+        "description": "Members with this permission can send messages in text-based channels. The View Channels permission is required.",
+        "channels": ["text", "announcement"]
+      },
+      {
+        "flag": "MANAGE_MESSAGES",
+        "label": "Manage Messages",
+        "description": "Members with this permission can manage messages sent by others, including deleting, removing reactions, and unpublishing in announcement channels.",
+        "channels": ["text", "announcement"]
+      },
+      {
+        "flag": "ATTACH_FILES",
+        "label": "Attach Files",
+        "description": "Members with this permission can attach files to messages in text-based channels.",
+        "channels": ["text", "announcement"]
+      },
+      {
+        "flag": "SEND_EMBEDS",
+        "label": "Send Embeds",
+        "description": "Members with this permission can send rich embeds or have embed links automatically appear in text-based channels.",
+        "channels": ["text", "announcement"]
+      },
+      {
+        "flag": "USE_EXTERNAL_EMOJIS",
+        "label": "Use External Emojis",
+        "description": "Members with this permission can use emojis from other servers.",
+        "channels": ["text", "announcement"]
+      },
+      {
+        "flag": "ADD_REACTIONS",
+        "label": "Add Reactions",
+        "description": "Members with this permission can add new reactions to messages in text-based channels.",
+        "channels": ["text", "announcement"]
+      },
+      {
+        "flag": "PIN_MESSAGES",
+        "label": "Pin Messages",
+        "description": "Members with this permission can pin and unpin messages in text-based channels.",
+        "channels": ["text", "announcement"]
+      },
+      {
+        "flag": "STAR_MESSAGES",
+        "label": "Star Messages",
+        "description": "Members with this permission can star and unstar messages in text-based channels.",
+        "channels": ["text", "announcement"]
+      },
+      {
+        "flag": "PUBLISH_MESSAGES",
+        "label": "Publish Messages",
+        "description": "Members with this permission can publish messages to the announcement channel feed.",
+        "channels": ["announcement"]
+      },
+      {
+        "flag": "BULK_DELETE_MESSAGES",
+        "label": "Bulk Delete Messages",
+        "description": "Members with this permission can delete or purge messages in bulk in text-based channels.",
+        "channels": ["text", "announcement"]
+      },
+      {
+        "flag": "PRIVILEGED_MENTIONS",
+        "label": "Privileged Mentions",
+        "description": "Members with this permission can mention large groups of people, including everyone or non-mentionable roles, in text-based channels.",
+        "channels": ["text", "announcement"]
+      },
+      {
+        "flag": "MANAGE_WEBHOOKS",
+        "label": "Manage Webhooks",
+        "description": "Members with this permission can create, edit, and delete webhooks in text-based channels.",
+        "channels": ["text", "announcement"]
+      }
+    ]
+  },
+  {
+    "name": "Voice Channels",
+    "permissions": [
+      {
+        "flag": "CONNECT",
+        "label": "Connect",
+        "description": "Members with this permission can connect to voice channels.",
+        "channels": ["voice"]
+      },
+      {
+        "flag": "SPEAK",
+        "label": "Speak",
+        "description": "Members with this permission can speak in voice channels.",
+        "channels": ["voice"]
+      },
+      {
+        "flag": "MUTE_MEMBERS",
+        "label": "Mute Members",
+        "description": "Members with this permission can mute other members in voice channels.",
+        "channels": ["voice"]
+      },
+      {
+        "flag": "DEAFEN_MEMBERS",
+        "label": "Deafen Members",
+        "description": "Members with this permission can deafen other members in voice channels.",
+        "channels": ["voice"]
+      }
+    ]
+  },
+  {
+    "name": "Member Customization",
+    "permissions": [
+      {
+        "flag": "CHANGE_NICKNAME",
+        "label": "Change Nickname",
+        "description": "Members with this permission can change their own nickname on the server.",
+        "channels": []
+      },
+      {
+        "flag": "MANAGE_NICKNAMES",
+        "label": "Manage Nicknames",
+        "description": "Members with this permission can change the nicknames of other members on the server.",
+        "channels": []
+      }
+    ]
+  },
+  {
+    "name": "Server Management",
+    "permissions": [
+      {
+        "flag": "MANAGE_EMOJIS",
+        "label": "Manage Emojis",
+        "description": "Members with this permission can create, edit, and delete emojis for the server.",
+        "channels": []
+      },
+      {
+        "flag": "MANAGE_STARBOARD",
+        "label": "Manage Starboard",
+        "description": "Members with this permission can delete starboard posts or disable the starboard for the server.",
+        "channels": []
+      },
+      {
+        "flag": "MANAGE_GUILD",
+        "label": "Manage Server",
+        "description": "Members with this permission can manage the server's settings, including changing the name, icon, visibility, and enabling/disabling the starboard.",
+        "channels": []
+      },
+      {
+        "flag": "MANAGE_ROLES",
+        "label": "Manage Roles",
+        "description": "Members with this permission can manage the server's roles, edit permissions of lower roles, and assign/remove roles from other members.",
+        "channels": []
+      },
+      {
+        "flag": "CREATE_INVITES",
+        "label": "Create Invites",
+        "description": "Members with this permission can create invites to the server.",
+        "channels": []
+      },
+      {
+        "flag": "MANAGE_INVITES",
+        "label": "Manage Invites",
+        "description": "Members with this permission can revoke or pause invites of any channel in the server.",
+        "channels": []
+      },
+      {
+        "flag": "TIMEOUT_MEMBERS",
+        "label": "Timeout Members",
+        "description": "Members with this permission can timeout and untimeout members with a lower role than them.",
+        "channels": []
+      },
+      {
+        "flag": "KICK_MEMBERS",
+        "label": "Kick Members",
+        "description": "Members with this permission can kick members with a lower role than them from the server.",
+        "channels": []
+      },
+      {
+        "flag": "BAN_MEMBERS",
+        "label": "Ban Members",
+        "description": "Members with this permission can ban and unban members with a lower role than them from the server.",
+        "channels": []
+      },
+      {
+        "flag": "VIEW_AUDIT_LOG",
+        "label": "View Audit Log",
+        "description": "Members with this permission can view an audit log of past moderation or other privileged actions on the server.",
+        "channels": []
+      }
+    ]
+  },
+  {
+    "name": "Danger Zone",
+    "permissions": [
+      {
+        "flag": "ADMINISTRATOR",
+        "label": "Administrator",
+        "description": "Members with this permission have the ability to override all permissions and any channel on the server.",
+        "channels": []
+      }
+    ]
+  }
+]
