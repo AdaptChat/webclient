@@ -97,7 +97,7 @@ export function calculatePermissions(userId: bigint, roles: Role[], overwrites?:
     & ~roles.reduce((acc, role) => acc | BigInt(role.permissions.deny), 0n)
 
   if (Permissions.fromValue(perms).has('ADMINISTRATOR'))
-    return Permissions.of('ADMINISTRATOR')
+    return Permissions.all()
 
   if (overwrites != null) {
     const roleOverwrites = overwrites
