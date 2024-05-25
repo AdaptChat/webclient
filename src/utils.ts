@@ -416,7 +416,10 @@ export function maxIterator<T>(iterator: Iterable<T>, key?: (item: T) => number)
   let maxItem: T | undefined
   for (const item of iterator) {
     const candidate = key ? key(item) : item as number
-    if (candidate > max) maxItem = item
+    if (candidate > max) {
+      max = candidate
+      maxItem = item
+    }
   }
   return maxItem
 }
