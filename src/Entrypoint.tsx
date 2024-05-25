@@ -62,6 +62,7 @@ const GuildSettingsRoles = lazy(() => import('./pages/guilds/settings/Roles'))
 const GuildSettingsRole = lazy(() => import('./pages/guilds/settings/Role'))
 const GuildSettingsRoleOverview = lazy(() => import('./pages/guilds/settings/RoleOverview'))
 const GuildSettingsRolePermissions = lazy(() => import('./pages/guilds/settings/RolePermissions'))
+const GuildSettingsRoleMembers = lazy(() => import('./pages/guilds/settings/RoleMembers'))
 
 const RedirectingLogin = lazy(async () => {
   const redirectTo = useLocation().pathname
@@ -204,6 +205,7 @@ const Entrypoint: Component = () => {
                     <Route path="/overview" component={GuildSettingsOverview} />
                     <Route path="/roles/:roleId" component={GuildSettingsRole}>
                       <Route path="/permissions" component={GuildSettingsRolePermissions} />
+                      <Route path="/members" component={GuildSettingsRoleMembers} />
                       <Route path="/" component={GuildSettingsRoleOverview} />
                     </Route>
                     <Route path="/roles" component={GuildSettingsRoles} />

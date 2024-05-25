@@ -40,7 +40,7 @@ function RoleInner(props: ParentProps) {
   })
 
   return (
-    <div class="flex px-2 pt-4 h-[calc(100%-3rem)]">
+    <div class="flex px-2 pt-4 h-[calc(100%-2.25rem)]">
       <Header>
         <A href={root()} class="hover:underline underline-offset-2">Roles</A>
       </Header>
@@ -65,7 +65,9 @@ function RoleInner(props: ParentProps) {
         <div class="flex gap-x-2 mt-2 border-b-[1px] border-fg/10">
           <RoleSublink href={base()}>Overview</RoleSublink>
           <RoleSublink href={`${base()}/permissions`}>Permissions</RoleSublink>
-          <RoleSublink href={`${base()}/members`}>Members</RoleSublink>
+          <Show when={roleId() != defaultRoleId()}>
+            <RoleSublink href={`${base()}/members`}>Members</RoleSublink>
+          </Show>
         </div>
         <div class="flex flex-col w-full mt-2">
           {props.children}
