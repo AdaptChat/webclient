@@ -69,7 +69,10 @@ function RoleInner(props: ParentProps) {
             <RoleSublink href={`${base()}/members`}>Members</RoleSublink>
           </Show>
         </div>
-        <div class="flex flex-col w-full mt-2">
+        <div
+          class="flex flex-col w-full mt-2"
+          classList={{ "opacity-50 cursor-not-allowed pointer-events-none": !managable() }}
+        >
           {props.children}
         </div>
       </div>

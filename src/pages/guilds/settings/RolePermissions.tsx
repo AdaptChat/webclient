@@ -45,6 +45,7 @@ export default function RolePermissions() {
   ))
 
   const isDefaultRole = createMemo(() => RoleFlags.fromValue(role().flags).has('DEFAULT'))
+  const memberPermissions = createMemo(() => cache.getMemberPermissions(role().guild_id, cache.clientId!))
 
   return (
     <div class="flex flex-col p-1">
@@ -52,7 +53,12 @@ export default function RolePermissions() {
         <div class="flex flex-col border-fg/10" classList={{ "border-b-[1px] mb-4": i != manifest.length - 1 }}>
           <h3 class="font-bold text-sm uppercase text-fg/60 mt-2 mb-4">{category.name}</h3>
           {category.permissions.map(({ flag, label, description }) => (
-            <div class="flex justify-between items-center mb-6 gap-x-2">
+            <div
+              class="flex justify-between items-center mb-6 gap-x-2"
+              classList={{
+                "opacity-50 pointer-events-none cursor-not-allowed": !memberPermissions().has(flag)
+              }}
+            >
               <div class="flex flex-col flex-shrink">
                 <h4 class="text-lg font-title">{label}</h4>
                 <p class="text-fg/60 text-sm font-light">{description}</p>
