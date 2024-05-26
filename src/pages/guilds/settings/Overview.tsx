@@ -105,6 +105,8 @@ export default function Overview() {
               editing={editing()}
               tailwind="mt-3 [input]:text-sm"
               inputTailwind="text-base"
+              minLength={0}
+              maxLength={1024}
               onInput={updateChanged}
             />
           </form>

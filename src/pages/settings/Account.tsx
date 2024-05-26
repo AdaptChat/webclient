@@ -191,6 +191,8 @@ interface FieldProps {
   editing: EditingState
   tailwind?: string
   inputTailwind?: string
+  minLength?: number
+  maxLength?: number
   onInput: () => void
 }
 
@@ -212,8 +214,8 @@ export function AccountField(props: FieldProps) {
           type="text"
           name={props.name}
           autocomplete={props.autocomplete}
-          minLength={2}
-          maxLength={32}
+          minLength={props.minLength ?? 2}
+          maxLength={props.maxLength ?? 32}
           placeholder={props.placeholder}
           required={props.required}
           value={props.value}
