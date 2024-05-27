@@ -30,7 +30,7 @@ function RoleInner(props: ParentProps) {
 
   const managable = createMemo(() => (
     guild().owner_id == cache.clientId
-      || role().position < maxIterator(mapIterator(cache.getMemberRoles(guildId(), cache.clientId!), r => r.position))
+      || role().position < maxIterator(mapIterator(cache.getMemberRoles(guildId(), cache.clientId!), r => r.position))!
   ))
 
   const root = () => `/guilds/${guildId()}/settings/roles`

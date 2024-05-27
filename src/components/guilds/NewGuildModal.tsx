@@ -1,5 +1,5 @@
 import Modal, {createPaginatedModalSignal, ModalTemplate} from "../ui/Modal";
-import {createSignal, type JSX, Match, type ParentProps, Setter, Show, Signal, Switch} from "solid-js";
+import {createContext, createSignal, type JSX, Match, type ParentProps, Setter, Show, Signal, Switch} from "solid-js";
 import {getApi} from "../../api/Api";
 import type {Guild, Member} from "../../types/guild";
 import {useNavigate} from "@solidjs/router";
@@ -9,6 +9,8 @@ import Icon, {IconElement} from "../icons/Icon";
 import ChevronRight from "../icons/svg/ChevronRight";
 import ChevronLeft from "../icons/svg/ChevronLeft";
 import RocketLaunch from "../icons/svg/RocketLaunch";
+import ContextMenu, {ContextMenuButton} from "../ui/ContextMenu";
+import UserPlus from "../icons/svg/UserPlus";
 
 export enum ModalPage { New, Create, Join }
 
@@ -221,4 +223,39 @@ export default function useNewGuildModalComponent() {
     NewGuildModal: () => <NewGuildModal pageSignal={[page, setPage]} showSignal={[show, setShow]} />,
     page, setPage, show, setShow,
   }
+}
+
+export const NewGuildModalContext = createContext<
+  ReturnType<typeof useNewGuildModalComponent> & {NewGuildModalContextMenu: () => JSX.Element}
+>()
+
+export function NewGuildModalContextProvider(props: ParentProps) {
+  const components = useNewGuildModalComponent()
+  const NewGuildModalContextMenu = () => (
+    <ContextMenu>
+      <ContextMenuButton
+        icon={RocketLaunch}
+        label="Create Server"
+        buttonClass="hover:bg-accent"
+        onClick={() => {
+          components.setShow(true)
+          components.setPage(ModalPage.Create)
+        }}
+      />
+      <ContextMenuButton
+        icon={UserPlus}
+        label="Join Server"
+        onClick={() => {
+          components.setShow(true)
+          components.setPage(ModalPage.Join)
+        }}
+      />
+    </ContextMenu>
+  )
+
+  return (
+    <NewGuildModalContext.Provider value={{...components, NewGuildModalContextMenu}}>
+      {props.children}
+    </NewGuildModalContext.Provider>
+  )
 }

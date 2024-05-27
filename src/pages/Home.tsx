@@ -1,14 +1,12 @@
-import {createMemo, createSignal, For, type JSX, ParentProps, Show, useContext} from "solid-js";
+import {createMemo, For, type JSX, ParentProps, Show, useContext} from "solid-js";
 import {A, useNavigate} from "@solidjs/router";
 import {getApi} from "../api/Api";
-import StatusIndicator, {StatusIndicatorProps} from "../components/users/StatusIndicator";
-import useNewGuildModalComponent from "../components/guilds/NewGuildModal";
+import StatusIndicator from "../components/users/StatusIndicator";
 import {
   displayChannel,
   displayName,
   filterIterator,
   filterMapIterator,
-  humanizeStatus,
   mapIterator,
   noop,
   snowflakes
@@ -23,7 +21,7 @@ import {openDms} from "./friends/FriendsList";
 import {GroupDmChannel, GuildChannel} from "../types/channel";
 import {Message} from "../types/message";
 import tooltip from "../directives/tooltip";
-import {NewGuildModalContext} from "../Entrypoint";
+import {NewGuildModalContext} from "../components/guilds/NewGuildModal";
 import Header from "../components/ui/Header";
 noop(tooltip)
 
@@ -60,47 +58,6 @@ function LearnAdaptSubcard(
       <div class="border-2 border-fg/10 rounded-full w-8 h-8 p-4">
       </div>
     </button>
-  )
-}
-
-function StatusSelect(props: StatusIndicatorProps & { label: string }) {
-  const api = getApi()!
-
-  return (
-    <li>
-      <button
-        onClick={() => api.ws?.updatePresence({ status: props.status })}
-        class="flex items-center gap-x-2 font-medium text-sm p-2 hover:bg-3 rounded-lg w-full transition"
-      >
-        <StatusIndicator status={props.status} />
-        {props.label}
-      </button>
-    </li>
-  )
-}
-
-function StatusSelectDropdown(props: { status: 'online' | 'idle' | 'dnd' | 'offline' }) {
-  const [show, setShow] = createSignal(false)
-
-  return (
-    <>
-      <label tabIndex="0" class="btn btn-sm text-[1rem]" onClick={() => setShow(prev => !prev)}>
-        <StatusIndicator status={props.status} />
-        <span class="ml-2">{humanizeStatus(props.status)}</span>
-      </label>
-      <ul
-        tabIndex="0"
-        classList={{
-          "absolute mt-2 menu p-2 shadow-xl bg-neutral-hover/80 backdrop-blur rounded-xl w-48 dropdown": true,
-          "hidden": !show(),
-        }}
-      >
-        <StatusSelect label="Online" status="online" />
-        <StatusSelect label="Idle" status="idle" />
-        <StatusSelect label="Do Not Disturb" status="dnd" />
-        <StatusSelect label="Invisible" status="offline" />
-      </ul>
-    </>
   )
 }
 

@@ -1,14 +1,11 @@
 import {
   type Component,
-  createContext,
   createEffect,
   createSignal,
   lazy,
   onMount,
   onCleanup,
   Show,
-  ParentProps,
-  JSX,
 } from 'solid-js';
 import {Navigate, Route, Router, useLocation} from "@solidjs/router";
 import Api, { getApi, setApi } from "./api/Api";
@@ -19,10 +16,7 @@ import {Toaster} from "solid-toast";
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/shift-away.css';
 import App from "./App";
-import useNewGuildModalComponent, {ModalPage} from "./components/guilds/NewGuildModal";
-import ContextMenu, {ContextMenuButton} from "./components/ui/ContextMenu";
-import RocketLaunch from "./components/icons/svg/RocketLaunch";
-import UserPlus from "./components/icons/svg/UserPlus";
+import {NewGuildModalContextProvider} from "./components/guilds/NewGuildModal";
 import {HeaderContextProvider} from "./components/ui/Header";
 
 import {Settings, SettingsRoot} from "./pages/settings/SettingsLayout";
@@ -81,41 +75,6 @@ function contextMenuAdjustment(click: number, element: number, page: number) {
   if (click + element <= page) return click
   if (click < element) return page - element
   return click - element
-}
-
-export const NewGuildModalContext = createContext<
-  ReturnType<typeof useNewGuildModalComponent> & {NewGuildModalContextMenu: () => JSX.Element}
->()
-
-export function NewGuildModalContextProvider(props: ParentProps) {
-  const components = useNewGuildModalComponent()
-  const NewGuildModalContextMenu = () => (
-    <ContextMenu>
-      <ContextMenuButton
-        icon={RocketLaunch}
-        label="Create Server"
-        buttonClass="hover:bg-accent"
-        onClick={() => {
-          components.setShow(true)
-          components.setPage(ModalPage.Create)
-        }}
-      />
-      <ContextMenuButton
-        icon={UserPlus}
-        label="Join Server"
-        onClick={() => {
-          components.setShow(true)
-          components.setPage(ModalPage.Join)
-        }}
-      />
-    </ContextMenu>
-  )
-
-  return (
-    <NewGuildModalContext.Provider value={{...components, NewGuildModalContextMenu}}>
-      {props.children}
-    </NewGuildModalContext.Provider>
-  )
 }
 
 const Entrypoint: Component = () => {

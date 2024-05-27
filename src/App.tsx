@@ -5,7 +5,7 @@ import {
   ErrorBoundary,
   For,
   JSX,
-  lazy, Match, on,
+  lazy, Match, on, onCleanup,
   onMount, ParentProps,
   Show,
   Signal, Switch, useContext
@@ -18,7 +18,7 @@ import {
   ChannelDisplayMetadata,
   displayChannel,
   displayName,
-  flatMapIterator, humanizePings,
+  flatMapIterator, humanizePings, humanizeStatus,
   humanizeTimeDeltaShort, mapIterator,
   snowflakes, sumIterator
 } from "./utils";
@@ -27,7 +27,7 @@ import tooltip from "./directives/tooltip";
 void tooltip
 
 import GuildSideSelect, {GuildContextMenu} from "./components/guilds/GuildSideSelect";
-import StatusIndicator from "./components/users/StatusIndicator";
+import StatusIndicator, {StatusIndicatorProps} from "./components/users/StatusIndicator";
 
 import Icon, {IconElement} from "./components/icons/Icon";
 import ChevronLeft from "./components/icons/svg/ChevronLeft";
@@ -49,7 +49,7 @@ import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "./compone
 import Code from "./components/icons/svg/Code";
 import GuildMemberList from "./components/guilds/GuildMemberList";
 import Plus from "./components/icons/svg/Plus";
-import {NewGuildModalContext} from "./Entrypoint";
+import {NewGuildModalContext} from "./components/guilds/NewGuildModal";
 import {HeaderContext} from "./components/ui/Header";
 import {relationshipFilterFactory} from "./pages/friends/Requests";
 
@@ -533,6 +533,33 @@ function HomeSidebar(props: { tabSignal: Signal<Tab> }) {
   )
 }
 
+function StatusSelectDropdown() {
+  return (
+    <ul tabIndex="0" class="w-full">
+      <StatusSelect label="Online" status="online" />
+      <StatusSelect label="Idle" status="idle" />
+      <StatusSelect label="Do Not Disturb" status="dnd" />
+      <StatusSelect label="Invisible" status="offline" />
+    </ul>
+  )
+}
+
+function StatusSelect(props: StatusIndicatorProps & { label: string }) {
+  const api = getApi()!
+
+  return (
+    <li>
+      <button
+        onClick={() => api.ws?.updatePresence({ status: props.status })}
+        class="flex items-center gap-x-2 font-medium text-sm p-2 hover:bg-3 rounded-lg w-full transition"
+      >
+        <StatusIndicator status={props.status} />
+        {props.label}
+      </button>
+    </li>
+  )
+}
+
 export function Sidebar({ signal }: { signal: Signal<Tab> }) {
   const api = getApi()!
   const cache = api.cache!
@@ -542,6 +569,15 @@ export function Sidebar({ signal }: { signal: Signal<Tab> }) {
   const clientUser = createMemo(() => cache.clientUser!)
   const status = createMemo(() => api.cache!.presences.get(clientUser().id)?.status ?? 'online')
   const showGuildBar = createMemo(() => route.pathname.startsWith('/guilds'))
+  const contextMenu = useContextMenu()!
+
+  const [showStatusSettings, setShowStatusSettings] = createSignal(false)
+  let containerRef: HTMLDivElement | null = null
+  const listener = (event: MouseEvent) => {
+    if (containerRef && !containerRef.contains(event.target as Node)) setShowStatusSettings(false)
+  }
+  onMount(() => document.addEventListener('click', listener))
+  onCleanup(() => document.removeEventListener('click', listener))
 
   return (
     <div classList={{
@@ -567,18 +603,45 @@ export function Sidebar({ signal }: { signal: Signal<Tab> }) {
           </Show>
         </div>
       </div>
-      <div class="bg-bg-0 p-2 flex justify-between">
+      <div
+        ref={containerRef!}
+        class="bg-bg-0 p-2 flex justify-between relative"
+        onContextMenu={contextMenu.getHandler(
+          <ContextMenu>
+            <ContextMenuButton
+              icon={Code}
+              label="Copy User ID"
+              onClick={() => {
+                navigator.clipboard.writeText(clientUser().id.toString()).then(() => toast.success('Copied User ID!'))
+              }}
+            />
+          </ContextMenu>
+        )}
+      >
+        <div
+          class="absolute dropdown w-[calc(100%-1rem)] shadow-xl bottom-full mb-2 bg-bg-2/70 backdrop-blur rounded-xl p-2"
+          classList={{ "hidden": !showStatusSettings() }}
+        >
+          <StatusSelectDropdown />
+        </div>
         <div class="flex gap-2">
-          <div class="indicator">
+          <button class="indicator" use:tooltip="Change Status" onClick={() => setShowStatusSettings(p => !p)}>
             <img src={cache.clientAvatar} alt="" class="w-10 h-10 rounded-xl"/>
             <StatusIndicator status={status()} tailwind="m-1 w-3 h-3" indicator />
-          </div>
-          <div class="flex flex-col justify-center">
+          </button>
+          <button
+            class="flex flex-col justify-center"
+            use:tooltip="Copy Username"
+            onClick={() => toast.promise(
+              navigator.clipboard.writeText(clientUser().username),
+              { loading: "Copying...", success: "Copied username!", error: "Error while copying username" }
+            )}
+          >
             <h3 class="text-fg/80 font-title font-bold">{displayName(clientUser())}</h3>
             <Show when={clientUser().display_name}>
               <span class="text-fg/50 text-xs">@{clientUser().username}</span>
             </Show>
-          </div>
+          </button>
         </div>
         <button
           onClick={() => navigate('/settings')}

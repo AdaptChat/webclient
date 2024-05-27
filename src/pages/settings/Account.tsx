@@ -1,6 +1,6 @@
 import {getApi} from "../../api/Api";
 import tooltip from "../../directives/tooltip";
-import {noop} from "../../utils";
+import {noop, snowflakes} from "../../utils";
 import {Accessor, createEffect, createMemo, createSignal, createUniqueId, on, Setter, Show} from "solid-js";
 import Icon, {IconElement} from "../../components/icons/Icon";
 import PenToSquare from "../../components/icons/svg/PenToSquare";
@@ -17,6 +17,7 @@ import Envelope from "../../components/icons/svg/Envelope";
 import Eye from "../../components/icons/svg/Eye";
 import EyeSlash from "../../components/icons/svg/EyeSlash";
 import {defaultAvatar} from "../../api/ApiCache";
+import CakeCandles from "../../components/icons/svg/CakeCandles";
 noop(tooltip)
 
 export enum EditingState {
@@ -102,12 +103,22 @@ export default function Account() {
           <div class="flex flex-col justify-center">
             <span class="font-medium text-xl font-title mb-0.5">{clientUser().username}</span>
             <span
-              class="font-medium text-sm text-fg/50 font-mono flex items-center gap-x-1 cursor-pointer"
+              class="font-medium text-sm text-fg/50 group cursor-pointer"
               use:tooltip="Copy User ID"
               onClick={() => navigator.clipboard.writeText(clientUser().id.toString())}
             >
-              <Icon icon={Code} class="w-4 h-4 fill-fg/50" />
-              {clientUser().id.toString()}
+              <span class="group-hover:hidden flex items-center gap-x-1">
+                <Icon icon={CakeCandles} class="w-4 h-4 fill-fg/50" />
+                {snowflakes.timestamp(clientUser().id).toLocaleDateString(undefined, {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </span>
+              <span class="hidden group-hover:flex items-center gap-x-1">
+                <Icon icon={Code} class="w-4 h-4 fill-fg/50" />
+                {clientUser().id.toString()}
+              </span>
             </span>
           </div>
           <SaveCancel
