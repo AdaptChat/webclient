@@ -417,13 +417,12 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
   const typingKeepAlive = new TypingKeepAlive(api, props.channelId)
   const focusListener = (e: KeyboardEvent) => {
     const charCode = e.key.charCodeAt(0)
-    if (
-      document.activeElement == document.body
-        && e.key.length == 1
+    if (document.activeElement == document.body && (
+      e.key.length == 1
         && charCode >= 32 && charCode <= 126
         && !e.ctrlKey && !e.altKey && !e.metaKey
-        || ((e.ctrlKey || e.metaKey) && e.key == 'v')
-    ) {
+        || (e.ctrlKey || e.metaKey) && e.key == 'v'
+    )) {
       messageInputRef!.focus()
     }
   }
