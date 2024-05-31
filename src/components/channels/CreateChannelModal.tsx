@@ -36,7 +36,7 @@ function ChannelTypeButton(props: {
   )
 }
 
-function getIcon(type: string): IconElement {
+export function getIcon(type: string): IconElement {
   switch (type) {
     case 'text': return Hashtag
     case 'voice': return Volume

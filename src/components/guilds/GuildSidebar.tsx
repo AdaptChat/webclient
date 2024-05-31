@@ -12,13 +12,12 @@ import UserPlus from "../icons/svg/UserPlus";
 import Trash from "../icons/svg/Trash";
 import RightFromBracket from "../icons/svg/RightFromBracket";
 import HomeIcon from "../icons/svg/Home";
-import Hashtag from "../icons/svg/Hashtag";
 import useContextMenu from "../../hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../ui/ContextMenu";
 import ConfirmChannelDeleteModal from "../channels/ConfirmChannelDeleteModal";
 import Code from "../icons/svg/Code";
 import Plus from "../icons/svg/Plus";
-import CreateChannelModal from "../channels/CreateChannelModal";
+import CreateChannelModal, {getIcon} from "../channels/CreateChannelModal";
 import Gear from "../icons/svg/Gear";
 import FolderPlus from "../icons/svg/FolderPlus";
 import CreateCategoryModal from "../channels/CreateCategoryModal";
@@ -82,7 +81,7 @@ function Channel(props: ChannelProps) {
   return (
     <SidebarButton
       href={`/guilds/${guildId()}/${props.channel.id}`}
-      svg={Hashtag}
+      svg={getIcon(props.channel.type)}
       onContextMenu={contextMenu.getHandler(
         <ContextMenu>
           <Show when={isUnread()}>
