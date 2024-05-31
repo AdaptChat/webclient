@@ -9,7 +9,7 @@ import {getApi} from "../../api/Api";
 import {useNavigate} from "@solidjs/router";
 import {snowflakes} from "../../utils";
 
-type Props = { setter: Setter<boolean>, guildId: bigint }
+type Props = { setter: Setter<boolean>, guildId: bigint, parentId: bigint | null }
 
 function ChannelTypeButton(props: {
   type: string, name: string, description: string, signal: Signal<string>
@@ -89,7 +89,7 @@ export default function CreateChannelModal(props: Props) {
 
           const nonce = snowflakes.fromTimestamp(Date.now()).toString()
           const response = await api.request('POST', `/guilds/${props.guildId}/channels`, {
-            json: { type, name, nonce }
+            json: { type, name, parent_id: props.parentId, nonce }
           })
 
           setIsSubmitting(false)

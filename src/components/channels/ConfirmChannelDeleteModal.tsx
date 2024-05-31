@@ -18,11 +18,12 @@ export default function ConfirmChannelDeleteModal(props: Props) {
 
   const guild = createMemo(() => api.cache!.guilds.get(BigInt(params.guildId)))
   const [isDeleting, setIsDeleting] = createSignal<boolean>(false)
+  const colloquial = () => props.channel.type === 'text' ? `#${props.channel.name}` : props.channel.name
 
   return (
     <ModalTemplate title="Delete Channel">
       <p class="text-fg/70 text-center text-sm mt-4">
-        Are you sure you want to delete <b>#{props.channel.name}</b> in {guild()?.name}? You will not be able to undo this action.
+        Are you sure you want to delete <b>{colloquial()}</b> in {guild()?.name}? You will not be able to undo this action.
         All data and messages associated with this channel will be deleted and you will not be able to recover them in the future.
       </p>
       <form

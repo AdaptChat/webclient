@@ -67,7 +67,7 @@ export default function SidebarButton(props: ParentProps<Props>) {
       )}
       {props.iconUrl && <img src={props.iconUrl} alt="" class="w-4 h-4" />}
       <span classList={{
-        "font-medium transition-all duration-200 text-left w-full": true,
+        "transition-all duration-200 text-left w-full": true,
         [props.large ? "font-title" : "text-sm"]: true,
         "text-opacity-100": active() || props.danger,
         "text-opacity-60": !active() && !props.danger,

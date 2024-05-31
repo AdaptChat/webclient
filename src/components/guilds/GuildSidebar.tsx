@@ -1,5 +1,5 @@
 import {useNavigate, useParams} from "@solidjs/router";
-import {createMemo, createSignal, For, Match, Show, Switch} from "solid-js";
+import {createMemo, createSignal, For, Match, Show, splitProps, Switch} from "solid-js";
 import {getApi} from "../../api/Api";
 import SidebarButton from "../ui/SidebarButton";
 import {GuildChannel} from "../../types/channel";
@@ -20,6 +20,13 @@ import Code from "../icons/svg/Code";
 import Plus from "../icons/svg/Plus";
 import CreateChannelModal from "../channels/CreateChannelModal";
 import Gear from "../icons/svg/Gear";
+import FolderPlus from "../icons/svg/FolderPlus";
+import CreateCategoryModal from "../channels/CreateCategoryModal";
+import BookmarkEmpty from "../icons/svg/BookmarkEmpty";
+import {ReactiveSet} from "@solid-primitives/set";
+import ChevronRight from "../icons/svg/ChevronRight";
+import tooltip from "../../directives/tooltip";
+void tooltip
 
 interface GuildDropdownButtonProps {
   icon: IconElement,
@@ -48,6 +55,81 @@ function GuildDropdownButton(props: GuildDropdownButtonProps) {
   )
 }
 
+interface ChannelProps {
+  channel: GuildChannel
+}
+function Channel(props: ChannelProps) {
+  const api = getApi()!
+  const cache = api.cache!
+
+  const params = useParams()
+  const guildId = createMemo(() => BigInt(params.guildId))
+  const contextMenu = useContextMenu()!
+
+  const isUnread = createMemo(() => cache.isChannelUnread(props.channel.id))
+  const mentionCount = createMemo(() => cache.countGuildMentionsIn(guildId(), props.channel.id))
+  const permissions = createMemo(() => cache.getClientPermissions(guildId(), props.channel.id))
+
+  const [confirmChannelDeleteModal, setConfirmChannelDeleteModal] = createSignal(false)
+
+  const markRead = async () => {
+    const lastMessageId = cache.lastMessages.get(props.channel.id)?.id
+    if (lastMessageId) {
+      await api.request('PUT', `/channels/${props.channel.id}/ack/${lastMessageId}`)
+    }
+  }
+
+  return (
+    <SidebarButton
+      href={`/guilds/${guildId()}/${props.channel.id}`}
+      svg={Hashtag}
+      onContextMenu={contextMenu.getHandler(
+        <ContextMenu>
+          <Show when={isUnread()}>
+            <ContextMenuButton icon={BookmarkEmpty} label="Mark as Read" onClick={markRead} />
+          </Show>
+          <ContextMenuButton
+            icon={Code}
+            label="Copy Channel ID"
+            onClick={() => window.navigator.clipboard.writeText(props.channel.id.toString())}
+          />
+          <Show when={permissions().has('MANAGE_CHANNELS')}>
+            <DangerContextMenuButton
+              icon={Trash}
+              label="Delete Channel"
+              onClick={() => setConfirmChannelDeleteModal(true)}
+            />
+          </Show>
+        </ContextMenu>
+      )}
+    >
+      <Modal get={confirmChannelDeleteModal} set={setConfirmChannelDeleteModal}>
+        <ConfirmChannelDeleteModal
+          channel={props.channel}
+          setConfirmChannelDeleteModal={setConfirmChannelDeleteModal}
+        />
+      </Modal>
+      <span class="flex justify-between items-center">
+        <span classList={{ "text-fg": isUnread() || !!mentionCount() }}>
+          {props.channel.name}
+        </span>
+        <Switch>
+          <Match when={mentionCount()}>
+            <div
+              class="px-1.5 min-w-[1.25rem] h-5 bg-red-600 text-fg rounded-full flex items-center justify-center"
+            >
+              {mentionCount()?.toLocaleString()}
+            </div>
+          </Match>
+          <Match when={isUnread()}>
+            <span class="w-2 h-2 bg-fg rounded-lg" />
+          </Match>
+        </Switch>
+      </span>
+    </SidebarButton>
+  )
+}
+
 export default function GuildSidebar() {
   const params = useParams()
   const navigate = useNavigate()
@@ -63,9 +145,8 @@ export default function GuildSidebar() {
   const [showInviteModal, setShowInviteModal] = createSignal(false)
   const [confirmGuildLeaveModal, setConfirmGuildLeaveModal] = createSignal(false)
   const [createChannelModal, setShowCreateChannelModal] = createSignal(false)
-
-  const [channelToDelete, setChannelToDelete] = createSignal<GuildChannel | null>(null)
-  const [confirmChannelDeleteModal, setConfirmChannelDeleteModal] = createSignal(false)
+  const [createCategoryModal, setShowCreateCategoryModal] = createSignal(false)
+  const [parentId, setParentId] = createSignal<bigint | null>(null)
 
   const isOwner = createMemo(() => guild().owner_id === api.cache?.clientUser?.id)
 
@@ -81,6 +162,106 @@ export default function GuildSidebar() {
   )
   const guildPermissions = createMemo(() => api.cache?.getClientPermissions(guildId()))
 
+  const channels = createMemo(() => {
+    const channels = api.cache?.guildChannelReactor
+      ?.get(guildId())
+      ?.map(id => api.cache!.channels.get(id) as GuildChannel)
+      ?.filter(c => c && api.cache?.getClientPermissions(guildId(), c.id).has('VIEW_CHANNEL'))
+    if (!channels) return
+
+    const groups = new Map<bigint | null, { category: GuildChannel, children: GuildChannel[] }>([
+      [null, { category: null, children: [] }] as any,
+      ...channels
+        ?.filter(c => c.type === 'category')
+        ?.map(c => [c.id, { category: c, children: [] }])
+    ])
+    channels.forEach(c => groups.get(c.parent_id ? BigInt(c.parent_id) : null)?.children.push(c))
+    groups.forEach(group => group.children.sort((a, b) => {
+      const aIsCategory = a.type === 'category'
+      const bIsCategory = b.type === 'category'
+
+      if (aIsCategory && !bIsCategory) return 1
+      if (!aIsCategory && bIsCategory) return -1
+      return a.position - b.position
+    }))
+    return groups
+  })
+  const collapsed = new ReactiveSet<bigint>()
+
+  const RenderChannel = (props: { channel: GuildChannel }) => (
+    <Show when={props.channel.type === 'category'} fallback={<Channel channel={props.channel} />}>
+      <RenderCategory id={props.channel.id} group={channels()?.get(props.channel.id)!} />
+    </Show>
+  )
+  const RenderCategory = (props: {
+    id: bigint, group: { category: GuildChannel, children: GuildChannel[] }
+  }) => {
+    const [confirmDelete, setConfirmDelete] = createSignal(false)
+    return (
+      <Show when={
+        props.group.children.length > 0
+        || (props.id ? api.cache!.getClientPermissions(guildId(), props.id) : guildPermissions())?.has('MANAGE_CHANNELS')
+      }>
+        <div
+          class="flex justify-between items-center pb-1 pt-3 px-2"
+          onContextMenu={contextMenu.getHandler(
+            <ContextMenu>
+              <ContextMenuButton
+                icon={Code}
+                label="Copy Category ID"
+                onClick={() => window.navigator.clipboard.writeText(props.id.toString())}
+              />
+              <Show when={guildPermissions()?.has('MANAGE_CHANNELS')}>
+                <DangerContextMenuButton
+                  icon={Trash}
+                  label="Delete Category"
+                  onClick={() => setConfirmDelete(true)}
+                />
+              </Show>
+            </ContextMenu>
+          )}
+        >
+          <Modal get={confirmDelete} set={setConfirmDelete}>
+            <ConfirmChannelDeleteModal
+              channel={props.group.category}
+              setConfirmChannelDeleteModal={setConfirmDelete}
+            />
+          </Modal>
+          <button
+            class="group flex items-center gap-x-1.5"
+            onClick={() => collapsed.has(props.id) ? collapsed.delete(props.id) : collapsed.add(props.id)}
+          >
+            <Icon
+              icon={collapsed.has(props.id) ? ChevronRight : ChevronDown}
+              class="w-3 h-3 fill-fg/50 group-hover:fill-fg/100 transition"
+              tooltip={collapsed.has(props.id) ? "Expand" : "Collapse"}
+            />
+            <span class="font-medium text-sm text-fg/50 group-hover:text-fg/100 transition">
+            {props.group.category?.name ?? "Channels"}
+          </span>
+          </button>
+          <Show when={guildPermissions()?.has('MANAGE_CHANNELS')}>
+            <button class="group" use:tooltip="Create Channel" onClick={() => {
+              setParentId(props.id)
+              setShowCreateChannelModal(true)
+            }}>
+              <Icon icon={Plus} class="w-4 h-4 fill-fg/50 group-hover:fill-fg/100 transition" />
+            </button>
+          </Show>
+        </div>
+        <Show when={!collapsed.has(props.id)}>
+          <For each={props.group.children} fallback={
+            <div class="rounded-lg p-2 w-full bg-2 text-center">
+              <span class="font-title text-fg/50 text-sm">Empty Category</span>
+            </div>
+          }>
+            {(channel) => <RenderChannel channel={channel} />}
+          </For>
+        </Show>
+      </Show>
+    )
+  }
+
   return (
     <div
       class="flex flex-col items-center flex-grow"
@@ -93,6 +274,11 @@ export default function GuildSidebar() {
               label="Create Channel"
               onClick={() => setShowCreateChannelModal(true)}
             />
+            <ContextMenuButton
+              icon={FolderPlus}
+              label="Create Category"
+              onClick={() => setShowCreateCategoryModal(true)}
+            />
           </Show>
         </ContextMenu>
       )}
@@ -103,13 +289,11 @@ export default function GuildSidebar() {
       <Modal get={confirmGuildLeaveModal} set={setConfirmGuildLeaveModal}>
         <ConfirmGuildLeaveModal guild={guild()} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
       </Modal>
-      <Modal get={confirmChannelDeleteModal} set={setConfirmChannelDeleteModal}>
-        <Show when={channelToDelete()}>
-          <ConfirmChannelDeleteModal channel={channelToDelete()!} setConfirmChannelDeleteModal={setConfirmChannelDeleteModal} />
-        </Show>
-      </Modal>
       <Modal get={createChannelModal} set={setShowCreateChannelModal}>
-        <CreateChannelModal setter={setShowCreateChannelModal} guildId={guildId()} />
+        <CreateChannelModal setter={setShowCreateChannelModal} guildId={guildId()} parentId={parentId()} />
+      </Modal>
+      <Modal get={createCategoryModal} set={setShowCreateCategoryModal}>
+        <CreateCategoryModal setter={setShowCreateCategoryModal} guildId={guildId()} />
       </Modal>
       <div
         class="w-[calc(100%-1rem)] rounded-xl mt-2 box-border overflow-hidden flex flex-col border-2 border-bg-3
@@ -163,6 +347,12 @@ export default function GuildSidebar() {
                 svgClass="fill-fg"
                 onClick={() => setShowCreateChannelModal(true)}
               />
+              <GuildDropdownButton
+                icon={FolderPlus}
+                label="Create Category"
+                svgClass="fill-fg"
+                onClick={() => setShowCreateCategoryModal(true)}
+              />
             </Show>
             <Show when={guildPermissions()?.has('MANAGE_GUILD')}>
               <GuildDropdownButton
@@ -188,59 +378,8 @@ export default function GuildSidebar() {
       </div>
       <div class="flex flex-col w-full p-2">
         <SidebarButton href={`/guilds/${guildId()}`} svg={HomeIcon} active={!channelId()}>Home</SidebarButton>
-        <For each={
-          api.cache!.guildChannelReactor
-            .get(guildId())
-            ?.map(id => api.cache!.channels.get(id) as GuildChannel)
-            .filter(c => c && api.cache?.getClientPermissions(guildId(), c.id).has('VIEW_CHANNEL'))
-        }>
-          {(channel: GuildChannel) => (
-            <SidebarButton
-              href={`/guilds/${guildId()}/${channel.id}`}
-              svg={Hashtag}
-              onContextMenu={contextMenu.getHandler(
-                <ContextMenu>
-                  <BaseContextMenu />
-                  <ContextMenuButton
-                    icon={Code}
-                    label="Copy Channel ID"
-                    onClick={() => window.navigator.clipboard.writeText(channel.id.toString())}
-                  />
-                  <Show when={api.cache?.getClientPermissions(guildId(), channel.id).has('MANAGE_CHANNELS')}>
-                    <DangerContextMenuButton
-                      icon={Trash}
-                      label="Delete Channel"
-                      onClick={() => {
-                        setChannelToDelete(channel)
-                        setConfirmChannelDeleteModal(true)
-                      }}
-                    />
-                  </Show>
-                </ContextMenu>
-              )}
-            >
-              <span class="flex justify-between items-center">
-                <span classList={{
-                  "text-fg": api.cache?.isChannelUnread(channel.id)
-                    || !!api.cache?.countGuildMentionsIn(guildId(), channel.id),
-                }}>
-                  {channel.name}
-                </span>
-                <Switch>
-                  <Match when={api.cache?.countGuildMentionsIn(guildId(), channel.id)}>
-                    <div
-                      class="px-1.5 min-w-[1.25rem] h-5 bg-red-600 text-fg rounded-full flex items-center justify-center"
-                    >
-                      {api.cache?.countGuildMentionsIn(guildId(), channel.id)?.toLocaleString()}
-                    </div>
-                  </Match>
-                  <Match when={api.cache?.isChannelUnread(channel.id)}>
-                    <span class="w-2 h-2 bg-fg rounded-lg" />
-                  </Match>
-                </Switch>
-              </span>
-            </SidebarButton>
-          )}
+        <For each={[...channels()?.get(null)?.children ?? []]}>
+          {(channel) => <RenderChannel channel={channel} />}
         </For>
       </div>
     </div>
