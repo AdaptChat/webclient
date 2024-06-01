@@ -18,7 +18,7 @@ import {
   ChannelDisplayMetadata,
   displayChannel,
   displayName,
-  flatMapIterator, humanizePings, humanizeStatus,
+  flatMapIterator, humanizePings,
   humanizeTimeDeltaShort, mapIterator,
   snowflakes, sumIterator
 } from "./utils";
@@ -53,7 +53,7 @@ import {NewGuildModalContext} from "./components/guilds/NewGuildModal";
 import {HeaderContext} from "./components/ui/Header";
 import {relationshipFilterFactory} from "./pages/friends/Requests";
 
-enum Tab { Quick, Conversations, Servers, Discover }
+export enum Tab { Quick, Conversations, Servers, Discover }
 
 function SidebarNavButton(props: {
   isActive: () => boolean,
@@ -710,6 +710,12 @@ export default function App(props: ParentProps) {
 
   const sidebarSignal = createSignal(Tab.Quick)
   const [swipeStart, setSwipeStart] = createSignal(0)
+
+  let [, setSidebarSignal] = sidebarSignal
+  createEffect(() => {
+    const tab = (location.state as any)?.tab
+    if (tab) setSidebarSignal(tab)
+  })
 
   const { NewGuildModal } = useContext(NewGuildModalContext)!
   const [headers] = useContext(HeaderContext)!

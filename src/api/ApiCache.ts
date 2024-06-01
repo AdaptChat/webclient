@@ -1,7 +1,7 @@
 import type {ClientUser, Relationship, RelationshipType, User} from "../types/user";
 import type {Guild, Invite, Member, PartialGuild, Role} from "../types/guild";
 import type {ReadyEvent} from "../types/ws";
-import type {Channel, GuildChannel} from "../types/channel";
+import type {Channel, DmChannel, GuildChannel} from "../types/channel";
 import type {Presence} from "../types/presence";
 import type Api from "./Api";
 import MessageGrouper from "./MessageGrouper";
@@ -431,6 +431,10 @@ export default class ApiCache {
 
   countDmMentionsIn(channelId: bigint): number | null {
     return this.dmMentions.get(channelId)?.length ?? null
+  }
+
+  getDirectDmRecipient(channel: DmChannel): User | null {
+    return this.users.get(channel.recipient_ids.find(id => id != this.clientId)!) ?? null
   }
 }
 

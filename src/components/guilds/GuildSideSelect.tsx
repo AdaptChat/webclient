@@ -1,12 +1,12 @@
-import {createSignal, For, onMount, Show, useContext} from "solid-js";
+import {createSignal, For, Match, onMount, Show, Switch, useContext} from "solid-js";
 import {A} from "@solidjs/router";
 
 import {getApi} from "../../api/Api";
 import {Guild} from "../../types/guild";
-import GuildIcon from "./GuildIcon";
+import GuildIcon, {UnreadIndicator} from "./GuildIcon";
 
 import tooltip from "../../directives/tooltip";
-import {noop} from "../../utils";
+import {displayName, noop} from "../../utils";
 import Icon, {IconElement} from "../icons/Icon";
 import PlusIcon from "../icons/svg/Plus";
 import HomeIcon from "../icons/svg/Home";
@@ -19,10 +19,12 @@ import GuildInviteModal from "./GuildInviteModal";
 import ConfirmGuildLeaveModal from "./ConfirmGuildLeaveModal";
 import UserPlus from "../icons/svg/UserPlus";
 import {NewGuildModalContext} from "./NewGuildModal";
+import {DmChannel} from "../../types/channel";
+import {Tab} from "../../App";
 
 noop(tooltip)
 
-const Separator = () => <hr class="h-[3px] bg-fg/10 border-none rounded-full my-1.5 mx-1" />
+const Separator = () => <hr class="h-[3px] bg-fg/10 border-none rounded-full my-1 mx-1" />
 
 function BasicButton({ icon, alt, href }: { icon: IconElement, alt: string, href: string }) {
   let anchor: HTMLAnchorElement | null = null
@@ -31,7 +33,7 @@ function BasicButton({ icon, alt, href }: { icon: IconElement, alt: string, href
   })
 
   return (
-    <A ref={anchor!} href={href} class="group">
+    <A ref={anchor!} href={href} class="group bg-2 w-12 h-12 rounded-full flex items-center justify-center hover:bg-3 transition">
       <Icon
         icon={icon}
         title={alt}
@@ -80,6 +82,9 @@ export function GuildContextMenu(props: { guild: Guild }) {
 
 export default function GuildSideSelect() {
   const api = getApi()!
+  const cache = api.cache!
+  const [dmChannelOrder] = cache.dmChannelOrder
+
   const contextMenu = useContextMenu()!
   const { setShow: setShowNewGuildModal, NewGuildModalContextMenu } = useContext(NewGuildModalContext)!
 
@@ -96,11 +101,31 @@ export default function GuildSideSelect() {
             <ConfirmGuildLeaveModal guild={modalSubject()!} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
           </Show>
         </Modal>
-        <div class="flex flex-col px-3 pt-3 items-center">
+        <div class="flex flex-col items-center">
           <BasicButton icon={HomeIcon} alt="Home" href="/" />
         </div>
+        <For each={dmChannelOrder()}>
+          {(channelId) => {
+            const user = cache.getDirectDmRecipient(cache.channels.get(channelId) as DmChannel)
+            if (!user) return null
+
+            return (
+              <Show when={cache.isChannelUnread(channelId)}>
+                <A href={`/dms/${channelId}`} class="group indicator" state={{ tab: Tab.Conversations }}>
+                  <img
+                    src={cache.avatarOf(user.id)}
+                    alt=""
+                    class="w-12 h-12 rounded-[50%] group-hover:rounded-[40%] transition-all duration-300"
+                    use:tooltip={{ content: displayName(user), placement: 'right' }}
+                  />
+                  <UnreadIndicator unread mentionCount={cache.countDmMentionsIn(channelId) ?? 0} />
+                </A>
+              </Show>
+            )
+          }}
+        </For>
         <Separator />
-        <For each={Array.from(api.cache!.guildList.map(g => api.cache!.guilds.get(g)!))}>
+        <For each={Array.from(cache.guildList.map(g => api.cache!.guilds.get(g)!))}>
           {(guild: Guild) => guild && (
             <A href={`/guilds/${guild.id}`} class="flex" onContextMenu={contextMenu.getHandler(
               <GuildContextMenu guild={guild} />
@@ -109,7 +134,7 @@ export default function GuildSideSelect() {
             </A>
           )}
         </For>
-        <Show when={api.cache!.guildList.length > 0} keyed={false}>
+        <Show when={cache.guildList.length > 0} keyed={false}>
           <Separator />
         </Show>
         <button
