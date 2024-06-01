@@ -155,7 +155,13 @@ export default function Home() {
             onClick={() => newGuildModal?.setShow(true)}
           >
             Create, discover, join, and chat in communities that suit your interests. You may also join the official&nbsp;
-            <A href="/invite/ozLGrKT9" class="font-medium underline underline-offset-2">Adapt Community</A>.
+            <A
+              href="/invite/ozLGrKT9"
+              class="font-medium underline underline-offset-2"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Adapt Community
+            </A>.
           </LearnAdaptSubcard>
         </div>
       </div>
