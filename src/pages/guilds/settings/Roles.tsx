@@ -84,7 +84,7 @@ function SmallRolePreview<T extends SmallRolePreviewParams>(props: T) {
           class="w-2.5 h-2.5 rounded-full"
           style={{ "background-color": roleColor(props.role.color) }}
         />
-        <span class="flex items-center text-fg/70" classList={{ "text-fg/100": active() }}>
+        <span class="flex items-center text-left text-fg/70" classList={{ "text-fg/100": active() }}>
           {props.role.name}
           <Show when={!managable()}>
             <Icon icon={Lock} class="w-4 h-4 fill-fg/50 ml-2" tooltip="Locked" />
@@ -189,7 +189,7 @@ export function SortableRoles(props: Props) {
   const guild = createMemo(() => cache.guilds.get(props.guildId)!)
   const topRolePosition = createMemo(() => guild().owner_id == cache.clientId
     ? -1
-    : maxIterator(mapIterator(cache.getMemberRoles(props.guildId, cache.clientId!), r => r.position))
+    : maxIterator(mapIterator(cache.getMemberRoles(props.guildId, cache.clientId!), r => r.position))!
   )
 
   const [setNeedsReorder] = useSaveTask(
