@@ -24,7 +24,7 @@ import {Tab} from "../../App";
 
 noop(tooltip)
 
-const Separator = () => <hr class="h-[3px] bg-fg/10 border-none rounded-full my-1 mx-1" />
+const Separator = () => <hr class="h-[2px] bg-fg/10 border-none rounded-full mx-1" />
 
 function BasicButton({ icon, alt, href }: { icon: IconElement, alt: string, href: string }) {
   let anchor: HTMLAnchorElement | null = null
@@ -37,7 +37,7 @@ function BasicButton({ icon, alt, href }: { icon: IconElement, alt: string, href
       <Icon
         icon={icon}
         title={alt}
-        class="select-none w-5 h-5 fill-fg opacity-70 group-hover:opacity-100 transition duration-200"
+        class="select-none w-5 h-5 fill-fg opacity-70 group-hover:opacity-100 transition duration-300"
       />
     </A>
   )
@@ -141,7 +141,7 @@ export default function GuildSideSelect() {
           use:tooltip={{ content: "New Server", placement: 'right' }}
           id="adapt_new_guild"
           class="flex group items-center justify-center bg-2 hover:bg-accent rounded-[50%]
-            hover:rounded-[25%] transition-all duration-300 w-12 h-12"
+            hover:rounded-[30%] transition-all duration-300 w-12 h-12"
           onClick={() => setShowNewGuildModal(true)}
           onContextMenu={contextMenu.getHandler(<NewGuildModalContextMenu />)}
         >

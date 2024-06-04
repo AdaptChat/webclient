@@ -1,4 +1,4 @@
-import {useNavigate, useParams} from "@solidjs/router";
+import {A, useNavigate, useParams} from "@solidjs/router";
 import {createMemo, createSignal, For, Match, Show, splitProps, Switch} from "solid-js";
 import {getApi} from "../../api/Api";
 import SidebarButton from "../ui/SidebarButton";
@@ -126,6 +126,22 @@ function Channel(props: ChannelProps) {
         </Switch>
       </span>
     </SidebarButton>
+  )
+}
+
+function GuildMajorLink(props: { icon: IconElement, label: string, href: string, active: boolean }) {
+  return (
+    <A href={props.href} class="rounded-xl flex items-center p-1 gap-x-2 group transition hover:bg-3">
+      <div
+        class="w-9 h-9 rounded-[10px] flex items-center justify-center transition"
+        classList={{ [props.active ? "bg-accent" : "bg-fg/10"]: true }}
+      >
+        <Icon icon={props.icon} class="w-4 h-4 fill-fg" />
+      </div>
+      <span class="font-title transition" classList={{ [props.active ? "text-fg/100" : "text-fg/70"]: true }}>
+        {props.label}
+      </span>
+    </A>
   )
 }
 
@@ -295,20 +311,27 @@ export default function GuildSidebar() {
         <CreateCategoryModal setter={setShowCreateCategoryModal} guildId={guildId()} />
       </Modal>
       <div
-        class="w-[calc(100%-1rem)] rounded-xl mt-2 box-border overflow-hidden flex flex-col border-2 border-bg-3
-          group hover:bg-2 transition-all duration-200 cursor-pointer"
+        class="box-border flex flex-col justify-end border-b-[1px] border-fg/5
+          group hover:bg-2 transition-all duration-200 cursor-pointer relative w-full"
+        classList={{ 'min-h-[150px]': !!guild().banner }}
         onClick={() => setDropdownExpanded(prev => !prev)}
       >
-        {guild().banner && (
-          <figure class="h-20 overflow-hidden flex items-center justify-center">
-            <img src={guild().banner} alt="" class="w-full" width="100%" />
-          </figure>
-        )}
+        <Show when={guild().banner}>
+          <figure
+            class="absolute inset-0 z-0"
+            style={{
+              "background-image": `url(${guild().banner})`,
+              "background-size": "cover",
+              "background-position": "center",
+              "mask-image": "linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0))",
+            }}
+          />
+        </Show>
         <div classList={{
-          "flex justify-between items-center px-4 pt-3": true,
+          "flex justify-between items-center px-3 mt-3": true,
           "pb-3": !guild().description,
         }}>
-          <span class="inline-block font-title font-bold text-base text-ellipsis w-40 break-words">
+          <span class="inline-block font-title font-bold text-base text-ellipsis w-52 break-words">
             {guild().name}
           </span>
           <label tabIndex={0} classList={{
@@ -324,13 +347,12 @@ export default function GuildSidebar() {
           </label>
         </div>
         {guild().description && (
-          <div class="card-body px-4 pt-1 pb-3">
+          <div class="card-body px-3 pt-1 pb-3">
             <p class="text-xs text-fg/50">{guild().description}</p>
           </div>
         )}
         <Show when={dropdownExpanded()}>
-          <div class="bg-bg-3/50 mx-2 h-0.5 rounded-full flex" />
-          <ul tabIndex={0} class="flex flex-col my-1">
+          <ul tabIndex={0} class="flex flex-col py-1 absolute rounded-b-xl bg-bg-3/60 backdrop-blur inset-x-0 top-full z-[200]">
             <Show when={guildPermissions()?.has('CREATE_INVITES')}>
               <GuildDropdownButton
                 icon={UserPlus}
@@ -376,7 +398,7 @@ export default function GuildSidebar() {
         </Show>
       </div>
       <div class="flex flex-col w-full p-2">
-        <SidebarButton href={`/guilds/${guildId()}`} svg={HomeIcon} active={!channelId()}>Home</SidebarButton>
+        <GuildMajorLink label="Server Home" href={`/guilds/${guildId()}`} icon={HomeIcon} active={!channelId()} />
         <For each={[...channels()?.get(null)?.children ?? []]}>
           {(channel) => <RenderChannel channel={channel} />}
         </For>

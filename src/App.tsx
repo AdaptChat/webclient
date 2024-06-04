@@ -502,10 +502,12 @@ function HomeSidebar(props: { tabSignal: Signal<Tab> }) {
 
         <Match when={tab() === Tab.Conversations}>
           <h2 class="font-title font-medium text-fg/50 text-sm mx-3.5 mt-2 mb-1">Direct Messages</h2>
-          <div class="px-2 mb-2 flex flex-col">
-            <For each={cache.dmChannelOrder[0]()}>
-              {(channelId) => <DirectMessageButton channelId={channelId} />}
-            </For>
+          <div class="overflow-y-auto">
+            <div class="px-2 mb-2 flex flex-col">
+              <For each={cache.dmChannelOrder[0]()}>
+                {(channelId) => <DirectMessageButton channelId={channelId} />}
+              </For>
+            </div>
           </div>
         </Match>
 
@@ -580,8 +582,7 @@ export function Sidebar({ signal }: { signal: Signal<Tab> }) {
   onCleanup(() => document.removeEventListener('click', listener))
 
   return (
-    <div classList={{
-      "flex flex-col w-full h-full justify-between backdrop-blur transition": true,
+    <div class="flex flex-col w-full h-full justify-between backdrop-blur transition" classList={{
       "bg-bg-0/80": !showGuildBar(),
       "bg-bg-0": showGuildBar(),
     }}>
@@ -595,7 +596,7 @@ export function Sidebar({ signal }: { signal: Signal<Tab> }) {
         </div>
         <div classList={{
           "flex flex-col w-full overflow-y-auto hide-scrollbar transition duration-500": true,
-          "rounded-bl-xl bg-bg-1": showGuildBar(),
+          "rounded-l-2xl bg-bg-1": showGuildBar(),
           "bg-transparent rounded-none": !showGuildBar(),
         }}>
           <Show when={showGuildBar()} fallback={<HomeSidebar tabSignal={signal} />}>
@@ -722,7 +723,7 @@ export default function App(props: ParentProps) {
 
   return (
     <div
-      class="w-full mobile:w-[calc(100%+20rem)] h-full flex overflow-hidden"
+      class="w-full mobile:w-[calc(100%+22rem)] h-full flex overflow-hidden"
       onTouchStart={(event) => setSwipeStart(event.touches[0].clientX)}
       onTouchEnd={(event) => {
         if (!isMobile()) return
@@ -744,16 +745,16 @@ export default function App(props: ParentProps) {
         classList={{
           "my-2 rounded-2xl transition-all duration-300 overflow-hidden": true,
           "opacity-0 w-0 ml-0": !showSidebar(),
-          "opacity-100 w-72 ml-2": showSidebar(),
+          "opacity-100 w-80 ml-2": showSidebar(),
         }}
       >
-        <div class="w-72 h-full">
+        <div class="w-80 h-full">
           <Sidebar signal={sidebarSignal} />
         </div>
       </div>
       <div classList={{
         "flex flex-col md:flex-grow mobile:w-[100vw] h-full opacity-100 transition-opacity": true,
-        "mobile:opacity-50 md:w-[calc(100%-20rem)]": showSidebar(),
+        "mobile:opacity-50 md:w-[calc(100%-22rem)]": showSidebar(),
       }}>
         <div class="flex flex-grow w-full gap-x-2 pt-2 px-2">
           <div class="flex flex-grow items-center bg-bg-0/80 backdrop-blur h-14 rounded-xl">
