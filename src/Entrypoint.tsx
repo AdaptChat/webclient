@@ -21,6 +21,7 @@ import {HeaderContextProvider} from "./components/ui/Header";
 
 import {Settings, SettingsRoot} from "./pages/settings/SettingsLayout";
 import {GuildSettings, GuildSettingsRoot} from "./pages/guilds/settings/GuildSettings";
+import {GuildChannelSettings, GuildChannelSettingsRoot} from "./pages/channels/settings/GuildChannelSettings";
 
 const Loading = lazy(() => import('./pages/Loading'))
 
@@ -43,7 +44,7 @@ const DmChannel = lazy(() => import('./pages/dms/DmChannel'))
 
 // Guilds
 const GuildHome = lazy(() => import('./pages/guilds/GuildHome'))
-const GuildChannel = lazy(() => import('./pages/guilds/GuildChannel'))
+const GuildChannel = lazy(() => import('./pages/channels/GuildChannel'))
 const Invite = lazy(() => import('./pages/guilds/Invite'))
 
 // Settings
@@ -57,6 +58,9 @@ const GuildSettingsRole = lazy(() => import('./pages/guilds/settings/Role'))
 const GuildSettingsRoleOverview = lazy(() => import('./pages/guilds/settings/RoleOverview'))
 const GuildSettingsRolePermissions = lazy(() => import('./pages/guilds/settings/RolePermissions'))
 const GuildSettingsRoleMembers = lazy(() => import('./pages/guilds/settings/RoleMembers'))
+
+// Guild Channel Settings
+const GuildChannelSettingsOverview = lazy(() => import('./pages/channels/settings/Overview'))
 
 const RedirectingLogin = lazy(async () => {
   const redirectTo = useLocation().pathname
@@ -171,6 +175,10 @@ const Entrypoint: Component = () => {
                     <Route path="/invites" component={() => 'wip'} />
                   </Route>
                   <Route path="/guilds/:guildId/settings" component={GuildSettingsRoot} />
+                  <Route path="/guilds/:guildId/:channelId/settings" component={GuildChannelSettings}>
+                    <Route path="/overview" component={GuildChannelSettingsOverview} />
+                  </Route>
+                  <Route path="/guilds/:guildId/:channelId/settings" component={GuildChannelSettingsRoot} />
                   <Route component={App}>
                     <Route path="/loading" component={Loading} />
                     <Route path="/friends/requests" component={FriendRequests} />

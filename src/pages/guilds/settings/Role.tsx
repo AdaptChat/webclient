@@ -62,13 +62,15 @@ function RoleInner(props: ParentProps) {
             <Icon icon={Lock} class="w-5 h-5 ml-1 fill-fg/50" tooltip="You cannot modify this role" />
           </Show>
         </h2>
-        <div class="flex gap-x-2 mt-2 border-b-[1px] border-fg/10">
-          <RoleSublink href={base()}>Overview</RoleSublink>
-          <RoleSublink href={`${base()}/permissions`}>Permissions</RoleSublink>
-          <Show when={roleId() != defaultRoleId()}>
-            <RoleSublink href={`${base()}/members`}>Members</RoleSublink>
-          </Show>
-        </div>
+        <Show when={!roleFlags().has('DEFAULT')}>
+          <div class="flex gap-x-2 mt-2 border-b-[1px] border-fg/10">
+            <RoleSublink href={base()}>Overview</RoleSublink>
+            <RoleSublink href={`${base()}/permissions`}>Permissions</RoleSublink>
+            <Show when={roleId() != defaultRoleId()}>
+              <RoleSublink href={`${base()}/members`}>Members</RoleSublink>
+            </Show>
+          </div>
+        </Show>
         <div
           class="flex flex-col w-full mt-2"
           classList={{ "opacity-50 cursor-not-allowed pointer-events-none": !managable() }}

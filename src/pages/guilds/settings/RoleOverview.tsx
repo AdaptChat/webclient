@@ -1,5 +1,5 @@
 import {createEffect, createMemo, createSignal, onCleanup, onMount, ParentProps, Setter, Show} from "solid-js";
-import {useParams} from "@solidjs/router";
+import {useNavigate, useParams} from "@solidjs/router";
 import {getApi} from "../../../api/Api";
 import {useSaveTask} from "../../settings/SettingsLayout";
 import iro from "@jaames/iro";
@@ -15,6 +15,7 @@ const PRESETS = [
 
 export default function RoleOverview() {
   const params = useParams()
+  const navigate = useNavigate()
 
   const api = getApi()!
   const cache = api.cache!
@@ -24,6 +25,12 @@ export default function RoleOverview() {
 
   const [roleName, setRoleName] = createSignal<string>()
   createEffect(() => setRoleName(role().name))
+
+  const [roleFlags, setRoleFlags] = createSignal(RoleFlags.empty())
+  createEffect(() => {
+    setRoleFlags(RoleFlags.fromValue(role().flags))
+    if (roleFlags().has('DEFAULT')) navigate(`/guilds/${role().guild_id}/settings/roles/${role().id}/permissions`)
+  })
 
   const originalRoleColor = createMemo(() => {
     const color = role().color?.toString(16).padStart(6, '0')
@@ -74,9 +81,6 @@ export default function RoleOverview() {
   onMount(() => document.addEventListener('click', listener))
   onCleanup(() => document.removeEventListener('click', listener))
 
-  const [roleFlags, setRoleFlags] = createSignal(RoleFlags.empty())
-  createEffect(() => setRoleFlags(RoleFlags.fromValue(role().flags)))
-
   const [setChanged, error] = useSaveTask(
     async () => {
       const json: Record<string, any> = {}
@@ -118,7 +122,6 @@ export default function RoleOverview() {
         value={roleName() ?? ''}
         minLength={1}
         maxLength={32}
-        disabled={roleFlags().has('DEFAULT')}
       />
       <h2 class="font-bold uppercase text-fg/60 text-sm mt-6 mb-2">Role Color</h2>
       <div class="flex">
@@ -176,14 +179,12 @@ export default function RoleOverview() {
           ))}
         </div>
       </div>
-      <Show when={!roleFlags().has('DEFAULT')}>
-        <FlagSetting roleFlags={roleFlags()} setRoleFlags={setRoleFlags} label="Hoist members with this role" flag="HOISTED">
-          Display members with this role separately in the members list
-        </FlagSetting>
-        <FlagSetting roleFlags={roleFlags()} setRoleFlags={setRoleFlags} label="Allow everyone to mention this role" flag="MENTIONABLE">
-          Allows all members, regardless of permission, to collectively mention all members in this role
-        </FlagSetting>
-      </Show>
+      <FlagSetting roleFlags={roleFlags()} setRoleFlags={setRoleFlags} label="Hoist members with this role" flag="HOISTED">
+        Display members with this role separately in the members list
+      </FlagSetting>
+      <FlagSetting roleFlags={roleFlags()} setRoleFlags={setRoleFlags} label="Allow everyone to mention this role" flag="MENTIONABLE">
+        Allows all members, regardless of permission, to collectively mention all members in this role
+      </FlagSetting>
     </>
   )
 }

@@ -151,6 +151,20 @@ export interface ChannelDeleteEvent {
 }
 
 /**
+ * Sent by harmony when a channel is updated.
+ */
+export interface ChannelUpdateEvent {
+  /**
+   * The channel before it was updated.
+   */
+  before: Channel;
+  /**
+   * The channel after it was updated.
+   */
+  after: Channel;
+}
+
+/**
  * Sent by harmony when updating acknowledged messages.
  */
 export interface ChannelAckEvent {

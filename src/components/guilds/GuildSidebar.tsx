@@ -1,7 +1,6 @@
 import {A, useNavigate, useParams} from "@solidjs/router";
-import {createMemo, createSignal, For, Match, Show, splitProps, Switch} from "solid-js";
+import {createMemo, createSignal, For, Match, Show, Switch} from "solid-js";
 import {getApi} from "../../api/Api";
-import SidebarButton from "../ui/SidebarButton";
 import {GuildChannel} from "../../types/channel";
 import GuildInviteModal from "./GuildInviteModal";
 import Modal from "../ui/Modal";
@@ -25,6 +24,7 @@ import BookmarkEmpty from "../icons/svg/BookmarkEmpty";
 import {ReactiveSet} from "@solid-primitives/set";
 import ChevronRight from "../icons/svg/ChevronRight";
 import tooltip from "../../directives/tooltip";
+import {setShowSidebar} from "../../App";
 void tooltip
 
 interface GuildDropdownButtonProps {
@@ -62,6 +62,7 @@ function Channel(props: ChannelProps) {
   const cache = api.cache!
 
   const params = useParams()
+  const navigate = useNavigate()
   const guildId = createMemo(() => BigInt(params.guildId))
   const contextMenu = useContextMenu()!
 
@@ -77,11 +78,16 @@ function Channel(props: ChannelProps) {
       await api.request('PUT', `/channels/${props.channel.id}/ack/${lastMessageId}`)
     }
   }
+  const active = () => params.channelId === props.channel.id.toString()
+  const settings = () => `/guilds/${guildId()}/${props.channel.id}/settings`
+
+  const [hovered, setHovered] = createSignal(false)
 
   return (
-    <SidebarButton
+    <A
+      class="flex items-center gap-x-2 p-2 rounded-xl group transition hover:bg-3"
+      classList={{ "bg-bg-3/50": active() }}
       href={`/guilds/${guildId()}/${props.channel.id}`}
-      svg={getIcon(props.channel.type)}
       onContextMenu={contextMenu.getHandler(
         <ContextMenu>
           <Show when={isUnread()}>
@@ -92,6 +98,10 @@ function Channel(props: ChannelProps) {
             label="Copy Channel ID"
             onClick={() => window.navigator.clipboard.writeText(props.channel.id.toString())}
           />
+          <Show when={permissions().has('MODIFY_CHANNELS')}>
+            <ContextMenuButton icon={Gear} label="Edit Channel" onClick={() => navigate(settings())}
+            />
+          </Show>
           <Show when={permissions().has('MANAGE_CHANNELS')}>
             <DangerContextMenuButton
               icon={Trash}
@@ -101,18 +111,40 @@ function Channel(props: ChannelProps) {
           </Show>
         </ContextMenu>
       )}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={() => {
+        if (window.innerWidth < 768) setShowSidebar(false)
+      }}
     >
+      <Icon
+        icon={getIcon(props.channel.type)}
+        class="w-4 h-4 transition-all"
+        classList={{ [isUnread() || active() ? "fill-fg/100" : "fill-fg/60"]: true }}
+      />
       <Modal get={confirmChannelDeleteModal} set={setConfirmChannelDeleteModal}>
         <ConfirmChannelDeleteModal
           channel={props.channel}
           setConfirmChannelDeleteModal={setConfirmChannelDeleteModal}
         />
       </Modal>
-      <span class="flex justify-between items-center">
-        <span classList={{ "text-fg": isUnread() || !!mentionCount() }}>
+      <span class="flex justify-between items-center flex-grow">
+        <span
+          class="transition text-sm overflow-x-hidden"
+          classList={{ [active() || isUnread() || !!mentionCount() ? "text-fg/100" : "text-fg/60"]: true }}
+        >
           {props.channel.name}
         </span>
         <Switch>
+          <Match when={permissions().has("MODIFY_CHANNELS") && hovered()}>
+            <A href={settings()}>
+              <Icon
+                icon={Gear}
+                class="w-3 h-3 fill-fg/50 transition hover:fill-fg/100"
+                tooltip={{ content: "Edit Channel", placement: "right" }}
+              />
+            </A>
+          </Match>
           <Match when={mentionCount()}>
             <div
               class="px-1.5 min-w-[1.25rem] h-5 bg-red-600 text-fg rounded-full flex items-center justify-center"
@@ -125,7 +157,7 @@ function Channel(props: ChannelProps) {
           </Match>
         </Switch>
       </span>
-    </SidebarButton>
+    </A>
   )
 }
 
@@ -203,8 +235,12 @@ export default function GuildSidebar() {
   })
   const collapsed = new ReactiveSet<bigint>()
 
-  const RenderChannel = (props: { channel: GuildChannel }) => (
-    <Show when={props.channel.type === 'category'} fallback={<Channel channel={props.channel} />}>
+  const RenderChannel = (props: { channel: GuildChannel, collapsed?: boolean }) => (
+    <Show when={props.channel.type === 'category'} fallback={
+      <Show when={!props.collapsed || api.cache?.isChannelUnread(props.channel.id)}>
+        <Channel channel={props.channel} />
+      </Show>
+    }>
       <RenderCategory id={props.channel.id} group={channels()?.get(props.channel.id)!} />
     </Show>
   )
@@ -264,15 +300,13 @@ export default function GuildSidebar() {
             </button>
           </Show>
         </div>
-        <Show when={!collapsed.has(props.id)}>
-          <For each={props.group.children} fallback={
-            <div class="rounded-lg p-2 w-full bg-2 text-center">
-              <span class="font-title text-fg/50 text-sm">Empty Category</span>
-            </div>
-          }>
-            {(channel) => <RenderChannel channel={channel} />}
-          </For>
-        </Show>
+        <For each={props.group.children} fallback={
+          <div class="rounded-lg p-2 w-full bg-2 text-center">
+            <span class="font-title text-fg/50 text-sm">Empty Category</span>
+          </div>
+        }>
+          {(channel) => <RenderChannel channel={channel} collapsed={collapsed.has(props.id)} />}
+        </For>
       </Show>
     )
   }

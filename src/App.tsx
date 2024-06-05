@@ -685,6 +685,7 @@ export const [previousPage, setPreviousPage] = createSignal<string>('/')
 
 export default function App(props: ParentProps) {
   const isMobile = createMediaQuery("(max-width: 768px)")
+  const isWide = createMediaQuery("(min-width: 1280px)")
   const location = useLocation()
 
   onMount(() => {
@@ -695,7 +696,7 @@ export default function App(props: ParentProps) {
   })
 
   createEffect(() => {
-    if (isMobile()) {
+    if (!isWide()) {
       if (showSidebar()) setShowRightSidebar(false)
       if (showRightSidebar()) setShowSidebar(false)
     }

@@ -3,7 +3,7 @@ import ApiCache, {memberKey} from "./ApiCache";
 import Backoff from "./Backoff";
 import {
   ChannelAckEvent,
-  ChannelCreateEvent, ChannelDeleteEvent,
+  ChannelCreateEvent, ChannelDeleteEvent, ChannelUpdateEvent,
   GuildCreateEvent,
   GuildRemoveEvent, GuildUpdateEvent,
   MemberJoinEvent,
@@ -69,6 +69,9 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
     } else {
       ws.api.cache?.insertDmChannel(data.channel.id)
     }
+  },
+  channel_update(ws: WsClient, data: ChannelUpdateEvent) {
+    ws.api.cache?.updateChannel(data.after)
   },
   channel_delete(ws: WsClient, data: ChannelDeleteEvent) {
     ws.api.cache?.channels.delete(data.channel_id)
