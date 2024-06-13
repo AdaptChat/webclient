@@ -18,12 +18,16 @@ import {User} from "../../types/user";
 import {Role} from "../../types/guild";
 import {RoleFlags} from "../../api/Bitflags";
 import {memberKey} from "../../api/ApiCache";
+import EyeSlash from "../icons/svg/EyeSlash";
+import Crown from "../icons/svg/Crown";
 
 export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offline?: boolean }) {
   const api = getApi()!
   const cache = api.cache!
   const contextMenu = useContextMenu()!
   const params = useParams()
+  const ownerId = createMemo(() => cache.guilds.get(BigInt(params.guildId))?.owner_id)
+  const channelId = createMemo(() => params.channelId ? BigInt(params.channelId) : undefined)
 
   return (
     <For each={[...props.members]}>
@@ -31,6 +35,7 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
         const user_id = typeof userOrId === "bigint" ? userOrId : userOrId.id
         const user = typeof userOrId === "bigint" ? cache.users.get(userOrId)! : userOrId
         const color = createMemo(() => cache.getMemberColor(BigInt(params.guildId), user_id))
+        const viewable = createMemo(() => cache.getMemberPermissions(BigInt(params.guildId), user_id, channelId()).has('VIEW_CHANNEL'))
 
         return (
           <div
@@ -75,7 +80,7 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
                 }}
               />
             </div>
-            <span class="ml-3 w-full overflow-ellipsis overflow-hidden text-sm">
+            <span class="ml-3 flex-grow overflow-ellipsis overflow-hidden text-sm">
               <span
                 classList={{
                   "text-fg": color() == null,
@@ -87,6 +92,12 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
                 {displayName(user)}
               </span>
             </span>
+            <Show when={!viewable()}>
+              <Icon icon={EyeSlash} class="w-4 h-4 fill-fg/30" tooltip="This user cannot view this channel" />
+            </Show>
+            <Show when={user_id == ownerId()}>
+              <Icon icon={Crown} class="w-4 h-4 fill-yellow-400" tooltip="Owner" />
+            </Show>
           </div>
         )
       }}
