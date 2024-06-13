@@ -588,6 +588,9 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
     keys: ['username', 'display_name'], // TODO: nickname
   }))
 
+  const permissions = createMemo(() => props.guildId ? api.cache!.getClientPermissions(props.guildId, props.channelId) : null)
+  const canSendMessages = createMemo(() => !permissions() || permissions()!.has('SEND_MESSAGES'))
+
   const recipientId = createMemo(() => {
     if (props.guildId) return null
     const ids = (api?.cache?.channels.get(props.channelId) as DmChannel | null)?.recipient_ids as any
@@ -828,107 +831,22 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
           </Switch>
         </div>
       </div>
-      <div class="relative flex items-center w-full px-4">
-        <button
-          class="w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-3 mr-2 transition-all duration-200 hover:bg-accent"
-          onClick={() => {
-            // Upload attachment
-            const input = document.createElement('input')
-            input.type = 'file'
-            input.multiple = true
-            input.accept = '*'
-            input.addEventListener('change', async () => {
-              const files = input.files
-              if (!files) return
-
-              const uploaded = await Promise.all(Array.from(files, async (file) => {
-                const attachment: UploadedAttachment = {
-                  filename: file.name,
-                  type: file.type,
-                  file,
-                }
-                if (file.type.startsWith('image/')) {
-                  // show a preview of this image
-                  attachment.preview = URL.createObjectURL(file)
-                }
-                return attachment
-              }))
-              setUploadedAttachments(prev => [...prev, ...uploaded])
-              updateSendable()
-            })
-            input.click()
-            messageInputRef?.focus()
-          }}
-          use:tooltip="Upload"
-        >
-          <Icon icon={Plus} title="Upload" class="fill-fg w-[18px] h-[18px]" />
-        </button>
-        <div
-          classList={{
-            "w-full bg-3 rounded-lg py-2 max-h-[40vh] overflow-y-auto": true,
-            "w-[calc(100%-5.75rem)]": mobile,
-            "w-[calc(100%-2.75rem)]": !mobile,
-          }}
-        >
-          <Show when={uploadedAttachments().length > 0} keyed={false}>
-            <div class="flex flex-wrap gap-x-2 gap-y-1 px-2">
-              <For each={uploadedAttachments()}>
-                {(attachment, idx) => (
-                  <div class="flex flex-col rounded-xl bg-2 w-52 h-40 overflow-hidden box-border relative group">
-                    <div
-                      class="absolute inset-0 flex items-center justify-center gap-x-2 bg-bg-0/70 opacity-0
-                        group-hover:opacity-100 transition-all duration-200 group-hover:backdrop-blur-md overflow-hidden
-                        box-border rounded-xl"
-                    >
-                      <button
-                        class="rounded-full p-4 bg-transparent hover:bg-danger transition-all duration-200"
-                        onClick={() => {
-                          setUploadedAttachments(prev => prev.filter((_, i) => i !== idx()))
-                          updateSendable()
-                        }}
-                      >
-                        <Icon icon={Trash} class="w-5 h-5 fill-fg" />
-                      </button>
-                    </div>
-                    <div class="overflow-hidden w-52 h-[6.75rem]">
-                      {attachment.preview ? (
-                        <img src={attachment.preview} alt={attachment.filename} class="w-60 h-[6.75rem] object-contain" />
-                      ) : (
-                        <span class="w-full h-full flex items-center justify-center text-fg/60 p-2 bg-0 break-words">
-                          {attachment.type || attachment.filename}
-                        </span>
-                      )}
-                    </div>
-                    <div class="break-words flex-grow p-2 bg-1">
-                      <h2 class="text-sm font-title font-medium justify-self-center">{attachment.filename}</h2>
-                      <div class="text-xs text-fg/60">
-                        {humanizeSize(attachment.file.size)} {attachment.alt && <> - {attachment.alt}</>}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </For>
-              <Show when={uploadedAttachments().length > 1} keyed={false}>
-                <div class="self-center justify-self-center text-fg/60">
-                  = {humanizeSize(uploadedAttachments().reduce((acc, cur) => acc + cur.file.size, 0))}
-                </div>
-              </Show>
-            </div>
-            <div class="divider m-0 p-0" />
-          </Show>
-          <div
-            ref={messageInputRef!}
-            class="mx-2 empty:before:content-[attr(data-placeholder)] text-sm empty:before:text-fg/50 outline-none break-words"
-            contentEditable
-            data-placeholder="Send a message..."
-            spellcheck={false}
-            // Paste listener for attachments
-            onPaste={async (event) => {
-              event.preventDefault()
-
-              const types = event.clipboardData?.types
-              if (types?.includes('Files')) {
-                const files = event.clipboardData?.files
+      <Show when={canSendMessages()} fallback={
+        <div class="p-4 mx-2 -mb-3 text-fg/60 rounded-xl bg-bg-0/70">
+          You do not have permission to send messages in this channel.
+        </div>
+      }>
+        <div class="relative flex items-center w-full px-4">
+          <button
+            class="w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-3 mr-2 transition-all duration-200 hover:bg-accent"
+            onClick={() => {
+              // Upload attachment
+              const input = document.createElement('input')
+              input.type = 'file'
+              input.multiple = true
+              input.accept = '*'
+              input.addEventListener('change', async () => {
+                const files = input.files
                 if (!files) return
 
                 const uploaded = await Promise.all(Array.from(files, async (file) => {
@@ -944,86 +862,177 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                   return attachment
                 }))
                 setUploadedAttachments(prev => [...prev, ...uploaded])
-              }
-
-              if (types?.includes('text/plain')) {
-                const text = event.clipboardData?.getData('text/plain')
-                if (!text) return
-
-                document.execCommand('insertText', false, text)
-              }
-              updateSendable()
+                updateSendable()
+              })
+              input.click()
+              messageInputRef?.focus()
             }}
-            onKeyUp={(event) => {
-              const oldState = autocompleteState()
-              if (oldState)
-                if (event.key === 'ArrowUp') {
-                  return setAutocompleteSelection(oldState.selected - 1)
-                } else if (event.key === 'ArrowDown') {
-                  return setAutocompleteSelection(oldState.selected + 1)
+            use:tooltip="Upload"
+          >
+            <Icon icon={Plus} title="Upload" class="fill-fg w-[18px] h-[18px]" />
+          </button>
+          <div
+            classList={{
+              "w-full bg-3 rounded-lg py-2 max-h-[40vh] overflow-y-auto": true,
+              "w-[calc(100%-5.75rem)]": mobile,
+              "w-[calc(100%-2.75rem)]": !mobile,
+            }}
+          >
+            <Show when={uploadedAttachments().length > 0} keyed={false}>
+              <div class="flex flex-wrap gap-x-2 gap-y-1 px-2">
+                <For each={uploadedAttachments()}>
+                  {(attachment, idx) => (
+                    <div class="flex flex-col rounded-xl bg-2 w-52 h-40 overflow-hidden box-border relative group">
+                      <div
+                        class="absolute inset-0 flex items-center justify-center gap-x-2 bg-bg-0/70 opacity-0
+                          group-hover:opacity-100 transition-all duration-200 group-hover:backdrop-blur-md overflow-hidden
+                          box-border rounded-xl"
+                      >
+                        <button
+                          class="rounded-full p-4 bg-transparent hover:bg-danger transition-all duration-200"
+                          onClick={() => {
+                            setUploadedAttachments(prev => prev.filter((_, i) => i !== idx()))
+                            updateSendable()
+                          }}
+                        >
+                          <Icon icon={Trash} class="w-5 h-5 fill-fg" />
+                        </button>
+                      </div>
+                      <div class="overflow-hidden w-52 h-[6.75rem]">
+                        {attachment.preview ? (
+                          <img src={attachment.preview} alt={attachment.filename} class="w-60 h-[6.75rem] object-contain" />
+                        ) : (
+                          <span class="w-full h-full flex items-center justify-center text-fg/60 p-2 bg-0 break-words">
+                            {attachment.type || attachment.filename}
+                          </span>
+                        )}
+                      </div>
+                      <div class="break-words flex-grow p-2 bg-1">
+                        <h2 class="text-sm font-title font-medium justify-self-center">{attachment.filename}</h2>
+                        <div class="text-xs text-fg/60">
+                          {humanizeSize(attachment.file.size)} {attachment.alt && <> - {attachment.alt}</>}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </For>
+                <Show when={uploadedAttachments().length > 1} keyed={false}>
+                  <div class="self-center justify-self-center text-fg/60">
+                    = {humanizeSize(uploadedAttachments().reduce((acc, cur) => acc + cur.file.size, 0))}
+                  </div>
+                </Show>
+              </div>
+              <div class="divider m-0 p-0" />
+            </Show>
+            <div
+              ref={messageInputRef!}
+              class="mx-2 empty:before:content-[attr(data-placeholder)] text-sm empty:before:text-fg/50 outline-none break-words"
+              contentEditable
+              data-placeholder="Send a message..."
+              spellcheck={false}
+              // Paste listener for attachments
+              onPaste={async (event) => {
+                event.preventDefault()
+
+                const types = event.clipboardData?.types
+                if (types?.includes('Files')) {
+                  const files = event.clipboardData?.files
+                  if (!files) return
+
+                  const uploaded = await Promise.all(Array.from(files, async (file) => {
+                    const attachment: UploadedAttachment = {
+                      filename: file.name,
+                      type: file.type,
+                      file,
+                    }
+                    if (file.type.startsWith('image/')) {
+                      // show a preview of this image
+                      attachment.preview = URL.createObjectURL(file)
+                    }
+                    return attachment
+                  }))
+                  setUploadedAttachments(prev => [...prev, ...uploaded])
                 }
 
-              updateAutocompleteState()
-            }}
-            onKeyDown={(event) => {
-              const oldState = autocompleteState()
-              if (oldState && (event.key === 'ArrowUp' || event.key === 'ArrowDown'))
-                event.preventDefault()
-            }}
-            onKeyPress={async (event) => {
-              if (event.shiftKey)
-                return
+                if (types?.includes('text/plain')) {
+                  const text = event.clipboardData?.getData('text/plain')
+                  if (!text) return
 
-              if (event.key === 'Enter' && (!mobile || event.ctrlKey || event.metaKey)) {
-                event.preventDefault()
-                if (autocompleteState() && autocompleteResult()?.length)
-                  return executeAutocomplete()
+                  document.execCommand('insertText', false, text)
+                }
+                updateSendable()
+              }}
+              onKeyUp={(event) => {
+                const oldState = autocompleteState()
+                if (oldState)
+                  if (event.key === 'ArrowUp') {
+                    return setAutocompleteSelection(oldState.selected - 1)
+                  } else if (event.key === 'ArrowDown') {
+                    return setAutocompleteSelection(oldState.selected + 1)
+                  }
 
-                await createMessage()
-              }
-            }}
-            onMouseUp={updateAutocompleteState}
-            onTouchStart={updateAutocompleteState}
-            onSelect={updateAutocompleteState}
-            onInput={() => {
-              void typingKeepAlive.ackTyping()
-              updateSendable()
-            }}
-            onFocus={() => {
-              const timeout = messageInputFocusTimeout()
-              if (timeout)
-                clearTimeout(timeout)
+                updateAutocompleteState()
+              }}
+              onKeyDown={(event) => {
+                const oldState = autocompleteState()
+                if (oldState && (event.key === 'ArrowUp' || event.key === 'ArrowDown'))
+                  event.preventDefault()
+              }}
+              onKeyPress={async (event) => {
+                if (event.shiftKey)
+                  return
 
-              setMessageInputFocused(true)
-              void ack()
+                if (event.key === 'Enter' && (!mobile || event.ctrlKey || event.metaKey)) {
+                  event.preventDefault()
+                  if (autocompleteState() && autocompleteResult()?.length)
+                    return executeAutocomplete()
+
+                  await createMessage()
+                }
+              }}
+              onMouseUp={updateAutocompleteState}
+              onTouchStart={updateAutocompleteState}
+              onSelect={updateAutocompleteState}
+              onInput={() => {
+                void typingKeepAlive.ackTyping()
+                updateSendable()
+              }}
+              onFocus={() => {
+                const timeout = messageInputFocusTimeout()
+                if (timeout)
+                  clearTimeout(timeout)
+
+                setMessageInputFocused(true)
+                void ack()
+              }}
+              onBlur={() => setMessageInputFocusTimeout(
+                setTimeout(() => setMessageInputFocused(false), 100) as any
+              )}
+            />
+          </div>
+          <button
+            classList={{
+              [
+                "w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-3 ml-2 transition-all duration-200"
+              ]: true,
+              "opacity-50 cursor-not-allowed": !sendable(),
+              "hover:bg-accent": sendable(),
+              "hidden": !mobile,
             }}
-            onBlur={() => setMessageInputFocusTimeout(
-              setTimeout(() => setMessageInputFocused(false), 100) as any
-            )}
-          />
+            onClick={async () => {
+              // Focus back if it was focused before
+              if (messageInputFocused())
+                messageInputRef!.focus()
+
+              await createMessage()
+            }}
+          >
+            <Icon icon={PaperPlaneTop} title="Send" class="fill-fg w-[18px] h-[18px]" />
+          </button>
         </div>
-        <button
-          classList={{
-            [
-              "w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-3 ml-2 transition-all duration-200"
-            ]: true,
-            "opacity-50 cursor-not-allowed": !sendable(),
-            "hover:bg-accent": sendable(),
-            "hidden": !mobile,
-          }}
-          onClick={async () => {
-            // Focus back if it was focused before
-            if (messageInputFocused())
-              messageInputRef!.focus()
-
-            await createMessage()
-          }}
-        >
-          <Icon icon={PaperPlaneTop} title="Send" class="fill-fg w-[18px] h-[18px]" />
-        </button>
-      </div>
+      </Show>
       <div class="mx-4 h-5 text-xs flex-shrink-0">
-        <Show when={typing().users.size > 0} keyed={false}>
+        <Show when={typing().users.size > 0}>
           <For each={[...typing().users].map(id => api.cache?.users.get(id)?.username).filter((u): u is string => !!u)}>
             {(username, index) => (
               <>
