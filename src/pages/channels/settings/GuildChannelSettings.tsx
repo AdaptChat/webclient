@@ -37,8 +37,8 @@ function GuildChannelSettingsSidebar() {
       </SidebarButton>
       <SidebarButton
         large
-        href={root() + '/roles'}
-        active={(pathname) => pathname.startsWith(root() + '/roles')}
+        href={root() + '/permissions'}
+        active={(pathname) => pathname.startsWith(root() + '/permissions')}
         svg={UserTag}
         disabled={!hasModifyChannels()}
       >

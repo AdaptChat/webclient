@@ -61,6 +61,7 @@ const GuildSettingsRoleMembers = lazy(() => import('./pages/guilds/settings/Role
 
 // Guild Channel Settings
 const GuildChannelSettingsOverview = lazy(() => import('./pages/channels/settings/Overview'))
+const GuildChannelSettingsPermissions = lazy(() => import('./pages/channels/settings/Permissions'))
 
 const RedirectingLogin = lazy(async () => {
   const redirectTo = useLocation().pathname
@@ -177,6 +178,7 @@ const Entrypoint: Component = () => {
                   <Route path="/guilds/:guildId/settings" component={GuildSettingsRoot} />
                   <Route path="/guilds/:guildId/:channelId/settings" component={GuildChannelSettings}>
                     <Route path="/overview" component={GuildChannelSettingsOverview} />
+                    <Route path="/permissions" component={GuildChannelSettingsPermissions} />
                   </Route>
                   <Route path="/guilds/:guildId/:channelId/settings" component={GuildChannelSettingsRoot} />
                   <Route component={App}>

@@ -145,6 +145,18 @@ export interface Invite {
   max_age: number;
 }
 
+export type ExtendedColor = {
+  type: 'solid',
+  color: number
+} | {
+  type: 'gradient',
+  angle: number,
+  stops: {
+    position: number,
+    color: number,
+  }[]
+}
+
 /**
  * A role in a guild.
  */
@@ -163,10 +175,9 @@ export interface Role {
    */
   name: string;
   /**
-   * The color of the role. This is an integer between 0 and 16777215, or `None` if the role
-   * has no color (in which case it inherits the color).
+   * The color of the role.
    */
-  color?: number;
+  color?: ExtendedColor;
   /**
    * The permissions users with this role have.
    */

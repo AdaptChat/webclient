@@ -6,7 +6,7 @@ import {
   JSX,
   Match,
   onCleanup,
-  onMount,
+  onMount, ParentProps,
   Show,
   Switch
 } from "solid-js";
@@ -14,7 +14,7 @@ import type {Message} from "../../types/message";
 import {getApi} from "../../api/Api";
 import {type MessageGroup} from "../../api/MessageGrouper";
 import {
-  displayName,
+  displayName, extendedColor,
   filterIterator,
   flatMapIterator,
   humanizeFullTimestamp,
@@ -41,11 +41,12 @@ import useContextMenu from "../../hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../ui/ContextMenu";
 import {toast} from "solid-toast";
 import Code from "../icons/svg/Code";
-import {Invite} from "../../types/guild";
+import {ExtendedColor, Invite} from "../../types/guild";
 import GuildIcon from "../guilds/GuildIcon";
 import UserPlus from "../icons/svg/UserPlus";
 import {joinGuild} from "../../pages/guilds/Invite";
 import {useNavigate} from "@solidjs/router";
+import BookmarkFilled from "../icons/svg/BookmarkFilled";
 
 noop(tooltip)
 
@@ -343,6 +344,11 @@ function MessageContextMenu({ message, guildId }: { message: Message, guildId?: 
 
   return (
     <ContextMenu>
+      <ContextMenuButton
+        icon={BookmarkFilled}
+        label="Mark Unread"
+        onClick={() => api.request('PUT', `/channels/${message.channel_id}/ack/${message.id - BigInt(1)}`)}
+      />
       <Show when={message.content}>
         <ContextMenuButton
           icon={Clipboard}
@@ -389,6 +395,59 @@ interface UploadedAttachment {
   file: File
   type: string,
   preview?: string,
+}
+
+const timestampTooltip = (timestamp: number | Date) => ({
+  content: humanizeFullTimestamp(timestamp),
+  delay: [1000, null] as [number, null],
+  interactive: true
+})
+
+export function MessageHeader(props: ParentProps<{
+  mentioned?: boolean,
+  onContextMenu?: (e: MouseEvent) => any,
+  authorAvatar?: string,
+  authorColor?: ExtendedColor | null,
+  authorName: string,
+  timestamp: number | Date,
+  class?: string,
+  classList?: Record<string, boolean>,
+  noHoverEffects?: boolean,
+}>) {
+  return (
+    <div
+      class="flex flex-col relative py-px transition-all duration-200 rounded-r-lg"
+      classList={{
+        [props.class ?? '']: true,
+        "bg-accent/10 hover:bg-accent/20 border-l-2 border-l-accent pl-[60px]": props.mentioned,
+        "pl-[62px]": !props.mentioned,
+        "hover:bg-bg-1/60": !props.mentioned && !props.noHoverEffects,
+        ...(props.classList ?? {}),
+      }}
+      onContextMenu={props.onContextMenu}
+    >
+      <img
+        class="absolute left-3.5 w-9 h-9 mt-0.5 rounded-full"
+        src={props.authorAvatar}
+        alt=""
+      />
+      <div class="inline text-sm">
+        <span
+          class="font-medium"
+          style={extendedColor.fg(props.authorColor)}
+        >
+          {props.authorName}
+        </span>
+        <span
+          class="timestamp text-fg/50 text-xs ml-2"
+          use:tooltip={timestampTooltip(props.timestamp)}
+        >
+          {humanizeTimestamp(props.timestamp)}
+        </span>
+      </div>
+      {props.children}
+    </div>
+  )
 }
 
 export default function Chat(props: { channelId: bigint, guildId?: bigint, title: string, startMessage: JSX.Element }) {
@@ -493,12 +552,6 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
       throw e
     }
   }
-
-  const timestampTooltip = (messageId: bigint) => ({
-    content: humanizeFullTimestamp(snowflakes.timestamp(messageId)),
-    delay: [1000, null] as [number, null],
-    interactive: true
-  })
 
   const MAPPING = [
     ['@', AutocompleteType.UserMention],
@@ -667,38 +720,18 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
 
                 return (
                   <div class="flex flex-col">
-                    <div
-                      classList={(() => {
-                        const mentioned = api.cache?.isMentionedIn(firstMessage)
-                        return {
-                          "flex flex-col relative py-px transition-all duration-200 rounded-r-lg": true,
-                          "bg-accent/10 hover:bg-accent/20 border-l-2 border-l-accent pl-[60px]": mentioned,
-                          "pl-[62px] hover:bg-bg-1/60": !mentioned,
-                        }
-                      })()}
-                      onContextMenu={contextMenu.getHandler(<MessageContextMenu message={firstMessage} guildId={props.guildId} />)}
+                    <MessageHeader
+                      mentioned={api.cache?.isMentionedIn(firstMessage)}
+                      onContextMenu={contextMenu.getHandler(
+                        <MessageContextMenu message={firstMessage} guildId={props.guildId} />
+                      )}
+                      authorAvatar={api.cache!.avatarOf(author.id)}
+                      authorColor={authorColor}
+                      authorName={displayName(author)}
+                      timestamp={snowflakes.timestamp(firstMessage.id)}
                     >
-                      <img
-                        class="absolute left-3.5 w-9 h-9 mt-0.5 rounded-full"
-                        src={api.cache!.avatarOf(author.id)}
-                        alt=""
-                      />
-                      <div class="inline text-sm">
-                        <span
-                          class="font-medium"
-                          style={authorColor ? { color: '#' + authorColor.toString(16).padStart(6, '0') } : undefined}
-                        >
-                          {displayName(author)}
-                        </span>
-                        <span
-                          class="text-fg/50 text-xs ml-2"
-                          use:tooltip={timestampTooltip(firstMessage.id)}
-                        >
-                          {humanizeTimestamp(snowflakes.timestamp(firstMessage.id))}
-                        </span>
-                      </div>
                       <MessageContent message={firstMessage} />
-                    </div>
+                    </MessageHeader>
                     <For each={group.slice(1)}>
                       {(message: Message) => (
                         <div
@@ -721,7 +754,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                                 "w-[62px]": !mentioned,
                               }
                             })()}
-                            use:tooltip={timestampTooltip(message.id)}
+                            use:tooltip={timestampTooltip(snowflakes.timestamp(message.id))}
                           >
                             {humanizeTime(snowflakes.timestamp(message.id))}
                           </span>

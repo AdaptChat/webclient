@@ -14,7 +14,7 @@ import {
   transformStyle,
   useDragDropContext
 } from "@thisbeyond/solid-dnd";
-import {mapIterator, maxIterator, snowflakes, sumIterator} from "../../../utils";
+import {extendedColor, mapIterator, maxIterator, snowflakes, sumIterator} from "../../../utils";
 import {Member, Role} from "../../../types/guild";
 import Icon from "../../../components/icons/Icon";
 import GripDotsVertical from "../../../components/icons/svg/GripDotsVertical";
@@ -35,10 +35,6 @@ import Code from "../../../components/icons/svg/Code";
 import Trash from "../../../components/icons/svg/Trash";
 import ConfirmRoleDeleteModal from "../../../components/guilds/ConfirmRoleDeleteModal";
 import {useSaveTask} from "../../settings/SettingsLayout";
-
-function roleColor(provided: number | undefined) {
-  return provided ? '#' + provided.toString(16).padStart(6, '0') : 'rgb(var(--c-fg) / 0.8)'
-}
 
 interface SmallRolePreviewParams {
   guildId: bigint;
@@ -81,8 +77,8 @@ function SmallRolePreview<T extends SmallRolePreviewParams>(props: T) {
     >
       <div class="flex items-center gap-x-2 text-fg">
         <div
-          class="w-2.5 h-2.5 rounded-full"
-          style={{ "background-color": roleColor(props.role.color) }}
+          class="w-2.5 h-2.5 rounded-full flex-shrink-0"
+          style={extendedColor.roleBg(props.role.color)}
         />
         <span class="flex items-center text-left text-fg/70" classList={{ "text-fg/100": active() }}>
           {props.role.name}
@@ -153,7 +149,7 @@ function LargeRolePreview(props: LargeRolePreviewParams) {
           <div
             class="w-4 h-4 rounded-full"
             classList={{ "mx-2": !showGripper() }}
-            style={{ "background-color": roleColor(props.role.color) }}
+            style={extendedColor.roleBg(props.role.color)}
           />
           <div class="flex-grow">
             <h3 class="text-lg font-title flex items-center">

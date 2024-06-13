@@ -4,7 +4,7 @@ import {Accessor, createEffect, createMemo, createSignal, For, Show} from "solid
 import StatusIndicator from "../users/StatusIndicator";
 import SidebarSection from "../ui/SidebarSection";
 import {ReactiveSet} from "@solid-primitives/set";
-import {displayName, maxIterator, setDifference} from "../../utils";
+import {displayName, extendedColor, maxIterator, setDifference} from "../../utils";
 import useContextMenu from "../../hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton} from "../ui/ContextMenu";
 import UserPlus from "../icons/svg/UserPlus";
@@ -82,11 +82,7 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
                   "opacity-60": props.offline,
                   "!opacity-80": !props.offline && !color(),
                 }}
-                style={
-                  color()
-                    ? { color: `#${color()!.toString(16).padStart(6, '0')}` }
-                    : undefined
-                }
+                style={extendedColor.fg(color())}
               >
                 {displayName(user)}
               </span>

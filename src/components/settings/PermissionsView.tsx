@@ -1,16 +1,18 @@
 import manifest from "../../permissions.json";
 import Check from "../icons/svg/Check";
-import {createMemo, Show, Signal} from "solid-js";
+import {Accessor, createMemo, Show} from "solid-js";
 import Dash from "../icons/svg/Dash";
 import Xmark from "../icons/svg/Xmark";
 import {Permissions} from "../../api/Bitflags";
 import Icon, {IconElement} from "../icons/Icon";
 import {GuildChannel} from "../../types/channel";
 
+type SignalLike<T> = [Accessor<T>, (value: T) => any]
+
 interface Props {
   enabledPermissions: Permissions
-  allowSignal: Signal<Permissions>
-  denySignal: Signal<Permissions>
+  allowSignal: SignalLike<Permissions>
+  denySignal: SignalLike<Permissions>
   noInherit?: boolean
   channelType?: GuildChannel["type"]
 }
@@ -23,12 +25,19 @@ export default function PermissionsView(props: Props) {
     .permissions
     .filter(({ channels }) => props.channelType == null || channels.includes(props.channelType))
 
+  const filtered = createMemo(() => manifest.map((category) => {
+    category.permissions = filterCategory(category)
+    return category
+  }).filter(
+    ({ permissions }) => permissions.length > 0
+  ))
+
   return (
     <>
-      {manifest.map((category, i) => (
-        <div class="flex flex-col border-fg/10" classList={{ "border-b-[1px] mb-4": i != manifest.length - 1 }}>
+      {filtered().map((category, i) => (
+        <div class="flex flex-col border-fg/10" classList={{ "border-b-[1px] mb-4": i != filtered().length - 1 }}>
           <h3 class="font-bold text-sm uppercase text-fg/60 mt-2 mb-4">{category.name}</h3>
-          {filterCategory(category).map(({ flag, label, description }) => (
+          {category.permissions.map(({ flag, label, description }) => (
             <div
               class="flex justify-between items-center mb-6 gap-x-2"
               classList={{

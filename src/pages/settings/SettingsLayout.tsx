@@ -161,6 +161,7 @@ export function SettingsLayout({ breadcrumb, Sidebar, children }: ParentProps<Se
 
   const isMobile = createMediaQuery("(max-width: 767px)")
   const [header] = useContext(HeaderContext)!
+  const { tasks } = settingsContext
 
   return (
     <div class="w-full h-full flex relative">
@@ -174,7 +175,10 @@ export function SettingsLayout({ breadcrumb, Sidebar, children }: ParentProps<Se
           <Sidebar />
         </div>
       </div>
-      <div class="h-full flex-grow max-w-[60rem] pt-4 xl:pt-[clamp(1rem,3vh,4rem)] px-2 overflow-auto hide-scrollbar">
+      <div
+        class="h-full flex-grow max-w-[60rem] pt-4 xl:pt-[clamp(1rem,3vh,4rem)] px-2 overflow-auto hide-scrollbar"
+        classList={{ "pb-14": tasks.size > 0 }}
+      >
         <h1 class="flex items-center justify-between pt-2 px-4">
           <span class="font-bold font-title text-xl flex items-center">
             <A

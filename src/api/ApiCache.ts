@@ -1,5 +1,5 @@
 import type {ClientUser, Relationship, RelationshipType, User} from "../types/user";
-import type {Guild, Invite, Member, PartialGuild, Role} from "../types/guild";
+import type {ExtendedColor, Guild, Invite, Member, PartialGuild, Role} from "../types/guild";
 import type {ReadyEvent} from "../types/ws";
 import type {Channel, DmChannel, GuildChannel} from "../types/channel";
 import type {Presence} from "../types/presence";
@@ -339,7 +339,7 @@ export default class ApiCache {
     if (!member) return Permissions.empty()
 
     const roles = this.getMemberRoles(guildId, userId)
-    const overwrites = channelId && (this.channels.get(channelId) as GuildChannel).permission_overwrites || undefined
+    const overwrites = channelId && (this.channels.get(channelId) as GuildChannel).overwrites || undefined
     return calculatePermissions(userId, roles, overwrites)
   }
 
@@ -347,7 +347,7 @@ export default class ApiCache {
     return this.getMemberPermissions(guildId, this.clientId!, channelId)
   }
 
-  getMemberColor(guildId: bigint, memberId: bigint): number | undefined {
+  getMemberColor(guildId: bigint, memberId: bigint): ExtendedColor | undefined {
     const member = this.members.get(memberKey(guildId, memberId))
     if (!member) return undefined
 

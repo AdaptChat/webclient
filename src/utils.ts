@@ -1,8 +1,9 @@
-import {Guild, Member, Role} from "./types/guild";
+import {ExtendedColor, Guild, Member, Role} from "./types/guild";
 import {Channel, PermissionOverwrite} from "./types/channel";
 import {Permissions} from "./api/Bitflags";
 import {User} from "./types/user";
 import {getApi} from "./api/Api";
+import {JSX} from "solid-js";
 
 /**
  * Utilities related to snowflakes.
@@ -119,6 +120,48 @@ export function calculatePermissions(userId: bigint, roles: Role[], overwrites?:
   }
 
   return Permissions.fromValue(perms)
+}
+
+export namespace extendedColor {
+  export function parse(provided: ExtendedColor | undefined, fallback?: string) {
+    fallback ??= 'rgb(var(--c-fg) / 0.8)'
+    if (provided == null) return fallback
+
+    switch (provided.type) {
+      case 'solid':
+        return '#' + provided.color.toString(16).padStart(6, '0')
+
+      case 'gradient': {
+        const degrees = provided.angle * 180 / Math.PI
+        const stops = provided.stops.map(
+          stop => `#${stop.color.toString(16).padStart(6, '0')} ${stop.position * 100}%`
+        )
+        return `linear-gradient(${degrees}deg, ${stops.join(', ')})`
+      }
+    }
+  }
+
+  export function bg(color?: ExtendedColor | null, fallback?: string) {
+    return color || fallback ? { background: parse(color as any, fallback) } : undefined
+  }
+
+  export function roleBg(color?: ExtendedColor | null) {
+    return bg(color, 'rgb(var(--c-fg) / 0.8)')
+  }
+
+  export function fg(color?: ExtendedColor | null) {
+    if (!color) return undefined
+
+    const cssColor = parse(color)
+    if (color.type === 'solid') return { color: cssColor }
+
+    return {
+      background: cssColor,
+      color: 'transparent',
+      "background-clip": 'text',
+      "-webkit-background-clip": 'text',
+    } satisfies JSX.CSSProperties
+  }
 }
 
 /**
@@ -422,6 +465,17 @@ export function maxIterator<T>(iterator: Iterable<T>, key?: (item: T) => number)
     }
   }
   return maxItem
+}
+
+export function someIterator<T>(iterator: Iterable<T>, predicate: (item: T) => boolean): boolean {
+  for (const item of iterator)
+    if (predicate(item))
+      return true
+  return false
+}
+
+export function includesIterator<T>(iterator: Iterable<T>, value: T): boolean {
+  return someIterator(iterator, (item) => item === value)
 }
 
 /**

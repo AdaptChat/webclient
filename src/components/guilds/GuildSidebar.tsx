@@ -147,7 +147,7 @@ function Channel(props: ChannelProps) {
           </Match>
           <Match when={mentionCount()}>
             <div
-              class="px-1.5 min-w-[1.25rem] h-5 bg-red-600 text-fg rounded-full flex items-center justify-center"
+              class="text-sm px-1.5 min-w-[1.25rem] h-5 bg-red-600 text-fg rounded-full flex items-center justify-center"
             >
               {mentionCount()?.toLocaleString()}
             </div>

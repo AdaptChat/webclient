@@ -174,7 +174,7 @@ function DirectMessageButton({ channelId }: { channelId: bigint }) {
     <A
       href={href}
       classList={{
-        "w-full group flex items-center justify-between px-1.5 h-12 rounded-lg transition-all duration-200 hover:bg-3": true,
+        "w-full group flex items-center justify-between p-2 rounded-lg transition-all duration-200 hover:bg-3": true,
         "bg-fg/10": active(),
       }}
       onClick={() => {
@@ -198,16 +198,16 @@ function DirectMessageButton({ channelId }: { channelId: bigint }) {
         </ContextMenu>
       )}
     >
-      <div class="flex items-center gap-x-1.5 flex-grow">
+      <div class="flex items-center gap-x-2 flex-grow min-w-0">
         {group ? (
           <img src={(channel() as GroupDmChannel).icon} alt="" class="w-9 h-9 rounded-full"/>
         ) : (
-          <div class="indicator">
+          <div class="indicator flex-shrink-0">
             <StatusIndicator status={presence()?.status} tailwind="m-[0.1rem] w-3 h-3" indicator />
             <img src={api.cache!.avatarOf(user()?.id!)} alt="" class="w-9 h-9 rounded-full"/>
           </div>
         )}
-        <div class="ml-0.5 text-sm">
+        <div class="flex flex-col ml-0.5 text-sm min-w-0">
           <span classList={{
             "text-fg font-title font-medium transition-all duration-200": true,
             "text-opacity-100": active() || hasUnread(),
@@ -215,28 +215,26 @@ function DirectMessageButton({ channelId }: { channelId: bigint }) {
           }}>
             {group ? (channel() as GroupDmChannel).name : user() ? displayName(user()!) : 'Unknown User'}
           </span>
-          <div class="relative">
-            &nbsp;
-            <div classList={{
-              "absolute inset-0 text-xs text-fg truncate hover:w-48": true,
-              [api.cache?.isChannelUnread(channelId) || api.cache?.countDmMentionsIn(channelId) ? 'w-48' : 'w-52']: true,
-              "text-opacity-80": hasUnread(),
-              "text-opacity-60": active() && !hasUnread(),
-              "text-opacity-40": !active() && !hasUnread(),
-            }}>
+          <div classList={{
+            "flex min-w-0 text-xs text-fg": true,
+            "text-opacity-80": hasUnread(),
+            "text-opacity-60": active() && !hasUnread(),
+            "text-opacity-40": !active() && !hasUnread(),
+          }}>
+            <span class="truncate min-w-0">
               {group
                 ? channel().recipient_ids.length + ' members'
-                : presence()?.custom_status ?? (
+                : (
                   lastMessage() ? (
                     (deltaMs()! > 30_000 ? humanizeTimeDeltaShort(deltaMs()!) + ' ago' : 'Just now')
                     + ((lastMessage() as any)?.content
-                      ? ': ' + (lastMessage() as any).content.slice(0, 100).replace(/\s/g, ' ')
+                      ? ': ' + (lastMessage() as any).content.slice(0, 150).replace(/\s/g, ' ')
                       : ''
                     )
                   ) : 'No messages'
                 )
               }
-            </div>
+            </span>
           </div>
         </div>
       </div>
@@ -685,7 +683,7 @@ export const [previousPage, setPreviousPage] = createSignal<string>('/')
 
 export default function App(props: ParentProps) {
   const isMobile = createMediaQuery("(max-width: 768px)")
-  const isWide = createMediaQuery("(min-width: 1280px)")
+  const isWide = createMediaQuery("(min-width: 1080px)")
   const location = useLocation()
 
   onMount(() => {
@@ -696,10 +694,10 @@ export default function App(props: ParentProps) {
   })
 
   createEffect(() => {
-    if (!isWide()) {
-      if (showSidebar()) setShowRightSidebar(false)
-      if (showRightSidebar()) setShowSidebar(false)
-    }
+    if (!isWide() && showSidebar()) setShowRightSidebar(false)
+  })
+  createEffect(() => {
+    if (!isWide() && showRightSidebar()) setShowSidebar(false)
   })
 
   const [noRightSidebar, setNoRightSidebar] = createSignal(false)

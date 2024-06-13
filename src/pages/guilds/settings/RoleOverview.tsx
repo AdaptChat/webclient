@@ -1,4 +1,14 @@
-import {createEffect, createMemo, createSignal, onCleanup, onMount, ParentProps, Setter, Show} from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  on,
+  onCleanup,
+  onMount,
+  ParentProps,
+  Show,
+  Signal
+} from "solid-js";
 import {useNavigate, useParams} from "@solidjs/router";
 import {getApi} from "../../../api/Api";
 import {useSaveTask} from "../../settings/SettingsLayout";
@@ -7,6 +17,7 @@ import Icon from "../../../components/icons/Icon";
 import PenToSquare from "../../../components/icons/svg/PenToSquare";
 import Palette from "../../../components/icons/svg/Palette";
 import {RoleFlags} from "../../../api/Bitflags";
+import {MessageHeader} from "../../../components/messaging/Chat";
 
 const PRESETS = [
   ['#EF4444', '#F97316', '#EAB308', '#84CC16', '#10B981', '#06B6D4', '#3B82F6', '#A855F7', '#EC4899'],
@@ -27,14 +38,17 @@ export default function RoleOverview() {
   createEffect(() => setRoleName(role().name))
 
   const [roleFlags, setRoleFlags] = createSignal(RoleFlags.empty())
-  createEffect(() => {
-    setRoleFlags(RoleFlags.fromValue(role().flags))
-    if (roleFlags().has('DEFAULT')) navigate(`/guilds/${role().guild_id}/settings/roles/${role().id}/permissions`)
-  })
+  createEffect(on(role, (role) => {
+    setRoleFlags(RoleFlags.fromValue(role.flags))
+    if (roleFlags().has('DEFAULT')) navigate(`/guilds/${role.guild_id}/settings/roles/${role.id}/permissions`)
+  }))
 
   const originalRoleColor = createMemo(() => {
-    const color = role().color?.toString(16).padStart(6, '0')
-    return color ? '#' + color : null
+    const color = role().color
+    if (!color || color.type == 'gradient')
+      return null
+
+    return '#' + color.color.toString(16).padStart(6, '0')
   })
   const [roleColor, setRoleColor] = createSignal<string | null>(null)
   createEffect(() => setRoleColor(originalRoleColor()))
@@ -88,7 +102,7 @@ export default function RoleOverview() {
         json.name = roleName()
 
       if (roleColor() !== originalRoleColor())
-        json.color = parseInt(roleColor()?.slice(1) ?? '0', 16)
+        json.color = roleColor() ? { type: 'solid', color: parseInt(roleColor()?.slice(1) ?? '0', 16) } : null
 
       if (roleFlags().value !== BigInt(role().flags)) {
         if (roleFlags().has('HOISTED'))
@@ -144,7 +158,7 @@ export default function RoleOverview() {
             </button>
           </Show>
           <div
-            class="bg-bg-0/80 backdrop-blur rounded-xl p-4 absolute left-full top-0 mx-2 transition-opacity"
+            class="bg-bg-0/80 backdrop-blur rounded-xl p-4 absolute z-[200] left-full top-0 mx-2 transition-opacity"
             classList={{
               "opacity-0 pointer-events-none": !showColorPicker(),
               "opacity-100": showColorPicker(),
@@ -179,17 +193,45 @@ export default function RoleOverview() {
           ))}
         </div>
       </div>
-      <FlagSetting roleFlags={roleFlags()} setRoleFlags={setRoleFlags} label="Hoist members with this role" flag="HOISTED">
+      <h2 class="font-bold uppercase text-fg/60 text-sm mt-6 mb-2">Preview</h2>
+      <div class="rounded-xl overflow-hidden">
+        <div class="bg-gray-800 text-white px-1 py-3">
+          <MessageHeader
+            authorAvatar={cache.clientAvatar}
+            authorName={cache.clientUser!.username}
+            authorColor={{type: 'solid', color: parseInt((roleColor() ?? '#ffffff')?.slice(1), 16)}}
+            timestamp={Date.now()}
+            class="[&_.timestamp]:!text-white/50"
+            noHoverEffects
+          >
+            <span class="text-sm text-white">Dark Theme</span>
+          </MessageHeader>
+        </div>
+        <div class="bg-white text-black px-1 py-3">
+          <MessageHeader
+            authorAvatar={cache.clientAvatar}
+            authorName={cache.clientUser!.username}
+            authorColor={{type: 'solid', color: parseInt((roleColor() ?? '#000000')?.slice(1), 16)}}
+            timestamp={Date.now()}
+            class="[&_.timestamp]:!text-black/50"
+            noHoverEffects
+          >
+            <span class="text-sm text-black">Light Theme</span>
+          </MessageHeader>
+        </div>
+      </div>
+      <FlagSetting signal={[roleFlags, setRoleFlags]} label="Hoist members with this role" flag="HOISTED">
         Display members with this role separately in the members list
       </FlagSetting>
-      <FlagSetting roleFlags={roleFlags()} setRoleFlags={setRoleFlags} label="Allow everyone to mention this role" flag="MENTIONABLE">
+      <FlagSetting signal={[roleFlags, setRoleFlags]} label="Allow everyone to mention this role" flag="MENTIONABLE">
         Allows all members, regardless of permission, to collectively mention all members in this role
       </FlagSetting>
     </>
   )
 }
 
-function FlagSetting(props: ParentProps<{ roleFlags: RoleFlags, setRoleFlags: Setter<RoleFlags>, label: string, flag: string }>) {
+function FlagSetting(props: ParentProps<{ signal: Signal<RoleFlags>, label: string, flag: string }>) {
+  let [roleFlags, setRoleFlags] = props.signal
   return (
     <div class="mt-6 flex justify-between items-center gap-x-2">
       <div>
@@ -199,9 +241,9 @@ function FlagSetting(props: ParentProps<{ roleFlags: RoleFlags, setRoleFlags: Se
       <input
         type="checkbox"
         class="flex-shrink-0 checkbox"
-        checked={props.roleFlags.has(props.flag)}
+        checked={roleFlags().has(props.flag)}
         onInput={(e) => {
-          props.setRoleFlags(p => p.update({ [props.flag]: e.currentTarget.checked }).copy())
+          setRoleFlags(p => p.update({ [props.flag]: e.currentTarget.checked }).copy())
         }}
       />
     </div>

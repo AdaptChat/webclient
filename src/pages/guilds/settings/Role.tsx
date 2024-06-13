@@ -44,7 +44,7 @@ function RoleInner(props: ParentProps) {
       <Header>
         <A href={root()} class="hover:underline underline-offset-2">Roles</A>
       </Header>
-      <div class="pr-1 w-52 mobile:hidden border-r-[1px] border-fg/10 overflow-y-auto">
+      <div class="pr-1 w-52 lg:flex-shrink-0 mobile:hidden border-r-[1px] border-fg/10 overflow-y-auto">
         <SortableRoles
           guildId={guildId()}
           originalOrder={originalOrder()}

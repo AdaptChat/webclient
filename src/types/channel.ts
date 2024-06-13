@@ -77,7 +77,7 @@ export type GuildChannel = GuildChannelInfo & {
   /**
    * The permission overwrites for this channel.
    */
-  permission_overwrites: PermissionOverwrite[],
+  overwrites: PermissionOverwrite[],
   /**
    * The ID of the parent category of the channel. This is `undefined` if the channel is not in a
    * category.
