@@ -16,6 +16,9 @@ import {ReactiveMap} from "@solid-primitives/map";
 import PermissionsView from "../../../components/settings/PermissionsView";
 import {Permissions} from "../../../api/Bitflags";
 import ModelType = snowflakes.ModelType;
+import ChevronDown from "../../../components/icons/svg/ChevronDown";
+import ChevronUp from "../../../components/icons/svg/ChevronUp";
+import {createMediaQuery} from "@solid-primitives/media";
 
 export default function ChannelPermissions() {
   const api = getApi()!
@@ -79,6 +82,8 @@ export default function ChannelPermissions() {
   })
   onCleanup(() => document.removeEventListener('click', listener))
 
+  const isMobile = createMediaQuery('(max-width: 768px)')
+
   const roleIndex = createMemo(() => new Fuse(guild().roles ?? [], { keys: ['name'] }))
   const members = createMemo(() => {
     const m = cache.memberReactor
@@ -96,6 +101,7 @@ export default function ChannelPermissions() {
       ...memberIndex().search(searchQuery()).map(result => result.item),
     ]
     : [...(guild().roles ?? []), ...members().slice(0, 25)]
+      .filter(o => isMobile() || !includesIterator(overwrites.keys(), o.id))
   )
 
   const memberPermissions = createMemo(() => cache.getMemberPermissions(channel().guild_id, cache.clientId!, channel().id))
@@ -103,6 +109,57 @@ export default function ChannelPermissions() {
   return (
     <div class="flex px-2 pt-4 h-[calc(100%-2.25rem)] relative">
       <Header>Permissions</Header>
+      <div
+        class="absolute _ignore left-2 mobile:left-3 w-[256px] rounded-xl overflow-hidden z-[100] transition-all"
+        classList={{
+          "opacity-100 top-12 mobile:top-20 pointer-events-auto": searching(),
+          "opacity-0 top-8 pointer-events-none": !searching(),
+        }}
+      >
+        <div class="flex flex-grow bg-bg-0/90 backdrop-blur items-center">
+          <Icon icon={MagnifyingGlass} class="w-4 h-4 fill-fg/50 my-2.5 ml-2.5"/>
+          <input
+            ref={searchRef!}
+            type="text"
+            class="w-full p-1.5 outline-none font-medium bg-transparent text-sm"
+            placeholder="Search..."
+            value={searchQuery()}
+            onInput={(event) => setSearchQuery(event.currentTarget.value)}
+          />
+        </div>
+        <div class="bg-bg-1/50 backdrop-blur max-h-[256px] overflow-y-auto">
+          <For each={queryResults()} fallback={<div class="p-2 text-fg/50 text-center">No results</div>}>
+            {entry => (
+              <button
+                class="w-full flex items-center p-2 gap-x-2 bg-transparent hover:bg-fg/10 transition text-sm truncate"
+                onClick={() => {
+                  if (!overwrites.has(entry.id))
+                    overwrites.set(entry.id, { id: entry.id, allow: BigInt(0), deny: BigInt(0) })
+
+                  setCurrent(entry.id)
+                  setSearching(false)
+                }}
+              >
+                <Switch>
+                  <Match when={snowflakes.modelType(entry.id) === ModelType.Role}>
+                    <div class="w-2 h-2 rounded-full" style={extendedColor.roleBg((entry as Role).color)} />
+                    {(entry as Role).name}
+                  </Match>
+                  <Match when={snowflakes.modelType(entry.id) === ModelType.User}>
+                    <img src={cache.avatarOf(entry.id)} alt="" class="w-6 h-6 rounded-full" />
+                    <div class="flex flex-col items-start">
+                      <span>{displayName(entry as User)}</span>
+                      <Show when={displayName(entry as User) != (entry as User).username}>
+                        <span class="text-xs text-fg/50">@{(entry as User).username}</span>
+                      </Show>
+                    </div>
+                  </Match>
+                </Switch>
+              </button>
+            )}
+          </For>
+        </div>
+      </div>
       <div class="pr-1 w-52 lg:flex-shrink-0 mobile:hidden border-r-[1px] border-fg/10 overflow-y-auto">
         <div class="flex justify-between items-center mx-1 mt-1 mb-2">
           <span class="uppercase font-bold text-sm text-fg/50">Overwrites</span>
@@ -144,58 +201,6 @@ export default function ChannelPermissions() {
             </button>
           )}
         </For>
-        <div
-          class="absolute _ignore left-2 w-[256px] rounded-xl overflow-hidden z-[100] transition-all"
-          classList={{
-            "opacity-100 top-12 pointer-events-auto": searching(),
-            "opacity-0 top-8 pointer-events-none": !searching(),
-          }}
-        >
-          <div class="flex flex-grow bg-bg-0/90 backdrop-blur items-center">
-            <Icon icon={MagnifyingGlass} class="w-4 h-4 fill-fg/50 my-2.5 ml-2.5"/>
-            <input
-              ref={searchRef!}
-              type="text"
-              class="w-full p-1.5 outline-none font-medium bg-transparent text-sm"
-              placeholder="Search..."
-              value={searchQuery()}
-              onInput={(event) => setSearchQuery(event.currentTarget.value)}
-            />
-          </div>
-          <div class="bg-bg-1/50 backdrop-blur max-h-[256px] overflow-y-auto">
-            <For
-              each={queryResults().filter(o => !includesIterator(overwrites.keys(), o.id))}
-              fallback={<div class="p-2 text-fg/50 text-center">No results</div>}
-            >
-              {entry => (
-                <button
-                  class="w-full flex items-center p-2 gap-x-2 bg-transparent hover:bg-fg/10 transition text-sm truncate"
-                  onClick={() => {
-                    overwrites.set(entry.id, { id: entry.id, allow: BigInt(0), deny: BigInt(0) })
-                    setCurrent(entry.id)
-                    setSearching(false)
-                  }}
-                >
-                  <Switch>
-                    <Match when={snowflakes.modelType(entry.id) === ModelType.Role}>
-                      <div class="w-2 h-2 rounded-full" style={extendedColor.roleBg((entry as Role).color)} />
-                      {(entry as Role).name}
-                    </Match>
-                    <Match when={snowflakes.modelType(entry.id) === ModelType.User}>
-                      <img src={cache.avatarOf(entry.id)} alt="" class="w-6 h-6 rounded-full" />
-                      <div class="flex flex-col items-start">
-                        <span>{displayName(entry as User)}</span>
-                        <Show when={displayName(entry as User) != (entry as User).username}>
-                          <span class="text-xs text-fg/50">@{(entry as User).username}</span>
-                        </Show>
-                      </div>
-                    </Match>
-                  </Switch>
-                </button>
-              )}
-            </For>
-          </div>
-        </div>
       </div>
       <Show when={current() != null && overwrites.has(current()!)} fallback={
         <div class="flex-grow flex flex-col items-center justify-center text-fg/50">
@@ -204,11 +209,14 @@ export default function ChannelPermissions() {
         </div>
       }>
         <div class="flex flex-col w-full py-4">
-          <h3 class="px-4 font-title font-bold flex items-center justify-between w-full">
-            {snowflakes.modelType(current()!) === ModelType.Role
-              ? cache.roles.get(current()!)?.name
-              : '@' + cache.users.get(current()!)?.username
-            }
+          <h3 class="pl-1 pr-4 flex items-center justify-between w-full">
+            <button class="btn btn-ghost btn-sm font-title font-bold !text-base" onClick={() => setSearching(true)}>
+              {snowflakes.modelType(current()!) === ModelType.Role
+                ? cache.roles.get(current()!)?.name
+                : '@' + cache.users.get(current()!)?.username
+              }
+              <Icon icon={searching() ? ChevronUp : ChevronDown} class="hidden mobile:block ml-2 w-4 h-4 fill-fg/50" />
+            </button>
             <button class="btn btn-sm btn-danger _ignore" onClick={() => overwrites.delete(current()!)}>
               Delete Overwrite
             </button>
