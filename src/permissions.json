@@ -5,8 +5,8 @@
       {
         "flag": "VIEW_CHANNEL",
         "label": "View Channels",
-        "description": "Members with this permission can view text-based channels and receive events from them.",
-        "channels": ["text", "announcement"]
+        "description": "Members with this permission can view channels and receive events from them.",
+        "channels": ["text", "announcement", "voice"]
       },
       {
         "flag": "MODIFY_CHANNELS",

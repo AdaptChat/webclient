@@ -25,10 +25,9 @@ export default function PermissionsView(props: Props) {
     .permissions
     .filter(({ channels }) => props.channelType == null || channels.includes(props.channelType))
 
-  const filtered = createMemo(() => manifest.map((category) => {
-    category.permissions = filterCategory(category)
-    return category
-  }).filter(
+  const filtered = createMemo(() => manifest.map(
+    (category) => ({ ...category, permissions: filterCategory(category) })
+  ).filter(
     ({ permissions }) => permissions.length > 0
   ))
 
