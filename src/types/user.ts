@@ -84,7 +84,7 @@ export interface Bot {
   /**
    * The default permissions the bot has when added to a guild.
    */
-  default_permissions: Permissions;
+  default_permissions: bigint;
   /**
    * A bitmask of extra information associated with the bot.
    */

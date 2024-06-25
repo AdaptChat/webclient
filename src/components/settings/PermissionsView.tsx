@@ -9,17 +9,27 @@ import {GuildChannel} from "../../types/channel";
 
 type SignalLike<T> = [Accessor<T>, (value: T) => any]
 
-interface Props {
+interface SwitchBasedProps {
   enabledPermissions: Permissions
   allowSignal: SignalLike<Permissions>
   denySignal: SignalLike<Permissions>
+  checkbox?: false
   noInherit?: boolean
   channelType?: GuildChannel["type"]
 }
 
+interface CheckboxBasedProps {
+  enabledPermissions: Permissions
+  signal: SignalLike<Permissions>
+  checkbox: true
+  channelType?: GuildChannel["type"]
+}
+
+type Props = SwitchBasedProps | CheckboxBasedProps
+
 export default function PermissionsView(props: Props) {
-  const [allow, setAllow] = props.allowSignal
-  const [deny, setDeny] = props.denySignal
+  const [allow, setAllow] = props.checkbox ? props.signal : props.allowSignal
+  const [deny, setDeny] = props.checkbox ? props.signal : props.denySignal
 
   const filterCategory = (category: (typeof manifest)[number]) => category
     .permissions
@@ -47,45 +57,62 @@ export default function PermissionsView(props: Props) {
                 <h4 class="text-lg font-title">{label}</h4>
                 <p class="text-fg/60 text-sm font-light">{description}</p>
               </div>
-              <div class="flex overflow-hidden rounded-xl flex-shrink-0 border-[1px] border-fg/20">
-                <PermissionButton
-                  flag={flag}
-                  icon={Check}
-                  tooltip="Allow"
-                  active={allow().has(flag)}
-                  onClick={() => {
-                    setAllow(allow().toggle(flag).copy())
-                    setDeny(deny().remove(flag).copy())
-                  }}
-                  color="success"
-                />
-                <Show when={!props.noInherit}>
+              {props.checkbox ? (
+                <div class="flex overflow-hidden pl-2 flex-shrink-0">
+                  <input
+                    type="checkbox"
+                    class="checkbox"
+                    checked={allow().has(flag)}
+                    onChange={(e) => {
+                      if (e.currentTarget.checked) {
+                        setAllow(allow().add(flag).copy())
+                      } else {
+                        setAllow(allow().remove(flag).copy())
+                      }
+                    }}
+                  />
+                </div>
+              ) : (
+                <div class="flex overflow-hidden rounded-xl flex-shrink-0 border-[1px] border-fg/20">
                   <PermissionButton
                     flag={flag}
-                    icon={Dash}
-                    tooltip="Inherit"
-                    active={!allow().has(flag) && !deny().has(flag)}
+                    icon={Check}
+                    tooltip="Allow"
+                    active={allow().has(flag)}
                     onClick={() => {
-                      setAllow(allow().remove(flag).copy())
+                      setAllow(allow().toggle(flag).copy())
                       setDeny(deny().remove(flag).copy())
                     }}
-                    color="neutral"
-                    fg="fg"
-                    opacity={60}
+                    color="success"
                   />
-                </Show>
-                <PermissionButton
-                  flag={flag}
-                  icon={Xmark}
-                  tooltip="Deny"
-                  active={(props.noInherit ? !allow().has(flag) : false) || deny().has(flag)}
-                  onClick={() => {
-                    setAllow(allow().remove(flag).copy())
-                    setDeny(deny().toggle(flag).copy())
-                  }}
-                  color="danger"
-                />
-              </div>
+                  <Show when={!props.noInherit}>
+                    <PermissionButton
+                      flag={flag}
+                      icon={Dash}
+                      tooltip="Inherit"
+                      active={!allow().has(flag) && !deny().has(flag)}
+                      onClick={() => {
+                        setAllow(allow().remove(flag).copy())
+                        setDeny(deny().remove(flag).copy())
+                      }}
+                      color="neutral"
+                      fg="fg"
+                      opacity={60}
+                    />
+                  </Show>
+                  <PermissionButton
+                    flag={flag}
+                    icon={Xmark}
+                    tooltip="Deny"
+                    active={(props.noInherit ? !allow().has(flag) : false) || deny().has(flag)}
+                    onClick={() => {
+                      setAllow(allow().remove(flag).copy())
+                      setDeny(deny().toggle(flag).copy())
+                    }}
+                    color="danger"
+                  />
+                </div>
+              )}
             </div>
           ))}
         </div>

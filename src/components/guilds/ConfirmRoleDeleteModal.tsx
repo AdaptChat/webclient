@@ -21,7 +21,7 @@ export default function ConfirmRoleDeleteModal(props: Props) {
   const [isDeleting, setIsDeleting] = createSignal<boolean>(false)
 
   return (
-    <ModalTemplate title="Delete Channel">
+    <ModalTemplate title="Delete Role">
       <p class="text-fg/70 text-center text-sm mt-4">
         Are you sure you want to delete the role <b>{props.role.name}</b> in {guild()?.name}?
         You will not be able to undo this action.

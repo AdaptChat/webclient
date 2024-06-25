@@ -12,6 +12,10 @@ import tooltip from "../../directives/tooltip";
 import {toast} from "solid-toast";
 import Key from "../../components/icons/svg/Key";
 import Clipboard from "../../components/icons/svg/Clipboard";
+import {Permissions} from "../../api/Bitflags";
+import UserTag from "../../components/icons/svg/UserTag";
+import Modal from "../../components/ui/Modal";
+import SetBotPermissionsModal from "../../components/settings/SetBotPermissionsModal";
 void tooltip
 
 function BriefInfo(props: ParentProps<{ label: string, copyText?: string }>) {
@@ -48,10 +52,12 @@ export default function Bot() {
   })
 
   const [displayName, setDisplayName] = createSignal<string>("")
+  const [defaultPermissions, setDefaultPermissions] = createSignal<Permissions>(Permissions.empty())
   const [error, setError] = createSignal<string>("")
 
   const refreshState = () => {
     setDisplayName(bot()?.user.display_name ?? "")
+    setDefaultPermissions(bot() ? Permissions.fromValue(bot()!.default_permissions) : Permissions.empty())
     setImageData(undefined)
   }
   createEffect(refreshState)
@@ -62,6 +68,10 @@ export default function Bot() {
       const original = bot()!.user
 
       if (displayName() !== original.display_name) json.display_name = displayName()
+
+      if (defaultPermissions().value != bot()!.default_permissions)
+        json.default_permissions = defaultPermissions().value
+
       if (imageData() !== undefined) json.avatar = imageData()
 
       const response = await api.request('PATCH', `/bots/${params.botId}`, { json })
@@ -70,8 +80,9 @@ export default function Bot() {
     },
     refreshState,
   )
-  createEffect(() => setChanged(
+  createEffect(() => setChanged(bot() != null && (
     displayName() !== bot()!.user.display_name
+    || defaultPermissions().value != bot()?.default_permissions)
     || imageData() !== undefined
   ))
 
@@ -80,9 +91,17 @@ export default function Bot() {
     { loading: 'Copying...', success: 'Copied!', error: 'Failed to Copy' },
   )
 
+  const [showPermissionsModal, setShowPermissionsModal] = createSignal(false)
+
   return (
     <div class="p-4">
       <Header>Bots</Header>
+      <Modal get={showPermissionsModal} set={setShowPermissionsModal}>
+        <SetBotPermissionsModal
+          setShow={setShowPermissionsModal}
+          permissionsSignal={[defaultPermissions, setDefaultPermissions]}
+        />
+      </Modal>
       <A href="/settings/bots" class="btn btn-sm mr-2">
         <Icon icon={ChevronLeft} class="w-4 h-4 fill-fg" />
         Back
@@ -128,6 +147,16 @@ export default function Bot() {
             </div>
           </div>
         </div>
+
+        <h2 class="text-sm font-bold uppercase text-fg/60 mt-6">Default Permissions</h2>
+        <p class="font-light text-sm my-2 text-fg/60">
+          Server owners will be asked to grant your bot these permissions when they add it to their server.
+        </p>
+        <button class="btn mobile:w-full" onClick={() => setShowPermissionsModal(true)}>
+          <Icon icon={UserTag} class="w-4 h-4 fill-fg mr-2" />
+          Edit Permissions
+        </button>
+
         <h2 class="text-sm font-bold uppercase text-fg/60 mt-6">Token</h2>
         <p class="font-light text-sm my-2 text-fg/60">
           Tokens are used to authenticate your bot with Adapt. Do not share tokens with anyone.
