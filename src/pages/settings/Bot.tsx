@@ -37,7 +37,7 @@ export default function Bot() {
   const location = useLocation<{ token: string }>()
 
   const [bot, setBot] = createSignal<BotType | null>(null)
-  const [token, setToken] = createSignal<string | undefined>(location.state?.token ?? 'Āwerfhweuiorhweruidweghuriogweuiodfwegruiowegriuofwegfweuiodfgcweuiotfgweuiofwgeiorufgsdwuifwgeiug')
+  const [token, setToken] = createSignal<string | undefined>(location.state?.token)
 
   const [imageData, setImageData] = createSignal<string | null | undefined>(undefined)
 
