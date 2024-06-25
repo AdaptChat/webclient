@@ -340,7 +340,7 @@ export default class ApiCache {
 
     const roles = this.getMemberRoles(guildId, userId)
     const overwrites = channelId && (this.channels.get(channelId) as GuildChannel).overwrites || undefined
-    return calculatePermissions(userId, roles, overwrites)
+    return calculatePermissions(userId, member.permissions, roles, overwrites)
   }
 
   getClientPermissions(guildId: bigint, channelId?: bigint): Permissions {

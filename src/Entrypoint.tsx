@@ -50,6 +50,9 @@ const Invite = lazy(() => import('./pages/guilds/Invite'))
 // Settings
 const AccountSettings = lazy(() => import('./pages/settings/Account'))
 const AppearanceSettings = lazy(() => import('./pages/settings/Appearance'))
+const PluginsSettings = lazy(() => import('./pages/settings/Plugins'))
+const BotsSettings = lazy(() => import('./pages/settings/Bots'))
+const BotSettings = lazy(() => import('./pages/settings/Bot'))
 
 // Guild Settings
 const GuildSettingsOverview = lazy(() => import('./pages/guilds/settings/Overview'))
@@ -163,6 +166,9 @@ const Entrypoint: Component = () => {
                   <Route path="/settings" component={Settings}>
                     <Route path="/account" component={AccountSettings} />
                     <Route path="/appearance" component={AppearanceSettings} />
+                    <Route path="/plugins" component={PluginsSettings} />
+                    <Route path="/bots/:botId" component={BotSettings} />
+                    <Route path="/bots" component={BotsSettings} />
                   </Route>
                   <Route path="/settings" component={SettingsRoot} />
                   <Route path="/guilds/:guildId/settings" component={GuildSettings}>

@@ -68,3 +68,25 @@ export interface ClientUser extends User {
    */
   relationships: Relationship[];
 }
+
+/**
+ * Represents a bot account.
+ */
+export interface Bot {
+  /**
+   * The user this bot is associated with.
+   */
+  user: User;
+  /**
+   * The ID of the user who owns this bot.
+   */
+  owner_id: Snowflake;
+  /**
+   * The default permissions the bot has when added to a guild.
+   */
+  default_permissions: Permissions;
+  /**
+   * A bitmask of extra information associated with the bot.
+   */
+  flags: number;
+}

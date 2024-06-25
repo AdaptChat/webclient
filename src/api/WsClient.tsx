@@ -198,7 +198,7 @@ export default class WsClient {
     this.listeners = new Map()
   }
 
-  async initConnection() {
+  initConnection() {
     this.shouldKeepAlive = true
     this.readyPromiseResolver = undefined
     this.clearPingInterval()
@@ -214,8 +214,33 @@ export default class WsClient {
   }
 
   async connect() {
-    await this.initConnection()
+    this.initConnection()
     await new Promise((resolve) => this.readyPromiseResolver = resolve)
+  }
+
+  async forceReady() {
+    let [guilds, dmChannels, clientUser, relationships] = await Promise.all([
+      this.api.request('GET', '/guilds', {
+        params: { channels: true, members: true, roles: true }
+      }),
+      this.api.request('GET', '/users/me/channels'),
+      this.api.request('GET', '/users/me'),
+      this.api.request('GET', '/relationships')
+    ])
+
+    WsEventHandlers.ready(this, {
+      session_id: "",
+      guilds: guilds.jsonOrThrow(),
+      dm_channels: dmChannels.jsonOrThrow(),
+      presences: [{
+        user_id: clientUser.jsonOrThrow().id,
+        status: "offline",
+        devices: 0,
+      }],
+      user: clientUser.jsonOrThrow(),
+      relationships: relationships.jsonOrThrow(),
+      unacked: [],
+    } satisfies ReadyEvent)
   }
 
   sendIdentify() {

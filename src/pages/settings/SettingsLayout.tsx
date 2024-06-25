@@ -23,6 +23,8 @@ import ChevronRight from "../../components/icons/svg/ChevronRight";
 import ArrowUpRightFromSquare from "../../components/icons/svg/ArrowUpRightFromSquare";
 import {ReactiveMap} from "@solid-primitives/map";
 import {mapIterator} from "../../utils";
+import Robot from "../../components/icons/svg/Robot";
+import Plug from "../../components/icons/svg/Plug";
 void tooltip
 
 export interface Breadcrumb {
@@ -245,6 +247,14 @@ function SettingsSidebar() {
       <SettingsSection>Client</SettingsSection>
       <SidebarButton large href="/settings/appearance" svg={Palette}>
         Themes
+      </SidebarButton>
+      <SidebarButton large href="/settings/plugins" svg={Plug}>
+        Plugins
+      </SidebarButton>
+
+      <SettingsSection>Developers</SettingsSection>
+      <SidebarButton large href="/settings/bots" active={p => p.startsWith('/settings/bots')} svg={Robot}>
+        Bots
       </SidebarButton>
 
       <div class="bg-fg/10 h-[1px] mx-2 my-2"/>

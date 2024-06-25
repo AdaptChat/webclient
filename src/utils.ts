@@ -93,8 +93,14 @@ export namespace snowflakes {
  * This does not account for guild owners (they should have all permissions), this should be
  * handled separately.
  */
-export function calculatePermissions(userId: bigint, roles: Role[], overwrites?: PermissionOverwrite[]): Permissions {
-  let perms = roles.reduce((acc, role) => acc | BigInt(role.permissions.allow), 0n)
+export function calculatePermissions(
+  userId: bigint,
+  base: Permissions | bigint,
+  roles: Role[],
+  overwrites?: PermissionOverwrite[],
+): Permissions {
+  base = typeof base === 'bigint' ? base : 0n//base.value
+  let perms = roles.reduce((acc, role) => acc | BigInt(role.permissions.allow), base)
     & ~roles.reduce((acc, role) => acc | BigInt(role.permissions.deny), 0n)
 
   if (Permissions.fromValue(perms).has('ADMINISTRATOR'))

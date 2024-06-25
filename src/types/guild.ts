@@ -103,6 +103,10 @@ export type Member = MaybePartialUser & {
    * The time that the member joined the guild.
    */
   joined_at: string;
+  /**
+   * Base permissions granted to this member.
+   */
+  permissions: bigint;
 }
 
 /**

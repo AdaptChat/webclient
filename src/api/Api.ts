@@ -192,7 +192,7 @@ export default class Api {
     // Retry once if we get a 429
     while (response.status == 429 && remaining-- > 0) {
       const retryAfter = response.errorJsonOrThrow().retry_after
-      if (retryAfter) {
+      if (retryAfter && retryAfter < 15) {
         await new Promise(resolve => setTimeout(resolve, retryAfter * 1000))
         response = await execute()
       }

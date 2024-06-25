@@ -33,8 +33,14 @@ export default function Overview() {
 
   const [iconData, setIconData] = createSignal<string | null | undefined>(undefined)
   const previewIcon = createMemo(() => iconData() === undefined ? guild().icon : iconData() as string)
-  createEffect(on(iconData, () => {
-    if (iconData() === undefined) return
+
+  const [bannerData, setBannerData] = createSignal<string | null | undefined>(undefined)
+  const previewBanner = createMemo(() => bannerData() === undefined ? guild().banner : bannerData() as string)
+
+  createEffect(on([iconData, bannerData], () => {
+    if (iconData() === undefined && bannerData() === undefined)
+      return
+
     setEditing(EditingState.Editing)
     updateChanged()
   }))
@@ -129,6 +135,8 @@ export default function Overview() {
           <p class="p-3 text-sm bg-danger/20 text-danger w-full">{error()}</p>
         </Show>
       </div>
+      <h2 class="font-bold uppercase text-fg/60 text-sm mt-6 mb-2 mx-2">Banner</h2>
+
     </div>
   )
 }
