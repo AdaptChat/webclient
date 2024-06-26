@@ -16,7 +16,7 @@ import Xmark from "../icons/svg/Xmark";
 import Fuse from "fuse.js";
 import {User} from "../../types/user";
 import {Role} from "../../types/guild";
-import {RoleFlags} from "../../api/Bitflags";
+import {RoleFlags, UserFlags} from "../../api/Bitflags";
 import {memberKey} from "../../api/ApiCache";
 import EyeSlash from "../icons/svg/EyeSlash";
 import Crown from "../icons/svg/Crown";
@@ -80,7 +80,7 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
                 }}
               />
             </div>
-            <span class="ml-3 flex-grow overflow-ellipsis overflow-hidden text-sm">
+            <span class="flex items-center gap-x-1.5 ml-3 flex-grow overflow-ellipsis overflow-hidden text-sm">
               <span
                 classList={{
                   "text-fg": color() == null,
@@ -91,6 +91,9 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
               >
                 {displayName(user)}
               </span>
+              <Show when={UserFlags.fromValue(user.flags).has('BOT')}>
+                <span class="text-xs rounded px-1 py-[1px] bg-accent">BOT</span>
+              </Show>
             </span>
             <Show when={!viewable()}>
               <Icon icon={EyeSlash} class="w-4 h-4 fill-fg/30" tooltip="This user cannot view this channel" />

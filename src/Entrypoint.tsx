@@ -31,6 +31,7 @@ const Register = lazy(() => import('./pages/auth/Register'))
 
 // Core
 const Home = lazy(() => import('./pages/Home'))
+const AddBot = lazy(() => import('./pages/AddBot'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 // Friends
@@ -160,9 +161,10 @@ const Entrypoint: Component = () => {
                 {contextMenu.menu()}
               </div>
             </Show>
-            <Show when={ws()} fallback={<Loading />}>
-              <div class="w-full h-full overflow-hidden">
-                <Router>
+            <div class="w-full h-full overflow-hidden">
+              <Router>
+                <Route path="/bots/:botId" component={AddBot} />
+                <Show when={ws()} fallback={<Route path="*" component={Loading} />}>
                   <Route path="/settings" component={Settings}>
                     <Route path="/account" component={AccountSettings} />
                     <Route path="/appearance" component={AppearanceSettings} />
@@ -198,9 +200,9 @@ const Entrypoint: Component = () => {
                     <Route path="/" component={Home} />
                     <Route path="*" component={NotFound} />
                   </Route>
-                </Router>
-              </div>
-            </Show>
+                </Show>
+              </Router>
+            </div>
           </Show>
         </main>
       </HeaderContextProvider>

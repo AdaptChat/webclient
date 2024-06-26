@@ -47,6 +47,7 @@ import UserPlus from "../icons/svg/UserPlus";
 import {joinGuild} from "../../pages/guilds/Invite";
 import {useNavigate} from "@solidjs/router";
 import BookmarkFilled from "../icons/svg/BookmarkFilled";
+import {UserFlags} from "../../api/Bitflags";
 
 noop(tooltip)
 
@@ -409,6 +410,7 @@ export function MessageHeader(props: ParentProps<{
   authorAvatar?: string,
   authorColor?: ExtendedColor | null,
   authorName: string,
+  badge?: string,
   timestamp: number | Date,
   class?: string,
   classList?: Record<string, boolean>,
@@ -437,6 +439,9 @@ export function MessageHeader(props: ParentProps<{
           style={extendedColor.fg(props.authorColor)}
         >
           {props.authorName}
+          <Show when={props.badge}>
+            <span class="text-xs ml-1.5 rounded px-1 py-[1px] bg-accent text-fg">{props.badge}</span>
+          </Show>
         </span>
         <span
           class="timestamp text-fg/50 text-xs ml-2"
@@ -731,6 +736,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                       authorAvatar={api.cache!.avatarOf(author.id)}
                       authorColor={authorColor}
                       authorName={displayName(author)}
+                      badge={UserFlags.fromValue(author.flags).has('BOT') ? 'BOT' : undefined}
                       timestamp={snowflakes.timestamp(firstMessage.id)}
                     >
                       <MessageContent message={firstMessage} />

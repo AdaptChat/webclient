@@ -44,6 +44,13 @@ export namespace snowflakes {
   }
 
   /**
+   * Extracts a snowflake from a token.
+   */
+  export function fromToken(token: string): bigint {
+    return BigInt(atob(token.split('.', 1)[0]))
+  }
+
+  /**
    * The model type stored in a snowflake.
    */
   export enum ModelType {

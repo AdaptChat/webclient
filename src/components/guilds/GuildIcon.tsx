@@ -35,26 +35,24 @@ export function UnreadIndicator(props: { unread?: boolean, mentionCount: number 
   )
 }
 
-export default function GuildIcon(
-  { guild, unread, pings, sizeClass, tooltip: showTooltip, ringIfActive }: GuildIconProps,
-) {
+export default function GuildIcon(props: GuildIconProps) {
   let api = getApi()
 
   const resolvedPings = createMemo(() => {
-    return pings ?? sumIterator(
-      mapIterator(api?.cache?.guildMentions.get(guild.id)?.values() ?? [], v => v.length)
+    return props.pings ?? sumIterator(
+      mapIterator(api?.cache?.guildMentions.get(props.guild.id)?.values() ?? [], v => v.length)
     )
   })
   const resolvedUnread = createMemo(() => {
-    return unread ?? api?.cache?.guildChannelReactor.get(guild.id)?.some(c => api?.cache?.isChannelUnread(c))
+    return props.unread ?? api?.cache?.guildChannelReactor.get(props.guild.id)?.some(c => api?.cache?.isChannelUnread(c))
   })
 
   let baseClass = "indicator group";
-  if (showTooltip) baseClass += " cursor-pointer"
+  if (props.tooltip) baseClass += " cursor-pointer"
 
   const params = useParams()
   const extraClasses = createMemo(() => {
-    const active = ringIfActive && params.guildId as any && guild.id === BigInt(params.guildId)
+    const active = props.ringIfActive && params.guildId as any && props.guild.id === BigInt(params.guildId)
     return {
       "transition-all duration-200 overflow-hidden": true,
       "ring-accent ring-2 rounded-[30%]": active,
@@ -62,23 +60,23 @@ export default function GuildIcon(
     }
   })
 
-  const ttProps = showTooltip ? { content: guild.name, placement: 'right' } as const : undefined
+  const ttProps = props.tooltip ? { content: props.guild.name, placement: 'right' } as const : undefined
   return (
-    <Show when={guild.icon} fallback={
+    <Show when={props.guild.icon} fallback={
       <div class={"placeholder " + baseClass} use:tooltip={ttProps}>
         <UnreadIndicator unread={resolvedUnread()} mentionCount={resolvedPings()} />
         <div classList={{
-          ["relative bg-neutral-hover text-neutral-content flex items-center justify-center " + sizeClass]: true,
+          ["relative bg-neutral-hover text-neutral-content flex items-center justify-center " + props.sizeClass]: true,
           ...extraClasses(),
         }}>
-          <span class="rounded-[inherit]">{acronym(guild.name)}</span>
+          <span class="rounded-[inherit]">{acronym(props.guild.name)}</span>
         </div>
       </div>
     } keyed={false}>
       <div class={baseClass} use:tooltip={ttProps}>
         <UnreadIndicator unread={resolvedUnread()} mentionCount={resolvedPings()} />
-        <div classList={{ [sizeClass]: true, ...extraClasses() }}>
-          <img class="w-full h-full object-cover" src={guild.icon} alt={guild.name} width={48} height={48} />
+        <div classList={{ [props.sizeClass]: true, ...extraClasses() }}>
+          <img class="w-full h-full object-cover" src={props.guild.icon} alt={props.guild.name} width={48} height={48} />
         </div>
       </div>
     </Show>

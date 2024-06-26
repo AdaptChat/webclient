@@ -91,6 +91,11 @@ export function generateBitflags<
       return this
     }
 
+    intersect(other: _BitflagsValue<Flags>) {
+      this.value &= other.value
+      return this
+    }
+
     clear() {
       this.value = 0n
       return this

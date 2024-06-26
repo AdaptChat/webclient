@@ -3,6 +3,7 @@ import WsClient from "./WsClient";
 import ApiCache from "./ApiCache";
 import PushNotifications from "./PushNotifications";
 import {parseJSON, stringifyJSON} from "./parseJSON";
+import {snowflakes} from "../utils";
 
 export function sanitizeSnowflakes(json: any): any {
   if (json == null)
@@ -155,6 +156,10 @@ export default class Api {
 
   constructor(public token: string) {
     this.pushNotifications = new PushNotifications(this)
+  }
+
+  get idFromToken(): bigint {
+    return snowflakes.fromToken(this.token)
   }
 
   request<T = any>(

@@ -1,5 +1,5 @@
 import Header from "../../components/ui/Header";
-import {A, useLocation, useParams} from "@solidjs/router";
+import {A, useLocation, useNavigate, useParams} from "@solidjs/router";
 import Icon from "../../components/icons/Icon";
 import ChevronLeft from "../../components/icons/svg/ChevronLeft";
 import {getApi} from "../../api/Api";
@@ -16,6 +16,7 @@ import {BotFlags, Permissions} from "../../api/Bitflags";
 import UserTag from "../../components/icons/svg/UserTag";
 import Modal from "../../components/ui/Modal";
 import SetBotPermissionsModal from "../../components/settings/SetBotPermissionsModal";
+import Plus from "../../components/icons/svg/Plus";
 void tooltip
 
 function BriefInfo(props: ParentProps<{ label: string, copyText?: string }>) {
@@ -97,6 +98,9 @@ export default function Bot() {
   )
 
   const [showPermissionsModal, setShowPermissionsModal] = createSignal(false)
+
+  const navigate = useNavigate()
+  const botInvite = () => `https://app.adapt.chat/bots/${params.botId}`
 
   return (
     <div class="p-4">
@@ -217,6 +221,28 @@ export default function Bot() {
             </button>
           </div>
         </div>
+
+        <h2 class="text-sm font-bold uppercase text-fg/60 mt-6 mb-2">Actions</h2>
+        <div class="flex gap-x-2 w-full mobile:flex-col">
+          <button
+            class="btn btn-primary"
+            onClick={() => navigate(`/bots/${params.botId}`)}
+          >
+            <Icon icon={Plus} class="w-4 h-4 fill-fg mr-2" />
+            Add Bot
+          </button>
+          <button
+            class="btn"
+            onClick={() => toast.promise(
+              window.navigator.clipboard.writeText(botInvite()),
+              { loading: 'Copying...', success: 'Copied bot invite!', error: 'Failed to Copy' },
+            )}
+          >
+            <Icon icon={Clipboard} class="w-4 h-4 fill-fg mr-2" />
+            Copy Bot Invite
+          </button>
+        </div>
+
         <Show when={error()}>
           <p class="text-danger mt-2">{error()}</p>
         </Show>
