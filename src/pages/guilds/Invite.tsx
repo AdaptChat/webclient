@@ -79,8 +79,8 @@ export default function InviteScreen() {
       invite = response.jsonOrThrow()
     }
     if (api.cache?.guildList.includes(invite.guild_id)) {
-      // navigate(`/guilds/${invite.guild_id}`, { replace: true })
-      // return
+      navigate(`/guilds/${invite.guild_id}`, { replace: true })
+      return
     }
 
     setInvite(invite)
