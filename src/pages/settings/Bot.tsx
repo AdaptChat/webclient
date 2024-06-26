@@ -3,7 +3,7 @@ import {A, useLocation, useParams} from "@solidjs/router";
 import Icon from "../../components/icons/Icon";
 import ChevronLeft from "../../components/icons/svg/ChevronLeft";
 import {getApi} from "../../api/Api";
-import {createEffect, createSignal, onMount, ParentProps, Show} from "solid-js";
+import {createEffect, createMemo, createSignal, onMount, ParentProps, Show} from "solid-js";
 import {type Bot as BotType} from "../../types/user";
 import EditableAvatar from "../../components/settings/EditableAvatar";
 import {defaultAvatar} from "../../api/ApiCache";
@@ -12,7 +12,7 @@ import tooltip from "../../directives/tooltip";
 import {toast} from "solid-toast";
 import Key from "../../components/icons/svg/Key";
 import Clipboard from "../../components/icons/svg/Clipboard";
-import {Permissions} from "../../api/Bitflags";
+import {BotFlags, Permissions} from "../../api/Bitflags";
 import UserTag from "../../components/icons/svg/UserTag";
 import Modal from "../../components/ui/Modal";
 import SetBotPermissionsModal from "../../components/settings/SetBotPermissionsModal";
@@ -53,11 +53,14 @@ export default function Bot() {
 
   const [displayName, setDisplayName] = createSignal<string>("")
   const [defaultPermissions, setDefaultPermissions] = createSignal<Permissions>(Permissions.empty())
+  const [isPublic, setIsPublic] = createSignal(false)
   const [error, setError] = createSignal<string>("")
 
+  const flags = createMemo(() => bot() && BotFlags.fromValue(bot()!.flags))
   const refreshState = () => {
     setDisplayName(bot()?.user.display_name ?? "")
     setDefaultPermissions(bot() ? Permissions.fromValue(bot()!.default_permissions) : Permissions.empty())
+    setIsPublic(flags()?.has('PUBLIC') ?? false)
     setImageData(undefined)
   }
   createEffect(refreshState)
@@ -72,6 +75,7 @@ export default function Bot() {
       if (defaultPermissions().value != bot()!.default_permissions)
         json.default_permissions = defaultPermissions().value
 
+      if (isPublic() !== flags()!.has('PUBLIC')) json.public = true
       if (imageData() !== undefined) json.avatar = imageData()
 
       const response = await api.request('PATCH', `/bots/${params.botId}`, { json })
@@ -83,6 +87,7 @@ export default function Bot() {
   createEffect(() => setChanged(bot() != null && (
     displayName() !== bot()!.user.display_name
     || defaultPermissions().value != bot()?.default_permissions)
+    || flags() && isPublic() !== flags()!.has('PUBLIC')
     || imageData() !== undefined
   ))
 
@@ -146,6 +151,22 @@ export default function Bot() {
               </BriefInfo>
             </div>
           </div>
+        </div>
+
+        <h2 class="text-sm font-bold uppercase text-fg/60 mt-6 mb-2">Settings</h2>
+        <div class="flex justify-between gap-8 mobile:gap-4 items-center w-full">
+          <div class="flex flex-col">
+            <h3 class="font-title">Public Bot</h3>
+            <p class="font-light text-sm mt-1 text-fg/60">
+              Public bots can be added by anyone. Bots that are not public can only be added by the bot owner.
+            </p>
+          </div>
+          <input
+            type="checkbox"
+            class="checkbox flex-shrink-0"
+            checked={isPublic()}
+            onChange={(e) => setIsPublic(e.currentTarget.checked)}
+          />
         </div>
 
         <h2 class="text-sm font-bold uppercase text-fg/60 mt-6">Default Permissions</h2>

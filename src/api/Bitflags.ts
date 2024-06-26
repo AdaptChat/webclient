@@ -137,6 +137,15 @@ export const UserFlags = generateBitflags({
 })
 export type UserFlags = _Extract<typeof UserFlags>
 
+export const BotFlags = generateBitflags({
+  VERIFIED: 1 << 0,
+  PUBLIC: 1 << 1,
+  GUILD_ENABLED: 1 << 2,
+  GROUP_DM_ENABLED: 1 << 3,
+  GLOBAL_ENABLED: 1 << 4,
+})
+export type BotFlags = _Extract<typeof BotFlags>
+
 export const RoleFlags = generateBitflags({
   HOISTED: 1 << 0,
   MANAGED: 1 << 1,
