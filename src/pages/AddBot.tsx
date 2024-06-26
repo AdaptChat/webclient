@@ -5,7 +5,7 @@ import {Guild, Member} from "../types/guild";
 import {calculatePermissions, humanizeDate, mapIterator, snowflakes} from "../utils";
 import {defaultAvatar, memberKey} from "../api/ApiCache";
 import {useLocation, useNavigate, useParams} from "@solidjs/router";
-import {Permissions} from "../api/Bitflags";
+import {BotFlags, Permissions} from "../api/Bitflags";
 import Icon from "../components/icons/Icon";
 import ChevronDown from "../components/icons/svg/ChevronDown";
 import GuildIcon from "../components/guilds/GuildIcon";
@@ -17,6 +17,7 @@ import RocketLaunch from "../components/icons/svg/RocketLaunch";
 import UserTag from "../components/icons/svg/UserTag";
 import CakeCandles from "../components/icons/svg/CakeCandles";
 import Code from "../components/icons/svg/Code";
+import Lock from "../components/icons/svg/Lock";
 
 export default function AddBot() {
   const api = getApi()
@@ -141,6 +142,11 @@ export default function AddBot() {
     setRequestedPermissions(p => p.intersect(perms ?? Permissions.empty()))
   }))
 
+  const isPrivate = createMemo(() => {
+    if (!api || !bot()) return false
+    const userId = api.cache ? api.cache.clientId! : api.idFromToken
+    return bot()!.owner_id != userId && !BotFlags.fromValue(bot()!.flags).has('PUBLIC')
+  })
   const [isAdding, setIsAdding] = createSignal(false)
 
   return (
@@ -168,9 +174,15 @@ export default function AddBot() {
             </span>
             {bot()!.user.username.slice(bot()!.owner_id.toString().length)}
           </p>
+          <Show when={isPrivate()}>
+            <div class="flex items-center gap-x-2 bg-fg/10 rounded-lg p-2 text-sm font-medium text-fg/60">
+              <Icon icon={Lock} class="w-4 h-4 fill-fg/60"/>
+              This bot is private and can only be added by its owner.
+            </div>
+          </Show>
         </Show>
 
-        <Show when={bot() && availableGuilds() != null}>
+        <Show when={!isPrivate() && bot() && availableGuilds() != null}>
           <p class="text-fg/60 text-sm text-light w-full pl-1 mb-1">
             Select a server to add {bot()!.user.display_name} to
           </p>
@@ -266,7 +278,7 @@ export default function AddBot() {
         </Show>
         <Show when={bot()}>
           <div class="font-light text-fg/60 text-sm text-left w-full mt-4 flex flex-col gap-y-1">
-            <span class="flex items-center gap-x-1">
+            <span class="flex items-center gap-x-1.5">
               <Icon icon={CakeCandles} class="w-4 h-4 fill-fg/60"/>
               <span>Created {humanizeDate(snowflakes.timestamp(bot()!.user.id))}</span>
             </span>
