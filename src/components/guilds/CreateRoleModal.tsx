@@ -52,7 +52,7 @@ export default function CreateRoleModal(props: Props) {
     const json: Record<string, any> = { name }
 
     if (color != null)
-      json.color = (color[0] << 16) + (color[1] << 8) + color[2]
+      json.color = { type: 'solid', 'color': (color[0] << 16) + (color[1] << 8) + color[2] }
 
     setSubmitting(true)
     const response = await api.request('POST', `/guilds/${props.guildId}/roles`, { json })

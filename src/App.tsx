@@ -629,16 +629,16 @@ export function Sidebar({ signal }: { signal: Signal<Tab> }) {
             <StatusIndicator status={status()} tailwind="m-1 w-3 h-3" indicator />
           </button>
           <button
-            class="flex flex-col justify-center"
+            class="flex flex-col items-start justify-center"
             use:tooltip="Copy Username"
             onClick={() => toast.promise(
               navigator.clipboard.writeText(clientUser().username),
               { loading: "Copying...", success: "Copied username!", error: "Error while copying username" }
             )}
           >
-            <h3 class="text-fg/80 font-title font-bold">{displayName(clientUser())}</h3>
+            <h3 class="text-fg/80 font-title font-bold text-left">{displayName(clientUser())}</h3>
             <Show when={clientUser().display_name}>
-              <span class="text-fg/50 text-xs">@{clientUser().username}</span>
+              <span class="text-fg/50 text-xs text-left">@{clientUser().username}</span>
             </Show>
           </button>
         </div>
