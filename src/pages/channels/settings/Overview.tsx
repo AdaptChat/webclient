@@ -15,31 +15,41 @@ export default function Overview() {
   const channelId = createMemo(() => BigInt(params.channelId))
   const channel = createMemo(() => cache.channels.get(channelId())! as GuildChannel)
 
-  const [channelName, setChannelName] = createSignal<string>()
-  createEffect(() => setChannelName(channel().name))
+  const [channelName, setChannelName] = createSignal<string | null>()
+  const [channelTopic, setChannelTopic] = createSignal<string | null>()
+
+  createEffect(() => {
+    if (channelTopic() === '') setChannelTopic(null)
+  })
+
+  const reset = () => {
+    let c = channel()
+    setChannelName(c.name)
+    setChannelTopic('topic' in c && c.topic ? c.topic : undefined)
+  }
+  createEffect(reset)
 
   const [setChanged] = useSaveTask(
     async () => {
       const json = {
         name: channelName(),
+        topic: channelTopic(),
       }
       await api.request('PATCH', `/channels/${params.channelId}`, { json })
     },
-    () => {
-      setChannelName(channel().name)
-    },
+    reset,
   )
   createEffect(() => setChanged(
     channelName() != channel().name
+    || channelTopic() !== undefined && channelTopic() !== (channel() as any).topic
   ))
 
   const [focused, setFocused] = createSignal(false)
 
   return (
-    <div class="px-4 py-4">
+    <div class="px-4 py-4 flex flex-col">
       <Header>Overview</Header>
-      <h2 class="font-bold uppercase text-fg/60 text-sm my-2">Channel Name</h2>
-
+      <label for="name" class="font-bold uppercase text-fg/60 text-sm m-1">Channel Name</label>
       <div classList={{
         "flex rounded-lg overflow-hidden ring-2 transition": true,
         "ring-accent": focused(),
@@ -61,6 +71,17 @@ export default function Overview() {
           required
         />
       </div>
+
+      <label for="topic" class="mt-4 font-bold uppercase text-fg/60 text-sm m-1">Channel Topic</label>
+      <input
+        type="text"
+        name="topic"
+        autocomplete="off"
+        class="input font-medium bg-0 w-full"
+        placeholder="What is this channel about?"
+        onInput={(e) => setChannelTopic(e.currentTarget.value)}
+        value={channelTopic() ?? ''}
+      />
     </div>
   )
 }
