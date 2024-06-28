@@ -27,8 +27,8 @@ export default function GuildChannel() {
           <Icon icon={getIcon(channel().type)} class="fill-fg w-4 h-4 mr-1" />
           {channel().name}
           <Show when={topic()}>
-            <div class="rounded-full w-0.5 h-full bg-3 mx-3">&nbsp;</div>
-            <span class="text-sm font-light font-sans text-fg/60">{topic()}</span>
+            <div class="mobile:hidden rounded-full w-0.5 h-full bg-3 mx-3">&nbsp;</div>
+            <span class="mobile:hidden text-sm font-light font-sans text-fg/60">{topic()}</span>
           </Show>
         </span>
       </Header>
