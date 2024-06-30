@@ -1,9 +1,19 @@
-import type {Guild} from "../../types/guild";
-import {createMemo, Match, Show, Switch} from "solid-js";
+import type {Guild, Role} from "../../types/guild";
+import {createEffect, createMemo, Match, Show, Switch} from "solid-js";
 import tooltip from "../../directives/tooltip";
-import {acronym, humanizePings, mapIterator, noop, sumIterator} from "../../utils";
+import {
+  acronym,
+  calculatePermissions,
+  filterMapIterator,
+  humanizePings,
+  mapIterator,
+  noop,
+  sumIterator
+} from "../../utils";
 import {useParams} from "@solidjs/router";
 import {getApi} from "../../api/Api";
+import {memberKey} from "../../api/ApiCache";
+import {ReactiveMap} from "@solid-primitives/map";
 noop(tooltip)
 
 interface GuildIconProps {
@@ -38,14 +48,47 @@ export function UnreadIndicator(props: { unread?: boolean, mentionCount: number 
 export default function GuildIcon(props: GuildIconProps) {
   let api = getApi()
 
+  const memberData = new ReactiveMap<bigint, { basePermissions: bigint, roles: Role[] }>()
+  createEffect(() => {
+    const id = api?.cache?.clientId
+    if (!id) return
+
+    for (const guildId of api!.cache!.guildList) {
+      const member = api?.cache?.members.get(memberKey(guildId, id))
+      if (!member) continue
+
+      memberData.set(guildId, {
+        basePermissions: BigInt(member.permissions),
+        roles: api!.cache!.getMemberRoles(guildId, id),
+      })
+    }
+  })
+
+  const readableChannels = createMemo(() => {
+    const id = api?.cache?.clientId
+    return new Set(filterMapIterator(
+      api?.cache?.channels.values() ?? [],
+      (c) => {
+        if ('guild_id' in c) {
+          const { basePermissions, roles } = memberData.get(c.guild_id) ?? { basePermissions: 0n, roles: [] }
+          const perms = calculatePermissions(id!, basePermissions, roles, c.overwrites)
+          if (!perms.has('VIEW_CHANNEL')) return null
+        }
+        return c.id
+      }
+    ))
+  })
   const resolvedPings = createMemo(() => {
-    return props.pings ?? sumIterator(
-      mapIterator(api?.cache?.guildMentions.get(props.guild.id)?.values() ?? [], v => v.length)
-    )
+    return props.pings ?? sumIterator(mapIterator(
+      api?.cache?.guildMentions.get(props.guild.id)?.entries() ?? [],
+      ([channelId, pings]) => readableChannels().has(channelId) ? pings.length : 0
+    ))
   })
-  const resolvedUnread = createMemo(() => {
-    return props.unread ?? api?.cache?.guildChannelReactor.get(props.guild.id)?.some(c => api?.cache?.isChannelUnread(c))
-  })
+  const resolvedUnread = createMemo(() => props.unread ?? (
+    api?.cache?.guildChannelReactor
+      .get(props.guild.id)
+      ?.some(c => readableChannels().has(c) && api?.cache?.isChannelUnread(c))
+  ))
 
   let baseClass = "indicator group";
   if (props.tooltip) baseClass += " cursor-pointer"
