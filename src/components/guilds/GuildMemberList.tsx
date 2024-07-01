@@ -1,5 +1,5 @@
 import {getApi} from "../../api/Api";
-import {useParams} from "@solidjs/router";
+import {useNavigate, useParams} from "@solidjs/router";
 import {Accessor, createEffect, createMemo, createSignal, For, Show} from "solid-js";
 import StatusIndicator from "../users/StatusIndicator";
 import SidebarSection from "../ui/SidebarSection";
@@ -20,12 +20,15 @@ import {RoleFlags, UserFlags} from "../../api/Bitflags";
 import {memberKey} from "../../api/ApiCache";
 import EyeSlash from "../icons/svg/EyeSlash";
 import Crown from "../icons/svg/Crown";
+import Robot from "../icons/svg/Robot";
 
 export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offline?: boolean }) {
   const api = getApi()!
   const cache = api.cache!
-  const contextMenu = useContextMenu()!
   const params = useParams()
+  const navigate = useNavigate()
+  const contextMenu = useContextMenu()!
+
   const ownerId = createMemo(() => cache.guilds.get(BigInt(params.guildId))?.owner_id)
   const channelId = createMemo(() => params.channelId ? BigInt(params.channelId) : undefined)
 
@@ -36,13 +39,14 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
         const user = typeof userOrId === "bigint" ? cache.users.get(userOrId)! : userOrId
         const color = createMemo(() => cache.getMemberColor(BigInt(params.guildId), user_id))
         const viewable = createMemo(() => cache.getMemberPermissions(BigInt(params.guildId), user_id, channelId()).has('VIEW_CHANNEL'))
+        const isBot = () => UserFlags.fromValue(user.flags).has('BOT')
 
         return (
           <div
             class="group flex items-center px-2 py-1.5 rounded-lg hover:bg-3 transition duration-200 cursor-pointer"
             onContextMenu={contextMenu.getHandler(
               <ContextMenu>
-                <Show when={cache.clientId !== user_id}>
+                <Show when={cache.clientId !== user_id && !isBot()}>
                   <ContextMenuButton
                     icon={UserPlus}
                     label="Add Friend"
@@ -60,6 +64,9 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
                       }
                     )}
                   />
+                </Show>
+                <Show when={isBot()}>
+                  <ContextMenuButton icon={Robot} label="Add Bot" onClick={() => navigate(`/bots/${user_id}`)} />
                 </Show>
                 <ContextMenuButton
                   icon={Code}
@@ -91,7 +98,7 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
               >
                 {displayName(user)}
               </span>
-              <Show when={UserFlags.fromValue(user.flags).has('BOT')}>
+              <Show when={isBot()}>
                 <span class="text-xs rounded px-1 py-[1px] bg-accent">BOT</span>
               </Show>
             </span>
