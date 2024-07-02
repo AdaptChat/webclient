@@ -11,6 +11,7 @@ import {TypingManager} from "./TypingManager";
 import {Permissions} from "./Bitflags";
 import {calculatePermissions, maxIterator, snowflakes} from "../utils";
 import {Message} from "../types/message";
+import {CustomEmoji} from "../types/emoji";
 
 function sortedIndex<T extends number | bigint>(array: T[], value: T) {
   let low = 0, high = array.length
@@ -61,6 +62,7 @@ export default class ApiCache {
   lastAckedMessages: ReactiveMap<bigint, bigint | null>
   guildMentions: ReactiveMap<bigint, ReactiveMap<bigint, bigint[]>>
   dmMentions: ReactiveMap<bigint, bigint[]>
+  customEmojis: ReactiveMap<bigint, CustomEmoji>
 
   constructor(private readonly api: Api) {
     this.clientUserReactor = null as any // lazy
@@ -83,6 +85,7 @@ export default class ApiCache {
     this.lastAckedMessages = new ReactiveMap()
     this.guildMentions = new ReactiveMap()
     this.dmMentions = new ReactiveMap()
+    this.customEmojis = new ReactiveMap()
   }
 
   static fromReadyEvent(api: Api, ready: ReadyEvent): ApiCache {

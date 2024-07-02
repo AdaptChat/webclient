@@ -19,6 +19,7 @@ function createHastElement(replacement: string, match: string[]): Element {
   const hastElement: Element = h(replacement, match[1]) as any
   const properties = {
     ...hastElement.properties,
+    match: match[0],
     value: match[1],
     arg: match[2],
   }

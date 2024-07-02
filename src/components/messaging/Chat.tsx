@@ -15,7 +15,7 @@ import {getApi} from "../../api/Api";
 import MessageGrouper, {type MessageGroup} from "../../api/MessageGrouper";
 import {
   displayName, extendedColor,
-  filterIterator,
+  filterIterator, filterMapIterator,
   flatMapIterator,
   humanizeFullTimestamp,
   humanizeSize,
@@ -33,6 +33,7 @@ import PaperPlaneTop from "../icons/svg/PaperPlaneTop";
 import {DynamicMarkdown} from "./Markdown";
 import type {DmChannel, GuildChannel} from "../../types/channel";
 import Fuse from "fuse.js";
+import {gemoji} from 'gemoji'
 import {User} from "../../types/user";
 import Plus from "../icons/svg/Plus";
 import Hashtag from "../icons/svg/Hashtag";
@@ -50,6 +51,8 @@ import BookmarkFilled from "../icons/svg/BookmarkFilled";
 import {UserFlags} from "../../api/Bitflags";
 import {ReactiveSet} from "@solid-primitives/set";
 import PenToSquare from "../icons/svg/PenToSquare";
+import {CustomEmoji} from "../../types/emoji";
+import {getUnicodeEmojiUrl} from "./Emoji";
 
 noop(tooltip)
 
@@ -374,6 +377,7 @@ function getWordAt(str: string, pos: number) {
 export enum AutocompleteType {
   UserMention,
   ChannelMention,
+  Emoji,
 }
 
 export interface AutocompleteState {
@@ -631,6 +635,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
   const MAPPING = [
     ['@', AutocompleteType.UserMention],
     ['#', AutocompleteType.ChannelMention],
+    [':', AutocompleteType.Emoji],
   ] as const
   const updateAutocompleteState = () => {
     const [currentWord, index] = getWordAt(messageInputRef?.innerText!, getCaretPosition(messageInputRef!) - 1)
@@ -696,6 +701,33 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
     keys: ['key', 'name'],
   }))
 
+  const externalAllowedFrom = createMemo(() => {
+    if (!props.guildId || permissions()?.has('USE_EXTERNAL_EMOJIS'))
+      return api.cache?.guildList ?? []
+
+    return [props.guildId]
+  })
+  const emojis = createMemo(() => {
+    const unicode = gemoji.flatMap(
+      ({names, emoji, category}) => names.map(name => ({
+        name, emoji, url: getUnicodeEmojiUrl(emoji), category
+      }))
+    );
+    const allowed = externalAllowedFrom()
+    const custom = filterMapIterator(
+      api.cache!.customEmojis.values(),
+      (emoji) => allowed.includes(emoji.guild_id) ? {
+        name: emoji.name,
+        emoji: `<:${emoji.name}:${emoji.id}>`,
+        url: `https://convey.adapt.chat/emojis/${emoji.id}`,
+        category: api.cache!.guilds.get(emoji.guild_id)?.name ?? 'Custom',
+        data: emoji,
+      } : null
+    )
+    return [...unicode, ...custom]
+  })
+  const fuseEmojiIndex = createMemo(() => new Fuse(emojis(), { keys: ['name'] }))
+
   const setAutocompleteSelection = (index: number) => {
     setAutocompleteState(prev => ({
       ...prev!,
@@ -715,6 +747,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
     switch (type) {
       case AutocompleteType.UserMention: return fuse(value, fuseMemberIndex, members)
       case AutocompleteType.ChannelMention: return fuse(value, fuseChannelIndex, channels)
+      case AutocompleteType.Emoji: return fuse(value, fuseEmojiIndex, () => [])
     }
   })
   const executeAutocomplete = (index?: number) => {
@@ -724,25 +757,45 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
     }
 
     const { type, value, selected } = autocompleteState()!
+    const replace = (repl: string) => {
+      const { index: wordIndex } = autocompleteState()!.data!
+
+      const text = messageInputRef!.innerText!
+      const before = text.slice(0, wordIndex) + repl
+      const after = text.slice(wordIndex + value.length + 1)
+      messageInputRef!.innerText = before + after
+
+      messageInputRef!.focus()
+      setSelectionRange(messageInputRef!, before.length)
+    }
+
     switch (type) {
       case AutocompleteType.UserMention:
       case AutocompleteType.ChannelMention: {
-        const target = result[index ?? selected]
-        const { index: wordIndex } = autocompleteState()!.data!
-
+        const target = result[index ?? selected] as User | GuildChannel
         const symbol = MAPPING.find(([_, ty]) => type === ty)![0]
-        const text = messageInputRef!.innerText!
-        const before = text.slice(0, wordIndex) + `<${symbol}${target.id}>`
-        const after = text.slice(wordIndex + value.length + 1)
-        messageInputRef!.innerText = before + after
-
-        messageInputRef!.focus()
-        setSelectionRange(messageInputRef!, before.length)
+        replace(`<${symbol}${target.id}>`)
         break
       }
+      case AutocompleteType.Emoji:
+        replace((result[index ?? selected] as { emoji: string }).emoji)
+        break
     }
     setAutocompleteState(null)
   }
+
+  const StandardAutocompleteEntry = (props: ParentProps<{ idx: number }>) => (
+    <div
+      classList={{
+        "flex items-center px-1 py-1.5 cursor-pointer transition duration-200 rounded-lg": true,
+        "bg-2": props.idx === autocompleteState()?.selected,
+      }}
+      onClick={() => executeAutocomplete(props.idx)}
+      onMouseOver={() => setAutocompleteSelection(props.idx)}
+    >
+      {props.children}
+    </div>
+  )
 
   let [lastAckedId, setLastAckedId] = createSignal<bigint | null>(null)
 
@@ -855,7 +908,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
       <div class="ml-11 mr-2 relative">
         <div
           classList={{
-            "absolute inset-x-4 bottom-2 rounded-lg bg-0 p-2 flex flex-col": true,
+            "absolute inset-x-4 bottom-2 rounded-xl bg-0 p-2 flex flex-col": true,
             "hidden": !autocompleteResult()?.length,
           }}
         >
@@ -863,14 +916,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
             <Match when={autocompleteState()?.type === AutocompleteType.UserMention} keyed={false}>
               <For each={autocompleteResult() as User[]}>
                 {(user, idx) => (
-                  <div
-                    classList={{
-                      "flex items-center px-1 py-1.5 cursor-pointer transition duration-200 rounded-lg": true,
-                      "bg-2": idx() === autocompleteState()?.selected,
-                    }}
-                    onClick={() => executeAutocomplete(idx())}
-                    onMouseOver={() => setAutocompleteSelection(idx())}
-                  >
+                  <StandardAutocompleteEntry idx={idx()}>
                     <img src={api.cache!.avatarOf(user.id)} class="w-6 h-6 rounded-full" alt="" />
                     <div class="mx-2 flex-grow text-sm flex justify-between">
                       <span>{displayName(user)}</span>
@@ -878,33 +924,39 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                         <span class="text-fg/60">@{user.username}</span>
                       </Show>
                     </div>
-                  </div>
+                  </StandardAutocompleteEntry>
                 )}
               </For>
             </Match>
 
-            {/* TODO lots of boilerplate here */}
-            <Match when={autocompleteState()?.type === AutocompleteType.ChannelMention} keyed={false}>
+            <Match when={autocompleteState()?.type === AutocompleteType.ChannelMention}>
               <For each={autocompleteResult() as GuildChannel[]}>
                 {(channel, idx) => (
-                  <div
-                    classList={{
-                      "flex items-center px-1 py-1.5 cursor-pointer transition duration-200 rounded-lg": true,
-                      "bg-2": idx() === autocompleteState()?.selected,
-                    }}
-                    onClick={() => executeAutocomplete(idx())}
-                    onMouseOver={() => setAutocompleteSelection(idx())}
-                  >
+                  <StandardAutocompleteEntry idx={idx()}>
                     <Icon icon={Hashtag} class="w-5 h-5 fill-fg/60" />
                     <div class="ml-2 text-sm">
                       <span>{channel.name}</span>
-                      <Show when={channel.guild_id != props.guildId} keyed={false}>
-                      <span class="text-fg/60 text-sm">
-                        &nbsp;in <b>{api?.cache?.guilds?.get(channel.guild_id)?.name}</b>
-                      </span>
+                      <Show when={channel.guild_id != props.guildId}>
+                        <span class="text-fg/60 text-sm">
+                          &nbsp;in <b>{api?.cache?.guilds?.get(channel.guild_id)?.name}</b>
+                        </span>
                       </Show>
                     </div>
-                  </div>
+                  </StandardAutocompleteEntry>
+                )}
+              </For>
+            </Match>
+
+            <Match when={autocompleteState()?.type === AutocompleteType.Emoji}>
+              <For each={autocompleteResult() as any[]}>
+                {(emoji, idx) => (
+                  <StandardAutocompleteEntry idx={idx()}>
+                    <img class="ml-1" src={emoji.url} alt="" width={20} height={20} />
+                    <div class="ml-2 text-sm flex flex-grow justify-between">
+                      <span>:{emoji.name}:</span>
+                      <span class="text-fg/60 text-sm mx-2">{emoji.category}</span>
+                    </div>
+                  </StandardAutocompleteEntry>
                 )}
               </For>
             </Match>

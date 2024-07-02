@@ -13,6 +13,7 @@ import rehypeShikiji from "./markdown/rehype-shikiji";
 import rehypeKatex from "rehype-katex";
 import {Root as HtmlRoot} from "rehype-stringify/lib";
 import {Root as MdRoot} from "remark-parse/lib";
+import emojiRegex from "emoji-regex";
 
 import {createSignal, JSX, Show} from "solid-js";
 import {A, useNavigate, useParams} from "@solidjs/router";
@@ -23,6 +24,7 @@ import {childrenToSolid} from "./markdown/ast-to-solid";
 import {html} from "property-information";
 import remarkRegexp from "./markdown/regex-plugin";
 import {GuildChannel} from "../../types/channel";
+import Emoji from "./Emoji";
 
 const flattenHtml: Plugin<any[], MdRoot> = () => (tree) => {
   visit(tree, "html", (node) => {
@@ -219,7 +221,8 @@ function MentionChannel({arg, children, ...props }: any) {
   )
 }
 
-export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.Element> = {
+type MatchExt = { match: string, value: string, arg: string }
+export const components: Record<string, (props: JSX.HTMLAttributes<any> & MatchExt) => JSX.Element> = {
   strong: (props) => <strong class="font-bold" {...props} />,
   h1: (props) => <h1 class="text-2xl font-bold my-[0.6em]" {...props} />,
   h2: (props) => <h2 class="text-xl font-bold my-[0.7em]" {...props} />,
@@ -244,6 +247,7 @@ export const components: Record<string, (props: JSX.HTMLAttributes<any>) => JSX.
   styled: ({ arg, ...props }: any) => <span {...props} style={parseStyle(arg)} />,
   'mention-user': Mention,
   'mention-channel': MentionChannel,
+  'unicode-emoji': Emoji,
   blockquote: (props) => (
     <div class="flex">
       <div class="select-none bg-fg/25 rounded-full w-0.5" />
@@ -266,6 +270,7 @@ export const render = unified()
   .use(remarkRegexp(/\[([^\]]+)]\{([^}]+)}/, 'styled'))
   .use(remarkRegexp(/(<@!?(\d{14,20})>)/, 'mention-user'))
   .use(remarkRegexp(/(<#!?(\d{14,20})>)/, 'mention-channel'))
+  .use(remarkRegexp(emojiRegex(), 'unicode-emoji'))
   .use(flattenHtml)
   .use(remarkRehype)
   .use(rehypeKatex, {

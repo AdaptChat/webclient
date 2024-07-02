@@ -1,5 +1,6 @@
 import type {Member} from "./guild";
 import type {User} from "./user";
+import {Reaction} from "./emoji";
 
 /**
  * Represents the type and info of a message.
@@ -81,9 +82,9 @@ export type Message = MessageInfo & {
    */
   flags: number;
   /**
-   * The amount of stars this message has received.
+   * The reactions this message has received.
    */
-  stars: number;
+  reactions: Reaction[];
   /**
    * The users and roles that this message mentions.
    */

@@ -1,5 +1,6 @@
 import {User} from "./user";
 import {GuildChannel} from "./channel";
+import {CustomEmoji} from "./emoji";
 
 /**
  * Represents a guild with partial information, sometimes referred to as a server.
@@ -74,6 +75,10 @@ export interface Guild extends PartialGuild {
    * A list of resolved channels in the guild.
    */
   channels?: GuildChannel[]
+  /**
+   * A list of resolved custom emojis in the guild.
+   */
+  emojis?: CustomEmoji[]
 }
 
 type MaybePartialUser = User | {
