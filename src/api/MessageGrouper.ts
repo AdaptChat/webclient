@@ -201,7 +201,7 @@ export default class MessageGrouper {
       || message.id - lastMessage.id > SNOWFLAKE_BOUNDARY
   }
 
-  private get lastMessage() {
+  get lastMessage() {
     const group = <Message[]> last(this.groups)
     return last(group)
   }
@@ -232,6 +232,19 @@ export default class MessageGrouper {
       display_name: null,
       flags: 0,
     }
+  }
+
+  editMessage(id: bigint, message: Message) {
+    const [groupIndex, messageIndex] = this.findCloseMessageIndex(id)
+    if (groupIndex < 0) return
+
+    this.setGroups(prev => {
+      let groups = [...prev]
+      let group = [...<Message[]> groups[groupIndex]]
+      group[messageIndex] = message
+      groups[groupIndex] = group
+      return groups
+    })
   }
 
   private ackNonceWith(nonce: string, message: Message, f: (message: Message) => void) {

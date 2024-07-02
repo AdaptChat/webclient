@@ -1,5 +1,5 @@
 import {
-  Accessor,
+  Accessor, createEffect,
   createMemo,
   createSignal,
   For,
@@ -7,19 +7,19 @@ import {
   Match,
   onCleanup,
   onMount, ParentProps,
-  Show,
+  Show, Signal,
   Switch
 } from "solid-js";
 import type {Message} from "../../types/message";
 import {getApi} from "../../api/Api";
-import {type MessageGroup} from "../../api/MessageGrouper";
+import MessageGrouper, {type MessageGroup} from "../../api/MessageGrouper";
 import {
   displayName, extendedColor,
   filterIterator,
   flatMapIterator,
   humanizeFullTimestamp,
   humanizeSize,
-  humanizeTime,
+  humanizeTime, humanizeTimeDelta,
   humanizeTimestamp, mapIterator,
   snowflakes,
   uuid
@@ -48,6 +48,8 @@ import {joinGuild} from "../../pages/guilds/Invite";
 import {useNavigate} from "@solidjs/router";
 import BookmarkFilled from "../icons/svg/BookmarkFilled";
 import {UserFlags} from "../../api/Bitflags";
+import {ReactiveSet} from "@solid-primitives/set";
+import PenToSquare from "../icons/svg/PenToSquare";
 
 noop(tooltip)
 
@@ -130,7 +132,8 @@ function shouldDisplayImage(filename: string): boolean {
 
 const INVITE_REGEX = /https:\/\/adapt\.chat\/invite\/([a-zA-Z0-9]+)/g
 
-export function MessageContent(props: { message: Message, largePadding?: boolean }) {
+type ContentProps = { message: Message, grouper: MessageGrouper, editing?: ReactiveSet<bigint>, largePadding?: boolean }
+export function MessageContent(props: ContentProps) {
   const message = () => props.message
   const largePadding = () => props.largePadding
   const navigate = useNavigate()
@@ -159,6 +162,32 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
     })
   })
 
+  let editAreaRef: HTMLDivElement | null = null
+  const editMessage = async () => {
+    const editedContent = editAreaRef!.innerText.trim()
+    if (!editedContent) return
+
+    const msg = {
+      ...message(),
+      content: editedContent,
+      _nonceState: 'pending',
+    } satisfies Message;
+    props.grouper.editMessage(msg.id, msg)
+
+    const response = await api.request('PATCH', `/channels/${message().channel_id}/messages/${message().id}`, {
+      json: { content: editedContent }
+    })
+    if (!response.ok) {
+      toast.error(`Failed to edit message: ${response.errorJsonOrThrow().message}`)
+    }
+  }
+  createEffect(() => {
+    if (props.editing?.has(message().id)) {
+      editAreaRef!.innerText = message().content!
+      editAreaRef!.focus()
+    }
+  })
+
   return (
     <span
       data-message-id={message().id}
@@ -173,8 +202,38 @@ export function MessageContent(props: { message: Message, largePadding?: boolean
           : "calc(100% - 1rem)",
       }}
     >
-      <Show when={message().content}>
-        <DynamicMarkdown content={message().content!} />
+      <Show when={props.editing?.has(message().id)} fallback={
+        <Show when={message().content}>
+          <div
+            class="break-words"
+            classList={{ "[&>*:nth-last-child(2)]:inline-block": !!message().edited_at }}
+          >
+            <DynamicMarkdown content={message().content!} />
+            <Show when={message().edited_at}>
+              <span
+                class="ml-1 inline-block text-xs text-fg/40"
+                use:tooltip={`Edited ${humanizeTimeDelta(Date.now() - Date.parse(message().edited_at!))} ago`}>
+                (edited)
+              </span>
+            </Show>
+          </div>
+        </Show>
+      }>
+        <div
+          ref={editAreaRef!}
+          contentEditable={true}
+          class="break-words text-sm font-light overflow-auto rounded-lg bg-bg-3/50 p-2 my-0.5
+            empty:before:content-[attr(data-placeholder)] empty:before:text-fg/50
+            focus:outline-none border-2 focus:border-accent border-transparent transition"
+          data-placeholder="Edit this message..."
+          onKeyDown={async (e) => {
+            if (e.key == 'Enter' && !e.shiftKey || e.key == 'Escape') {
+              e.preventDefault()
+              props.editing?.delete(message().id)
+              if (e.key == 'Enter') await editMessage()
+            }
+          }}
+        />
       </Show>
       <For each={message().embeds}>
         {(embed) => (
@@ -340,7 +399,9 @@ function setSelectionRange(element: HTMLDivElement, selectionStart: number, sele
   selection?.addRange(range)
 }
 
-function MessageContextMenu({ message, guildId }: { message: Message, guildId?: bigint }) {
+function MessageContextMenu(
+  { message, guildId, editing }: { message: Message, guildId?: bigint, editing?: ReactiveSet<bigint> }
+) {
   const api = getApi()!
 
   return (
@@ -369,6 +430,13 @@ function MessageContextMenu({ message, guildId }: { message: Message, guildId?: 
         label="Copy Message ID"
         onClick={() => navigator.clipboard.writeText(message.id.toString())}
       />
+      <Show when={editing != null && message.author_id == api.cache!.clientId}>
+        <ContextMenuButton
+          icon={PenToSquare}
+          label="Edit Message"
+          onClick={() => editing!.add(message.id)}
+        />
+      </Show>
       <Show when={
         message.author_id == api.cache!.clientId
         || (
@@ -479,6 +547,8 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
 
   const typing = createMemo(() => api.cache!.useTyping(props.channelId))
   const typingKeepAlive = new TypingKeepAlive(api, props.channelId)
+  const editing = new ReactiveSet<bigint>()
+
   const focusListener = (e: KeyboardEvent) => {
     const charCode = e.key.charCodeAt(0)
     if (document.activeElement == document.body && (
@@ -687,6 +757,8 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
     await api.request('PUT', `/channels/${props.channelId}/ack/${id}`)
   }
 
+  const contentProps = () => ({ grouper: grouper(), editing })
+
   return (
     <div class="flex flex-col justify-end w-full h-0 flex-grow">
       <div
@@ -731,7 +803,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                     <MessageHeader
                       mentioned={api.cache?.isMentionedIn(firstMessage)}
                       onContextMenu={contextMenu.getHandler(
-                        <MessageContextMenu message={firstMessage} guildId={props.guildId} />
+                        <MessageContextMenu message={firstMessage} guildId={props.guildId} editing={editing} />
                       )}
                       authorAvatar={api.cache!.avatarOf(author.id)}
                       authorColor={authorColor}
@@ -739,7 +811,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                       badge={UserFlags.fromValue(author.flags).has('BOT') ? 'BOT' : undefined}
                       timestamp={snowflakes.timestamp(firstMessage.id)}
                     >
-                      <MessageContent message={firstMessage} />
+                      <MessageContent message={firstMessage} {...contentProps()} />
                     </MessageHeader>
                     <For each={group.slice(1)}>
                       {(message: Message) => (
@@ -752,7 +824,9 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                               "hover:bg-bg-1/60": !mentioned,
                             }
                           })()}
-                          onContextMenu={contextMenu.getHandler(<MessageContextMenu message={message} guildId={props.guildId} />)}
+                          onContextMenu={contextMenu.getHandler(
+                            <MessageContextMenu message={message} guildId={props.guildId} editing={editing} />
+                          )}
                         >
                           <span
                             classList={(() => {
@@ -767,7 +841,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                           >
                             {humanizeTime(snowflakes.timestamp(message.id))}
                           </span>
-                          <MessageContent message={message} largePadding />
+                          <MessageContent message={message} largePadding {...contentProps()} />
                         </div>
                       )}
                     </For>
@@ -983,6 +1057,13 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                 const oldState = autocompleteState()
                 if (oldState && (event.key === 'ArrowUp' || event.key === 'ArrowDown'))
                   event.preventDefault()
+
+                else if (event.key === 'ArrowUp' && !event.currentTarget.innerText.trim()) {
+                  event.preventDefault()
+                  const lastMessage = grouper().lastMessage
+                  if (lastMessage && lastMessage.author_id == api.cache?.clientId)
+                    editing.add(lastMessage.id)
+                }
               }}
               onKeyPress={async (event) => {
                 if (event.shiftKey)

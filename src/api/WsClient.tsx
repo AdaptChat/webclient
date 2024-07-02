@@ -9,7 +9,7 @@ import {
   MemberJoinEvent,
   MemberRemoveEvent, MemberUpdateEvent,
   MessageCreateEvent,
-  MessageDeleteEvent,
+  MessageDeleteEvent, MessageUpdateEvent,
   PresenceUpdateEvent,
   ReadyEvent,
   RelationshipCreateEvent,
@@ -114,6 +114,9 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
       } catch (ignored) {}
 
     grouper.pushMessage(data.message)
+  },
+  message_update(ws: WsClient, data: MessageUpdateEvent) {
+    ws.api.cache?.messages?.get(data.after.channel_id)?.editMessage(data.after.id, data.after)
   },
   message_delete(ws: WsClient, data: MessageDeleteEvent) {
     ws.api.cache?.messages?.get(data.channel_id)?.removeMessage(data.message_id)

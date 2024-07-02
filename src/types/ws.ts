@@ -109,6 +109,20 @@ export interface MessageCreateEvent {
 }
 
 /**
+ * Sent by harmony when a message is updated.
+ */
+export interface MessageUpdateEvent {
+  /**
+   * The message before it was updated.
+   */
+  before: Message;
+  /**
+   * The message after it was updated.
+   */
+  after: Message;
+}
+
+/**
  * Sent by harmony when a message is deleted.
  */
 export interface MessageDeleteEvent {
