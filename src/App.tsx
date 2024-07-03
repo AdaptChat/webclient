@@ -52,6 +52,9 @@ import Plus from "./components/icons/svg/Plus";
 import {NewGuildModalContext} from "./components/guilds/NewGuildModal";
 import {HeaderContext} from "./components/ui/Header";
 import {relationshipFilterFactory} from "./pages/friends/Requests";
+import PenToSquare from "./components/icons/svg/PenToSquare";
+import Modal from "./components/ui/Modal";
+import SetPresence from "./components/users/SetPresenceModal";
 
 export enum Tab { Quick, Conversations, Servers, Discover }
 
@@ -550,7 +553,7 @@ function StatusSelect(props: StatusIndicatorProps & { label: string }) {
   return (
     <li>
       <button
-        onClick={() => api.ws?.updatePresence({ status: props.status })}
+        onClick={() => api.ws?.updatePresence({ status: props.status ?? 'offline' })}
         class="flex items-center gap-x-2 font-medium text-sm p-2 hover:bg-3 rounded-lg w-full transition"
       >
         <StatusIndicator status={props.status} />
@@ -567,7 +570,8 @@ export function Sidebar({ signal }: { signal: Signal<Tab> }) {
   const navigate = useNavigate()
 
   const clientUser = createMemo(() => cache.clientUser!)
-  const status = createMemo(() => api.cache!.presences.get(clientUser().id)?.status ?? 'online')
+  const presence = createMemo(() => cache.presences.get(clientUser().id))
+  const status = createMemo(() => presence()?.status ?? 'online')
   const showGuildBar = createMemo(() => route.pathname.startsWith('/guilds'))
   const contextMenu = useContextMenu()!
 
@@ -579,11 +583,16 @@ export function Sidebar({ signal }: { signal: Signal<Tab> }) {
   onMount(() => document.addEventListener('click', listener))
   onCleanup(() => document.removeEventListener('click', listener))
 
+  const [showUpdatePresenceModal, setShowUpdatePresenceModal] = createSignal(false)
+
   return (
     <div class="flex flex-col w-full h-full justify-between backdrop-blur transition" classList={{
       "bg-bg-0/80": !showGuildBar(),
       "bg-bg-0": showGuildBar(),
     }}>
+      <Modal get={showUpdatePresenceModal} set={setShowUpdatePresenceModal}>
+        <SetPresence setShow={setShowUpdatePresenceModal} />
+      </Modal>
       <div class="flex flex-grow h-[calc(100%-56px)]">
         <div classList={{
           "flex flex-col items-center flex-grow overflow-x-hidden overflow-y-auto transition-all duration-500 h-full bg-0": true,
@@ -622,10 +631,18 @@ export function Sidebar({ signal }: { signal: Signal<Tab> }) {
           classList={{ "hidden": !showStatusSettings() }}
         >
           <StatusSelectDropdown />
+          <h3 class="mx-2 mt-3 text-fg/60 text-xs font-bold uppercase">Custom Status</h3>
+          <button
+            class="mx-2 mt-1 mb-2 text-sm font-light group text-fg/60 hover:text-fg/100 transition"
+            onClick={() => setShowUpdatePresenceModal(true)}
+          >
+            {presence()?.custom_status || 'Set a custom status'}
+            <Icon icon={PenToSquare} class="ml-1 w-4 h-4 fill-fg/60 group-hover:fill-fg/100 transition inline-block align-top" />
+          </button>
         </div>
         <div class="flex gap-2">
           <button class="indicator" use:tooltip="Change Status" onClick={() => setShowStatusSettings(p => !p)}>
-            <img src={cache.clientAvatar} alt="" class="w-10 h-10 rounded-xl"/>
+            <img src={cache.clientAvatar} alt="" class="w-10 h-10 rounded-xl" />
             <StatusIndicator status={status()} tailwind="m-1 w-3 h-3" indicator />
           </button>
           <button

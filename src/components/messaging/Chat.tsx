@@ -194,10 +194,10 @@ export function MessageContent(props: ContentProps) {
   return (
     <span
       data-message-id={message().id}
+      class="break-words text-sm font-light overflow-hidden"
       classList={{
         "text-fg/50": message()._nonceState === 'pending',
         "text-danger": message()._nonceState === 'error',
-        "break-words text-sm font-light overflow-hidden": true,
       }}
       style={{
         width: largePadding()
@@ -209,7 +209,7 @@ export function MessageContent(props: ContentProps) {
         <Show when={message().content}>
           <div
             class="break-words"
-            classList={{ "[&>*:nth-last-child(2)]:inline-block": !!message().edited_at }}
+            classList={{ "[&>*:nth-last-child(2)]:inline-block message-content-root": !!message().edited_at }}
           >
             <DynamicMarkdown content={message().content!} />
             <Show when={message().edited_at}>

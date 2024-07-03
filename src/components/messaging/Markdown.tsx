@@ -67,7 +67,7 @@ function Anchor(props: JSX.HTMLAttributes<HTMLAnchorElement> & { isImage?: boole
     }
     else if (url.hostname === 'app.adapt.chat') {
       e.preventDefault()
-      navigate(url.pathname + url.search + url.hash)
+      return navigate(url.pathname + url.search + url.hash)
     }
     else if (url.hostname.endsWith('adapt.chat'))
       return

@@ -40,6 +40,7 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
         const color = createMemo(() => cache.getMemberColor(BigInt(params.guildId), user_id))
         const viewable = createMemo(() => cache.getMemberPermissions(BigInt(params.guildId), user_id, channelId()).has('VIEW_CHANNEL'))
         const isBot = () => UserFlags.fromValue(user.flags).has('BOT')
+        const presence = () => cache.presences.get(user_id)
 
         return (
           <div
@@ -77,7 +78,7 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
             )}
           >
             <div class="indicator flex-shrink-0">
-              <StatusIndicator status={cache.presences.get(user_id)?.status} tailwind="m-[0.2rem] w-2.5 h-2.5" indicator />
+              <StatusIndicator status={presence()?.status} tailwind="m-[0.2rem] w-2.5 h-2.5" indicator />
               <img
                 src={cache.avatarOf(user_id)}
                 alt=""
@@ -87,21 +88,26 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
                 }}
               />
             </div>
-            <span class="flex items-center gap-x-1.5 ml-3 flex-grow overflow-ellipsis overflow-hidden text-sm">
-              <span
-                classList={{
-                  "text-fg": color() == null,
-                  "opacity-60": props.offline,
-                  "!opacity-80": !props.offline && !color(),
-                }}
-                style={extendedColor.fg(color())}
-              >
-                {displayName(user)}
+            <div class="flex flex-col ml-3 flex-grow overflow-hidden">
+              <span class="flex items-center gap-x-1.5 overflow-ellipsis overflow-hidden text-sm">
+                <span
+                  classList={{
+                    "text-fg": color() == null,
+                    "opacity-60": props.offline,
+                    "!opacity-80": !props.offline && !color(),
+                  }}
+                  style={extendedColor.fg(color())}
+                >
+                  {displayName(user)}
+                </span>
+                <Show when={isBot()}>
+                  <span class="text-xs rounded px-1 py-[1px] bg-accent">BOT</span>
+                </Show>
               </span>
-              <Show when={isBot()}>
-                <span class="text-xs rounded px-1 py-[1px] bg-accent">BOT</span>
+              <Show when={presence()?.custom_status}>
+                <span class="text-xs text-fg/60 overflow-ellipsis overflow-hidden">{presence()?.custom_status}</span>
               </Show>
-            </span>
+            </div>
             <Show when={!viewable()}>
               <Icon icon={EyeSlash} class="w-4 h-4 fill-fg/30" tooltip="This user cannot view this channel" />
             </Show>

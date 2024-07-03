@@ -11,7 +11,11 @@ export interface UpdatePresencePayload {
   /**
    * The new status.
    */
-  status?: 'online' | 'idle' | 'dnd' | 'offline',
+  status: 'online' | 'idle' | 'dnd' | 'offline',
+  /**
+   * The new custom status.
+   */
+  custom_status?: string,
 }
 
 type WsEventMapping<Event extends string, Data = null> = {

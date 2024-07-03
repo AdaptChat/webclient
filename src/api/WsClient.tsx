@@ -42,6 +42,7 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
     ws.readyPromiseResolver?.(true)
     ws.resetBackoff()
     console.info('[WS] Ready event received from harmony')
+    ws.loadPersistedPresence()
   },
   user_update(ws: WsClient, data: UserUpdateEvent) {
     if (data.after.id === ws.api.cache?.clientId)
@@ -306,6 +307,12 @@ export default class WsClient {
     await this.connect()
   }
 
+  loadPersistedPresence() {
+    const presence = localStorage.getItem('presence')
+    if (!presence) return
+    this.updatePresence(JSON.parse(presence))
+  }
+
   updatePresence(presence: UpdatePresencePayload) {
     // For responsiveness, synthesise the presence update locally
     // TODO: remove this when harmony's presence fanout is made faster
@@ -317,6 +324,8 @@ export default class WsClient {
       op: 'update_presence',
       ...presence,
     }))
+    // TODO: presence should persist via the backend
+    localStorage.setItem('presence', JSON.stringify(presence))
   }
 
   reconnectWithBackoff() {

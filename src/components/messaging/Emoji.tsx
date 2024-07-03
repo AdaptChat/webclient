@@ -34,20 +34,21 @@ export function lookupUnicodeEmoji(emoji: string): Gemoji | null {
   return out
 }
 
-export default function UnicodeEmoji(props: { match: string }) {
+export default function UnicodeEmoji(props: { match: string, jumbo?: boolean }) {
   const gemoji = createMemo(() => lookupUnicodeEmoji(props.match))
+  const size = () => props.jumbo ? 64 : 20
 
   return (
-    <span class="emoji inline-block cursor-pointer">
+    <span class="emoji inline-block cursor-pointer align-bottom">
       <img
         src={getUnicodeEmojiUrl(props.match)}
         alt={props.match}
-        width={20}
-        height={20}
+        width={size()}
+        height={size()}
         draggable={false}
         aria-label={gemoji()?.description ?? 'unicode emoji'}
         role="img"
-        class="inline-block"
+        class="inline-block align-middle"
       />
     </span>
   )
