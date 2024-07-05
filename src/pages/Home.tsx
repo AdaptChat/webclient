@@ -123,7 +123,7 @@ export default function Home() {
                       tailwind="m-2 w-4 h-4"
                      />
                   </div>
-                  <span class="mt-1 text-xs font-medium text-fg/80">
+                  <span class="mt-1 text-xs font-medium text-fg/80 truncate min-w-0 max-w-[64px]">
                     {displayName(api.cache!.users.get(userId)!)}
                   </span>
                 </button>
