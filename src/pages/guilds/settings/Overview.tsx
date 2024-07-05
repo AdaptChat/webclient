@@ -1,10 +1,13 @@
 import Header from "../../../components/ui/Header";
-import EditableAvatar from "../../../components/settings/EditableAvatar";
+import EditableAvatar, {promptImageUpload} from "../../../components/settings/EditableAvatar";
 import {createEffect, createMemo, createSignal, createUniqueId, on, Show} from "solid-js";
 import {useParams} from "@solidjs/router";
 import {getApi} from "../../../api/Api";
 import {acronym} from "../../../utils";
 import {AccountField, EditingState, SaveCancel} from "../../settings/Account";
+import {useSaveTask} from "../../settings/SettingsLayout";
+import Icon from "../../../components/icons/Icon";
+import ArrowUpFromBracket from "../../../components/icons/svg/ArrowUpFromBracket";
 
 export default function Overview() {
   const api = getApi()!
@@ -34,13 +37,8 @@ export default function Overview() {
   const [iconData, setIconData] = createSignal<string | null | undefined>(undefined)
   const previewIcon = createMemo(() => iconData() === undefined ? guild().icon : iconData() as string)
 
-  const [bannerData, setBannerData] = createSignal<string | null | undefined>(undefined)
-  const previewBanner = createMemo(() => bannerData() === undefined ? guild().banner : bannerData() as string)
-
-  createEffect(on([iconData, bannerData], () => {
-    if (iconData() === undefined && bannerData() === undefined)
-      return
-
+  createEffect(on(iconData, (data) => {
+    if (data === undefined) return
     setEditing(EditingState.Editing)
     updateChanged()
   }))
@@ -64,6 +62,24 @@ export default function Overview() {
 
     setEditing(EditingState.NotEditing)
   }
+
+  const [bannerData, setBannerData] = createSignal<string | null | undefined>(undefined)
+  const previewBanner = createMemo(() => bannerData() === undefined ? guild().banner : bannerData() as string)
+
+  const [setEdited] = useSaveTask(
+    async () => {
+      const json: Record<string, any> = {}
+      if (bannerData() !== undefined) json.banner = bannerData()
+
+      const response = await api.request('PATCH', `/guilds/${guildId()}`, { json })
+      if (!response.ok)
+        setError(response.errorJsonOrThrow().message)
+    },
+    () => {
+      setBannerData(undefined)
+    }
+  )
+  createEffect(() => setEdited(bannerData() !== undefined))
 
   return (
     <div class="px-2 py-4">
@@ -135,7 +151,54 @@ export default function Overview() {
           <p class="p-3 text-sm bg-danger/20 text-danger w-full">{error()}</p>
         </Show>
       </div>
-      <h2 class="font-bold uppercase text-fg/60 text-sm mt-6 mb-2 mx-2">Banner</h2>
+
+      <div class="flex justify-between mt-6 ml-2 gap-x-4 mobile:flex-col mobile:gap-y-2">
+        <div class="flex flex-col items-start mobile:flex-row mobile:items-center mobile:justify-between gap-y-1">
+          <div class="flex flex-col gap-y-1">
+            <h3 class="font-light font-title text-lg">Banner</h3>
+            <p class="font-light text-sm text-fg/70">
+              This will be shown at the top of the channel sidebar.
+            </p>
+          </div>
+          <div class="flex mt-2 mobile:flex-col">
+            <button class="btn btn-primary" onClick={() => promptImageUpload(setBannerData)}>
+              <Icon icon={ArrowUpFromBracket} class="w-4 h-4 fill-current mr-1" />
+              Upload Banner
+            </button>
+            <Show when={previewBanner()}>
+              <button class="btn btn-ghost mobile:btn-sm" onClick={() => setBannerData(null)}>
+                Remove Banner
+              </button>
+            </Show>
+          </div>
+        </div>
+
+        <div
+          class="my-1 flex-shrink-0 rounded-xl w-1/3 mobile:w-full min-w-[150px] overflow-hidden cursor-pointer group"
+          onClick={() => promptImageUpload(setBannerData)}
+        >
+          <Show when={previewBanner()} fallback={
+            <div
+              class="flex flex-col gap-y-2 aspect-video border-2 border-dashed rounded-xl border-fg/50 items-center justify-center"
+            >
+              <Icon icon={ArrowUpFromBracket} class="w-5 h-5 fill-fg/50 group-hover:fill-fg/100 transition" />
+              <span class="text-sm font-medium text-fg text-opacity-50 group-hover:text-opacity-100 transition">
+                Upload
+              </span>
+            </div>
+          }>
+            <figure
+              class="aspect-video"
+              style={{
+                "background-image": `url(${previewBanner()})`,
+                "background-size": "cover",
+                "background-position": "center",
+              }}
+            />
+          </Show>
+        </div>
+      </div>
+
 
     </div>
   )

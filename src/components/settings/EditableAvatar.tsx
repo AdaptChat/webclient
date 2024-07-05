@@ -6,24 +6,26 @@ export interface Props {
   setImageData: Setter<string | null | undefined>
 }
 
+export function promptImageUpload(setData: (data: string) => any) {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = 'image/png, image/jpeg, image/gif'
+  input.onchange = async () => {
+    const file = input.files![0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = () => setData(reader.result as string)
+    reader.readAsDataURL(file)
+  }
+  input.click()
+}
+
 export default function EditableAvatar(props: ParentProps<Props>) {
   return (
     <button
       class="group relative rounded-[50%] hover:rounded-lg overflow-hidden transition-all duration-200"
-      onClick={() => {
-        const input = document.createElement('input')
-        input.type = 'file'
-        input.accept = 'image/png, image/jpeg, image/gif'
-        input.onchange = async () => {
-          const file = input.files![0]
-          if (!file) return
-
-          const reader = new FileReader()
-          reader.onload = () => props.setImageData(reader.result as string)
-          reader.readAsDataURL(file)
-        }
-        input.click()
-      }}
+      onClick={() => promptImageUpload(props.setImageData)}
     >
       <div
         class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur rounded-lg
