@@ -88,9 +88,10 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
                 }}
               />
             </div>
-            <div class="flex flex-col ml-3 flex-grow overflow-hidden">
-              <span class="flex items-center gap-x-1.5 overflow-ellipsis overflow-hidden text-sm">
+            <div class="flex flex-col ml-3 flex-grow min-w-0">
+              <span class="flex items-center gap-x-1.5 text-sm">
                 <span
+                  class="truncate min-w-0"
                   classList={{
                     "text-fg": color() == null,
                     "opacity-60": props.offline,
@@ -105,7 +106,7 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
                 </Show>
               </span>
               <Show when={presence()?.custom_status}>
-                <span class="text-xs text-fg/60 overflow-ellipsis overflow-hidden">{presence()?.custom_status}</span>
+                <span class="text-xs text-fg/60 truncate min-w-0">{presence()?.custom_status}</span>
               </Show>
             </div>
             <Show when={!viewable()}>
