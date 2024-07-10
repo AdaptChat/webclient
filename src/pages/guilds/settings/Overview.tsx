@@ -157,7 +157,7 @@ export default function Overview() {
           <div class="flex flex-col gap-y-1">
             <h3 class="font-light font-title text-lg">Banner</h3>
             <p class="font-light text-sm text-fg/70">
-              This will be shown at the top of the channel sidebar.
+              This will be shown at the top of the channel sidebar and on the server home page.
             </p>
           </div>
           <div class="flex mt-2 mobile:flex-col">

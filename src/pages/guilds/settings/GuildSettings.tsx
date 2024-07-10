@@ -10,6 +10,7 @@ import UserTag from "../../../components/icons/svg/UserTag";
 import Envelope from "../../../components/icons/svg/Envelope";
 import Modal from "../../../components/ui/Modal";
 import ConfirmGuildDeleteModal from "../../../components/guilds/ConfirmGuildDeleteModal";
+import FaceSmile from "../../../components/icons/svg/FaceSmile";
 
 function GuildSettingsSidebar() {
   const params = useParams()
@@ -42,6 +43,9 @@ function GuildSettingsSidebar() {
         disabled={!perms().has('MANAGE_ROLES')}
       >
         Roles
+      </SidebarButton>
+      <SidebarButton large href={root() + '/emojis'} svg={FaceSmile} disabled={!perms().has('MANAGE_EMOJIS')}>
+        Emojis
       </SidebarButton>
 
       <SettingsSection>Management</SettingsSection>

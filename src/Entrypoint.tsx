@@ -16,8 +16,6 @@ import {Toaster} from "solid-toast";
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/shift-away.css';
 import App from "./App";
-import {NewGuildModalContextProvider} from "./components/guilds/NewGuildModal";
-import {HeaderContextProvider} from "./components/ui/Header";
 
 import {Settings, SettingsRoot} from "./pages/settings/SettingsLayout";
 import {GuildSettings, GuildSettingsRoot} from "./pages/guilds/settings/GuildSettings";
@@ -62,6 +60,7 @@ const GuildSettingsRole = lazy(() => import('./pages/guilds/settings/Role'))
 const GuildSettingsRoleOverview = lazy(() => import('./pages/guilds/settings/RoleOverview'))
 const GuildSettingsRolePermissions = lazy(() => import('./pages/guilds/settings/RolePermissions'))
 const GuildSettingsRoleMembers = lazy(() => import('./pages/guilds/settings/RoleMembers'))
+const GuildSettingsEmojis = lazy(() => import('./pages/guilds/settings/Emojis'))
 
 // Guild Channel Settings
 const GuildChannelSettingsOverview = lazy(() => import('./pages/channels/settings/Overview'))
@@ -129,84 +128,81 @@ const Entrypoint: Component = () => {
   })
 
   return (
-    <NewGuildModalContextProvider>
-      <HeaderContextProvider>
-        <main
-          class="relative font-sans m-0 w-[100vw] h-[100vh] text-fg"
-          onClick={(event) => contextMenu.setMenu(prev => {
-            if (prev != null && contextMenuRef != null) {
-              if (contextMenuRef.contains(event.target)) return prev
-            }
-          })}
-        >
-          <Show when={getApi()} fallback={
-            <Router>
-              <Route path={["/", "/login"]} component={Login} />
-              <Route path="/register" component={Register} />
-              <Route path="*" component={RedirectingLogin} />
-            </Router>
-          }>
-            <Toaster toastOptions={{
-              className: "_toast",
-              style: {
-                background: "#000000",
-              },
-            }} />
-            <Show when={contextMenu.menu()}>
-              <div
-                ref={contextMenuRef!}
-                class="z-[9999] absolute flex context-menu"
-                style={{ left: contextMenu.pos().x + 'px', top: contextMenu.pos().y + 'px'}}
-              >
-                {contextMenu.menu()}
-              </div>
+    <main
+      class="relative font-sans m-0 w-[100vw] h-[100vh] text-fg"
+      onClick={(event) => contextMenu.setMenu(prev => {
+        if (prev != null && contextMenuRef != null) {
+          if (contextMenuRef.contains(event.target)) return prev
+        }
+      })}
+    >
+      <Show when={getApi()} fallback={
+        <Router>
+          <Route path={["/", "/login"]} component={Login} />
+          <Route path="/register" component={Register} />
+          <Route path="*" component={RedirectingLogin} />
+        </Router>
+      }>
+        <Toaster toastOptions={{
+          className: "_toast",
+          style: {
+            background: "#000000",
+          },
+        }} />
+        <Show when={contextMenu.menu()}>
+          <div
+            ref={contextMenuRef!}
+            class="z-[9999] absolute flex context-menu"
+            style={{ left: contextMenu.pos().x + 'px', top: contextMenu.pos().y + 'px'}}
+          >
+            {contextMenu.menu()}
+          </div>
+        </Show>
+        <div class="w-full h-full overflow-hidden">
+          <Router>
+            <Route path="/bots/:botId" component={AddBot} />
+            <Show when={ws()} fallback={<Route path="*" component={Loading} />}>
+              <Route path="/settings" component={Settings}>
+                <Route path="/account" component={AccountSettings} />
+                <Route path="/appearance" component={AppearanceSettings} />
+                <Route path="/plugins" component={PluginsSettings} />
+                <Route path="/bots/:botId" component={BotSettings} />
+                <Route path="/bots" component={BotsSettings} />
+              </Route>
+              <Route path="/settings" component={SettingsRoot} />
+              <Route path="/guilds/:guildId/settings" component={GuildSettings}>
+                <Route path="/overview" component={GuildSettingsOverview} />
+                <Route path="/roles/:roleId" component={GuildSettingsRole}>
+                  <Route path="/permissions" component={GuildSettingsRolePermissions} />
+                  <Route path="/members" component={GuildSettingsRoleMembers} />
+                  <Route path="/" component={GuildSettingsRoleOverview} />
+                </Route>
+                <Route path="/roles" component={GuildSettingsRoles} />
+                <Route path="/emojis" component={GuildSettingsEmojis} />
+                <Route path="/invites" component={() => 'wip'} />
+              </Route>
+              <Route path="/guilds/:guildId/settings" component={GuildSettingsRoot} />
+              <Route path="/guilds/:guildId/:channelId/settings" component={GuildChannelSettings}>
+                <Route path="/overview" component={GuildChannelSettingsOverview} />
+                <Route path="/permissions" component={GuildChannelSettingsPermissions} />
+              </Route>
+              <Route path="/guilds/:guildId/:channelId/settings" component={GuildChannelSettingsRoot} />
+              <Route component={App}>
+                <Route path="/loading" component={Loading} />
+                <Route path="/friends/requests" component={FriendRequests} />
+                <Route path="/friends/*" component={FriendsList} />
+                <Route path="/dms/:channelId" component={DmChannel} />
+                <Route path="/guilds/:guildId/:channelId" component={GuildChannel} />
+                <Route path="/guilds/:guildId" component={GuildHome} />
+                <Route path="/invite/:code" component={Invite} />
+                <Route path="/" component={Home} />
+                <Route path="*" component={NotFound} />
+              </Route>
             </Show>
-            <div class="w-full h-full overflow-hidden">
-              <Router>
-                <Route path="/bots/:botId" component={AddBot} />
-                <Show when={ws()} fallback={<Route path="*" component={Loading} />}>
-                  <Route path="/settings" component={Settings}>
-                    <Route path="/account" component={AccountSettings} />
-                    <Route path="/appearance" component={AppearanceSettings} />
-                    <Route path="/plugins" component={PluginsSettings} />
-                    <Route path="/bots/:botId" component={BotSettings} />
-                    <Route path="/bots" component={BotsSettings} />
-                  </Route>
-                  <Route path="/settings" component={SettingsRoot} />
-                  <Route path="/guilds/:guildId/settings" component={GuildSettings}>
-                    <Route path="/overview" component={GuildSettingsOverview} />
-                    <Route path="/roles/:roleId" component={GuildSettingsRole}>
-                      <Route path="/permissions" component={GuildSettingsRolePermissions} />
-                      <Route path="/members" component={GuildSettingsRoleMembers} />
-                      <Route path="/" component={GuildSettingsRoleOverview} />
-                    </Route>
-                    <Route path="/roles" component={GuildSettingsRoles} />
-                    <Route path="/invites" component={() => 'wip'} />
-                  </Route>
-                  <Route path="/guilds/:guildId/settings" component={GuildSettingsRoot} />
-                  <Route path="/guilds/:guildId/:channelId/settings" component={GuildChannelSettings}>
-                    <Route path="/overview" component={GuildChannelSettingsOverview} />
-                    <Route path="/permissions" component={GuildChannelSettingsPermissions} />
-                  </Route>
-                  <Route path="/guilds/:guildId/:channelId/settings" component={GuildChannelSettingsRoot} />
-                  <Route component={App}>
-                    <Route path="/loading" component={Loading} />
-                    <Route path="/friends/requests" component={FriendRequests} />
-                    <Route path="/friends/*" component={FriendsList} />
-                    <Route path="/dms/:channelId" component={DmChannel} />
-                    <Route path="/guilds/:guildId/:channelId" component={GuildChannel} />
-                    <Route path="/guilds/:guildId" component={GuildHome} />
-                    <Route path="/invite/:code" component={Invite} />
-                    <Route path="/" component={Home} />
-                    <Route path="*" component={NotFound} />
-                  </Route>
-                </Show>
-              </Router>
-            </div>
-          </Show>
-        </main>
-      </HeaderContextProvider>
-    </NewGuildModalContextProvider>
+          </Router>
+        </div>
+      </Show>
+    </main>
   );
 };
 
