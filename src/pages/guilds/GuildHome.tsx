@@ -1,4 +1,4 @@
-import {createMemo} from "solid-js";
+import {createMemo, Show} from "solid-js";
 import {A, useParams} from "@solidjs/router";
 import {getApi} from "../../api/Api";
 import NotFound from "../NotFound";
@@ -18,6 +18,8 @@ export default function GuildHome() {
 
   if (!guild())
     return <NotFound />
+
+  const permissions = createMemo(() => api.cache!.getClientPermissions(guild().id))
 
   const onlineCount = createMemo(() => api.cache!.memberReactor
     .get(guild().id)!
@@ -73,14 +75,16 @@ export default function GuildHome() {
           </div>
         </div>
         <div class="gap-x-2 z-[1]">
-          <div use:tooltip="Settings">
-            <A
-              href={`/guilds/${guild().id}/settings`}
-              class="flex aspect-square items-center justify-center p-3 bg-bg-3/70 rounded-full"
-            >
-              <Icon icon={Gear} class="fill-fg w-5 h-5" />
-            </A>
-          </div>
+          <Show when={permissions().has('MANAGE_GUILD')}>
+            <div use:tooltip="Settings">
+              <A
+                href={`/guilds/${guild().id}/settings`}
+                class="flex aspect-square items-center justify-center p-3 bg-bg-3/70 rounded-full"
+              >
+                <Icon icon={Gear} class="fill-fg w-5 h-5" />
+              </A>
+            </div>
+          </Show>
         </div>
       </div>
     </div>
