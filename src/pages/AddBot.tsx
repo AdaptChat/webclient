@@ -11,12 +11,10 @@ import ChevronDown from "../components/icons/svg/ChevronDown";
 import GuildIcon from "../components/guilds/GuildIcon";
 import MagnifyingGlass from "../components/icons/svg/MagnifyingGlass";
 import Fuse from "fuse.js";
-import Modal from "../components/ui/Modal";
-import {SetRequestedBotPermissionsModal} from "../components/settings/SetBotPermissionsModal";
+import {ModalId, useModal} from "../components/ui/Modal";
 import RocketLaunch from "../components/icons/svg/RocketLaunch";
 import UserTag from "../components/icons/svg/UserTag";
 import CakeCandles from "../components/icons/svg/CakeCandles";
-import Code from "../components/icons/svg/Code";
 import Lock from "../components/icons/svg/Lock";
 
 export default function AddBot() {
@@ -129,7 +127,6 @@ export default function AddBot() {
     requested = Permissions.empty()
   }
   const [requestedPermissions, setRequestedPermissions] = createSignal<Permissions>(requested)
-  const [showPermissionsModal, setShowPermissionsModal] = createSignal(false)
 
   createEffect(() => {
     if (bot() && !requestedPermissions())
@@ -149,19 +146,13 @@ export default function AddBot() {
   })
   const [isAdding, setIsAdding] = createSignal(false)
 
+  const {showModal} = useModal()
+
   return (
     <div
       class="w-full h-full flex items-center justify-center pb-0 transition-all"
       classList={{ "md:pb-32": isSelecting() }}
     >
-      <Modal get={showPermissionsModal} set={setShowPermissionsModal}>
-        <SetRequestedBotPermissionsModal
-          setShow={setShowPermissionsModal}
-          permissionsSignal={[requestedPermissions, setRequestedPermissions]}
-          name={bot()?.user.display_name ?? '???'}
-          allowed={permissions()?.get(selectedGuildId() as any) ?? Permissions.empty()}
-        />
-      </Modal>
       <div class="flex flex-col rounded-xl bg-bg-0/70 p-8 items-center min-w-[420px] mobile:min-w-0 mobile:w-[90vw]">
         <Show when={bot()} fallback="Loading...">
           <img src={bot()!.user.avatar ?? defaultAvatar(bot()!.user.id)} alt="" class="rounded-full w-24 h-24" />
@@ -246,7 +237,11 @@ export default function AddBot() {
           <div class="grid mt-2 grid-cols-2 gap-2 mobile:grid-cols-1 w-full">
             <button
               class="btn"
-              onClick={() => setShowPermissionsModal(true)}
+              onClick={() => showModal(ModalId.SetRequestedBotPermissions, {
+                permissionsSignal: [requestedPermissions, setRequestedPermissions],
+                name: bot()?.user.display_name ?? '???',
+                allowed: permissions()?.get(selectedGuildId() as any) ?? Permissions.empty(),
+              })}
             >
               <Icon icon={UserTag} class="w-4 h-4 mr-2 fill-fg" />
               Edit Permissions

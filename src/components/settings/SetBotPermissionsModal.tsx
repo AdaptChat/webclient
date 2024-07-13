@@ -1,14 +1,14 @@
-import {Setter, Signal} from "solid-js";
-import {ModalTemplate} from "../ui/Modal";
+import {Signal} from "solid-js";
+import {ModalTemplate, useModal} from "../ui/Modal";
 import PermissionsView from "./PermissionsView";
 import {Permissions} from "../../api/Bitflags";
 
 type Props = {
-  setShow: Setter<boolean>,
   permissionsSignal: Signal<Permissions>,
 }
 
 export function SetRequestedBotPermissionsModal(props: Props & { name: string, allowed: Permissions }) {
+  const {hideModal} = useModal()
   return (
     <ModalTemplate title="Grant Permissions">
       <p class="text-fg/70 text-center mt-4 text-sm font-light">
@@ -18,13 +18,13 @@ export function SetRequestedBotPermissionsModal(props: Props & { name: string, a
         class="flex flex-wrap justify-end mt-4 gap-x-4"
         onSubmit={(event) => {
           event.preventDefault()
-          props.setShow(false)
+          hideModal()
         }}
       >
         <div class="overflow-y-auto max-h-[50vh] px-2">
           <PermissionsView checkbox enabledPermissions={props.allowed} signal={props.permissionsSignal} />
         </div>
-        <button type="button" class="btn flex-grow border-none" onClick={() => props.setShow(false)}>
+        <button type="button" class="btn flex-grow border-none" onClick={() => hideModal()}>
           Done
         </button>
       </form>
@@ -33,6 +33,7 @@ export function SetRequestedBotPermissionsModal(props: Props & { name: string, a
 }
 
 export default function SetBotPermissionsModal(props: Props) {
+  const {hideModal} = useModal()
   return (
     <ModalTemplate title="Default Permissions">
       <p class="text-fg/70 text-center mt-4 text-sm font-light">
@@ -43,13 +44,13 @@ export default function SetBotPermissionsModal(props: Props) {
         class="flex flex-wrap justify-end mt-4 gap-x-4"
         onSubmit={(event) => {
           event.preventDefault()
-          props.setShow(false)
+          hideModal()
         }}
       >
         <div class="overflow-y-auto max-h-[50vh] px-2">
           <PermissionsView checkbox enabledPermissions={Permissions.all()} signal={props.permissionsSignal} />
         </div>
-        <button type="button" class="btn flex-grow border-none" onClick={() => props.setShow(false)}>
+        <button type="button" class="btn flex-grow border-none" onClick={() => hideModal()}>
           Done
         </button>
       </form>

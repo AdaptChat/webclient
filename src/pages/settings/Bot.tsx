@@ -14,9 +14,9 @@ import Key from "../../components/icons/svg/Key";
 import Clipboard from "../../components/icons/svg/Clipboard";
 import {BotFlags, Permissions} from "../../api/Bitflags";
 import UserTag from "../../components/icons/svg/UserTag";
-import Modal from "../../components/ui/Modal";
-import SetBotPermissionsModal from "../../components/settings/SetBotPermissionsModal";
+import {ModalId, useModal} from "../../components/ui/Modal";
 import Plus from "../../components/icons/svg/Plus";
+
 void tooltip
 
 function BriefInfo(props: ParentProps<{ label: string, copyText?: string }>) {
@@ -97,20 +97,13 @@ export default function Bot() {
     { loading: 'Copying...', success: 'Copied!', error: 'Failed to Copy' },
   )
 
-  const [showPermissionsModal, setShowPermissionsModal] = createSignal(false)
-
   const navigate = useNavigate()
   const botInvite = () => `https://app.adapt.chat/bots/${params.botId}`
+  const {showModal} = useModal()
 
   return (
     <div class="p-4">
       <Header>Bots</Header>
-      <Modal get={showPermissionsModal} set={setShowPermissionsModal}>
-        <SetBotPermissionsModal
-          setShow={setShowPermissionsModal}
-          permissionsSignal={[defaultPermissions, setDefaultPermissions]}
-        />
-      </Modal>
       <A href="/settings/bots" class="btn btn-sm mr-2">
         <Icon icon={ChevronLeft} class="w-4 h-4 fill-fg" />
         Back
@@ -177,7 +170,9 @@ export default function Bot() {
         <p class="font-light text-sm my-2 text-fg/60">
           Server owners will be asked to grant your bot these permissions when they add it to their server.
         </p>
-        <button class="btn mobile:w-full" onClick={() => setShowPermissionsModal(true)}>
+        <button class="btn mobile:w-full" onClick={() => {
+          showModal(ModalId.SetBotPermissions, [defaultPermissions, setDefaultPermissions])
+        }}>
           <Icon icon={UserTag} class="w-4 h-4 fill-fg mr-2" />
           Edit Permissions
         </button>

@@ -4,7 +4,7 @@ import {
   createEffect,
   createSignal,
   Match,
-  ParentProps, Setter,
+  ParentProps, Setter, Signal,
   Switch,
   useContext
 } from "solid-js";
@@ -26,6 +26,8 @@ import AddFriendModal from "../friends/AddFriendModal";
 import SetPresence from "../users/SetPresenceModal";
 import CreateBotModal from "../settings/CreateBotModal";
 import {Bot} from "../../types/user";
+import SetBotPermissionsModal, {SetRequestedBotPermissionsModal} from "../settings/SetBotPermissionsModal";
+import {Permissions} from "../../api/Bitflags";
 
 export enum ModalId {
   NewGuild,
@@ -40,6 +42,8 @@ export enum ModalId {
   AddFriend,
   UpdatePresence,
   CreateBot,
+  SetBotPermissions,
+  SetRequestedBotPermissions,
 }
 
 type ModalMapping = {
@@ -55,6 +59,12 @@ type ModalMapping = {
   [ModalId.AddFriend]: undefined,
   [ModalId.UpdatePresence]: undefined,
   [ModalId.CreateBot]: Setter<Bot[] | null>,
+  [ModalId.SetBotPermissions]: Signal<Permissions>,
+  [ModalId.SetRequestedBotPermissions]: {
+    permissionsSignal: Signal<Permissions>
+    name: string
+    allowed: Permissions
+  },
 }
 
 type ModalDataPair = {
@@ -178,6 +188,12 @@ export function ModalProvider(props: ParentProps) {
           </Match>
           <Match when={context.id === ModalId.CreateBot}>
             <CreateBotModal setBots={context.data as Setter<Bot[] | null>} />
+          </Match>
+          <Match when={context.id === ModalId.SetBotPermissions}>
+            <SetBotPermissionsModal permissionsSignal={context.data as any} />
+          </Match>
+          <Match when={context.id === ModalId.SetRequestedBotPermissions}>
+            <SetRequestedBotPermissionsModal {...context.data as any} />
           </Match>
         </Switch>
       </ModalContainer>
