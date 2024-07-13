@@ -74,12 +74,10 @@ export type ModalContext = {
 export const ModalContext = createContext<ModalContext>()
 export const useModal = () => useContext(ModalContext) ?? {} as ModalContext
 
-export default function ModalContainer(
-  { isShowing, hide, children }: ParentProps<{ isShowing: Accessor<boolean>, hide: () => void }>
-) {
+export default function ModalContainer(props: ParentProps<{ isShowing: Accessor<boolean>, hide: () => void }>) {
   const [invisible, setInvisible] = createSignal(true)
   createEffect(() => {
-    if (isShowing()) setInvisible(false)
+    if (props.isShowing()) setInvisible(false)
     else setTimeout(() => setInvisible(true), 200)
   })
 
@@ -91,27 +89,27 @@ export default function ModalContainer(
             "flex absolute items-center justify-center bg-black/50 backdrop-blur w-full h-full inset-0"
             + " transition-all duration-200 font-sans text-fg"
           ]: true,
-          "opacity-0 z-[-90]": !isShowing(),
-          "opacity-100 z-[9999]": isShowing(),
+          "opacity-0 z-[-90]": !props.isShowing(),
+          "opacity-100 z-[9999]": props.isShowing(),
           "invisible": invisible(),
           "visible": !invisible(),
         }}
-        onClick={(event) => event.currentTarget == event.target && hide()}
+        onClick={(event) => event.currentTarget == event.target && props.hide()}
       >
         <div classList={{
           "relative bg-2 p-6 rounded-lg max-w-xl transition-all duration-200 mx-2": true,
-          "scale-50": !isShowing(),
-          "scale-100": isShowing(),
+          "scale-50": !props.isShowing(),
+          "scale-100": props.isShowing(),
         }}>
           <button>
             <Icon
               icon={Xmark}
               title="Close Modal"
               class="w-5 h-5 fill-fg absolute right-4 top-4 select-none opacity-50 hover:opacity-100 transition-all duration-200"
-              onClick={() => hide()}
+              onClick={() => props.hide()}
             />
           </button>
-          {children}
+          {props.children}
         </div>
       </div>
     </Portal>

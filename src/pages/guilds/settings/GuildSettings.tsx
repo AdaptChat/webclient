@@ -1,6 +1,6 @@
 import SidebarButton from "../../../components/ui/SidebarButton";
 import {generateSettingsComponents, SettingsSection} from "../../settings/SettingsLayout";
-import {createMemo, createSignal, Show} from "solid-js";
+import {createMemo, Show} from "solid-js";
 import {useParams} from "@solidjs/router";
 import {getApi} from "../../../api/Api";
 import Trash from "../../../components/icons/svg/Trash";
@@ -8,8 +8,7 @@ import GuildIcon from "../../../components/guilds/GuildIcon";
 import CircleInfo from "../../../components/icons/svg/CircleInfo";
 import UserTag from "../../../components/icons/svg/UserTag";
 import Envelope from "../../../components/icons/svg/Envelope";
-import Modal from "../../../components/ui/Modal";
-import ConfirmGuildDeleteModal from "../../../components/guilds/ConfirmGuildDeleteModal";
+import {ModalId, useModal} from "../../../components/ui/Modal";
 import FaceSmile from "../../../components/icons/svg/FaceSmile";
 
 function GuildSettingsSidebar() {
@@ -20,14 +19,10 @@ function GuildSettingsSidebar() {
   const guild = createMemo(() => api.cache!.guilds.get(guildId())!)
   const perms = createMemo(() => api.cache!.getClientPermissions(guildId()))
   const root = createMemo(() => `/guilds/${guildId()}/settings`)
-
-  const [confirmGuildDeleteModal, setConfirmGuildDeleteModal] = createSignal(false)
+  const {showModal} = useModal()
 
   return (
     <>
-      <Modal get={confirmGuildDeleteModal} set={setConfirmGuildDeleteModal}>
-        <ConfirmGuildDeleteModal guild={guild()} setConfirmGuildLeaveModal={setConfirmGuildDeleteModal} />
-      </Modal>
       <div class="flex px-1 py-2 text-fg/50 mobile:text-sm mobile:px-1 mobile:pt-0 items-center gap-x-1">
         <GuildIcon guild={guild()} sizeClass="w-8 h-8 mobile:w-7 mobile:h-7 text-xs" unread={false} pings={0} />
         <span class="font-title">{guild().name}</span>
@@ -59,7 +54,7 @@ function GuildSettingsSidebar() {
           large
           svg={Trash}
           danger
-          onClick={() => setConfirmGuildDeleteModal(true)}
+          onClick={() => showModal(ModalId.DeleteGuild, guild())}
         >
           Delete Server
         </SidebarButton>
