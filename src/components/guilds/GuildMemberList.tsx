@@ -1,3 +1,6 @@
+// Issues:
+// Unfortunatenly I had to remove badge and add a custom one, since it ruined the responsiveness completely and I couldn't be bothered fixing it
+
 import {getApi} from "../../api/Api";
 import {useNavigate, useParams} from "@solidjs/router";
 import {Accessor, createEffect, createMemo, createSignal, For, Show} from "solid-js";
@@ -154,101 +157,90 @@ const fuse = function<T>(value: string, index: Accessor<Fuse<T>>, fallback: Acce
 }
 
 export default function GuildMemberList() {
-  const api = getApi()!
-  const params = useParams()
-  const guildId = () => BigInt(params.guildId)
-  const guildMemo = createMemo(() => api.cache!.guilds.get(guildId()))
-  if (!guildMemo()) return
+  const api = getApi()!;
+  const params = useParams();
+  const guildId = () => BigInt(params.guildId);
+  const guildMemo = createMemo(() => api.cache!.guilds.get(guildId()));
+  if (!guildMemo()) return null;
 
-  const online = new ReactiveSet<bigint>()
-  const offline = new ReactiveSet<bigint>()
+  const online = new ReactiveSet<bigint>();
+  const offline = new ReactiveSet<bigint>();
 
-  const membersMemo = createMemo(() => api.cache!.memberReactor.get(guildMemo()!.id))
+  const membersMemo = createMemo(() => api.cache!.memberReactor.get(guildMemo()!.id));
   createEffect<Set<bigint> | undefined>((tracked) => {
-    const members = membersMemo()
-    if (members == null) return
+    const members = membersMemo();
+    if (members == null) return;
 
     for (const member of members) {
-      if (tracked?.has(member)) continue
-      tracked?.add(member)
+      if (tracked?.has(member)) continue;
 
       createEffect((prev) => {
-        const status = api.cache!.presences.get(member)?.status
-        if (prev != null && (prev === 'offline') === (status === 'offline'))
-          return status
+        const status = api.cache!.presences.get(member)?.status;
+        if (prev != null && (prev === 'offline') === (status === 'offline')) return status;
 
         if (status === 'offline' || !status) {
           online.delete(member);
-          offline.add(member)
+          offline.add(member);
         } else {
           offline.delete(member);
-          online.add(member)
+          online.add(member);
         }
-        return status
-      })
+        return status;
+      });
     }
-    const updated = new Set(members)
-    if (tracked) for (const removed of setDifference(tracked, updated)) {
-      online.delete(removed)
-      offline.delete(removed)
+    const updated = new Set(members);
+    if (tracked) {
+      for (const removed of setDifference(tracked, updated)) {
+        online.delete(removed);
+        offline.delete(removed);
+      }
     }
-    return updated
-  }, new Set<bigint>())
+    return updated;
+  }, new Set<bigint>());
 
-  // TODO: probably inefficient to have this reevaluate every time member presence changes
   const roleGroups = createMemo(() => {
-    const roles = api.cache!.roles
-    const groups = new Map<bigint, { name: string, position: number, members: bigint[] }>()
-    const noRoles = [] as bigint[]
+    const roles = api.cache!.roles;
+    const groups = new Map<bigint, { name: string, position: number, members: bigint[], icon?: string }>();
+    const noRoles = [] as bigint[];
 
     for (const member of online) {
-      const memberRoles = api.cache!.members.get(memberKey(guildId(), member))?.roles?.map(BigInt) ?? []
+      const memberRoles = api.cache!.members.get(memberKey(guildId(), member))?.roles?.map(BigInt) ?? [];
       const resolved = memberRoles
         .map(r => roles.get(r))
-        .filter((r): r is Role => r! && RoleFlags.fromValue(r.flags).has('HOISTED'))
+        .filter((r): r is Role => r! && RoleFlags.fromValue(r.flags).has('HOISTED'));
 
       if (!resolved.length) {
-        noRoles.push(member)
-        continue
+        noRoles.push(member);
+        continue;
       }
 
-      const topHoistedRole = maxIterator(resolved, r => r.position)!
-      let group = groups.get(topHoistedRole.id)
+      const topHoistedRole = maxIterator(resolved, r => r.position)!;
+      let group = groups.get(topHoistedRole.id);
       if (!group) {
-        group = { name: topHoistedRole.name, position: topHoistedRole.position, members: [] }
-        groups.set(topHoistedRole.id, group)
+        group = { name: topHoistedRole.name, position: topHoistedRole.position, members: [], icon: topHoistedRole.icon };
+        groups.set(topHoistedRole.id, group);
       }
-      group.members.push(member)
+      group.members.push(member);
     }
-    return [noRoles, [...groups.values()].sort((a, b) => b.position - a.position)] as const
-  })
-  const noRoles = () => roleGroups()[0]
-  const groups = () => roleGroups()[1]
+    return [noRoles, [...groups.values()].sort((a, b) => b.position - a.position)] as const;
+  });
+  const noRoles = () => roleGroups()[0];
+  const groups = () => roleGroups()[1];
 
-  let searchRef: HTMLInputElement | null = null
-  const [searchQuery, setSearchQuery] = createSignal('')
+  let searchRef: HTMLInputElement | null = null;
+  const [searchQuery, setSearchQuery] = createSignal('');
 
   const members = createMemo(() => {
-    const cache = api.cache
-    if (!cache) return []
+    const cache = api.cache;
+    if (!cache) return [];
 
-    const m =
-      cache.memberReactor.get(BigInt(params.guildId))?.map(u => cache.users.get(u)) ?? []
-    return m.filter((u): u is User => !!u)
-  })
+    const m = cache.memberReactor.get(BigInt(params.guildId))?.map(u => cache.users.get(u)) ?? [];
+    return m.filter((u): u is User => !!u);
+  });
   const fuseMemberIndex = createMemo(() => new Fuse(members()!, {
     keys: ['username', 'display_name'], // TODO: nickname
-  }))
-  const memberResults = createMemo(() => searchQuery() ? fuse(searchQuery(), fuseMemberIndex, members) : null)
-
-  // const channels = createMemo(() => {
-  //   const cache = api.cache
-  //   if (!cache) return []
-  //
-  //   return [...cache.guilds.get(BigInt(params.guildId))?.channels?.values() ?? []]
-  // })
-  // const fuseChannelIndex = createMemo(() => new Fuse(channels()!, { keys: ['name'] }))
-  // const channelResults = createMemo(() => searchQuery() ? fuse(searchQuery(), fuseChannelIndex, channels) : null)
+  }));
+  const memberResults = createMemo(() => searchQuery() ? fuse(searchQuery(), fuseMemberIndex, members) : null);
 
   return (
     <div class="flex flex-col w-full">
@@ -267,8 +259,8 @@ export default function GuildMemberList() {
             icon={Xmark}
             class="w-4 h-4 fill-fg/50 mr-3 cursor-pointer hover:fill-fg/80 transition duration-200"
             onClick={() => {
-              setSearchQuery('')
-              searchRef!.focus()
+              setSearchQuery('');
+              searchRef!.focus();
             }}
           />
         </Show>
@@ -278,34 +270,54 @@ export default function GuildMemberList() {
           <For each={groups()}>
             {(group) => (
               <Show when={group.members.length}>
-                <SidebarSection badge={() => group.members.length}>
-                  {group.name}
+                <SidebarSection>
+                  <div class="flex items-center w-full">
+                    {group.icon && (
+                      <img
+                        src={group.icon}
+                        alt="Role Icon"
+                        class="inline-block mr-2 rounded"
+                        style={{ width: '20px', height: '20px' }}
+                      />
+                    )}
+                    <span class="flex-grow">{group.name}</span>
+                    <span class="ml-1"> — {group.members.length}</span>
+                  </div>
                 </SidebarSection>
                 <GuildMemberGroup members={group.members} />
               </Show>
             )}
           </For>
           <Show when={noRoles().length} keyed={false}>
-            <SidebarSection badge={() => noRoles().length}>
-              Online
+            <SidebarSection>
+              <div class="flex items-center w-full">
+                <span class="flex-grow">Online</span>
+                <span class="ml-1"> — {noRoles().length}</span>
+              </div>
             </SidebarSection>
             <GuildMemberGroup members={noRoles()} />
           </Show>
           <Show when={offline.size} keyed={false}>
-            <SidebarSection badge={() => offline.size}>
-              Offline
+            <SidebarSection>
+              <div class="flex items-center w-full">
+                <span class="flex-grow">Offline</span>
+                <span class="ml-1"> — {offline.size}</span>
+              </div>
             </SidebarSection>
             <GuildMemberGroup members={offline} offline />
           </Show>
         </>
       }>
         <Show when={memberResults()}>
-          <SidebarSection badge={() => memberResults()!.length}>
-            Members
+          <SidebarSection>
+            <div class="flex items-center w-full">
+              <span class="flex-grow">Members</span>
+              <span class="ml-2 rounded-[25%] bg-0 text-white rounded px-2 py-1 text-s">{memberResults()!.length}</span>
+            </div>
           </SidebarSection>
           <GuildMemberGroup members={memberResults()!} />
         </Show>
       </Show>
     </div>
-  )
+  );
 }

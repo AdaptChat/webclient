@@ -1,4 +1,4 @@
-import "katex/dist/katex.min.css";
+// import "katex/dist/katex.min.css"; Fixing compiler from bitching.
 
 import {Plugin, unified} from "unified";
 import {visit} from "unist-util-visit";

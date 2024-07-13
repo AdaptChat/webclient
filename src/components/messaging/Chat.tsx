@@ -7,12 +7,13 @@ import {
   Match,
   onCleanup,
   onMount, ParentProps,
-  Show,
+  Show, Signal,
   Switch
 } from "solid-js";
-import type {Message} from "../../types/message";
-import {getApi} from "../../api/Api";
-import MessageGrouper, {type MessageGroup} from "../../api/MessageGrouper";
+import type { Message } from "../../types/message";
+import { getUnicodeEmojiUrl } from "./Emoji";
+import { getApi } from "../../api/Api";
+import MessageGrouper, { type MessageGroup } from "../../api/MessageGrouper";
 import {
   displayName, extendedColor,
   filterIterator, filterMapIterator,
@@ -26,35 +27,32 @@ import {
 } from "../../utils";
 import TypingKeepAlive from "../../api/TypingKeepAlive";
 import tooltip from "../../directives/tooltip";
-import {noop} from "../../utils";
+import { noop } from "../../utils";
 import Icon from "../icons/Icon";
 import Clipboard from "../icons/svg/Clipboard";
 import PaperPlaneTop from "../icons/svg/PaperPlaneTop";
-import {DynamicMarkdown} from "./Markdown";
-import type {DmChannel, GuildChannel} from "../../types/channel";
+import { DynamicMarkdown } from "./Markdown";
+import type { DmChannel, GuildChannel } from "../../types/channel";
 import Fuse from "fuse.js";
-import {gemoji} from 'gemoji'
-import {User} from "../../types/user";
+import { gemoji } from 'gemoji'
+import { User } from "../../types/user";
 import Plus from "../icons/svg/Plus";
 import Hashtag from "../icons/svg/Hashtag";
 import Trash from "../icons/svg/Trash";
 import useContextMenu from "../../hooks/useContextMenu";
-import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../ui/ContextMenu";
-import {toast} from "solid-toast";
+import ContextMenu, { ContextMenuButton, DangerContextMenuButton } from "../ui/ContextMenu";
+import { toast } from "solid-toast";
 import Code from "../icons/svg/Code";
-import {ExtendedColor, Invite} from "../../types/guild";
+import { ExtendedColor, Invite } from "../../types/guild";
 import GuildIcon from "../guilds/GuildIcon";
 import UserPlus from "../icons/svg/UserPlus";
-import {joinGuild} from "../../pages/guilds/Invite";
-import {useNavigate} from "@solidjs/router";
+import { joinGuild } from "../../pages/guilds/Invite";
+import { useNavigate, useParams } from "@solidjs/router";
 import BookmarkFilled from "../icons/svg/BookmarkFilled";
-import {UserFlags} from "../../api/Bitflags";
-import {ReactiveSet} from "@solid-primitives/set";
+import { UserFlags } from "../../api/Bitflags";
+import { ReactiveSet } from "@solid-primitives/set";
 import PenToSquare from "../icons/svg/PenToSquare";
-import {CustomEmoji} from "../../types/emoji";
-import {getUnicodeEmojiUrl} from "./Emoji";
 import Users from "../icons/svg/Users";
-
 noop(tooltip)
 
 const CONVEY = 'https://convey.adapt.chat'
@@ -63,6 +61,7 @@ type SkeletalData = {
   headerWidth: string,
   contentLines: string[],
 }
+
 function generateSkeletalData(n: number = 10): SkeletalData[] {
   const data: SkeletalData[] = []
   for (let i = 0; i < n; i++) {
@@ -336,27 +335,27 @@ export function MessageContent(props: ContentProps) {
       {/* Invites */}
       <For each={invites()}>
         {(invite) => (
-          <div class="my-1 bg-0 rounded-lg p-4 max-w-[360px] overflow-hidden relative [&_*]:z-[1]">
-            <Show when={invite.guild?.banner}>
-              <img src={invite.guild?.banner} alt="" class="absolute inset-0 opacity-25" />
-            </Show>
-            <p class="pb-2 flex items-center justify-center text-xs text-fg/40 font-title">
-              <Icon icon={UserPlus} class="w-5 h-5 mr-2 fill-fg/40" />
+          <div class="my-2 bg-gray-800 rounded-lg p-4 max-w-[360px] overflow-hidden relative shadow-md">
+            <p class="pb-2 flex items-center justify-center text-sm text-gray-400 font-title font-bold">
+              <Icon icon={UserPlus} class="w-5 h-5 mr-2 fill-current text-gray-400" />
               <span>You've been invited to join a server!</span>
             </p>
-            <div class="flex gap-x-3 items-start">
+            <Show when={invite.guild?.banner}>
+              <img src={invite.guild?.banner} alt="" class="absolute inset-0 opacity-20 rounded-lg" />
+            </Show>
+            <div class="relative z-10 flex gap-x-4 items-center mt-2">
               <GuildIcon guild={invite!.guild!} pings={0} unread={false} sizeClass="w-16 h-16 text-lg" />
               <div class="flex flex-col flex-grow">
-                <h1 class="font-title text-lg font-medium">{invite.guild?.name}</h1>
+                <h1 class="font-title text-lg font-medium text-white">{invite.guild?.name}</h1>
                 <Show when={invite.guild?.description}>
-                  <p class="text-fg/50 text-sm">{invite.guild?.description}</p>
+                  <p class="text-gray-300 text-sm mt-1">{invite.guild?.description}</p>
                 </Show>
-                <p class="select-none opacity-50 flex items-center">
-                  <Icon icon={Users} class="w-4 h-4 mr-1 fill-fg" />
+                <p class="select-none text-gray-400 text-sm flex items-center mt-1">
+                  <Icon icon={Users} class="w-4 h-4 mr-1 fill-current text-gray-400" />
                   {invite.guild?.member_count?.total} Member{invite.guild?.member_count?.total === 1 ? '' : 's'}
                 </p>
-                <button class="btn btn-primary btn-sm mt-2" onClick={() => joinGuild(invite.code, navigate)}>
-                  <Icon icon={Plus} class="w-4 h-4 mr-1 fill-fg" />
+                <button class="btn btn-primary btn-sm mt-2 flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md shadow hover:bg-blue-500" onClick={() => joinGuild(invite.code, navigate)}>
+                  <Icon icon={Plus} class="w-4 h-4 mr-1 fill-current" />
                   Join Server
                 </button>
               </div>
@@ -364,6 +363,7 @@ export function MessageContent(props: ContentProps) {
           </div>
         )}
       </For>
+
       {/* Error */}
       <Show when={message()._nonceError} keyed={false}>
         <p class="inline-block p-2 bg-danger/20 rounded-lg text-sm font-medium">
@@ -491,6 +491,7 @@ export function MessageHeader(props: ParentProps<{
   authorColor?: ExtendedColor | null,
   authorName: string,
   badge?: string,
+  icon?: string,
   timestamp: number | Date,
   class?: string,
   classList?: Record<string, boolean>,
@@ -519,6 +520,16 @@ export function MessageHeader(props: ParentProps<{
           style={extendedColor.fg(props.authorColor)}
         >
           {props.authorName}
+          <Show when={props.icon}>
+            {props.icon && (
+              <img
+                src={props.icon}
+                alt="Role Icon"
+                class="inline-block ml-2 rounded"
+                style={{ width: '18px', height: '18px' }}
+              />
+            )}
+          </Show>
           <Show when={props.badge}>
             <span class="text-xs ml-1.5 rounded px-1 py-[1px] bg-accent text-fg">{props.badge}</span>
           </Show>
@@ -565,9 +576,9 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
     const charCode = e.key.charCodeAt(0)
     if (document.activeElement == document.body && (
       e.key.length == 1
-        && charCode >= 32 && charCode <= 126
-        && !e.ctrlKey && !e.altKey && !e.metaKey
-        || (e.ctrlKey || e.metaKey) && e.key == 'v'
+      && charCode >= 32 && charCode <= 126
+      && !e.ctrlKey && !e.altKey && !e.metaKey
+      || (e.ctrlKey || e.metaKey) && e.key == 'v'
     )) {
       messageInputRef!.focus()
     }
@@ -701,7 +712,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
         mutuals,
         (guild) => guild
           .channels
-          ?.map(channel => ({...channel, key: `${channel.name}:${guild.name}`}) as unknown as GuildChannel) ?? []
+          ?.map(channel => ({ ...channel, key: `${channel.name}:${guild.name}` }) as unknown as GuildChannel) ?? []
       )]
     }
   })
@@ -717,7 +728,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
   })
   const emojis = createMemo(() => {
     const unicode = gemoji.flatMap(
-      ({names, emoji, category}) => names.map(name => ({
+      ({ names, emoji, category }) => names.map(name => ({
         name, emoji, url: getUnicodeEmojiUrl(emoji), category
       }))
     );
@@ -742,7 +753,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
       selected: trueModulo(index, autocompleteResult()?.length || 1),
     }))
   }
-  const fuse = function<T>(value: string, index: Accessor<Fuse<T>>, fallback: Accessor<T[]>) {
+  const fuse = function <T>(value: string, index: Accessor<Fuse<T>>, fallback: Accessor<T[]>) {
     return value
       ? index()?.search(value).slice(0, 5).map(result => result.item)
       : fallback().slice(0, 5)
@@ -859,6 +870,10 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                   ? api.cache!.getMemberColor(props.guildId, author.id)
                   : undefined
 
+                const icon = props.guildId
+                  ? api.cache!.getMemberIcon(props.guildId, author.id)
+                  : undefined
+
                 return (
                   <div class="flex flex-col">
                     <MessageHeader
@@ -869,21 +884,24 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                       authorAvatar={api.cache!.avatarOf(author.id)}
                       authorColor={authorColor}
                       authorName={displayName(author)}
+                      icon={icon}
                       badge={UserFlags.fromValue(author.flags).has('BOT') ? 'BOT' : undefined}
                       timestamp={snowflakes.timestamp(firstMessage.id)}
                     >
-                      <MessageContent message={firstMessage} {...contentProps()} />
+                      <div class="flex items-center">
+                        <MessageContent message={firstMessage} {...contentProps()} />
+                      </div>
                     </MessageHeader>
                     <For each={group.slice(1)}>
                       {(message: Message) => (
                         <div
                           classList={(() => {
-                            const mentioned = api.cache?.isMentionedIn(message)
+                            const mentioned = api.cache?.isMentionedIn(message);
                             return {
                               "relative group flex items-center py-px transition-all duration-200 rounded-r-lg": true,
                               "bg-accent/10 hover:bg-accent/20 border-l-2 border-l-accent": mentioned,
                               "hover:bg-bg-1/60": !mentioned,
-                            }
+                            };
                           })()}
                           onContextMenu={contextMenu.getHandler(
                             <MessageContextMenu message={message} guildId={props.guildId} editing={editing} />
@@ -891,12 +909,12 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                         >
                           <span
                             classList={(() => {
-                              const mentioned = api.cache?.isMentionedIn(message)
+                              const mentioned = api.cache?.isMentionedIn(message);
                               return {
                                 "invisible text-center group-hover:visible text-[0.65rem] text-fg/40": true,
                                 "w-[60px]": mentioned,
                                 "w-[62px]": !mentioned,
-                              }
+                              };
                             })()}
                             use:tooltip={timestampTooltip(snowflakes.timestamp(message.id))}
                           >
@@ -907,7 +925,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                       )}
                     </For>
                   </div>
-                )
+                );
               }}
             </For>
           </Show>
