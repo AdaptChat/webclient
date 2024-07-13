@@ -15,7 +15,7 @@ function GuildChannelSettingsSidebar() {
 
   const guildId = createMemo(() => BigInt(params.guildId))
   const channelId = createMemo(() => BigInt(params.channelId))
-  const channel = createMemo(() => api.cache!.channels.get(channelId())! as GuildChannel)
+  const channel = createMemo(() => api.cache!.channels.get(channelId()) as GuildChannel | undefined)
   const root = createMemo(() => `/guilds/${guildId()}/${channelId()}/settings`)
 
   const perms = createMemo(() => api.cache!.getClientPermissions(guildId(), channelId()))
@@ -26,7 +26,7 @@ function GuildChannelSettingsSidebar() {
   return (
     <>
       <div class="flex px-1 py-2 text-fg/50 mobile:text-sm mobile:px-1 mobile:pt-0 items-center gap-x-1">
-        <span class="font-title">Channel: {channel().name}</span>
+        <span class="font-title">Channel: {channel()?.name}</span>
       </div>
       <SidebarButton large href={root() + '/overview'} svg={CircleInfo} disabled={!hasModifyChannels()}>
         Overview
@@ -47,7 +47,7 @@ function GuildChannelSettingsSidebar() {
           large
           svg={Trash}
           danger
-          onClick={() => showModal(ModalId.DeleteChannel, channel())}
+          onClick={() => channel() && showModal(ModalId.DeleteChannel, channel()!)}
         >
           Delete Channel
         </SidebarButton>

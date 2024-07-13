@@ -120,23 +120,30 @@ export default function ModalContainer(
 
 export function ModalProvider(props: ParentProps) {
   const [stack, setStack] = createSignal<ModalDataPair[]>([])
+  const [hidden, setHidden] = createSignal(true)
   const context = {
     getModal: () => stack()[stack().length - 1] ?? null,
     get id() { return this.getModal()?.[0] },
     get data() { return this.getModal()?.[1] },
 
     showModal<T extends ModalId>(id: T, data?: ModalMapping[T]) {
+      setHidden(false)
       setStack(prev => [...prev, [id, data] as ModalDataPair])
     },
     hideModal() {
-      setStack(prev => prev.slice(0, -1))
+      let timeout = 0
+      if (stack().length === 1) {
+        setHidden(true)
+        timeout = 200
+      }
+      setTimeout(() => setStack(prev => prev.slice(0, -1)), timeout)
     },
   }
 
   return (
     <ModalContext.Provider value={context}>
       {props.children}
-      <ModalContainer isShowing={() => context.getModal() != null} hide={() => context.hideModal()}>
+      <ModalContainer isShowing={() => !hidden()} hide={() => context.hideModal()}>
         <Switch>
           <Match when={context.id === ModalId.NewGuild}>
             <NewGuildModal pageSignal={context.data as NewGuildModalPage} />
