@@ -170,6 +170,7 @@ export type ExtendedColor = {
  * A role in a guild.
  */
 export interface Role {
+  icon?: string;
   /**
    * The snowflake ID of the role.
    */

@@ -360,6 +360,24 @@ export default class ApiCache {
     return maxIterator(roles, role => role.position) ?? this.getDefaultRole(guildId)
   }
 
+  getMemberIcon(guildId: bigint, memberId: bigint): Role['icon'] | undefined {
+    const member = this.members.get(memberKey(guildId, memberId));
+    if (!member) return undefined;
+  
+    const RWI = this.getMemberRoles(guildId, memberId).filter(role => role.icon != null);
+    const highest = maxIterator(RWI, role => role.position);
+    return highest?.icon;
+  }  
+  getRoleIcon(guildId: bigint, roleId: bigint): string | undefined {
+    const guild = this.guilds.get(guildId);
+    if (!guild || !guild.roles) return;
+  
+    const roleInGuild = guild.roles.find(r => r.id === roleId);
+    if (!roleInGuild) return;
+  
+    return roleInGuild.icon;
+  }
+  
   clientCanManage(guildId: bigint, userId: bigint): boolean {
     return this.guilds.get(guildId)?.owner_id == this.clientId!
       || this.getMemberTopRole(guildId, this.clientId!).position > this.getMemberTopRole(guildId, userId).position
