@@ -1,4 +1,4 @@
-import {ModalTemplate} from "../ui/Modal";
+import {ModalTemplate, useModal} from "../ui/Modal";
 import {createSignal, Setter, Show} from "solid-js";
 import {Guild} from "../../types/guild";
 import {useNavigate} from "@solidjs/router";
@@ -8,11 +8,11 @@ import Icon from "../icons/Icon";
 
 export interface Props {
   guild: Guild,
-  setConfirmGuildLeaveModal: Setter<boolean>,
 }
 
 export default function ConfirmGuildLeaveModal(props: Props) {
   const [confirmGuildLeaveModalError, setConfirmGuildLeaveModalError] = createSignal<string>()
+  const {hideModal} = useModal()
 
   const api = getApi()!
   const navigate = useNavigate()
@@ -26,7 +26,7 @@ export default function ConfirmGuildLeaveModal(props: Props) {
         <p class="text-danger mt-2">{confirmGuildLeaveModalError()}</p>
       </Show>
       <div class="flex justify-end mt-4 gap-x-4">
-        <button class="btn border-none btn-ghost" onClick={() => props.setConfirmGuildLeaveModal(false)}>
+        <button class="btn border-none btn-ghost" onClick={hideModal}>
           Cancel
         </button>
         <button
@@ -42,7 +42,7 @@ export default function ConfirmGuildLeaveModal(props: Props) {
               return
             }
 
-            props.setConfirmGuildLeaveModal(false)
+            hideModal()
             navigate('/')
           }}
         >

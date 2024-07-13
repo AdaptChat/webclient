@@ -1,5 +1,5 @@
 import Header from "../../../components/ui/Header";
-import {SortableRoles, updateRolePositions} from "./Roles";
+import {SortableRoles} from "./Roles";
 import {A, useLocation, useNavigate, useParams} from "@solidjs/router";
 import {getApi} from "../../../api/Api";
 import {createEffect, createMemo, createSignal, ParentProps, Show} from "solid-js";

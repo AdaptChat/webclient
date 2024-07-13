@@ -1,4 +1,4 @@
-import {ModalTemplate} from "../ui/Modal";
+import {ModalTemplate, useModal} from "../ui/Modal";
 import {createSignal, Show} from "solid-js";
 import {useNavigate} from "@solidjs/router";
 import {getApi} from "../../api/Api";
@@ -9,6 +9,7 @@ import Icon from "../icons/Icon";
 export default function ConfirmGuildDeleteModal(props: Props) {
   const [confirmGuildLeaveModalError, setConfirmGuildLeaveModalError] = createSignal<string>()
   const [guildNameIsCorrect, setGuildNameIsCorrect] = createSignal<boolean>(false)
+  const {hideModal} = useModal()
 
   const api = getApi()!
   const navigate = useNavigate()
@@ -47,7 +48,7 @@ export default function ConfirmGuildDeleteModal(props: Props) {
             return
           }
 
-          props.setConfirmGuildLeaveModal(false)
+          hideModal()
           navigate('/')
         }}
       >
@@ -97,7 +98,7 @@ export default function ConfirmGuildDeleteModal(props: Props) {
           <p class="text-danger mt-4 w-full">{confirmGuildLeaveModalError()}</p>
         </Show>
         {/* Use a div to prevent it being treated as the target when pressing enter */}
-        <div class="btn border-none btn-ghost mt-4" onClick={() => props.setConfirmGuildLeaveModal(false)}>
+        <div class="btn border-none btn-ghost mt-4" onClick={() => hideModal()}>
           Cancel
         </div>
         <button

@@ -1,5 +1,5 @@
-import {ModalTemplate} from "../ui/Modal";
-import {createMemo, createSignal, Setter} from "solid-js";
+import {ModalTemplate, useModal} from "../ui/Modal";
+import {createMemo, createSignal} from "solid-js";
 import {getApi} from "../../api/Api";
 import {useNavigate, useParams} from "@solidjs/router";
 import Icon from "../icons/Icon";
@@ -9,13 +9,13 @@ import {snowflakes} from "../../utils";
 
 type Props = {
   role: Role,
-  setShow: Setter<boolean>,
 }
 
 export default function ConfirmRoleDeleteModal(props: Props) {
   const api = getApi()!
   const navigate = useNavigate()
   const params = useParams()
+  const {hideModal} = useModal()
 
   const guild = createMemo(() => api.cache!.guilds.get(props.role.guild_id))
   const [isDeleting, setIsDeleting] = createSignal<boolean>(false)
@@ -38,14 +38,14 @@ export default function ConfirmRoleDeleteModal(props: Props) {
             throw err
           }
           setIsDeleting(false)
-          props.setShow(false)
+          hideModal()
 
           const defaultRole = snowflakes.withModelType(props.role.guild_id, snowflakes.ModelType.Role)
           if (params.roleId && BigInt(params.roleId) === props.role.id)
             navigate(`/guilds/${params.guildId}/settings/roles/${defaultRole}`)
         }}
       >
-        <button class="btn border-none btn-ghost" onClick={() => props.setShow(false)}>
+        <button class="btn border-none btn-ghost" onClick={hideModal}>
           Cancel
         </button>
         <button type="submit" class="btn btn-danger border-none" disabled={isDeleting()}>

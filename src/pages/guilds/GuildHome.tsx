@@ -50,11 +50,11 @@ export default function GuildHome() {
             "mask-image": "linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0))",
           }}
         />
-        <div class="absolute flex -bottom-8 left-4 gap-x-3">
-          <div class="bg-bg-0/70 rounded-2xl flex items-center">
+        <div class="absolute flex items-start top-[calc(100%-2rem)] left-4 gap-x-3">
+          <div class="bg-bg-0/70 rounded-3xl flex items-center">
             <GuildIcon
               guild={guild()}
-              sizeClass="!rounded-2xl overflow-hidden w-20 h-20"
+              sizeClass="!rounded-3xl overflow-hidden w-20 h-20"
               unread={false}
               pings={0}
             />

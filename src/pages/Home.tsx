@@ -1,16 +1,8 @@
-import {createMemo, For, type JSX, ParentProps, Show, useContext} from "solid-js";
+import {createMemo, For, type JSX, ParentProps, Show} from "solid-js";
 import {A, useNavigate} from "@solidjs/router";
 import {getApi} from "../api/Api";
 import StatusIndicator from "../components/users/StatusIndicator";
-import {
-  displayChannel,
-  displayName,
-  filterIterator,
-  filterMapIterator,
-  mapIterator,
-  noop,
-  snowflakes
-} from "../utils";
+import {displayChannel, displayName, filterIterator, filterMapIterator, mapIterator, noop, snowflakes} from "../utils";
 import Icon, {IconElement} from "../components/icons/Icon";
 import UserGroup from "../components/icons/svg/UserGroup";
 import ChevronRight from "../components/icons/svg/ChevronRight";
@@ -21,8 +13,9 @@ import {openDms} from "./friends/FriendsList";
 import {GroupDmChannel, GuildChannel} from "../types/channel";
 import {Message} from "../types/message";
 import tooltip from "../directives/tooltip";
-import {NewGuildModalContext} from "../components/guilds/NewGuildModal";
 import Header from "../components/ui/Header";
+import {ModalId, useModal} from "../components/ui/Modal";
+
 noop(tooltip)
 
 export function Card(props: ParentProps<{ title: string }>) {
@@ -65,10 +58,8 @@ export default function Home() {
   const api = getApi()!
   const navigate = useNavigate()
   const clientUser = api.cache!.clientUser!
+  const {showModal} = useModal()
   // const status = createMemo(() => api.cache!.presences.get(clientUser.id)?.status ?? 'online')
-
-  const newGuildModal = useContext(NewGuildModalContext)
-
   // onMount(() => api.pushNotifications.subscribe())
 
   const activeFriends = createMemo(() => [...mapIterator(
@@ -152,7 +143,7 @@ export default function Home() {
           <LearnAdaptSubcard
             title="Join a community"
             icon={Server}
-            onClick={() => newGuildModal?.setShow(true)}
+            onClick={() => showModal(ModalId.NewGuild)}
           >
             Create, discover, join, and chat in communities that suit your interests. You may also join the official&nbsp;
             <A

@@ -1,7 +1,7 @@
 import Layout, {FormInput, FormSubmit} from "./Layout";
 import Api, {setApi} from "../../api/Api";
 import {LoginResponse} from "../../types/auth";
-import {createSignal, Show} from "solid-js";
+import {createEffect, createSignal, Show} from "solid-js";
 import {useLocation, useNavigate} from "@solidjs/router";
 import {Turnstile, TurnstileRef} from "@nerimity/solid-turnstile";
 

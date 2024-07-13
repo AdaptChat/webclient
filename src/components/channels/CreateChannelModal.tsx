@@ -1,5 +1,5 @@
-import {createSignal, Setter, Show, Signal} from "solid-js";
-import {ModalTemplate} from "../ui/Modal";
+import {createSignal, Show, Signal} from "solid-js";
+import {ModalTemplate, useModal} from "../ui/Modal";
 import Icon, {IconElement} from "../icons/Icon";
 import Hashtag from "../icons/svg/Hashtag";
 import ChevronLeft from "../icons/svg/ChevronLeft";
@@ -9,7 +9,7 @@ import {getApi} from "../../api/Api";
 import {useNavigate} from "@solidjs/router";
 import {snowflakes} from "../../utils";
 
-type Props = { setter: Setter<boolean>, guildId: bigint, parentId: bigint | null }
+type Props = { guildId: bigint, parentId?: bigint | null }
 
 function ChannelTypeButton(props: {
   type: string, name: string, description: string, signal: Signal<string>
@@ -60,6 +60,7 @@ export default function CreateChannelModal(props: Props) {
   let channelNameRef: HTMLInputElement | null = null, signal: Signal<string>
   let api = getApi()!
   let navigate = useNavigate()
+  let {hideModal} = useModal()
 
   const [focused, setFocused] = createSignal(false)
   const [channelType, _] = signal = createSignal<string>('text')
@@ -98,7 +99,7 @@ export default function CreateChannelModal(props: Props) {
             return setError(response.errorJsonOrThrow().message)
           }
 
-          props.setter(false)
+          hideModal()
         }}
       >
         <p class="text-fg/70 text-center text-sm mt-4">
@@ -150,7 +151,7 @@ export default function CreateChannelModal(props: Props) {
           </p>
         </Show>
         <div class="flex gap-3 mt-3">
-          <div class="flex gap-x-2 btn btn-neutral" onClick={() => props.setter(false)}>
+          <div class="flex gap-x-2 btn btn-neutral" onClick={hideModal}>
             <Icon icon={ChevronLeft} class="fill-neutral-content/60 select-none w-4 h-4" />
             Back
           </div>

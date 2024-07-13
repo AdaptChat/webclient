@@ -1,4 +1,4 @@
-import {createSignal, For, Match, onMount, Show, Switch, useContext} from "solid-js";
+import {For, onMount, Show} from "solid-js";
 import {A} from "@solidjs/router";
 
 import {getApi} from "../../api/Api";
@@ -14,11 +14,9 @@ import useContextMenu from "../../hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../ui/ContextMenu";
 import RightFromBracket from "../icons/svg/RightFromBracket";
 import Code from "../icons/svg/Code";
-import Modal from "../ui/Modal";
-import GuildInviteModal from "./GuildInviteModal";
-import ConfirmGuildLeaveModal from "./ConfirmGuildLeaveModal";
+import {ModalId, useModal} from "../ui/Modal";
 import UserPlus from "../icons/svg/UserPlus";
-import {NewGuildModalContext} from "./NewGuildModal";
+import {ModalPage, NewGuildModalContextMenu} from "./NewGuildModal";
 import {DmChannel} from "../../types/channel";
 import {Tab} from "../../App";
 
@@ -43,12 +41,9 @@ function BasicButton({ icon, alt, href }: { icon: IconElement, alt: string, href
   )
 }
 
-const [showInviteModal, setShowInviteModal] = createSignal(false)
-const [confirmGuildLeaveModal, setConfirmGuildLeaveModal] = createSignal(false)
-const [modalSubject, setModalSubject] = createSignal<Guild>()
-
 export function GuildContextMenu(props: { guild: Guild }) {
   const api = getApi()!
+  const {showModal} = useModal()
 
   return (
     <ContextMenu>
@@ -56,10 +51,7 @@ export function GuildContextMenu(props: { guild: Guild }) {
         icon={UserPlus}
         label="Invite People"
         buttonClass="hover:bg-accent"
-        onClick={() => {
-          setShowInviteModal(true)
-          setModalSubject(props.guild)
-        }}
+        onClick={() => showModal(ModalId.CreateInvite, props.guild)}
       />
       <ContextMenuButton
         icon={Code}
@@ -70,10 +62,7 @@ export function GuildContextMenu(props: { guild: Guild }) {
         <DangerContextMenuButton
           icon={RightFromBracket}
           label="Leave Server"
-          onClick={() => {
-            setConfirmGuildLeaveModal(true)
-            setModalSubject(props.guild)
-          }}
+          onClick={() => showModal(ModalId.LeaveGuild, props.guild)}
         />
       </Show>
     </ContextMenu>
@@ -86,21 +75,11 @@ export default function GuildSideSelect() {
   const [dmChannelOrder] = cache.dmChannelOrder
 
   const contextMenu = useContextMenu()!
-  const { setShow: setShowNewGuildModal, NewGuildModalContextMenu } = useContext(NewGuildModalContext)!
+  const {showModal} = useModal()
 
   return (
     <div class="h-full overflow-y-auto hide-scrollbar">
       <div class="flex flex-col p-2 gap-y-2 min-h-full">
-        <Modal get={showInviteModal} set={setShowInviteModal}>
-          <Show when={modalSubject()}>
-            <GuildInviteModal guild={modalSubject()!} show={showInviteModal} />
-          </Show>
-        </Modal>
-        <Modal get={confirmGuildLeaveModal} set={setConfirmGuildLeaveModal}>
-          <Show when={modalSubject()}>
-            <ConfirmGuildLeaveModal guild={modalSubject()!} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
-          </Show>
-        </Modal>
         <div class="flex flex-col items-center">
           <BasicButton icon={HomeIcon} alt="Home" href="/" />
         </div>
@@ -142,7 +121,7 @@ export default function GuildSideSelect() {
           id="adapt_new_guild"
           class="flex group items-center justify-center bg-2 hover:bg-accent rounded-[50%]
             hover:rounded-[30%] transition-all duration-300 w-12 h-12"
-          onClick={() => setShowNewGuildModal(true)}
+          onClick={() => showModal(ModalId.NewGuild, ModalPage.New)}
           onContextMenu={contextMenu.getHandler(<NewGuildModalContextMenu />)}
         >
           <Icon

@@ -28,6 +28,8 @@ function last<T>(array: T[]): T | undefined {
   return array[array.length - 1]
 }
 
+const MESSAGE_HISTORY_LIMIT = 100
+
 /**
  * Groups messages by their author and timestamp.
  */
@@ -170,7 +172,7 @@ export default class MessageGrouper {
       return
 
     this.fetchLock = true
-    const params: Record<string, any> = { limit: 200 }
+    const params: Record<string, any> = { limit: MESSAGE_HISTORY_LIMIT }
     if (this.fetchBefore != null)
       params.before = this.fetchBefore
 
@@ -178,7 +180,7 @@ export default class MessageGrouper {
     const messages = response.ensureOk().jsonOrThrow()
 
     this.fetchBefore = last(messages)?.id
-    if (messages.length < 200)
+    if (messages.length < MESSAGE_HISTORY_LIMIT)
       this.setNoMoreMessages(true)
     this.insertMessages(messages.reverse())
     this.fetchLock = false
@@ -219,7 +221,7 @@ export default class MessageGrouper {
       channel_id: this.channelId,
       embeds: [],
       flags: 0,
-      stars: 0,
+      reactions: [],
       edited_at: null,
       mentions: [],
     }

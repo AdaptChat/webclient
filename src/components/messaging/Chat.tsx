@@ -7,7 +7,7 @@ import {
   Match,
   onCleanup,
   onMount, ParentProps,
-  Show, Signal,
+  Show,
   Switch
 } from "solid-js";
 import type {Message} from "../../types/message";
@@ -53,6 +53,7 @@ import {ReactiveSet} from "@solid-primitives/set";
 import PenToSquare from "../icons/svg/PenToSquare";
 import {CustomEmoji} from "../../types/emoji";
 import {getUnicodeEmojiUrl} from "./Emoji";
+import Users from "../icons/svg/Users";
 
 noop(tooltip)
 
@@ -335,18 +336,25 @@ export function MessageContent(props: ContentProps) {
       {/* Invites */}
       <For each={invites()}>
         {(invite) => (
-          <div class="my-1 bg-0 rounded-lg p-4 max-w-[360px]">
-            <p class="pb-2 flex items-center justify-center text-sm text-fg/40 font-title font-bold">
+          <div class="my-1 bg-0 rounded-lg p-4 max-w-[360px] overflow-hidden relative [&_*]:z-[1]">
+            <Show when={invite.guild?.banner}>
+              <img src={invite.guild?.banner} alt="" class="absolute inset-0 opacity-25" />
+            </Show>
+            <p class="pb-2 flex items-center justify-center text-xs text-fg/40 font-title">
               <Icon icon={UserPlus} class="w-5 h-5 mr-2 fill-fg/40" />
               <span>You've been invited to join a server!</span>
             </p>
-            <div class="flex gap-x-2 items-center">
+            <div class="flex gap-x-3 items-start">
               <GuildIcon guild={invite!.guild!} pings={0} unread={false} sizeClass="w-16 h-16 text-lg" />
               <div class="flex flex-col flex-grow">
                 <h1 class="font-title text-lg font-medium">{invite.guild?.name}</h1>
                 <Show when={invite.guild?.description}>
                   <p class="text-fg/50 text-sm">{invite.guild?.description}</p>
                 </Show>
+                <p class="select-none opacity-50 flex items-center">
+                  <Icon icon={Users} class="w-4 h-4 mr-1 fill-fg" />
+                  {invite.guild?.member_count?.total} Member{invite.guild?.member_count?.total === 1 ? '' : 's'}
+                </p>
                 <button class="btn btn-primary btn-sm mt-2" onClick={() => joinGuild(invite.code, navigate)}>
                   <Icon icon={Plus} class="w-4 h-4 mr-1 fill-fg" />
                   Join Server

@@ -350,6 +350,21 @@ export default class ApiCache {
     return this.getMemberPermissions(guildId, this.clientId!, channelId)
   }
 
+  getDefaultRole(guildId: bigint): Role {
+    const defaultRoleId = snowflakes.withModelType(guildId, snowflakes.ModelType.Role)
+    return this.roles.get(defaultRoleId)!
+  }
+
+  getMemberTopRole(guildId: bigint, userId: bigint): Role {
+    const roles = this.getMemberRoles(guildId, userId)
+    return maxIterator(roles, role => role.position) ?? this.getDefaultRole(guildId)
+  }
+
+  clientCanManage(guildId: bigint, userId: bigint): boolean {
+    return this.guilds.get(guildId)?.owner_id == this.clientId!
+      || this.getMemberTopRole(guildId, this.clientId!).position > this.getMemberTopRole(guildId, userId).position
+  }
+
   getMemberColor(guildId: bigint, memberId: bigint): ExtendedColor | undefined {
     const member = this.members.get(memberKey(guildId, memberId))
     if (!member) return undefined

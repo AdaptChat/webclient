@@ -1,21 +1,21 @@
 import type {Guild} from "../../types/guild";
 import {getApi} from "../../api/Api";
-import {Accessor, createEffect, createSignal} from "solid-js";
-import {ModalTemplate} from "../ui/Modal";
+import {createEffect, createSignal} from "solid-js";
+import {ModalId, ModalTemplate, useModal} from "../ui/Modal";
 import Check from "../icons/svg/Check";
 import Icon from "../icons/Icon";
 import ClipboardIcon from "../icons/svg/Clipboard";
 
-export default function GuildInviteModal(props: { guild: Guild, show: Accessor<boolean> }) {
+export default function GuildInviteModal(props: { guild: Guild }) {
   let inputRef: HTMLInputElement | null = null
+  const modal = useModal()
 
   const api = getApi()!
   const [code, setCode] = createSignal<string>()
   const [copied, setCopied] = createSignal(false)
 
   createEffect(async () => {
-    if (!props.show())
-      return
+    if (modal.id != ModalId.CreateInvite) return
 
     const code = api.cache!.inviteCodes.get(props.guild.id)
     if (code) {

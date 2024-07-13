@@ -1,15 +1,12 @@
 import {createEffect, createMemo, createSignal, Setter} from "solid-js";
 import {getApi} from "../../api/Api";
-import {ModalTemplate} from "../ui/Modal";
+import {ModalTemplate, useModal} from "../ui/Modal";
 import {UpdatePresencePayload} from "../../types/ws";
 
-interface Props {
-  setShow: Setter<boolean>
-}
-
-export default function SetPresence(props: Props) {
+export default function SetPresence() {
   const api = getApi()!
   const presence = createMemo(() => api.cache?.presences.get(api.cache!.clientId!))
+  const {hideModal} = useModal()
 
   const [updatePayload, setUpdatePayload] = createSignal<UpdatePresencePayload>({ status: 'online' })
   createEffect(() => {
@@ -40,7 +37,7 @@ export default function SetPresence(props: Props) {
           onClick={async (e) => {
             e.preventDefault()
             api.ws?.updatePresence(updatePayload())
-            props.setShow(false)
+            hideModal()
           }}
         >
           Save

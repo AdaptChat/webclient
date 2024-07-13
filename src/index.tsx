@@ -5,7 +5,6 @@ import './index.css';
 import Entrypoint from './Entrypoint';
 import {ContextMenuProvider} from "./components/ui/ContextMenu";
 import {ThemeProvider} from "./client/themes";
-import {NewGuildModalContextProvider} from "./components/guilds/NewGuildModal";
 import {HeaderContextProvider} from "./components/ui/Header";
 
 console.log('%cAdapt', 'font-size: 48px;')
@@ -18,11 +17,9 @@ console.log(
 const app = () => (
   <ThemeProvider>
     <ContextMenuProvider>
-      <NewGuildModalContextProvider>
-        <HeaderContextProvider>
-          <Entrypoint />
-        </HeaderContextProvider>
-      </NewGuildModalContextProvider>
+      <HeaderContextProvider>
+        <Entrypoint />
+      </HeaderContextProvider>
     </ContextMenuProvider>
   </ThemeProvider>
 );

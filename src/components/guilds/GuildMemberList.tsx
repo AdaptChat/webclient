@@ -6,7 +6,7 @@ import SidebarSection from "../ui/SidebarSection";
 import {ReactiveSet} from "@solid-primitives/set";
 import {displayName, extendedColor, maxIterator, setDifference} from "../../utils";
 import useContextMenu from "../../hooks/useContextMenu";
-import ContextMenu, {ContextMenuButton} from "../ui/ContextMenu";
+import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../ui/ContextMenu";
 import UserPlus from "../icons/svg/UserPlus";
 import {toast} from "solid-toast";
 import Code from "../icons/svg/Code";
@@ -21,6 +21,7 @@ import {memberKey} from "../../api/ApiCache";
 import EyeSlash from "../icons/svg/EyeSlash";
 import Crown from "../icons/svg/Crown";
 import Robot from "../icons/svg/Robot";
+import UserMinus from "../icons/svg/UserMinus";
 
 export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offline?: boolean }) {
   const api = getApi()!
@@ -29,25 +30,35 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
   const navigate = useNavigate()
   const contextMenu = useContextMenu()!
 
-  const ownerId = createMemo(() => cache.guilds.get(BigInt(params.guildId))?.owner_id)
+  const guildId = () => BigInt(params.guildId)
+  const ownerId = createMemo(() => cache.guilds.get(guildId())?.owner_id)
   const channelId = createMemo(() => params.channelId ? BigInt(params.channelId) : undefined)
+  const permissions = createMemo(() => cache.getClientPermissions(guildId()))
+
+  const kickMember = async (id: bigint) => {
+    const response = await api.request('DELETE', `/guilds/${guildId()}/members/${id}`)
+    if (!response.ok) throw new Error(response.errorJsonOrThrow().message)
+  }
 
   return (
     <For each={[...props.members]}>
       {(userOrId) => {
         const user_id = typeof userOrId === "bigint" ? userOrId : userOrId.id
         const user = typeof userOrId === "bigint" ? cache.users.get(userOrId)! : userOrId
-        const color = createMemo(() => cache.getMemberColor(BigInt(params.guildId), user_id))
-        const viewable = createMemo(() => cache.getMemberPermissions(BigInt(params.guildId), user_id, channelId()).has('VIEW_CHANNEL'))
+        const color = createMemo(() => cache.getMemberColor(guildId(), user_id))
+        const viewable = createMemo(() => cache.getMemberPermissions(guildId(), user_id, channelId()).has('VIEW_CHANNEL'))
         const isBot = () => UserFlags.fromValue(user.flags).has('BOT')
         const presence = () => cache.presences.get(user_id)
+
+        const isSelf = () => cache.clientId === user_id
+        const canManage = createMemo(() => cache.clientCanManage(guildId(), user_id))
 
         return (
           <div
             class="group flex items-center px-2 py-1.5 rounded-lg hover:bg-3 transition duration-200 cursor-pointer"
             onContextMenu={contextMenu.getHandler(
               <ContextMenu>
-                <Show when={cache.clientId !== user_id && !isBot()}>
+                <Show when={!isSelf() && !isBot()}>
                   <ContextMenuButton
                     icon={UserPlus}
                     label="Add Friend"
@@ -74,6 +85,20 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
                   label="Copy User ID"
                   onClick={() => window.navigator.clipboard.writeText(user.id.toString())}
                 />
+                <Show when={!isSelf() && canManage() && permissions().has('KICK_MEMBERS')}>
+                  <DangerContextMenuButton
+                    icon={UserMinus}
+                    label="Kick Member"
+                    onClick={() => toast.promise(
+                      kickMember(user_id),
+                      {
+                        loading: 'Kicking user...',
+                        success: 'User kicked.',
+                        error: (err) => err.message,
+                      }
+                    )}
+                  />
+                </Show>
               </ContextMenu>
             )}
           >
@@ -145,6 +170,7 @@ export default function GuildMemberList() {
 
     for (const member of members) {
       if (tracked?.has(member)) continue
+      tracked?.add(member)
 
       createEffect((prev) => {
         const status = api.cache!.presences.get(member)?.status

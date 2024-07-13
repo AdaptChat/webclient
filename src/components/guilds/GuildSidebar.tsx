@@ -2,9 +2,7 @@ import {A, useNavigate, useParams} from "@solidjs/router";
 import {createMemo, createSignal, For, Match, Show, Switch} from "solid-js";
 import {getApi} from "../../api/Api";
 import {GuildChannel} from "../../types/channel";
-import GuildInviteModal from "./GuildInviteModal";
-import Modal from "../ui/Modal";
-import ConfirmGuildLeaveModal from "./ConfirmGuildLeaveModal";
+import {ModalId, useModal} from "../ui/Modal";
 import Icon, {IconElement} from "../icons/Icon";
 import ChevronDown from "../icons/svg/ChevronDown";
 import UserPlus from "../icons/svg/UserPlus";
@@ -13,18 +11,17 @@ import RightFromBracket from "../icons/svg/RightFromBracket";
 import HomeIcon from "../icons/svg/Home";
 import useContextMenu from "../../hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../ui/ContextMenu";
-import ConfirmChannelDeleteModal from "../channels/ConfirmChannelDeleteModal";
 import Code from "../icons/svg/Code";
 import Plus from "../icons/svg/Plus";
-import CreateChannelModal, {getIcon} from "../channels/CreateChannelModal";
+import {getIcon} from "../channels/CreateChannelModal";
 import Gear from "../icons/svg/Gear";
 import FolderPlus from "../icons/svg/FolderPlus";
-import CreateCategoryModal from "../channels/CreateCategoryModal";
 import BookmarkEmpty from "../icons/svg/BookmarkEmpty";
 import {ReactiveSet} from "@solid-primitives/set";
 import ChevronRight from "../icons/svg/ChevronRight";
 import tooltip from "../../directives/tooltip";
 import {setShowSidebar} from "../../App";
+
 void tooltip
 
 interface GuildDropdownButtonProps {
@@ -70,8 +67,6 @@ function Channel(props: ChannelProps) {
   const mentionCount = createMemo(() => cache.countGuildMentionsIn(guildId(), props.channel.id))
   const permissions = createMemo(() => cache.getClientPermissions(guildId(), props.channel.id))
 
-  const [confirmChannelDeleteModal, setConfirmChannelDeleteModal] = createSignal(false)
-
   const markRead = async () => {
     const lastMessageId = cache.lastMessages.get(props.channel.id)?.id
     if (lastMessageId) {
@@ -82,6 +77,7 @@ function Channel(props: ChannelProps) {
   const settings = () => `/guilds/${guildId()}/${props.channel.id}/settings`
 
   const [hovered, setHovered] = createSignal(false)
+  const {showModal} = useModal()
 
   return (
     <A
@@ -106,7 +102,7 @@ function Channel(props: ChannelProps) {
             <DangerContextMenuButton
               icon={Trash}
               label="Delete Channel"
-              onClick={() => setConfirmChannelDeleteModal(true)}
+              onClick={() => showModal(ModalId.DeleteChannel, props.channel)}
             />
           </Show>
         </ContextMenu>
@@ -122,12 +118,6 @@ function Channel(props: ChannelProps) {
         class="w-4 h-4 transition-all"
         classList={{ [isUnread() || active() ? "fill-fg/100" : "fill-fg/60"]: true }}
       />
-      <Modal get={confirmChannelDeleteModal} set={setConfirmChannelDeleteModal}>
-        <ConfirmChannelDeleteModal
-          channel={props.channel}
-          setConfirmChannelDeleteModal={setConfirmChannelDeleteModal}
-        />
-      </Modal>
       <span class="flex justify-between items-center flex-grow">
         <span
           class="transition text-sm overflow-x-hidden"
@@ -183,18 +173,13 @@ export default function GuildSidebar() {
   const guildId = createMemo(() => BigInt(params.guildId))
   const channelId = createMemo(() => params.channelId && BigInt(params.channelId))
   const contextMenu = useContextMenu()!
+  const {showModal} = useModal()
 
   const api = getApi()!
   const guild = createMemo(() => api.cache!.guilds.get(guildId())!)
   if (!guild()) return
 
   const [dropdownExpanded, setDropdownExpanded] = createSignal(false)
-  const [showInviteModal, setShowInviteModal] = createSignal(false)
-  const [confirmGuildLeaveModal, setConfirmGuildLeaveModal] = createSignal(false)
-  const [createChannelModal, setShowCreateChannelModal] = createSignal(false)
-  const [createCategoryModal, setShowCreateCategoryModal] = createSignal(false)
-  const [parentId, setParentId] = createSignal<bigint | null>(null)
-
   const isOwner = createMemo(() => guild().owner_id === api.cache?.clientUser?.id)
 
   const BaseContextMenu = () => (
@@ -203,7 +188,7 @@ export default function GuildSidebar() {
         icon={UserPlus}
         label="Invite People"
         buttonClass="hover:bg-accent"
-        onClick={() => setShowInviteModal(true)}
+        onClick={() => showModal(ModalId.CreateInvite, guild())}
       />
     </Show>
   )
@@ -247,7 +232,6 @@ export default function GuildSidebar() {
   const RenderCategory = (props: {
     id: bigint, group: { category: GuildChannel, children: GuildChannel[] }
   }) => {
-    const [confirmDelete, setConfirmDelete] = createSignal(false)
     return (
       <Show when={
         props.group.children.length > 0
@@ -266,18 +250,12 @@ export default function GuildSidebar() {
                 <DangerContextMenuButton
                   icon={Trash}
                   label="Delete Category"
-                  onClick={() => setConfirmDelete(true)}
+                  onClick={() => showModal(ModalId.DeleteChannel, props.group.category)}
                 />
               </Show>
             </ContextMenu>
           )}
         >
-          <Modal get={confirmDelete} set={setConfirmDelete}>
-            <ConfirmChannelDeleteModal
-              channel={props.group.category}
-              setConfirmChannelDeleteModal={setConfirmDelete}
-            />
-          </Modal>
           <button
             class="group flex items-center gap-x-1.5"
             onClick={() => collapsed.has(props.id) ? collapsed.delete(props.id) : collapsed.add(props.id)}
@@ -293,8 +271,7 @@ export default function GuildSidebar() {
           </button>
           <Show when={guildPermissions()?.has('MANAGE_CHANNELS')}>
             <button class="group" use:tooltip="Create Channel" onClick={() => {
-              setParentId(props.id)
-              setShowCreateChannelModal(true)
+              showModal(ModalId.CreateChannel, { guildId: guildId(), parentId: props.id })
             }}>
               <Icon icon={Plus} class="w-4 h-4 fill-fg/50 group-hover:fill-fg/100 transition" />
             </button>
@@ -321,29 +298,17 @@ export default function GuildSidebar() {
             <ContextMenuButton
               icon={Plus}
               label="Create Channel"
-              onClick={() => setShowCreateChannelModal(true)}
+              onClick={() => showModal(ModalId.CreateChannel, { guildId: guildId() })}
             />
             <ContextMenuButton
               icon={FolderPlus}
               label="Create Category"
-              onClick={() => setShowCreateCategoryModal(true)}
+              onClick={() => showModal(ModalId.CreateCategory, { guildId: guildId() })}
             />
           </Show>
         </ContextMenu>
       )}
     >
-      <Modal get={showInviteModal} set={setShowInviteModal}>
-        <GuildInviteModal guild={guild()} show={showInviteModal} />
-      </Modal>
-      <Modal get={confirmGuildLeaveModal} set={setConfirmGuildLeaveModal}>
-        <ConfirmGuildLeaveModal guild={guild()} setConfirmGuildLeaveModal={setConfirmGuildLeaveModal} />
-      </Modal>
-      <Modal get={createChannelModal} set={setShowCreateChannelModal}>
-        <CreateChannelModal setter={setShowCreateChannelModal} guildId={guildId()} parentId={parentId()} />
-      </Modal>
-      <Modal get={createCategoryModal} set={setShowCreateCategoryModal}>
-        <CreateCategoryModal setter={setShowCreateCategoryModal} guildId={guildId()} />
-      </Modal>
       <div
         class="box-border flex flex-col justify-end border-b-[1px] border-fg/5
           group hover:bg-2 transition-all duration-200 cursor-pointer relative w-full"
@@ -365,7 +330,7 @@ export default function GuildSidebar() {
           "flex justify-between items-center px-3 mt-3": true,
           "pb-3": !guild().description,
         }}>
-          <span class="inline-block font-title font-bold text-base text-ellipsis w-52 break-words">
+          <span class="inline-block font-title font-bold text-base truncate min-w-0 pr-2">
             {guild().name}
           </span>
           <label tabIndex={0} classList={{
@@ -382,7 +347,7 @@ export default function GuildSidebar() {
         </div>
         {guild().description && (
           <div class="card-body px-3 pt-1 pb-3">
-            <p class="text-xs text-fg/50">{guild().description}</p>
+            <p class="text-xs text-fg/50 truncate min-w-0">{guild().description}</p>
           </div>
         )}
         <Show when={dropdownExpanded()}>
@@ -392,7 +357,7 @@ export default function GuildSidebar() {
                 icon={UserPlus}
                 label="Invite People"
                 svgClass="fill-fg"
-                onClick={() => setShowInviteModal(true)}
+                onClick={() => showModal(ModalId.CreateInvite, guild())}
               />
             </Show>
             <Show when={guildPermissions()?.has('MANAGE_CHANNELS')}>
@@ -400,13 +365,13 @@ export default function GuildSidebar() {
                 icon={Plus}
                 label="Create Channel"
                 svgClass="fill-fg"
-                onClick={() => setShowCreateChannelModal(true)}
+                onClick={() => showModal(ModalId.CreateChannel, { guildId: guildId() })}
               />
               <GuildDropdownButton
                 icon={FolderPlus}
                 label="Create Category"
                 svgClass="fill-fg"
-                onClick={() => setShowCreateCategoryModal(true)}
+                onClick={() => showModal(ModalId.CreateCategory, { guildId: guildId() })}
               />
             </Show>
             <Show when={guildPermissions()?.has('MANAGE_GUILD')}>
@@ -425,7 +390,7 @@ export default function GuildSidebar() {
                 groupHoverColor="danger"
                 svgClass="fill-danger group-hover/gdb:fill-fg"
                 labelClass="text-danger group-hover/gdb:text-fg"
-                onClick={() => setConfirmGuildLeaveModal(true)}
+                onClick={() => showModal(ModalId.LeaveGuild, guild())}
               />
             </Show>
           </ul>

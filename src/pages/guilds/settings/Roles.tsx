@@ -25,15 +25,13 @@ import MagnifyingGlass from "../../../components/icons/svg/MagnifyingGlass";
 import Xmark from "../../../components/icons/svg/Xmark";
 import Fuse from "fuse.js";
 import Plus from "../../../components/icons/svg/Plus";
-import Modal from "../../../components/ui/Modal";
-import CreateRoleModal from "../../../components/guilds/CreateRoleModal";
+import {ModalId, useModal} from "../../../components/ui/Modal";
 import Lock from "../../../components/icons/svg/Lock";
 import ChevronLeft from "../../../components/icons/svg/ChevronLeft";
 import useContextMenu from "../../../hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../../../components/ui/ContextMenu";
 import Code from "../../../components/icons/svg/Code";
 import Trash from "../../../components/icons/svg/Trash";
-import ConfirmRoleDeleteModal from "../../../components/guilds/ConfirmRoleDeleteModal";
 import {useSaveTask} from "../../settings/SettingsLayout";
 
 interface SmallRolePreviewParams {
@@ -246,28 +244,16 @@ export function SortableRoles(props: Props) {
     : roleIds()
   )
 
-  const [showCreateRoleModal, setShowCreateRoleModal] = createSignal(false)
-
-  const [roleToDelete, setRoleToDelete] = createSignal<Role | null>(null)
-  const [showDeleteRoleModal, setShowDeleteRoleModal] = createSignal(false)
-
   const Component = props.large ? LargeRolePreview : SmallRolePreview
   const defaultRoleId = snowflakes.withModelType(props.guildId, snowflakes.ModelType.Role)
   const defaultRoleHref = `/guilds/${props.guildId}/settings/roles/${defaultRoleId}`
 
   const params = useParams()
   const contextMenu = useContextMenu()!
+  const {showModal} = useModal()
 
   return (
     <DragDropProvider onDragStart={onDragStart} onDragEnd={onDragEnd} collisionDetector={closestCenter}>
-      <Modal get={showCreateRoleModal} set={setShowCreateRoleModal}>
-        <CreateRoleModal guildId={props.guildId} setShow={setShowCreateRoleModal} />
-      </Modal>
-      <Modal get={showDeleteRoleModal} set={setShowDeleteRoleModal}>
-        <Show when={roleToDelete()}>
-          <ConfirmRoleDeleteModal role={roleToDelete()!} setShow={setShowDeleteRoleModal} />
-        </Show>
-      </Modal>
       <DragDropSensors />
       <ConstrainDragAxis />
       <div class="flex flex-col w-full" classList={{ "gap-y-2": props.large }}>
@@ -294,7 +280,10 @@ export function SortableRoles(props: Props) {
                 />
               </Show>
             </div>
-            <button class="btn btn-primary btn-sm flex gap-x-1" onClick={() => setShowCreateRoleModal(true)}>
+            <button
+              class="btn btn-primary btn-sm flex gap-x-1"
+              onClick={() => showModal(ModalId.CreateRole, props.guildId)}
+            >
               <Icon icon={Plus} class="w-4 h-4 fill-fg"/>
               <span class="mobile:hidden">Create Role</span>
             </button>
@@ -305,7 +294,7 @@ export function SortableRoles(props: Props) {
               <Icon icon={ChevronLeft} class="w-3.5 h-3.5 fill-fg/50 group-hover:fill-fg/100 transition" />
               <span class="uppercase font-bold text-sm text-fg/50 group-hover:text-fg/100 transition">Back</span>
             </A>
-            <button class="group" onClick={() => setShowCreateRoleModal(true)}>
+            <button class="group" onClick={() => showModal(ModalId.CreateRole, props.guildId)}>
               <Icon icon={Plus} class="w-4 h-4 fill-fg/50 group-hover:fill-fg/100 transition" tooltip="New Role" />
             </button>
           </div>
@@ -328,10 +317,7 @@ export function SortableRoles(props: Props) {
                       <DangerContextMenuButton
                         icon={Trash}
                         label="Delete Role"
-                        onClick={() => {
-                          setRoleToDelete(cache.roles.get(roleId)!)
-                          setShowDeleteRoleModal(true)
-                        }}
+                        onClick={() => showModal(ModalId.DeleteRole, cache.roles.get(roleId)!)}
                       />
                     </Show>
                   </ContextMenu>

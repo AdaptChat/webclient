@@ -32,6 +32,23 @@ const flattenHtml: Plugin<any[], MdRoot> = () => (tree) => {
   })
 }
 
+const subtext: Plugin<any[], MdRoot> = () => (tree) => {
+  visit(tree, "paragraph", (node) => {
+    if (node.children[0].type != 'text' || !node.children[0].value.startsWith('-# '))
+      return
+
+    let firstChild = node.children[0].value.slice(3)
+    let children = node.children.slice(1)
+
+    node.children = [
+      { type: 'text', value: firstChild },
+      ...children,
+    ];
+    node.data ??= {}
+    node.data.hName = 'subtext'
+  })
+}
+
 const underline: Plugin<any[], HtmlRoot> = () => (tree, file) => {
   visit(tree, "element", (node) => {
     if (!node.position) return
@@ -230,6 +247,7 @@ export const components: Record<string, (props: JSX.HTMLAttributes<any> & MatchE
   h4: (props) => <h4 class="text-base font-bold my-[0.9em]" {...props} />,
   h5: (props) => <h5 class="text-sm font-bold my-[1.0em]" {...props} />,
   h6: (props) => <h6 class="text-xs font-bold my-[1.1em]" {...props} />,
+  subtext: (props) => <span class="text-xs text-fg/60" {...props} />,
   a: Anchor,
   img: (props: any) => <Anchor {...props} isImage href={props.src}>{props.alt || props.src}</Anchor>,
   span: (props) => <span {...props} />,
@@ -263,6 +281,7 @@ export const render = unified()
   .use(remarkMath, {
     singleDollarTextMath: false
   })
+  .use(subtext)
   // TODO: Backslashes are supposed to work here, however browser support for negative lookbehind is limited
   //  (Safari doesn't support it until 16.4, which is not yet stable as of writing this)
   .use(remarkRegexp(/\|\|(.+?)\|\|/s, 'spoiler'))

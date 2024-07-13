@@ -5,10 +5,16 @@ import {
   ErrorBoundary,
   For,
   JSX,
-  lazy, Match, on, onCleanup,
-  onMount, ParentProps,
+  lazy,
+  Match,
+  on,
+  onCleanup,
+  onMount,
+  ParentProps,
   Show,
-  Signal, Switch, useContext
+  Signal,
+  Switch,
+  useContext
 } from "solid-js";
 import {A, useLocation, useNavigate, useParams} from "@solidjs/router";
 import {createMediaQuery} from "@solid-primitives/media";
@@ -18,14 +24,15 @@ import {
   ChannelDisplayMetadata,
   displayChannel,
   displayName,
-  flatMapIterator, humanizePings,
-  humanizeTimeDeltaShort, mapIterator,
-  snowflakes, sumIterator
+  flatMapIterator,
+  humanizePings,
+  humanizeTimeDeltaShort,
+  mapIterator,
+  snowflakes,
+  sumIterator
 } from "./utils";
 
 import tooltip from "./directives/tooltip";
-void tooltip
-
 import GuildSideSelect, {GuildContextMenu} from "./components/guilds/GuildSideSelect";
 import StatusIndicator, {StatusIndicatorProps} from "./components/users/StatusIndicator";
 
@@ -49,12 +56,13 @@ import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "./compone
 import Code from "./components/icons/svg/Code";
 import GuildMemberList from "./components/guilds/GuildMemberList";
 import Plus from "./components/icons/svg/Plus";
-import {NewGuildModalContext} from "./components/guilds/NewGuildModal";
+import {ModalPage, NewGuildModalContextMenu} from "./components/guilds/NewGuildModal";
 import {HeaderContext} from "./components/ui/Header";
 import {relationshipFilterFactory} from "./pages/friends/Requests";
 import PenToSquare from "./components/icons/svg/PenToSquare";
-import Modal from "./components/ui/Modal";
-import SetPresence from "./components/users/SetPresenceModal";
+import {ModalId, useModal} from "./components/ui/Modal";
+
+void tooltip
 
 export enum Tab { Quick, Conversations, Servers, Discover }
 
@@ -212,7 +220,7 @@ function DirectMessageButton({ channelId }: { channelId: bigint }) {
         )}
         <div class="flex flex-col ml-0.5 text-sm min-w-0">
           <span classList={{
-            "text-fg font-title font-medium transition-all duration-200": true,
+            "text-fg font-title font-medium transition-all duration-200 truncate min-w-0": true,
             "text-opacity-100": active() || hasUnread(),
             "text-opacity-60 group-hover:text-opacity-80": !active() && !hasUnread(),
           }}>
@@ -326,7 +334,7 @@ function HomeSidebar(props: { tabSignal: Signal<Tab> }) {
   const cache = getApi()!.cache!
 
   const contextMenu = useContextMenu()!
-  const { setShow: setShowNewGuildModal, NewGuildModalContextMenu } = useContext(NewGuildModalContext)!
+  const {showModal} = useModal()
 
   const recentlyViewed = createMemo(() => [...cache.lastAckedMessages.entries()]
     .filter((entry): entry is [bigint, bigint] => !!entry[1])
@@ -520,7 +528,7 @@ function HomeSidebar(props: { tabSignal: Signal<Tab> }) {
                 icon={Plus}
                 class="w-4 h-4 fill-fg/50 group-hover:fill-fg/100 transition"
                 tooltip="New Server"
-                onClick={() => setShowNewGuildModal(true)}
+                onClick={() => showModal(ModalId.NewGuild, ModalPage.New)}
                 onContextMenu={contextMenu.getHandler(<NewGuildModalContextMenu />)}
               />
             </button>
@@ -574,6 +582,7 @@ export function Sidebar({ signal }: { signal: Signal<Tab> }) {
   const status = createMemo(() => presence()?.status ?? 'online')
   const showGuildBar = createMemo(() => route.pathname.startsWith('/guilds'))
   const contextMenu = useContextMenu()!
+  const {showModal} = useModal()
 
   const [showStatusSettings, setShowStatusSettings] = createSignal(false)
   let containerRef: HTMLDivElement | null = null
@@ -583,16 +592,11 @@ export function Sidebar({ signal }: { signal: Signal<Tab> }) {
   onMount(() => document.addEventListener('click', listener))
   onCleanup(() => document.removeEventListener('click', listener))
 
-  const [showUpdatePresenceModal, setShowUpdatePresenceModal] = createSignal(false)
-
   return (
     <div class="flex flex-col w-full h-full justify-between backdrop-blur transition" classList={{
       "bg-bg-0/80": !showGuildBar(),
       "bg-bg-0": showGuildBar(),
     }}>
-      <Modal get={showUpdatePresenceModal} set={setShowUpdatePresenceModal}>
-        <SetPresence setShow={setShowUpdatePresenceModal} />
-      </Modal>
       <div class="flex flex-grow h-[calc(100%-56px)]">
         <div classList={{
           "flex flex-col items-center flex-grow overflow-x-hidden overflow-y-auto transition-all duration-500 h-full bg-0": true,
@@ -634,7 +638,7 @@ export function Sidebar({ signal }: { signal: Signal<Tab> }) {
           <h3 class="mx-2 mt-3 text-fg/60 text-xs font-bold uppercase">Custom Status</h3>
           <button
             class="mx-2 mt-1 mb-2 text-sm font-light group text-fg/60 hover:text-fg/100 transition"
-            onClick={() => setShowUpdatePresenceModal(true)}
+            onClick={() => showModal(ModalId.UpdatePresence)}
           >
             {presence()?.custom_status || 'Set a custom status'}
             <Icon icon={PenToSquare} class="ml-1 w-4 h-4 fill-fg/60 group-hover:fill-fg/100 transition inline-block align-top" />
@@ -700,7 +704,7 @@ export const [previousPage, setPreviousPage] = createSignal<string>('/')
 
 export default function App(props: ParentProps) {
   const isMobile = createMediaQuery("(max-width: 768px)")
-  const isWide = createMediaQuery("(min-width: 1080px)")
+  const isWide = createMediaQuery("(min-width: 1000px)")
   const location = useLocation()
 
   onMount(() => {
@@ -734,12 +738,11 @@ export default function App(props: ParentProps) {
     if (tab) setSidebarSignal(tab)
   })
 
-  const { NewGuildModal } = useContext(NewGuildModalContext)!
   const [headers] = useContext(HeaderContext)!
 
   return (
     <div
-      class="w-full mobile:w-[calc(100%+22rem)] h-full flex overflow-hidden"
+      class="w-full mobile:w-[calc(100%+21rem)] h-full flex overflow-hidden"
       onTouchStart={(event) => setSwipeStart(event.touches[0].clientX)}
       onTouchEnd={(event) => {
         if (!isMobile()) return
@@ -756,21 +759,20 @@ export default function App(props: ParentProps) {
         }
       }}
     >
-      <NewGuildModal />
       <div
         classList={{
           "my-2 rounded-2xl transition-all duration-300 overflow-hidden": true,
           "opacity-0 w-0 ml-0": !showSidebar(),
-          "opacity-100 w-80 ml-2": showSidebar(),
+          "opacity-100 w-[19rem] ml-2": showSidebar(),
         }}
       >
-        <div class="w-80 h-full">
+        <div class="w-[19rem] h-full">
           <Sidebar signal={sidebarSignal} />
         </div>
       </div>
       <div classList={{
         "flex flex-col md:flex-grow mobile:w-[100vw] h-full opacity-100 transition-opacity": true,
-        "mobile:opacity-50 md:w-[calc(100%-22rem)]": showSidebar(),
+        "mobile:opacity-50 md:w-[calc(100%-21rem)]": showSidebar(),
       }}>
         <div class="flex flex-grow w-full gap-x-2 pt-2 px-2">
           <div class="flex flex-grow items-center bg-bg-0/80 backdrop-blur h-14 rounded-xl">

@@ -1,5 +1,5 @@
-import {ModalTemplate} from "../ui/Modal";
-import {createMemo, createSignal, Setter} from "solid-js";
+import {ModalTemplate, useModal} from "../ui/Modal";
+import {createMemo, createSignal} from "solid-js";
 import {GuildChannel} from "../../types/channel";
 import {getApi} from "../../api/Api";
 import {useNavigate, useParams} from "@solidjs/router";
@@ -8,13 +8,13 @@ import Trash from "../icons/svg/Trash";
 
 type Props = {
   channel: GuildChannel,
-  setConfirmChannelDeleteModal: Setter<boolean>,
 }
 
 export default function ConfirmChannelDeleteModal(props: Props) {
   const api = getApi()!
   const navigate = useNavigate()
   const params = useParams()
+  const {hideModal} = useModal()
 
   const guild = createMemo(() => api.cache!.guilds.get(BigInt(params.guildId)))
   const [isDeleting, setIsDeleting] = createSignal<boolean>(false)
@@ -38,11 +38,11 @@ export default function ConfirmChannelDeleteModal(props: Props) {
             throw err
           }
           setIsDeleting(false)
-          props.setConfirmChannelDeleteModal(false)
+          hideModal()
           if (params.channelId && BigInt(params.channelId) === props.channel.id) navigate(`/guilds/${params.guildId}`)
         }}
       >
-        <button class="btn border-none btn-ghost" onClick={() => props.setConfirmChannelDeleteModal(false)}>
+        <button class="btn border-none btn-ghost" onClick={hideModal}>
           Cancel
         </button>
         <button type="submit" class="btn btn-danger border-none" disabled={isDeleting()}>

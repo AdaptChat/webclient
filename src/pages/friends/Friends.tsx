@@ -1,7 +1,6 @@
 import {A, useLocation} from "@solidjs/router";
-import {createSignal, Show} from "solid-js";
-import Modal from "../../components/ui/Modal";
-import AddFriendModal from "../../components/friends/AddFriendModal";
+import {Show} from "solid-js";
+import {ModalId, useModal} from "../../components/ui/Modal";
 import UserPlus from "../../components/icons/svg/UserPlus";
 import {ActionButton} from "../../App";
 import {createMediaQuery} from "@solid-primitives/media";
@@ -54,17 +53,12 @@ export function FriendsNav() {
 }
 
 export function FriendActions() {
-  const [showAddFriendModal, setShowAddFriendModal] = createSignal(false)
+  const {showModal} = useModal()
 
   return (
-    <>
-      <Modal get={showAddFriendModal} set={setShowAddFriendModal}>
-        <AddFriendModal />
-      </Modal>
-      <ActionButton
-        id="add-friend"
-        onClick={() => setShowAddFriendModal(true)} icon={UserPlus} label="Add Friend"
-      />
-    </>
+    <ActionButton
+      id="add-friend"
+      onClick={() => showModal(ModalId.AddFriend)} icon={UserPlus} label="Add Friend"
+    />
   )
 }

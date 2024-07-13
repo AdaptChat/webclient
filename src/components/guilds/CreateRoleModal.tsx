@@ -1,5 +1,5 @@
-import {ModalTemplate} from "../ui/Modal";
-import {createMemo, createSignal, Setter, Show} from "solid-js";
+import {ModalTemplate, useModal} from "../ui/Modal";
+import {createMemo, createSignal, Show} from "solid-js";
 import {Rgb} from "../../client/themes";
 import PenToSquare from "../icons/svg/PenToSquare";
 import Icon from "../icons/Icon";
@@ -10,10 +10,10 @@ import {useNavigate} from "@solidjs/router";
 
 interface Props {
   guildId: bigint
-  setShow: Setter<boolean>
 }
 
 export default function CreateRoleModal(props: Props) {
+  const {hideModal} = useModal()
   const [currentName, setCurrentName] = createSignal<string>("")
 
   let actualColorInput: HTMLInputElement | null = null
@@ -59,7 +59,7 @@ export default function CreateRoleModal(props: Props) {
     setSubmitting(false)
 
     if (response.ok) {
-      props.setShow(false)
+      hideModal()
       navigate(`/guilds/${props.guildId}/settings/roles/${response.jsonOrThrow().id}`)
     } else
       setError(response.errorJsonOrThrow().message)

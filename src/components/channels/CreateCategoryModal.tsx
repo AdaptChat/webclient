@@ -1,5 +1,5 @@
-import {createSignal, Setter, Show} from "solid-js";
-import {ModalTemplate} from "../ui/Modal";
+import {createSignal, Show} from "solid-js";
+import {ModalTemplate, useModal} from "../ui/Modal";
 import Icon from "../icons/Icon";
 import ChevronLeft from "../icons/svg/ChevronLeft";
 import Plus from "../icons/svg/Plus";
@@ -8,12 +8,13 @@ import {useNavigate} from "@solidjs/router";
 import {snowflakes} from "../../utils";
 import ListTree from "../icons/svg/ListTree";
 
-type Props = { setter: Setter<boolean>, guildId: bigint }
+type Props = { guildId: bigint, parentId?: bigint }
 
 export default function CreateCategoryModal(props: Props) {
   let channelNameRef: HTMLInputElement | null = null
   let api = getApi()!
   let navigate = useNavigate()
+  const {hideModal} = useModal()
 
   const [focused, setFocused] = createSignal(false)
   const [error, setError] = createSignal<string>()
@@ -46,7 +47,7 @@ export default function CreateCategoryModal(props: Props) {
             return setError(response.errorJsonOrThrow().message)
           }
 
-          props.setter(false)
+          hideModal()
         }}
       >
         <label class="mt-5 mb-2 text-fg/50 text-xs ml-0.5 w-96 mobile:w-full" for="name">
@@ -78,7 +79,7 @@ export default function CreateCategoryModal(props: Props) {
           </p>
         </Show>
         <div class="flex gap-3 mt-3">
-          <div class="flex gap-x-2 btn btn-neutral" onClick={() => props.setter(false)}>
+          <div class="flex gap-x-2 btn btn-neutral" onClick={hideModal}>
             <Icon icon={ChevronLeft} class="fill-neutral-content/60 select-none w-4 h-4" />
             Back
           </div>
