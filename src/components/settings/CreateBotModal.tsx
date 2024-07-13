@@ -1,4 +1,4 @@
-import {ModalTemplate} from "../ui/Modal";
+import {ModalTemplate, useModal} from "../ui/Modal";
 import Icon from "../icons/Icon";
 import RocketLaunch from "../icons/svg/RocketLaunch";
 import {createEffect, createSignal, Setter} from "solid-js";
@@ -8,7 +8,6 @@ import {useNavigate} from "@solidjs/router";
 
 export default function CreateBotModal(props: {
   setBots: Setter<Bot[] | null>,
-  setShow: Setter<boolean>,
 }) {
   const api = getApi()!
   const navigate = useNavigate()
@@ -24,6 +23,8 @@ export default function CreateBotModal(props: {
   const [focused, setFocused] = createSignal(false)
   const [submitting, setSubmitting] = createSignal(false)
 
+  const {hideModal} = useModal()
+
   const createBot = async (e: SubmitEvent) => {
     e.preventDefault()
 
@@ -37,7 +38,7 @@ export default function CreateBotModal(props: {
 
     const data = response.jsonOrThrow() as Bot & { token: string }
     props.setBots(bots => bots ? [...bots, data] : [data])
-    props.setShow(false)
+    hideModal()
     navigate(`/settings/bots/${data.user.id}`, { state: { token: data.token } })
   }
 

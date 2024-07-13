@@ -11,8 +11,7 @@ import Fuse from "fuse.js";
 import Xmark from "../../components/icons/svg/Xmark";
 import Plus from "../../components/icons/svg/Plus";
 import Robot from "../../components/icons/svg/Robot";
-import Modal from "../../components/ui/Modal";
-import CreateBotModal from "../../components/settings/CreateBotModal";
+import {ModalId, useModal} from "../../components/ui/Modal";
 import {displayName} from "../../utils";
 import {A} from "@solidjs/router";
 import {defaultAvatar} from "../../api/ApiCache";
@@ -56,14 +55,12 @@ export default function Bots() {
     : bots()
   )
 
-  const [showCreateBotModal, setShowCreateBotModal] = createSignal(false)
+  const {showModal} = useModal()
+  const showCreateBotModal = () => showModal(ModalId.CreateBot, setBots)
 
   return (
     <div class="p-4">
       <Header>Bots</Header>
-      <Modal get={showCreateBotModal} set={setShowCreateBotModal}>
-        <CreateBotModal setBots={setBots} setShow={setShowCreateBotModal} />
-      </Modal>
       <p class="text-sm font-light text-fg/60">
         Bots are used to automate tasks and provide additional functionality throughout Adapt.
       </p>
@@ -101,7 +98,7 @@ export default function Bots() {
             />
           </Show>
         </div>
-        <button class="btn btn-primary btn-sm rounded-xl flex gap-x-1" onClick={() => setShowCreateBotModal(true)}>
+        <button class="btn btn-primary btn-sm rounded-xl flex gap-x-1" onClick={showCreateBotModal}>
           <Icon icon={Plus} class="w-4 h-4 fill-fg"/>
           <span>New Bot</span>
         </button>
@@ -122,7 +119,7 @@ export default function Bots() {
               <Show when={searchQuery()} fallback={
                 <>
                   No bots yet...
-                  <button class="btn btn-ghost btn-sm rounded-xl flex gap-x-1" onClick={() => setShowCreateBotModal(true)}>
+                  <button class="btn btn-ghost btn-sm rounded-xl flex gap-x-1" onClick={showCreateBotModal}>
                     <span>Create one?</span>
                   </button>
                 </>

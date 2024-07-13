@@ -4,7 +4,7 @@ import {
   createEffect,
   createSignal,
   Match,
-  ParentProps,
+  ParentProps, Setter,
   Switch,
   useContext
 } from "solid-js";
@@ -24,6 +24,8 @@ import CreateRoleModal from "../guilds/CreateRoleModal";
 import ConfirmRoleDeleteModal from "../guilds/ConfirmRoleDeleteModal";
 import AddFriendModal from "../friends/AddFriendModal";
 import SetPresence from "../users/SetPresenceModal";
+import CreateBotModal from "../settings/CreateBotModal";
+import {Bot} from "../../types/user";
 
 export enum ModalId {
   NewGuild,
@@ -37,6 +39,7 @@ export enum ModalId {
   DeleteRole,
   AddFriend,
   UpdatePresence,
+  CreateBot,
 }
 
 type ModalMapping = {
@@ -51,6 +54,7 @@ type ModalMapping = {
   [ModalId.DeleteRole]: Role,
   [ModalId.AddFriend]: undefined,
   [ModalId.UpdatePresence]: undefined,
+  [ModalId.CreateBot]: Setter<Bot[] | null>,
 }
 
 type ModalDataPair = {
@@ -166,6 +170,9 @@ export function ModalProvider(props: ParentProps) {
           </Match>
           <Match when={context.id === ModalId.UpdatePresence}>
             <SetPresence />
+          </Match>
+          <Match when={context.id === ModalId.CreateBot}>
+            <CreateBotModal setBots={context.data as Setter<Bot[] | null>} />
           </Match>
         </Switch>
       </ModalContainer>
