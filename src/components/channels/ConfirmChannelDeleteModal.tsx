@@ -42,7 +42,7 @@ export default function ConfirmChannelDeleteModal(props: Props) {
           if (params.channelId && BigInt(params.channelId) === props.channel.id) navigate(`/guilds/${params.guildId}`)
         }}
       >
-        <button class="btn border-none btn-ghost" onClick={hideModal}>
+        <button type="button" class="btn border-none btn-ghost" onClick={hideModal}>
           Cancel
         </button>
         <button type="submit" class="btn btn-danger border-none" disabled={isDeleting()}>
