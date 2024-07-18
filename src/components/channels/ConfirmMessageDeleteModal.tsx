@@ -21,7 +21,7 @@ export default function ConfirmMessageDeleteModal(props: Props) {
       <p class="text-fg/70 text-sm mt-4 text-center">
         Are you sure you want to delete this message?
       </p>
-      <div class="rounded-xl overflow-y-auto max-h-[50lvh] bg-bg-3/50 mt-2 py-2">
+      <div class="rounded-xl overflow-y-auto max-h-[50lvh] bg-bg-3/30 mt-2 py-4">
         <MessagePreview message={props.message} noHoverEffects />
       </div>
       <form
