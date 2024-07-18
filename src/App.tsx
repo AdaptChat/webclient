@@ -64,7 +64,7 @@ import {ModalId, useModal} from "./components/ui/Modal";
 
 void tooltip
 
-export enum Tab { Quick, Conversations, Servers, Discover }
+export enum Tab { Quick, Conversations, Servers }
 
 function SidebarNavButton(props: {
   isActive: () => boolean,
@@ -129,25 +129,39 @@ function SidebarTopPageButton(props: {
   href: string,
   label: string,
   icon: IconElement,
-  tooltip?: boolean,
   check?: (pathname: string) => boolean,
+  expand?: (pathname: string) => boolean,
+  indicator?: number,
 }) {
   const route = useLocation()
   const navigate = useNavigate()
+  const active = () => props.check ? props.check(route.pathname) : route.pathname === props.href
+  const expand = () => props.expand ? props.expand(route.pathname) : active()
 
   return (
     <button
+      class="flex items-center justify-center gap-2 p-4 hover:bg-bg-3/80 transition-all duration-200 indicator"
       classList={{
-        "flex items-center justify-center gap-2 flex-grow px-4 py-3 rounded-lg bg-bg-2/80 hover:bg-bg-3/80 transition duration-200": true,
-        "bg-fg/10": props.check ? props.check(route.pathname) : route.pathname === props.href,
-        "flex-grow": !props.tooltip,
-        "flex-grow-0": props.tooltip,
+        "bg-fg/10": active(),
+        "bg-bg-2/80": !active(),
+        "flex-grow rounded-xl": expand(),
+        "flex-grow-0 rounded-[24px]": !expand(),
       }}
       onClick={() => navigate(props.href)}
-      use:tooltip={props.tooltip ? { content: props.label, placement: 'bottom' } : undefined}
+      use:tooltip={!expand() ? { content: props.label, placement: 'bottom' } : undefined}
     >
+      <Show when={props.indicator}>
+        <span
+          class="indicator-item indicator-bottom bg-red-600 inline-flex text-xs font-medium items-center rounded-full
+                 min-w-[18px] h-[18px] m-1.5 ring-bg-0/80 ring-[3px]"
+        >
+          <span class="min-w-[18px] text-center text-white px-1.5 py-2 font-sans">
+            {humanizePings(props.indicator!)}
+          </span>
+        </span>
+      </Show>
       <Icon icon={props.icon} title={props.label} class="w-4 h-4 fill-fg/80" />
-      {!props.tooltip && <span class="font-bold font-title text-fg/80 text-sm">{props.label}</span>}
+      {expand() && <span class="font-bold font-title text-fg/80 text-sm">{props.label}</span>}
     </button>
   )
 }
@@ -435,26 +449,21 @@ function HomeSidebar(props: { tabSignal: Signal<Tab> }) {
       <div classList={{
         "flex gap-2 transition-all": true,
         "h-0 opacity-0 p-1": searchQuery().length > 0,
-        "h-14 opacity-100 p-2": searchQuery().length <= 0,
+        "h-16 opacity-100 p-2": searchQuery().length <= 0,
       }}>
-        <SidebarTopPageButton href="/" label="Home" icon={HomeIcon} />
-        <div class="indicator">
-          <Show when={incomingFriends()?.length}>
-            <span
-              class="indicator-item indicator-bottom bg-red-600 inline-flex text-xs font-medium items-center rounded-full
-                     min-w-[18px] h-[18px] m-1.5 ring-bg-0/80 ring-[3px]"
-            >
-              <span class="min-w-[18px] text-center text-white px-1.5 py-2">
-                {humanizePings(incomingFriends()!.length)}
-              </span>
-            </span>
-          </Show>
-          <SidebarTopPageButton
-            href="/friends" label="Friends" icon={UserGroup}
-            check={(path) => path.startsWith('/friends')}
-            tooltip
-          />
-        </div>
+        <SidebarTopPageButton
+          href="/" label="Home" icon={HomeIcon}
+          expand={(path) => !path.startsWith('/friends') && !path.startsWith('/discover')}
+        />
+        <SidebarTopPageButton
+          href="/friends" label="Friends" icon={UserGroup}
+          check={(path) => path.startsWith('/friends')}
+          indicator={incomingFriends()?.length}
+        />
+        <SidebarTopPageButton
+          href="/discover" label="Discover" icon={Compass}
+          check={(path) => path.startsWith('/discover')}
+        />
       </div>
       <div class="flex mx-2 bg-bg-2/80 rounded-lg">
         <Icon icon={MagnifyingGlass} class="w-4 h-4 fill-fg/50 my-3 ml-3" />
@@ -487,7 +496,6 @@ function HomeSidebar(props: { tabSignal: Signal<Tab> }) {
           tab={Tab.Servers} icon={ServerIcon} label="All Servers" signal={props.tabSignal}
           unread={anyGuildsUnread()} pings={totalGuildMentions()}
         />
-        <SidebarTopNavButton tab={Tab.Discover} icon={Compass} label="Discover" signal={props.tabSignal} />
       </div>
       <Switch>
         <Match when={tab() === Tab.Quick}>

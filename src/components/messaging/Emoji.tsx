@@ -1,5 +1,6 @@
 import {gemoji, type Gemoji} from "gemoji";
 import {createMemo} from "solid-js";
+import {Portal} from "solid-js/web";
 
 const unicodeLookup = new Map<string, Gemoji>(gemoji.map((emoji) => [emoji.emoji, emoji]))
 
@@ -39,7 +40,7 @@ export default function UnicodeEmoji(props: { match: string, jumbo?: boolean }) 
   const size = () => props.jumbo ? 64 : 20
 
   return (
-    <span class="emoji inline-block cursor-pointer align-bottom">
+    <span class="emoji inline-block cursor-pointer align-bottom relative">
       <img
         src={getUnicodeEmojiUrl(props.match)}
         alt={props.match}

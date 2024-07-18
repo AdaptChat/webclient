@@ -1,33 +1,39 @@
 import {
-  Accessor, createEffect,
+  Accessor,
+  createEffect,
   createMemo,
   createSignal,
   For,
   JSX,
   Match,
   onCleanup,
-  onMount, ParentProps,
+  onMount,
+  ParentProps,
   Show,
+  splitProps,
   Switch
 } from "solid-js";
 import type {Message} from "../../types/message";
 import {getApi} from "../../api/Api";
-import MessageGrouper, {type MessageGroup} from "../../api/MessageGrouper";
+import MessageGrouper, {authorDefault, type MessageGroup} from "../../api/MessageGrouper";
 import {
-  displayName, extendedColor,
-  filterIterator, filterMapIterator,
+  displayName,
+  extendedColor,
+  filterIterator,
+  filterMapIterator,
   flatMapIterator,
   humanizeFullTimestamp,
   humanizeSize,
-  humanizeTime, humanizeTimeDelta,
-  humanizeTimestamp, mapIterator,
+  humanizeTime,
+  humanizeTimeDelta,
+  humanizeTimestamp,
+  mapIterator,
   snowflakes,
   uuid
 } from "../../utils";
 import TypingKeepAlive from "../../api/TypingKeepAlive";
 import tooltip from "../../directives/tooltip";
-import {noop} from "../../utils";
-import Icon from "../icons/Icon";
+import Icon, {IconElement} from "../icons/Icon";
 import Clipboard from "../icons/svg/Clipboard";
 import PaperPlaneTop from "../icons/svg/PaperPlaneTop";
 import {DynamicMarkdown} from "./Markdown";
@@ -51,11 +57,13 @@ import BookmarkFilled from "../icons/svg/BookmarkFilled";
 import {UserFlags} from "../../api/Bitflags";
 import {ReactiveSet} from "@solid-primitives/set";
 import PenToSquare from "../icons/svg/PenToSquare";
-import {CustomEmoji} from "../../types/emoji";
 import {getUnicodeEmojiUrl} from "./Emoji";
 import Users from "../icons/svg/Users";
-
-noop(tooltip)
+import {ModalId, useModal} from "../ui/Modal";
+import EllipsisVertical from "../icons/svg/EllipsisVertical";
+import FaceSmile from "../icons/svg/FaceSmile";
+import Reply from "../icons/svg/Reply";
+void tooltip
 
 const CONVEY = 'https://convey.adapt.chat'
 
@@ -136,8 +144,14 @@ function shouldDisplayImage(filename: string): boolean {
 
 const INVITE_REGEX = /https:\/\/adapt\.chat\/invite\/([a-zA-Z0-9]+)/g
 
-type ContentProps = { message: Message, grouper: MessageGrouper, editing?: ReactiveSet<bigint>, largePadding?: boolean }
-export function MessageContent(props: ContentProps) {
+export type MessageContentProps = {
+  message: Message,
+  grouper?: MessageGrouper,
+  editing?: ReactiveSet<bigint>,
+  largePadding?: boolean
+}
+
+export function MessageContent(props: MessageContentProps) {
   const message = () => props.message
   const largePadding = () => props.largePadding
   const navigate = useNavigate()
@@ -176,7 +190,7 @@ export function MessageContent(props: ContentProps) {
       content: editedContent,
       _nonceState: 'pending',
     } satisfies Message;
-    props.grouper.editMessage(msg.id, msg)
+    props.grouper?.editMessage(msg.id, msg)
 
     const response = await api.request('PATCH', `/channels/${message().channel_id}/messages/${message().id}`, {
       json: { content: editedContent }
@@ -415,6 +429,7 @@ function MessageContextMenu(
   { message, guildId, editing }: { message: Message, guildId?: bigint, editing?: ReactiveSet<bigint> }
 ) {
   const api = getApi()!
+  const {showModal} = useModal()
 
   return (
     <ContextMenu>
@@ -458,8 +473,11 @@ function MessageContextMenu(
         <DangerContextMenuButton
           icon={Trash}
           label="Delete Message"
-          onClick={async () => {
-            const resp = await api.request('DELETE', `/channels/${message.channel_id}/messages/${message.id}`)
+          onClick={async (event) => {
+            if (!event.shiftKey)
+              return showModal(ModalId.DeleteMessage, message)
+
+            const resp = await api.deleteMessage(message.channel_id, message.id)
             if (!resp.ok) {
               toast.error(`Failed to delete message: ${resp.errorJsonOrThrow().message}`)
             }
@@ -484,7 +502,7 @@ const timestampTooltip = (timestamp: number | Date) => ({
   interactive: true
 })
 
-export function MessageHeader(props: ParentProps<{
+export type MessageHeaderProps = {
   mentioned?: boolean,
   onContextMenu?: (e: MouseEvent) => any,
   authorAvatar?: string,
@@ -495,10 +513,13 @@ export function MessageHeader(props: ParentProps<{
   class?: string,
   classList?: Record<string, boolean>,
   noHoverEffects?: boolean,
-}>) {
+  quickActions?: ReturnType<typeof QuickActions>,
+}
+
+export function MessageHeader(props: ParentProps<MessageHeaderProps>) {
   return (
     <div
-      class="flex flex-col relative py-px transition-all duration-200 rounded-r-lg"
+      class="flex flex-col relative py-px transition-all duration-200 rounded-r-lg group"
       classList={{
         [props.class ?? '']: true,
         "bg-accent/10 hover:bg-accent/20 border-l-2 border-l-accent pl-[60px]": props.mentioned,
@@ -508,6 +529,7 @@ export function MessageHeader(props: ParentProps<{
       }}
       onContextMenu={props.onContextMenu}
     >
+      {props.quickActions}
       <img
         class="absolute left-3.5 w-9 h-9 mt-0.5 rounded-full"
         src={props.authorAvatar}
@@ -531,6 +553,82 @@ export function MessageHeader(props: ParentProps<{
         </span>
       </div>
       {props.children}
+    </div>
+  )
+}
+
+export function MessagePreview(
+  props: { message: Message, guildId?: bigint } & Partial<MessageHeaderProps> & MessageContentProps
+) {
+  const api = getApi()!
+  const contextMenu = useContextMenu()!
+  const message = () => props.message
+
+  // if no guild id is provided, try resolving one
+  const guildId = createMemo(() =>
+    props.guildId ?? (api.cache!.channels.get(message().channel_id) as GuildChannel)?.guild_id
+  )
+
+  const author = createMemo(() =>
+    message().author ?? api.cache!.users.get(message().author_id!) ?? authorDefault()
+  )
+  const authorColor = guildId()
+    ? api.cache!.getMemberColor(guildId(), message().author_id!)
+    : undefined
+
+  const [contentProps, rest] = splitProps(props, ['message', 'grouper', 'editing', 'largePadding'])
+  const [, headerProps] = splitProps(rest, ['guildId'])
+
+  return (
+    <MessageHeader
+      mentioned={api.cache?.isMentionedIn(message())}
+      onContextMenu={contextMenu.getHandler(
+        <MessageContextMenu message={message()} guildId={props.guildId} editing={contentProps.editing} />
+      )}
+      authorAvatar={api.cache!.avatarOf(message().author_id!)}
+      authorColor={authorColor}
+      authorName={displayName(author())}
+      badge={UserFlags.fromValue(author().flags).has('BOT') ? 'BOT' : undefined}
+      timestamp={snowflakes.timestamp(message().id)}
+      {...headerProps}
+    >
+      <MessageContent {...contentProps} />
+    </MessageHeader>
+  )
+}
+
+function QuickActionButton(
+  { icon, tooltip: tt, ...props }: { icon: IconElement, tooltip: string } & JSX.ButtonHTMLAttributes<HTMLButtonElement>
+) {
+  return (
+    <button
+      class="p-2 aspect-square rounded-full hover:bg-fg/10 transition group/action"
+      use:tooltip={tt}
+      {...props}
+    >
+      <Icon icon={icon} class="fill-fg/70 w-4 h-4 group-hover/action:fill-accent/100 transition"/>
+    </button>
+  )
+}
+
+function QuickActions(props: { message: Message, guildId?: bigint, grouper: MessageGrouper }) {
+  const contextMenu = useContextMenu()
+  const permissions = createMemo(() =>
+    props.guildId ? getApi()?.cache?.getClientPermissions(props.guildId, props.message.channel_id) : null
+  )
+  return (
+    <div class="absolute right-3 -top-5 rounded-full bg-bg-0/80 p-0.5 z-[100] hidden group-hover:flex">
+      <Show when={!permissions() || permissions()!.has('ADD_REACTIONS')}>
+        <QuickActionButton icon={FaceSmile} tooltip="Add Reaction" />
+      </Show>
+      <Show when={!permissions() || permissions()!.has('SEND_MESSAGES')}>
+        <QuickActionButton icon={Reply} tooltip="Reply" />
+      </Show>
+      <QuickActionButton
+        icon={EllipsisVertical}
+        tooltip="More"
+        onClick={contextMenu?.getHandler(<MessageContextMenu message={props.message} guildId={props.guildId} />)}
+      />
     </div>
   )
 }
@@ -852,52 +950,31 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                 const firstMessage = group[0]
                 if (!firstMessage) return null
 
-                const author = firstMessage
-                  && (firstMessage.author ?? (firstMessage.author_id && api.cache!.users.get(firstMessage.author_id)))
-                  || grouper().authorDefault
-                const authorColor = props.guildId
-                  ? api.cache!.getMemberColor(props.guildId, author.id)
-                  : undefined
-
                 return (
                   <div class="flex flex-col">
-                    <MessageHeader
-                      mentioned={api.cache?.isMentionedIn(firstMessage)}
-                      onContextMenu={contextMenu.getHandler(
-                        <MessageContextMenu message={firstMessage} guildId={props.guildId} editing={editing} />
-                      )}
-                      authorAvatar={api.cache!.avatarOf(author.id)}
-                      authorColor={authorColor}
-                      authorName={displayName(author)}
-                      badge={UserFlags.fromValue(author.flags).has('BOT') ? 'BOT' : undefined}
-                      timestamp={snowflakes.timestamp(firstMessage.id)}
-                    >
-                      <MessageContent message={firstMessage} {...contentProps()} />
-                    </MessageHeader>
+                    <MessagePreview
+                      message={firstMessage}
+                      guildId={props.guildId}
+                      quickActions={<QuickActions message={firstMessage} guildId={props.guildId} grouper={grouper()} />}
+                      {...contentProps()}
+                    />
                     <For each={group.slice(1)}>
                       {(message: Message) => (
                         <div
-                          classList={(() => {
-                            const mentioned = api.cache?.isMentionedIn(message)
-                            return {
-                              "relative group flex items-center py-px transition-all duration-200 rounded-r-lg": true,
-                              "bg-accent/10 hover:bg-accent/20 border-l-2 border-l-accent": mentioned,
-                              "hover:bg-bg-1/60": !mentioned,
-                            }
-                          })()}
+                          class="relative group flex items-center py-px transition-all duration-200 rounded-r-lg"
+                          classList={{
+                            [api.cache?.isMentionedIn(message)
+                              ? "bg-accent/10 hover:bg-accent/20 border-l-2 border-l-accent"
+                              : "hover:bg-bg-1/60"]: true,
+                          }}
                           onContextMenu={contextMenu.getHandler(
                             <MessageContextMenu message={message} guildId={props.guildId} editing={editing} />
                           )}
                         >
+                          <QuickActions message={message} guildId={props.guildId} grouper={grouper()} />
                           <span
-                            classList={(() => {
-                              const mentioned = api.cache?.isMentionedIn(message)
-                              return {
-                                "invisible text-center group-hover:visible text-[0.65rem] text-fg/40": true,
-                                "w-[60px]": mentioned,
-                                "w-[62px]": !mentioned,
-                              }
-                            })()}
+                            class="invisible text-center group-hover:visible text-[0.65rem] text-fg/40"
+                            classList={{ [api.cache?.isMentionedIn(message) ? 'w-[60px]' : 'w-[62px]']: true }}
                             use:tooltip={timestampTooltip(snowflakes.timestamp(message.id))}
                           >
                             {humanizeTime(snowflakes.timestamp(message.id))}
@@ -916,12 +993,12 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
       <div class="ml-11 mr-2 relative">
         <div
           classList={{
-            "absolute inset-x-4 bottom-2 rounded-xl bg-0 p-2 flex flex-col": true,
+            "absolute inset-x-4 bottom-2 rounded-xl bg-0 p-2 flex flex-col z-[110]": true,
             "hidden": !autocompleteResult()?.length,
           }}
         >
           <Switch>
-            <Match when={autocompleteState()?.type === AutocompleteType.UserMention} keyed={false}>
+            <Match when={autocompleteState()?.type === AutocompleteType.UserMention}>
               <For each={autocompleteResult() as User[]}>
                 {(user, idx) => (
                   <StandardAutocompleteEntry idx={idx()}>

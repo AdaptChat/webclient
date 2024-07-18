@@ -30,6 +30,15 @@ function last<T>(array: T[]): T | undefined {
 
 const MESSAGE_HISTORY_LIMIT = 100
 
+export function authorDefault(): User {
+  return {
+    id: BigInt(0),
+    username: 'Unknown User',
+    display_name: null,
+    flags: 0,
+  }
+}
+
 /**
  * Groups messages by their author and timestamp.
  */
@@ -224,15 +233,6 @@ export default class MessageGrouper {
       reactions: [],
       edited_at: null,
       mentions: [],
-    }
-  }
-
-  get authorDefault(): User {
-    return {
-      id: BigInt(0),
-      username: 'Unknown User',
-      display_name: null,
-      flags: 0,
     }
   }
 

@@ -28,6 +28,8 @@ import CreateBotModal from "../settings/CreateBotModal";
 import {Bot} from "../../types/user";
 import SetBotPermissionsModal, {SetRequestedBotPermissionsModal} from "../settings/SetBotPermissionsModal";
 import {Permissions} from "../../api/Bitflags";
+import {Message} from "../../types/message";
+import ConfirmMessageDeleteModal from "../channels/ConfirmMessageDeleteModal";
 
 export enum ModalId {
   NewGuild,
@@ -37,6 +39,7 @@ export enum ModalId {
   CreateChannel,
   CreateCategory,
   DeleteChannel,
+  DeleteMessage,
   CreateRole,
   DeleteRole,
   AddFriend,
@@ -54,6 +57,7 @@ type ModalMapping = {
   [ModalId.CreateChannel]: { guildId: bigint, parentId?: bigint },
   [ModalId.CreateCategory]: { guildId: bigint, parentId?: bigint },
   [ModalId.DeleteChannel]: GuildChannel,
+  [ModalId.DeleteMessage]: Message,
   [ModalId.CreateRole]: bigint,
   [ModalId.DeleteRole]: Role,
   [ModalId.AddFriend]: undefined,
@@ -84,7 +88,7 @@ export type ModalContext = {
 export const ModalContext = createContext<ModalContext>()
 export const useModal = () => useContext(ModalContext) ?? {} as ModalContext
 
-export default function ModalContainer(props: ParentProps<{ isShowing: Accessor<boolean>, hide: () => void }>) {
+function ModalContainer(props: ParentProps<{ isShowing: Accessor<boolean>, hide: () => void }>) {
   const [invisible, setInvisible] = createSignal(true)
   createEffect(() => {
     if (props.isShowing()) setInvisible(false)
@@ -173,6 +177,9 @@ export function ModalProvider(props: ParentProps) {
           </Match>
           <Match when={context.id === ModalId.DeleteChannel}>
             <ConfirmChannelDeleteModal channel={context.data as GuildChannel} />
+          </Match>
+          <Match when={context.id === ModalId.DeleteMessage}>
+            <ConfirmMessageDeleteModal message={context.data as Message} />
           </Match>
           <Match when={context.id === ModalId.CreateRole}>
             <CreateRoleModal guildId={context.data as bigint} />

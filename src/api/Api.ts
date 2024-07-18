@@ -204,6 +204,10 @@ export default class Api {
     }
     return response
   }
+
+  deleteMessage(channelId: bigint, messageId: bigint) {
+    return this.request('DELETE', `/channels/${channelId}/messages/${messageId}`)
+  }
 }
 
 export const [getApi, setApi] = createRoot(() => {
