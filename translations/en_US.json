@@ -1,0 +1,316 @@
+{
+  "loading": {
+    "launching": "Launching...",
+    "timeout": "Is Adapt not launching? The servers at Adapt might be down. Come back a later time!",
+    "check_status": "You can also try checking out our {{link}}.",
+    "status_page": "Status Page"
+  },
+  "not_found": {
+    "header": "Not found!",
+    "go_back": "Go Back"
+  },
+  "copy": {
+    "user_id": {
+      "imperative": "Copy User ID",
+      "success": "User ID copied to clipboard!"
+    },
+    "username": {
+      "imperative": "Copy Username",
+      "success": "Username copied to clipboard!",
+      "error": "Error while copying username"
+    },
+    "channel_id": {
+      "imperative": "Copy Channel ID",
+      "success": "Channel ID copied to clipboard!"
+    },
+    "message_id": {
+      "imperative": "Copy Message ID",
+      "success": "Message ID copied to clipboard!"
+    },
+    "loading": "Copying...",
+    "error": "Failed to copy to clipboard!"
+  },
+  "dms": {
+    "delete_group": "Delete Group",
+    "leave_group": "Leave Group",
+    "close_dm": "Close DM",
+    "group_members_one": "{{count}} Member",
+    "group_members_other": "{{count}} Members",
+    "no_messages": "No messages"
+  },
+  "status": {
+    "online": "Online",
+    "idle": "Idle",
+    "dnd": "Do Not Disturb",
+    "invisible": "Invisible",
+    "offline": "Offline"
+  },
+  "sidebar": {
+    "main": {
+      "static": {
+        "home": "Home",
+        "friends": "Friends",
+        "discover": "Discover",
+        "global_search": "Search Adapt...",
+        "quick_access": "Quick Access",
+        "conversations": "Conversations",
+        "all_servers": "All Servers"
+      },
+      "quick_access": {
+        "new_messages": "New Messages",
+        "recently_viewed": "Recently Viewed",
+        "from_dms": "Direct Messages",
+        "from_group_dms": "Group Messages"
+      },
+      "conversations": {
+        "dms": "Direct Messages ({{count}})"
+      },
+      "all_servers": {
+        "servers": "Servers ({{count}})"
+      }
+    },
+    "user": {
+      "edit_status": "Change Status",
+      "custom_status": {
+        "header": "Custom Status",
+        "fallback": "Set a custom status"
+      },
+      "user_settings": "Settings"
+    },
+    "guild": {
+    },
+    "members": {
+      "collapse": "Hide Members",
+      "expand": "Show Members"
+    },
+    "collapse": "Collapse Sidebar",
+    "expand": "Show Sidebar",
+    "unknown_header": "Unknown"
+  },
+  "settings": {
+    "user": {
+      "header": "Settings",
+      "tabs": {
+        "account": "Account",
+        "themes": "Themes",
+        "plugins": "Plugins",
+        "bots": "Bots"
+      },
+      "sections": {
+        "root": "User Settings",
+        "client": "Client",
+        "developers": "Developers"
+      },
+      "logout": "Log Out",
+      "issue": "Report an issue"
+    },
+    "guild": {
+      "channel": {
+        "header": "Channel Settings",
+        "tabs": {},
+        "sections": {},
+        "delete": "Delete Channel"
+      },
+      "header": "Server Settings",
+      "tabs": {
+        "overview": "Overview",
+        "roles": "Roles",
+        "emojis": "Emojis",
+        "invites": "Invites",
+        "members": "Members"
+      },
+      "sections": {
+        "management": "Management"
+      },
+      "overview": {
+        "header": "Overview",
+        "name": "Server Name",
+        "description": "Brief Description",
+        "banner": {
+          "header": "Banner",
+          "description": "This will be shown at the top of the channel sidebar and on the server home page.",
+          "upload": "Upload Banner",
+          "remove": "Remove Banner"
+        }
+      },
+      "roles": {
+        "header": "Roles",
+        "description": "Roles are used to group members in your server and grant them permissions.",
+        "search": "Search Roles",
+        "create": "Create Role",
+        "members_one": "{{count}} Member",
+        "members_zero": "No Members",
+        "members_other": "{{count}} Members",
+        "default": {
+          "large": "Manage Default Permissions",
+          "small": "All Members",
+          "header": "Default Permissions"
+        }
+      },
+      "delete": "Delete Server"
+    },
+    "permissions": {
+      "categories": {
+        "all_channels": "All Channels",
+        "text_channels": "Text Channels",
+        "voice_channels": "Voice Channels",
+        "member_customization": "Member Customization",
+        "server_management": "Server Management",
+        "danger_zone": "Danger Zone"
+      },
+      "view_channel": {
+        "label": "View Channels",
+        "description": "Members with this permission can view channels and receive events from them."
+      },
+      "modify_channels": {
+        "label": "Modify Channels",
+        "description": "Members with this permission can manage settings of channels, including changing the name, topic, icon, slowmode, NSFW status, and locking/unlocking."
+      },
+      "manage_channels": {
+        "label": "Manage Channels",
+        "description": "Members with this permission can manage channels, including creating, deleting, changing positions, moving between categories, and editing permission overwrites."
+      },
+      "view_message_history": {
+        "label": "View Message History",
+        "description": "Members with this permission can view the message history of text channels, even if they cannot send or receive new messages."
+      },
+      "send_messages": {
+        "label": "Send Messages",
+        "description": "Members with this permission can send messages in text-based channels. The View Channels permission is required."
+      },
+      "manage_messages": {
+        "label": "Manage Messages",
+        "description": "Members with this permission can manage messages sent by others, including deleting, removing reactions, and unpublishing in announcement channels."
+      },
+      "attach_files": {
+        "label": "Attach Files",
+        "description": "Members with this permission can attach files to messages in text-based channels."
+      },
+      "send_embeds": {
+        "label": "Send Embeds",
+        "description": "Members with this permission can send rich embeds or have embed links automatically appear in text-based channels."
+      },
+      "use_external_emojis": {
+        "label": "Use External Emojis",
+        "description": "Members with this permission can use emojis from other servers."
+      },
+      "add_reactions": {
+        "label": "Add Reactions",
+        "description": "Members with this permission can add new reactions to messages in text-based channels."
+      },
+      "pin_messages": {
+        "label": "Pin Messages",
+        "description": "Members with this permission can pin and unpin messages in text-based channels."
+      },
+      "star_messages": {
+        "label": "Star Messages",
+        "description": "Members with this permission can star and unstar messages in text-based channels."
+      },
+      "publish_messages": {
+        "label": "Publish Messages",
+        "description": "Members with this permission can publish messages to the announcement channel feed."
+      },
+      "bulk_delete_messages": {
+        "label": "Bulk Delete Messages",
+        "description": "Members with this permission can delete or purge messages in bulk in text-based channels."
+      },
+      "privileged_mentions": {
+        "label": "Privileged Mentions",
+        "description": "Members with this permission can mention large groups of people, including everyone or non-mentionable roles, in text-based channels."
+      },
+      "manage_webhooks": {
+        "label": "Manage Webhooks",
+        "description": "Members with this permission can create, edit, and delete webhooks in text-based channels."
+      },
+      "connect": {
+        "label": "Connect",
+        "description": "Members with this permission can connect to voice channels."
+      },
+      "speak": {
+        "label": "Speak",
+        "description": "Members with this permission can speak in voice channels."
+      },
+      "mute_members": {
+        "label": "Mute Members",
+        "description": "Members with this permission can mute other members in voice channels."
+      },
+      "deafen_members": {
+        "label": "Deafen Members",
+        "description": "Members with this permission can deafen other members in voice channels."
+      },
+      "change_nickname": {
+        "label": "Change Nickname",
+        "description": "Members with this permission can change their own nickname on the server."
+      },
+      "manage_nicknames": {
+        "label": "Manage Nicknames",
+        "description": "Members with this permission can change the nicknames of other members on the server."
+      },
+      "manage_emojis": {
+        "label": "Manage Emojis",
+        "description": "Members with this permission can create, edit, and delete emojis for the server."
+      },
+      "manage_starboard": {
+        "label": "Manage Starboard",
+        "description": "Members with this permission can delete starboard posts or disable the starboard for the server."
+      },
+      "manage_guild": {
+        "label": "Manage Server",
+        "description": "Members with this permission can manage the server's settings, including changing the name, icon, visibility, and enabling/disabling the starboard."
+      },
+      "manage_roles": {
+        "label": "Manage Roles",
+        "description": "Members with this permission can manage the server's roles, edit permissions of lower roles, and assign/remove roles from other members."
+      },
+      "create_invites": {
+        "label": "Create Invites",
+        "description": "Members with this permission can create invites to the server."
+      },
+      "manage_invites": {
+        "label": "Manage Invites",
+        "description": "Members with this permission can revoke or pause invites of any channel in the server."
+      },
+      "timeout_members": {
+        "label": "Timeout Members",
+        "description": "Members with this permission can timeout and untimeout members with a lower role than them."
+      },
+      "kick_members": {
+        "label": "Kick Members",
+        "description": "Members with this permission can kick members with a lower role than them from the server."
+      },
+      "ban_members": {
+        "label": "Ban Members",
+        "description": "Members with this permission can ban and unban members with a lower role than them from the server."
+      },
+      "view_audit_log": {
+        "label": "View Audit Log",
+        "description": "Members with this permission can view an audit log of past moderation or other privileged actions on the server."
+      },
+      "administrator": {
+        "label": "Administrator",
+        "description": "Members with this permission have the ability to override all permissions and any channel on the server."
+      }
+    },
+    "save": "Save Changes?"
+  },
+  "time": {
+    "recently": "Just now",
+    "past": "{{delta}} ago",
+    "future": "In {{delta}}",
+    "yesterday_at": "Yesterday at {{time}}",
+    "weekday_at": "{{weekday}} at {{time}}",
+    "date_at": "{{date}} at {{time}}"
+  },
+  "generic": {
+    "remove": "Remove",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "wip": "Work in progress!"
+  },
+  "error": {
+    "header": "Error: {{message}}",
+    "open_issue": "If this error persists, please {{link}} in the GitHub repository.",
+    "open_issue_link": "open an issue"
+  }
+}
