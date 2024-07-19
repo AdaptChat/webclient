@@ -611,13 +611,16 @@ function QuickActionButton(
   )
 }
 
-function QuickActions(props: { message: Message, guildId?: bigint, grouper: MessageGrouper }) {
+function QuickActions(props: { message: Message, offset?: number, guildId?: bigint, grouper: MessageGrouper }) {
   const contextMenu = useContextMenu()
   const permissions = createMemo(() =>
     props.guildId ? getApi()?.cache?.getClientPermissions(props.guildId, props.message.channel_id) : null
   )
   return (
-    <div class="absolute right-3 -top-5 rounded-full bg-bg-0/80 p-0.5 z-[100] hidden group-hover:flex">
+    <div
+      class="absolute backdrop-blur right-3 rounded-full bg-bg-0/80 p-0.5 z-[100] hidden group-hover:flex"
+      style={{ top: `-${(props.offset ?? 4) * 4}px` }}
+    >
       <Show when={!permissions() || permissions()!.has('ADD_REACTIONS')}>
         <QuickActionButton icon={FaceSmile} tooltip="Add Reaction" />
       </Show>
@@ -971,7 +974,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                             <MessageContextMenu message={message} guildId={props.guildId} editing={editing} />
                           )}
                         >
-                          <QuickActions message={message} guildId={props.guildId} grouper={grouper()} />
+                          <QuickActions message={message} offset={9} guildId={props.guildId} grouper={grouper()} />
                           <span
                             class="invisible text-center group-hover:visible text-[0.65rem] text-fg/40"
                             classList={{ [api.cache?.isMentionedIn(message) ? 'w-[60px]' : 'w-[62px]']: true }}
