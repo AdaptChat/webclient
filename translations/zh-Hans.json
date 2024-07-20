@@ -298,12 +298,28 @@
         "remove": "",
         "save": "",
         "cancel": "",
-        "back": "",
+        "back": "回去",
         "wip": ""
     },
     "error": {
         "header": "",
         "open_issue": "",
         "open_issue_link": ""
+    },
+    "friends": {
+        "tabs": {
+            "pending": "特定",
+            "all": "好友",
+            "blocked": "已屏蔽"
+        },
+        "header": "好友",
+        "add": "添加好友",
+        "dividers": {
+            "all": "全部好友（{{count}}）"
+        },
+        "actions": {
+            "unfriend": "删除好友",
+            "unblock": "解除屏蔽"
+        }
     }
 }
