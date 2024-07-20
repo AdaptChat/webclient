@@ -25,6 +25,7 @@ import {ReactiveMap} from "@solid-primitives/map";
 import {mapIterator} from "../../utils";
 import Robot from "../../components/icons/svg/Robot";
 import Plug from "../../components/icons/svg/Plug";
+import Globe from "../../components/icons/svg/Globe";
 void tooltip
 
 export interface Breadcrumb {
@@ -245,6 +246,9 @@ function SettingsSidebar() {
       </SidebarButton>
 
       <SettingsSection>Client</SettingsSection>
+      <SidebarButton large href="/settings/locales" svg={Globe}>
+        Language
+      </SidebarButton>
       <SidebarButton large href="/settings/appearance" svg={Palette}>
         Themes
       </SidebarButton>

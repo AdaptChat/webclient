@@ -49,6 +49,7 @@ const Invite = lazy(() => import('./pages/guilds/Invite'))
 
 // Settings
 const AccountSettings = lazy(() => import('./pages/settings/Account'))
+const LocaleSettings = lazy(() => import('./pages/settings/Locale'))
 const AppearanceSettings = lazy(() => import('./pages/settings/Appearance'))
 const PluginsSettings = lazy(() => import('./pages/settings/Plugins'))
 const BotsSettings = lazy(() => import('./pages/settings/Bots'))
@@ -166,6 +167,7 @@ const Entrypoint: Component = () => {
               <Show when={ws()} fallback={<Route path="*" component={Loading} />}>
                 <Route path="/settings" component={Settings}>
                   <Route path="/account" component={AccountSettings} />
+                  <Route path="/locales" component={LocaleSettings} />
                   <Route path="/appearance" component={AppearanceSettings} />
                   <Route path="/plugins" component={PluginsSettings} />
                   <Route path="/bots/:botId" component={BotSettings} />

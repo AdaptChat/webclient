@@ -293,6 +293,49 @@
     },
     "save": "Save Changes?"
   },
+  "home": {
+    "welcome": "Welcome, {{username}}!",
+    "onboarding": {
+      "title": "Learn Adapt",
+      "edit_profile": {
+        "label": "Customize your profile",
+        "description": "Let others on Adapt know who you are. Give yourself a display name, change your avatar, and write a bio."
+      },
+      "add_friend": {
+        "label": "Connect with friends",
+        "description": "Find your friends on Adapt, add them to your friends list, and start chatting with them."
+      },
+      "join_guild": {
+        "label": "Join a community",
+        "description": "Create, discover, join, and chat in communities that suit your interests. You may also join the official {{server_link}}.",
+        "official_server_name": "Adapt Community"
+      }
+    }
+  },
+  "friends": {
+    "header": "Friends",
+    "tabs": {
+      "all": "Friends",
+      "pending": "Requests",
+      "blocked": "Blocked"
+    },
+    "add": "Add Friend",
+    "dividers": {
+      "all": "All Friends ({{count}})",
+      "incoming": "Incoming Requests ({{count}})",
+      "outgoing": "Outgoing Requests ({{count}})"
+    },
+    "actions": {
+      "dm": "Open DM",
+      "unfriend": "Remove Friend",
+      "unblock": "Unblock User",
+      "pending": {
+        "accept": "Accept Request",
+        "decline": "Decline Request",
+        "revoke": "Revoke Request"
+      }
+    }
+  },
   "time": {
     "recently": "Just now",
     "past": "{{delta}} ago",
