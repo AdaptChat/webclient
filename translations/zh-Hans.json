@@ -7,7 +7,7 @@
     },
     "not_found": {
         "header": "",
-        "go_back": ""
+        "go_back": "回去"
     },
     "copy": {
         "user_id": {
@@ -35,7 +35,7 @@
         "leave_group": "",
         "close_dm": "",
         "group_members": "",
-        "no_messages": ""
+        "no_messages": "没讯息"
     },
     "status": {
         "online": "",
@@ -56,8 +56,8 @@
                 "all_servers": ""
             },
             "quick_access": {
-                "new_messages": "",
-                "recently_viewed": "",
+                "new_messages": "最近的讯息",
+                "recently_viewed": "最近读的",
                 "from_dms": "",
                 "from_group_dms": ""
             },
@@ -287,10 +287,10 @@
         "save": ""
     },
     "time": {
-        "recently": "",
-        "past": "",
-        "future": "",
-        "yesterday_at": "",
+        "recently": "刚刚",
+        "past": "{{delta}}前",
+        "future": "{{delta}}后",
+        "yesterday_at": "昨天 {{time}}",
         "weekday_at": "",
         "date_at": ""
     },
