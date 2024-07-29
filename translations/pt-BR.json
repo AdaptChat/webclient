@@ -299,7 +299,7 @@
                 "description": "Deixe outros no Adapt saber quem você é. Dê a si mesmo um nome de exibição, mude seu avatar e escreva uma biografia."
             },
             "add_friend": {
-                "label": "",
+                "label": "Conecte-se com amigos",
                 "description": "Encontre seus amigos no Adapt, os adicione para sua lista de amigos e comece a conversar com eles."
             },
             "join_guild": {
