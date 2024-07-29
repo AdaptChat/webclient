@@ -1,0 +1,352 @@
+{
+    "loading": {
+        "launching": "",
+        "timeout": "",
+        "check_status": "",
+        "status_page": ""
+    },
+    "not_found": {
+        "header": "",
+        "go_back": ""
+    },
+    "copy": {
+        "user_id": {
+            "imperative": "",
+            "success": ""
+        },
+        "username": {
+            "imperative": "",
+            "success": "",
+            "error": ""
+        },
+        "channel_id": {
+            "imperative": "",
+            "success": ""
+        },
+        "message_id": {
+            "imperative": "",
+            "success": ""
+        },
+        "loading": "",
+        "error": ""
+    },
+    "dms": {
+        "delete_group": "",
+        "leave_group": "",
+        "close_dm": "",
+        "group_members": "",
+        "no_messages": ""
+    },
+    "status": {
+        "online": "",
+        "idle": "",
+        "dnd": "",
+        "invisible": "",
+        "offline": ""
+    },
+    "sidebar": {
+        "main": {
+            "static": {
+                "home": "",
+                "friends": "",
+                "discover": "",
+                "global_search": "",
+                "quick_access": "",
+                "conversations": "",
+                "all_servers": ""
+            },
+            "quick_access": {
+                "new_messages": "",
+                "recently_viewed": "",
+                "from_dms": "",
+                "from_group_dms": ""
+            },
+            "conversations": {
+                "dms": ""
+            },
+            "all_servers": {
+                "servers": ""
+            }
+        },
+        "user": {
+            "edit_status": "",
+            "custom_status": {
+                "header": "",
+                "fallback": ""
+            },
+            "user_settings": ""
+        },
+        "members": {
+            "collapse": "",
+            "expand": ""
+        },
+        "collapse": "",
+        "expand": "",
+        "unknown_header": ""
+    },
+    "settings": {
+        "user": {
+            "header": "",
+            "tabs": {
+                "account": "",
+                "themes": "",
+                "plugins": "",
+                "bots": ""
+            },
+            "sections": {
+                "root": "",
+                "client": "",
+                "developers": ""
+            },
+            "logout": "",
+            "issue": ""
+        },
+        "guild": {
+            "channel": {
+                "header": "",
+                "delete": ""
+            },
+            "header": "",
+            "tabs": {
+                "overview": "",
+                "roles": "",
+                "emojis": "",
+                "invites": "",
+                "members": ""
+            },
+            "sections": {
+                "management": ""
+            },
+            "overview": {
+                "header": "",
+                "name": "",
+                "description": "",
+                "banner": {
+                    "header": "",
+                    "description": "",
+                    "upload": "",
+                    "remove": ""
+                }
+            },
+            "roles": {
+                "header": "",
+                "description": "",
+                "search": "",
+                "create": "",
+                "members": "",
+                "default": {
+                    "large": "",
+                    "small": "",
+                    "header": ""
+                }
+            },
+            "delete": ""
+        },
+        "permissions": {
+            "categories": {
+                "all_channels": "",
+                "text_channels": "",
+                "voice_channels": "",
+                "member_customization": "",
+                "server_management": "",
+                "danger_zone": ""
+            },
+            "view_channel": {
+                "label": "",
+                "description": ""
+            },
+            "modify_channels": {
+                "label": "",
+                "description": ""
+            },
+            "manage_channels": {
+                "label": "",
+                "description": ""
+            },
+            "view_message_history": {
+                "label": "",
+                "description": ""
+            },
+            "send_messages": {
+                "label": "",
+                "description": ""
+            },
+            "manage_messages": {
+                "label": "",
+                "description": ""
+            },
+            "attach_files": {
+                "label": "",
+                "description": ""
+            },
+            "send_embeds": {
+                "label": "",
+                "description": ""
+            },
+            "use_external_emojis": {
+                "label": "",
+                "description": ""
+            },
+            "add_reactions": {
+                "label": "",
+                "description": ""
+            },
+            "pin_messages": {
+                "label": "",
+                "description": ""
+            },
+            "star_messages": {
+                "label": "",
+                "description": ""
+            },
+            "publish_messages": {
+                "label": "",
+                "description": ""
+            },
+            "bulk_delete_messages": {
+                "label": "",
+                "description": ""
+            },
+            "privileged_mentions": {
+                "label": "",
+                "description": ""
+            },
+            "manage_webhooks": {
+                "label": "",
+                "description": ""
+            },
+            "connect": {
+                "label": "",
+                "description": ""
+            },
+            "speak": {
+                "label": "",
+                "description": ""
+            },
+            "mute_members": {
+                "label": "",
+                "description": ""
+            },
+            "deafen_members": {
+                "label": "",
+                "description": ""
+            },
+            "change_nickname": {
+                "label": "",
+                "description": ""
+            },
+            "manage_nicknames": {
+                "label": "",
+                "description": ""
+            },
+            "manage_emojis": {
+                "label": "",
+                "description": ""
+            },
+            "manage_starboard": {
+                "label": "",
+                "description": ""
+            },
+            "manage_guild": {
+                "label": "",
+                "description": ""
+            },
+            "manage_roles": {
+                "label": "",
+                "description": ""
+            },
+            "create_invites": {
+                "label": "",
+                "description": ""
+            },
+            "manage_invites": {
+                "label": "",
+                "description": ""
+            },
+            "timeout_members": {
+                "label": "",
+                "description": ""
+            },
+            "kick_members": {
+                "label": "",
+                "description": ""
+            },
+            "ban_members": {
+                "label": "",
+                "description": ""
+            },
+            "view_audit_log": {
+                "label": "",
+                "description": ""
+            },
+            "administrator": {
+                "label": "",
+                "description": ""
+            }
+        },
+        "save": ""
+    },
+    "home": {
+        "welcome": "",
+        "onboarding": {
+            "title": "",
+            "edit_profile": {
+                "label": "",
+                "description": ""
+            },
+            "add_friend": {
+                "label": "",
+                "description": ""
+            },
+            "join_guild": {
+                "label": "",
+                "description": "",
+                "official_server_name": ""
+            }
+        }
+    },
+    "friends": {
+        "header": "",
+        "tabs": {
+            "all": "",
+            "pending": "",
+            "blocked": ""
+        },
+        "add": "",
+        "dividers": {
+            "all": "",
+            "incoming": "",
+            "outgoing": ""
+        },
+        "actions": {
+            "dm": "",
+            "unfriend": "",
+            "unblock": "",
+            "pending": {
+                "accept": "",
+                "decline": "",
+                "revoke": ""
+            }
+        }
+    },
+    "time": {
+        "recently": "",
+        "past": "",
+        "future": "",
+        "yesterday_at": "",
+        "weekday_at": "",
+        "date_at": ""
+    },
+    "generic": {
+        "remove": "",
+        "save": "",
+        "cancel": "",
+        "back": "",
+        "wip": ""
+    },
+    "error": {
+        "header": "",
+        "open_issue": "",
+        "open_issue_link": ""
+    }
+}
