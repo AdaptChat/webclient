@@ -1,352 +1,356 @@
 {
     "loading": {
-        "launching": "",
-        "timeout": "",
-        "check_status": "",
-        "status_page": ""
+        "launching": "Iniciando...",
+        "timeout": "Adapt não está iniciando? Os servidores Adapt podem estar fora do ar. Volte mais tarde!",
+        "check_status": "Você também pode tentar verificar nossa {{link}}.",
+        "status_page": "Página de status"
     },
     "not_found": {
-        "header": "",
-        "go_back": ""
+        "header": "Não encontrado!",
+        "go_back": "Voltar"
     },
     "copy": {
         "user_id": {
-            "imperative": "",
-            "success": ""
+            "imperative": "Copiar ID do usuário",
+            "success": "ID do usuário copiada para a área de transferência!"
         },
         "username": {
-            "imperative": "",
-            "success": "",
-            "error": ""
+            "imperative": "Copiar nome de usuário",
+            "success": "Nome de usuário copiado para a área de transferência!",
+            "error": "Erro ao copiar nome de usuário"
         },
         "channel_id": {
-            "imperative": "",
-            "success": ""
+            "imperative": "Copiar ID do canal",
+            "success": "ID do canal copiada para a área de transferência!"
         },
         "message_id": {
-            "imperative": "",
-            "success": ""
+            "imperative": "Copiar ID da mensagem",
+            "success": "ID da mensagem copiada para a área de transferência!"
         },
-        "loading": "",
-        "error": ""
+        "loading": "Copiando...",
+        "error": "Falha ao copiar para a área de transferência!"
     },
     "dms": {
-        "delete_group": "",
-        "leave_group": "",
-        "close_dm": "",
-        "group_members": "",
-        "no_messages": ""
+        "delete_group": "Excluir grupo",
+        "leave_group": "Sair do grupo",
+        "close_dm": "Fechar MD",
+        "group_members_one": "{{count}} membro",
+        "group_members_many": "{{count}} membros",
+        "group_members_other": "{{count}} membros",
+        "no_messages": "Nenhuma mensagem"
     },
     "status": {
-        "online": "",
-        "idle": "",
-        "dnd": "",
-        "invisible": "",
-        "offline": ""
+        "online": "Conectado",
+        "idle": "Inativo",
+        "dnd": "Não perturbe",
+        "invisible": "Invisível",
+        "offline": "Desconectado"
     },
     "sidebar": {
         "main": {
             "static": {
-                "home": "",
-                "friends": "",
-                "discover": "",
-                "global_search": "",
-                "quick_access": "",
-                "conversations": "",
-                "all_servers": ""
+                "home": "Início",
+                "friends": "Amigos",
+                "discover": "Descubra",
+                "global_search": "Buscar no Adapt...",
+                "quick_access": "Acesso rápido",
+                "conversations": "Conversas",
+                "all_servers": "Todos servidores"
             },
             "quick_access": {
-                "new_messages": "",
-                "recently_viewed": "",
-                "from_dms": "",
-                "from_group_dms": ""
+                "new_messages": "Mensagens novas",
+                "recently_viewed": "Visto recentemente",
+                "from_dms": "Mensagens diretas",
+                "from_group_dms": "Mensagens de grupo"
             },
             "conversations": {
-                "dms": ""
+                "dms": "Mensagens diretas ({{count}})"
             },
             "all_servers": {
-                "servers": ""
+                "servers": "Servidores ({{count}})"
             }
         },
         "user": {
-            "edit_status": "",
+            "edit_status": "Mudar status",
             "custom_status": {
-                "header": "",
-                "fallback": ""
+                "header": "Status personalizado",
+                "fallback": "Definir um status personalizado"
             },
-            "user_settings": ""
+            "user_settings": "Configurações"
         },
         "members": {
-            "collapse": "",
-            "expand": ""
+            "collapse": "Esconder membros",
+            "expand": "Mostrar membros"
         },
-        "collapse": "",
-        "expand": "",
-        "unknown_header": ""
+        "collapse": "Recolher barra lateral",
+        "expand": "Mostrar barra lateral",
+        "unknown_header": "Desconhecido"
     },
     "settings": {
         "user": {
-            "header": "",
+            "header": "Configuirações",
             "tabs": {
-                "account": "",
-                "themes": "",
-                "plugins": "",
-                "bots": ""
+                "account": "Conta",
+                "themes": "Temas",
+                "plugins": "Extensões",
+                "bots": "Robôs"
             },
             "sections": {
-                "root": "",
-                "client": "",
-                "developers": ""
+                "root": "Configurações de usuário",
+                "client": "Cliente",
+                "developers": "Desenvolvedores"
             },
-            "logout": "",
-            "issue": ""
+            "logout": "Sair da sessão",
+            "issue": "Relatar problema"
         },
         "guild": {
             "channel": {
-                "header": "",
-                "delete": ""
+                "header": "Configurações do canal",
+                "delete": "Excluir canal"
             },
-            "header": "",
+            "header": "Configurações do servidor",
             "tabs": {
-                "overview": "",
-                "roles": "",
-                "emojis": "",
-                "invites": "",
-                "members": ""
+                "overview": "Visão geral",
+                "roles": "Cargos",
+                "emojis": "Emojis",
+                "invites": "Convites",
+                "members": "Membros"
             },
             "sections": {
-                "management": ""
+                "management": "Gerenciamento"
             },
             "overview": {
-                "header": "",
-                "name": "",
-                "description": "",
+                "header": "Visão geral",
+                "name": "Nome do servidor",
+                "description": "Descrição curta",
                 "banner": {
-                    "header": "",
-                    "description": "",
-                    "upload": "",
-                    "remove": ""
+                    "header": "Bâner",
+                    "description": "Isto será exibido no topo da barra lateral do canal e na página inicial do servidor.",
+                    "upload": "Enviar bâner",
+                    "remove": "Remover bâner"
                 }
             },
             "roles": {
-                "header": "",
-                "description": "",
-                "search": "",
-                "create": "",
-                "members": "",
+                "header": "Cargos",
+                "description": "Cargos são usados para agrupar membros no seu servidor e lhes dar permissões.",
+                "search": "Buscar cargos",
+                "create": "Criar cargo",
+                "members_one": "{{count}} membro",
+                "members_many": "{{count}} membros",
+                "members_other": "{{count}} membros",
                 "default": {
-                    "large": "",
-                    "small": "",
-                    "header": ""
+                    "large": "Gerenciar permissões padrão",
+                    "small": "Todos membros",
+                    "header": "Permissões padrão"
                 }
             },
-            "delete": ""
+            "delete": "Excluir servidor"
         },
         "permissions": {
             "categories": {
-                "all_channels": "",
-                "text_channels": "",
-                "voice_channels": "",
-                "member_customization": "",
-                "server_management": "",
-                "danger_zone": ""
+                "all_channels": "Todos canais",
+                "text_channels": "Canais de texto",
+                "voice_channels": "Canais de voz",
+                "member_customization": "Personalização de membro",
+                "server_management": "Gerenciamento do servidor",
+                "danger_zone": "Zona de perigo"
             },
             "view_channel": {
-                "label": "",
-                "description": ""
+                "label": "Ver canais",
+                "description": "Membros com esta permissão podem ver canais e receber seus eventos."
             },
             "modify_channels": {
-                "label": "",
-                "description": ""
+                "label": "Modificar canais",
+                "description": "Membros com esta permissão podem gerenciar configurações de canais, incluindo mudar o nome, tópico, ícone, modo lento, status NSPT, e bloqueio/desbloqueio."
             },
             "manage_channels": {
-                "label": "",
-                "description": ""
+                "label": "Gerenciar canais",
+                "description": "Membros com esta permissão podem gerenciar canais, incluindo criar, excluir, mudar posições, mover entre categorias e editar substituições de permissão."
             },
             "view_message_history": {
-                "label": "",
-                "description": ""
+                "label": "Ver histórico de mensagens",
+                "description": "Membros com esta permissão podem ver o histórico de mensagens de canais de texto, mesmo se não podem enviar ou receber mensagens novas."
             },
             "send_messages": {
-                "label": "",
-                "description": ""
+                "label": "Enviar mensagens",
+                "description": "Membros com esta permissão podem enviar mensagens em canais de texto. A permissão Ver canais é necessária."
             },
             "manage_messages": {
-                "label": "",
-                "description": ""
+                "label": "Gerenciar mensagens",
+                "description": "Membros com esta permissão podem gerenciar mensagens enviadas por outros, incluindo excluir, remover reações, e despublicar em canais de anúncio."
             },
             "attach_files": {
-                "label": "",
-                "description": ""
+                "label": "Anexar arquivos",
+                "description": "Membros com esta permissão podem anexar arquivos a mensagens em canais de texto."
             },
             "send_embeds": {
-                "label": "",
+                "label": "Enviar prévias",
                 "description": ""
             },
             "use_external_emojis": {
-                "label": "",
-                "description": ""
+                "label": "Usar emojis externos",
+                "description": "Membros com esta permissão podem usar emojis de outros servidores."
             },
             "add_reactions": {
-                "label": "",
-                "description": ""
+                "label": "Adicionar reações",
+                "description": "Membros com esta permissão podem adicionar novas reações a mensagens em canais de texto."
             },
             "pin_messages": {
-                "label": "",
-                "description": ""
+                "label": "Fixar mensagens",
+                "description": "Membros com esta permissão podem fixar e desafixar mensagens em canais de texto."
             },
             "star_messages": {
-                "label": "",
-                "description": ""
+                "label": "Estrelar mensagens",
+                "description": "Membros com esta permissão podem estrelar e desestrelar mensagens em canais de texto."
             },
             "publish_messages": {
-                "label": "",
-                "description": ""
+                "label": "Publicar mensagens",
+                "description": "Membros com esta permissão podem publicar mensagens para o fluxo do canal de anúncios."
             },
             "bulk_delete_messages": {
-                "label": "",
-                "description": ""
+                "label": "Excluir mensagens em massa",
+                "description": "Membros com esta permissão podem excluir ou limpar mensagens em massa em canais de texto."
             },
             "privileged_mentions": {
-                "label": "",
-                "description": ""
+                "label": "Menções privilegiadas",
+                "description": "Membros com esta permissão podem mencionar grandes grupos de pessoas, incluindo todos ou cargos não-mencionáveis, em canais de texto."
             },
             "manage_webhooks": {
-                "label": "",
-                "description": ""
+                "label": "Gerenciar ganchos web",
+                "description": "Membros com esta permissão podem criar, editar e excluir ganchos web em canais de texto."
             },
             "connect": {
-                "label": "",
-                "description": ""
+                "label": "Conectar",
+                "description": "Membros com esta permissão podem se conectar a canais de voz."
             },
             "speak": {
-                "label": "",
-                "description": ""
+                "label": "Falar",
+                "description": "Membros com esta permissão podem falar em canais de voz."
             },
             "mute_members": {
-                "label": "",
-                "description": ""
+                "label": "Silenciar membros",
+                "description": "Membros com esta permissão podem silenciar outros membros em canais de voz."
             },
             "deafen_members": {
-                "label": "",
-                "description": ""
+                "label": "Ensurdecer membros",
+                "description": "Membros com esta permissão podem ensurdecer outros membros em canais de voz."
             },
             "change_nickname": {
-                "label": "",
-                "description": ""
+                "label": "Mudar apelido",
+                "description": "Membros com esta permissão podem mudar seu próprio apelido no servidor."
             },
             "manage_nicknames": {
-                "label": "",
-                "description": ""
+                "label": "Gerenciar apelidos",
+                "description": "Membros com esta permissão podem alterar os apelidos de outros membros no servidor."
             },
             "manage_emojis": {
-                "label": "",
-                "description": ""
+                "label": "Gerenciar emojis",
+                "description": "Membros com esta permissão podem criar, editar e excluir emojis para o servidor."
             },
             "manage_starboard": {
-                "label": "",
-                "description": ""
+                "label": "Gerenciar mural",
+                "description": "Membros com esta permissão podem remover postagens do mural ou desativar o mural para o servidor."
             },
             "manage_guild": {
-                "label": "",
-                "description": ""
+                "label": "Gerenciar servidor",
+                "description": "Membros com esta permissão podem gerenciar as configurações do servidor, incluindo mudar o nome, ícone, visibilidade e ativar/desativar o mural."
             },
             "manage_roles": {
-                "label": "",
-                "description": ""
+                "label": "Gerenciar cargos",
+                "description": "Membros com esta permissão podem gerenciar os cargos do servidor, editar permissões de cargos mais baixos e atribuir/remover cargos de outros membros."
             },
             "create_invites": {
-                "label": "",
-                "description": ""
+                "label": "Criar convites",
+                "description": "Membros com esta permissão podem criar convides para o servidor."
             },
             "manage_invites": {
-                "label": "",
-                "description": ""
+                "label": "Gerenciar convites",
+                "description": "Membros com esta permissão podem revogar ou pausar convites de qualquer canal no servidor."
             },
             "timeout_members": {
-                "label": "",
-                "description": ""
+                "label": "Silenciar membros temporariamente",
+                "description": "Membros com esta permissão podem silenciar e dessilenciar membros com cargo inferior ao seu próprio temporariamente."
             },
             "kick_members": {
-                "label": "",
-                "description": ""
+                "label": "Expulsar membros",
+                "description": "Membros com esta permissão podem expulsar membros com cargo inferior que o seu próprio do servidor."
             },
             "ban_members": {
-                "label": "",
-                "description": ""
+                "label": "Banir membros",
+                "description": "Membros com esta permissão podem banir e desbanir membros com cargo inferior que o seu próprio do servidor."
             },
             "view_audit_log": {
-                "label": "",
-                "description": ""
+                "label": "Ver registro de auditoria",
+                "description": "Membros com esta permissão podem ver um registro de auditoria de moderação anterior ou outras ações privilegiadas no servidor."
             },
             "administrator": {
-                "label": "",
-                "description": ""
+                "label": "Administrador",
+                "description": "Membros com esta permissão têm a habilidade de substituir todas as permissões e qualquer canal no servidor."
             }
         },
-        "save": ""
+        "save": "Salvar alterações?"
     },
     "home": {
-        "welcome": "",
+        "welcome": "Bem-vindo, {{username}}!",
         "onboarding": {
-            "title": "",
+            "title": "Aprenda o Adapt",
             "edit_profile": {
-                "label": "",
-                "description": ""
+                "label": "Customize seu perfil",
+                "description": "Deixe outros no Adapt saber quem você é. Dê a si mesmo um nome de exibição, mude seu avatar e escreva uma biografia."
             },
             "add_friend": {
                 "label": "",
-                "description": ""
+                "description": "Encontre seus amigos no Adapt, os adicione para sua lista de amigos e comece a conversar com eles."
             },
             "join_guild": {
-                "label": "",
-                "description": "",
-                "official_server_name": ""
+                "label": "Entrar numa comunidade",
+                "description": "Crie, descubra, entre e converse em comunidades que combinam com seus interesses. Você também pode entrar na {{server_link}}.",
+                "official_server_name": "Comunidade Adapt"
             }
         }
     },
     "friends": {
-        "header": "",
+        "header": "Amigos",
         "tabs": {
-            "all": "",
-            "pending": "",
-            "blocked": ""
+            "all": "Amigos",
+            "pending": "Pedidos",
+            "blocked": "Bloqueados"
         },
-        "add": "",
+        "add": "Adicionar amigo",
         "dividers": {
-            "all": "",
-            "incoming": "",
-            "outgoing": ""
+            "all": "Todos amigos ({{count}})",
+            "incoming": "Pedidos recebidos ({{count}})",
+            "outgoing": "Pedidos enviados ({{count}})"
         },
         "actions": {
-            "dm": "",
-            "unfriend": "",
-            "unblock": "",
+            "dm": "Abrir MD",
+            "unfriend": "Remover amigo",
+            "unblock": "Desbloquear usuário",
             "pending": {
-                "accept": "",
-                "decline": "",
-                "revoke": ""
+                "accept": "Aceitar pedido",
+                "decline": "Negar pedido",
+                "revoke": "Negar pedido"
             }
         }
     },
     "time": {
-        "recently": "",
-        "past": "",
-        "future": "",
-        "yesterday_at": "",
-        "weekday_at": "",
-        "date_at": ""
+        "recently": "Agora",
+        "past": "{{delta}} atrás",
+        "future": "Em {{delta}}",
+        "yesterday_at": "Ontem ás {{time}}",
+        "weekday_at": "{{weekday}} ás {{time}}",
+        "date_at": "{{date}} ás {{time}}"
     },
     "generic": {
-        "remove": "",
-        "save": "",
-        "cancel": "",
-        "back": "",
-        "wip": ""
+        "remove": "Remover",
+        "save": "Salvar",
+        "cancel": "Cancelar",
+        "back": "Voltar",
+        "wip": "Em progresso!"
     },
     "error": {
-        "header": "",
-        "open_issue": "",
-        "open_issue_link": ""
+        "header": "Erro: {{message}}",
+        "open_issue": "Se este erro persistir, por favor {{link}} no repositório da GitHub.",
+        "open_issue_link": "abra um problema"
     }
 }
