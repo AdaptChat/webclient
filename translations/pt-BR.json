@@ -185,7 +185,7 @@
             },
             "send_embeds": {
                 "label": "Enviar prévias",
-                "description": ""
+                "description": "Membros com esta permissão podem enviar integrações ou ter prévias de links aparecer automaticamente em canais de texto."
             },
             "use_external_emojis": {
                 "label": "Usar emojis externos",
