@@ -2,12 +2,12 @@
     "loading": {
         "launching": "",
         "timeout": "",
-        "check_status": "",
+        "check_status": "您也可以看看我们的{{link}}。",
         "status_page": ""
     },
     "not_found": {
         "header": "",
-        "go_back": "回去"
+        "go_back": "返回"
     },
     "copy": {
         "user_id": {
@@ -320,6 +320,14 @@
         "actions": {
             "unfriend": "删除好友",
             "unblock": "解除屏蔽"
+        }
+    },
+    "home": {
+        "welcome": "您好{{username}}！",
+        "onboarding": {
+            "add_friend": {
+                "label": "跟好友联系"
+            }
         }
     }
 }
