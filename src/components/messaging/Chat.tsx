@@ -1105,7 +1105,11 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
                 
                 messageInputRef!.focus();
                 updateSendable();
-                setEmojiPickerVisible(false);
+
+                // Close the emoji picker if shift is not held
+                if (!window.event || !window.event.shiftKey) {
+                  setEmojiPickerVisible(false);
+                }
               }
             }} />
           </div>
@@ -1317,7 +1321,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
               await createMessage()
             }}
           >
-            <Icon icon={PaperPlaneTop} class="fill-fg w-[18px] h-[18px]" />
+            <Icon icon={PaperPlaneTop} title="Send" class="fill-fg w-[18px] h-[18px]" />
           </button>
         </div>
       </Show>
