@@ -62,7 +62,7 @@ const GuildSettingsRole = lazy(() => import('./pages/guilds/settings/Role'))
 const GuildSettingsRoleOverview = lazy(() => import('./pages/guilds/settings/RoleOverview'))
 const GuildSettingsRolePermissions = lazy(() => import('./pages/guilds/settings/RolePermissions'))
 const GuildSettingsRoleMembers = lazy(() => import('./pages/guilds/settings/RoleMembers'))
-const GuildSettingsEmojis = lazy(() => import('./pages/guilds/settings/Emojis'))
+const GuildSettingsEmojis = lazy(() => import('./pages/guilds/settings/EmojiSettings'))
 
 // Guild Channel Settings
 const GuildChannelSettingsOverview = lazy(() => import('./pages/channels/settings/Overview'))

@@ -171,6 +171,10 @@ export default class ApiCache {
       for (const role of guild.roles)
         this.updateRole(role)
 
+    if (guild.emojis) 
+      for (const emoji of guild.emojis) 
+        this.updateEmoji(emoji)
+  
     this.guildListReactor[1](prev => {
       // TODO: sort by true order, this is just creation date
       const index = sortedIndex(prev, guild.id)
@@ -453,6 +457,18 @@ export default class ApiCache {
 
   getDirectDmRecipient(channel: DmChannel): User | null {
     return this.users.get(channel.recipient_ids.find(id => id != this.clientId)!) ?? null
+  }
+
+  updateEmoji(emoji: CustomEmoji) {
+    this.customEmojis.set(emoji.id, emoji)
+  }
+
+  removeEmoji(emojiId: bigint) {
+    this.customEmojis.delete(emojiId)
+  }
+
+  getEmojisForGuild(guildId: bigint): CustomEmoji[] {
+    return Array.from(this.customEmojis.values()).filter(emoji => emoji.guild_id === guildId)
   }
 }
 

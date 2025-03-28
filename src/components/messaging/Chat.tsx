@@ -63,6 +63,7 @@ import {ModalId, useModal} from "../ui/Modal";
 import EllipsisVertical from "../icons/svg/EllipsisVertical";
 import FaceSmile from "../icons/svg/FaceSmile";
 import Reply from "../icons/svg/Reply";
+import EmojiPicker from "./EmojiPicker";
 void tooltip
 
 const CONVEY = 'https://convey.adapt.chat'
@@ -646,6 +647,9 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
   const [autocompleteState, setAutocompleteState] = createSignal<AutocompleteState | null>(null)
   const [uploadedAttachments, setUploadedAttachments] = createSignal<UploadedAttachment[]>([])
   const [sendable, setSendable] = createSignal(false)
+  const [emojiPickerVisible, setEmojiPickerVisible] = createSignal(false)
+  let emojiPickerRef: HTMLDivElement | undefined
+  let emojiToggleRef: HTMLButtonElement | undefined
 
   const updateSendable = () => setSendable(!!messageInputRef?.innerText?.trim() || uploadedAttachments().length > 0)
   const mobile = /Android|webOS|iPhone|iP[ao]d|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
@@ -674,11 +678,24 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
     }
   }
 
+  const hideEmojiPicker = (e: MouseEvent) => {
+    if (
+      emojiPickerVisible() 
+      && emojiPickerRef 
+      && !emojiPickerRef.contains(e.target as Node) 
+      && !emojiToggleRef?.contains(e.target as Node)
+    ) {
+      setEmojiPickerVisible(false)
+    }
+  }
+
   onMount(() => {
     document.addEventListener('keydown', focusListener)
+    document.addEventListener('click', hideEmojiPicker)
   })
   onCleanup(async () => {
     document.removeEventListener('keydown', focusListener)
+    document.removeEventListener('click', hideEmojiPicker)
     await typingKeepAlive.stop()
   })
 
@@ -827,7 +844,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
       api.cache!.customEmojis.values(),
       (emoji) => allowed.includes(emoji.guild_id) ? {
         name: emoji.name,
-        emoji: `<:${emoji.name}:${emoji.id}>`,
+        emoji: `:${emoji.id}:`,
         url: `https://convey.adapt.chat/emojis/${emoji.id}`,
         category: api.cache!.guilds.get(emoji.guild_id)?.name ?? 'Custom',
         data: emoji,
@@ -1056,7 +1073,42 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
           You do not have permission to send messages in this channel.
         </div>
       }>
-        <div class="relative flex items-center w-full px-4">
+        <div class="relative flex items-start w-full px-4">
+          <div 
+            ref={emojiPickerRef}
+            class="absolute right-4 bottom-[calc(100%+0.5rem)] z-[200] transition-all duration-200 origin-bottom"
+            classList={{
+              "opacity-0 translate-y-2 pointer-events-none": !emojiPickerVisible(),
+              "opacity-100 translate-y-0": emojiPickerVisible()
+            }}
+          >
+            <EmojiPicker onSelect={(emoji) => {
+              // Focus the message input if not already focused
+              if (document.activeElement !== messageInputRef) {
+                messageInputRef!.focus();
+              }
+
+              // Insert emoji at current cursor position
+              const selection = window.getSelection();
+              const range = selection?.getRangeAt(0);
+              
+              if (range && messageInputRef) {
+                // Create a text node with the emoji
+                const textNode = document.createTextNode(emoji);
+                range.insertNode(textNode);
+                
+                // Move cursor after the inserted emoji
+                range.setStartAfter(textNode);
+                range.setEndAfter(textNode);
+                selection?.removeAllRanges();
+                selection?.addRange(range);
+                
+                messageInputRef!.focus();
+                updateSendable();
+                setEmojiPickerVisible(false);
+              }
+            }} />
+          </div>
           <button
             class="w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-3 mr-2 transition-all duration-200 hover:bg-accent"
             onClick={() => {
@@ -1238,14 +1290,25 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
             />
           </div>
           <button
+            ref={emojiToggleRef}
+            class="w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full hover:bg-accent ml-2 transition-all duration-200"
             classList={{
-              [
-                "w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-3 ml-2 transition-all duration-200"
-              ]: true,
+              "bg-accent": emojiPickerVisible(),
+              "bg-3": !emojiPickerVisible(),
+            }}
+            use:tooltip="Add Emoji"
+            onClick={() => setEmojiPickerVisible(!emojiPickerVisible())}
+          >
+            <Icon icon={FaceSmile} class="fill-fg w-[18px] h-[18px]" />
+          </button>
+          <button
+            class="w-9 h-9 flex flex-shrink-0 items-center justify-center rounded-full bg-3 ml-2 transition-all duration-200"
+            classList={{
               "opacity-50 cursor-not-allowed": !sendable(),
               "hover:bg-accent": sendable(),
               "hidden": !mobile,
             }}
+            use:tooltip="Send"
             onClick={async () => {
               // Focus back if it was focused before
               if (messageInputFocused())
@@ -1254,7 +1317,7 @@ export default function Chat(props: { channelId: bigint, guildId?: bigint, title
               await createMessage()
             }}
           >
-            <Icon icon={PaperPlaneTop} title="Send" class="fill-fg w-[18px] h-[18px]" />
+            <Icon icon={PaperPlaneTop} class="fill-fg w-[18px] h-[18px]" />
           </button>
         </div>
       </Show>

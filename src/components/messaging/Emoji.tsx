@@ -1,11 +1,15 @@
 import {gemoji, type Gemoji} from "gemoji";
 import {createMemo} from "solid-js";
-import {Portal} from "solid-js/web";
+import {getApi} from "../../api/Api";
 
 const unicodeLookup = new Map<string, Gemoji>(gemoji.map((emoji) => [emoji.emoji, emoji]))
 
 export function getUnicodeEmojiUrl(emoji: string) {
   return `https://emojicdn.elk.sh/${emoji}?style=twitter`
+}
+
+export function getCustomEmojiUrl(emojiId: bigint): string {
+  return `https://convey.adapt.chat/emojis/${emojiId}`;
 }
 
 const skintoneMap: Record<string, string> = {
@@ -35,22 +39,38 @@ export function lookupUnicodeEmoji(emoji: string): Gemoji | null {
   return out
 }
 
-export default function UnicodeEmoji(props: { match: string, jumbo?: boolean }) {
-  const gemoji = createMemo(() => lookupUnicodeEmoji(props.match))
-  const size = () => props.jumbo ? 64 : 20
+export default function Emoji(props: { emoji: string, jumbo?: boolean }) {
+  const api = getApi()!;
+  
+  // Check if this is a custom emoji (format: :EMOJI_ID:)
+  const customEmojiMatch = props.emoji.match(/^:(\d+):$/);
+  
+  const emojiUrl = createMemo(() => {
+    if (customEmojiMatch) {
+      const emojiId = BigInt(customEmojiMatch[1]);
+      const customEmoji = api.cache?.customEmojis.get(emojiId);
+      if (customEmoji) {
+        return getCustomEmojiUrl(emojiId);
+      }
+    }
+    return getUnicodeEmojiUrl(props.emoji);
+  });
+
+  const gemoji = createMemo(() => lookupUnicodeEmoji(props.emoji))
+  const size = () => props.jumbo ? 40 : 20
 
   return (
     <span class="emoji inline-block cursor-pointer align-bottom relative">
       <img
-        src={getUnicodeEmojiUrl(props.match)}
-        alt={props.match}
+        src={emojiUrl()}
+        alt={props.emoji}
         width={size()}
         height={size()}
         draggable={false}
-        aria-label={gemoji()?.description ?? 'unicode emoji'}
+        aria-label={gemoji()?.description ?? 'emoji'}
         role="img"
         class="inline-block align-middle"
       />
     </span>
-  )
+  );
 }

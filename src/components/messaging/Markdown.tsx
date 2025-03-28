@@ -25,6 +25,7 @@ import {html} from "property-information";
 import remarkRegexp from "./markdown/regex-plugin";
 import {GuildChannel} from "../../types/channel";
 import Emoji from "./Emoji";
+import {gemoji} from "gemoji";
 
 const flattenHtml: Plugin<any[], MdRoot> = () => (tree) => {
   visit(tree, "html", (node) => {
@@ -239,7 +240,9 @@ function MentionChannel({arg, children, ...props }: any) {
 }
 
 type MatchExt = { match: string, value: string, arg: string }
-export const components: Record<string, (props: JSX.HTMLAttributes<any> & MatchExt) => JSX.Element> = {
+type Components = Record<string, (props: JSX.HTMLAttributes<any> & MatchExt) => JSX.Element>
+
+export const components: Components = {
   strong: (props) => <strong class="font-bold" {...props} />,
   h1: (props) => <h1 class="text-2xl font-bold my-[0.6em]" {...props} />,
   h2: (props) => <h2 class="text-xl font-bold my-[0.7em]" {...props} />,
@@ -265,7 +268,8 @@ export const components: Record<string, (props: JSX.HTMLAttributes<any> & MatchE
   styled: ({ arg, ...props }: any) => <span {...props} style={parseStyle(arg)} />,
   'mention-user': Mention,
   'mention-channel': MentionChannel,
-  'unicode-emoji': Emoji,
+  'unicode-emoji': (props) => <Emoji emoji={props.match} />,
+  'custom-emoji': (props) => <Emoji emoji={props.match} />,
   blockquote: (props) => (
     <div class="flex">
       <div class="select-none bg-fg/25 rounded-full w-0.5" />
@@ -290,6 +294,7 @@ export const render = unified()
   .use(remarkRegexp(/(<@!?(\d{14,20})>)/, 'mention-user'))
   .use(remarkRegexp(/(<#!?(\d{14,20})>)/, 'mention-channel'))
   .use(remarkRegexp(emojiRegex(), 'unicode-emoji'))
+  .use(remarkRegexp(/:(\d{14,20}):/, 'custom-emoji'))
   .use(flattenHtml)
   .use(remarkRehype)
   .use(rehypeKatex, {
@@ -321,6 +326,38 @@ const defaults = {
   linkTarget: "_self",
 }
 
+function countStandaloneEmojis(content: string): number {
+  const trimmed = content.replace(/\s+/g, ''); // we don't care about whitespace
+  if (!trimmed) return 0;
+
+  const emojis: string[] = [];
+  let lastIndex = 0;
+  
+  // find unicode emojis
+  const unicodeRegex = emojiRegex();
+  let match;
+  while ((match = unicodeRegex.exec(trimmed)) !== null) {
+    // add any custom emojis that appear before this unicode emoji
+    const beforeUnicode = trimmed.slice(lastIndex, match.index);
+    const customEmojis = beforeUnicode.match(/:(\d{14,20}):/g) || [];
+    emojis.push(...customEmojis);
+    
+    // add the unicode emoji
+    emojis.push(match[0]);
+    lastIndex = match.index + match[0].length;
+  }
+  
+  // add any remaining custom emojis
+  const remaining = trimmed.slice(lastIndex);
+  const remainingCustomEmojis = remaining.match(/:(\d{14,20}):/g) || [];
+  emojis.push(...remainingCustomEmojis);
+  
+  // does the message consist solely of emojis?
+  const isOnlyEmojis = trimmed === emojis.join('');
+  
+  return isOnlyEmojis ? emojis.length : 0;
+}
+
 export function DynamicMarkdown(props: { content: string }) {
   const file = new VFile();
   file.value = props.content
@@ -331,11 +368,20 @@ export function DynamicMarkdown(props: { content: string }) {
   if (root.type !== "root" as any)
     throw new TypeError("Expected a `root` node")
 
+  const standaloneEmojiCount = countStandaloneEmojis(props.content);
+  const shouldJumbo = standaloneEmojiCount <= 6 && standaloneEmojiCount > 0;
+
+  const dynamicComponents: Components = {
+    ...components,
+    'unicode-emoji': (props: JSX.HTMLAttributes<any> & MatchExt) => <Emoji emoji={props.match} jumbo={shouldJumbo} />,
+    'custom-emoji': (props: JSX.HTMLAttributes<any> & MatchExt) => <Emoji emoji={props.match} jumbo={shouldJumbo} />,
+  };
+
   return childrenToSolid(
     {
       options: {
         ...defaults,
-        components,
+        components: dynamicComponents,
       },
       schema: html,
       listDepth: 0,
