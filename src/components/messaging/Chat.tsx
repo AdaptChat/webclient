@@ -178,6 +178,7 @@ export type MessageContentProps = {
 }
 
 export function MessageContent(props: MessageContentProps) {
+  const { showModal } = useModal(); 
   const message = () => props.message
   const largePadding = () => props.largePadding
   const navigate = useNavigate()
@@ -209,7 +210,10 @@ export function MessageContent(props: MessageContentProps) {
   let editAreaRef: HTMLDivElement | null = null
   const editMessage = async () => {
     const editedContent = editAreaRef!.innerText!.trim()
-    if (!editedContent) return
+    if (!editedContent) {
+      showModal(ModalId.DeleteMessage, message());
+      return;
+    }
 
     const msg = {
       ...message(),
@@ -267,18 +271,38 @@ export function MessageContent(props: MessageContentProps) {
           ref={editAreaRef!}
           contentEditable={true}
           class="break-words text-sm font-light overflow-auto rounded-lg bg-bg-3/50 p-2 my-0.5
-            empty:before:content-[attr(data-placeholder)] empty:before:text-fg/50
-            focus:outline-none border-2 focus:border-accent border-transparent transition"
+    empty:before:content-[attr(data-placeholder)] empty:before:text-fg/50
+    focus:outline-none border-2 focus:border-accent border-transparent transition"
           data-placeholder="Edit this message..."
           onKeyDown={async (e) => {
-            if (e.key == 'Enter' && !e.shiftKey || e.key == 'Escape') {
-              e.preventDefault()
-              props.editing?.delete(message().id)
-              if (e.key == 'Enter') await editMessage()
+            if ((e.key === "Enter" && !e.shiftKey) || e.key === "Escape") {
+              e.preventDefault();
+              if (e.key === "Enter") await editMessage();
+              props.editing?.delete(message().id);
             }
           }}
         />
+
+        <Show when={props.editing?.has(message().id)}>
+          <div class="mt-1 text-xs text-fg/50">
+            Escape to{" "}
+            <span
+              class="text-red-400 cursor-pointer hover:underline"
+              onClick={() => props.editing?.delete(message().id)}
+            >
+              Cancel
+            </span>{" "}
+            • Enter to{" "}
+            <span
+              class="text-green-400 cursor-pointer hover:underline"
+              onClick={editMessage}
+            >
+              Save
+            </span>
+          </div>
+        </Show>
       </Show>
+      
       <For each={message().embeds}>
         {(embed) => (
           <div class="rounded overflow-hidden inline-flex my-1">
