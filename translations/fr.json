@@ -1,1 +1,84 @@
-{}
+{
+  "loading": {
+    "launching": "Lancement...",
+    "timeout": "Adapt ne se lance pas ? Les serveurs d'Adapt pourraient être en panne. Revenez un peu plus tard !",
+    "check_status": "Vous pouvez également essayer de consulter notre {{link}}.",
+    "status_page": "page de statut"
+  },
+  "not_found": {
+    "header": "Non trouvé !",
+    "go_back": "Retour"
+  },
+  "copy": {
+    "user_id": {
+      "imperative": "Copier l'ID utilisateur",
+      "success": "ID utilisateur copié dans le presse-papiers !"
+    },
+    "username": {
+      "imperative": "Copier le nom d'utilisateur",
+      "success": "Nom d'utilisateur copié dans le presse-papiers !",
+      "error": "Erreur lors de la copie du nom d'utilisateur"
+    },
+    "channel_id": {
+      "imperative": "Copier l'ID du salon",
+      "category": "Copier l'ID de la catégorie",
+      "success": "ID du salon copié dans le presse-papiers !"
+    },
+    "message_id": {
+      "imperative": "Copier l'ID du message",
+      "success": "ID du message copié dans le presse-papiers !"
+    },
+    "server_id": {
+      "imperative": "Copier l'ID du serveur"
+    },
+    "role_id": {
+      "imperative": "Copier l'ID du rôle"
+    },
+    "loading": "Copie en cours...",
+    "error": "Échec de la copie dans le presse-papiers !"
+  },
+  "dms": {
+    "delete_group": "Supprimer le groupe",
+    "leave_group": "Quitter le groupe",
+    "close_dm": "Fermer le MP",
+    "group_members_one": "Membre",
+    "group_members_many": "Membres",
+    "group_members_other": "",
+    "no_messages": "Aucun message"
+  },
+  "status": {
+    "online": "En ligne",
+    "idle": "Inactif",
+    "dnd": "Ne Pas Déranger",
+    "invisible": "Invisible",
+    "offline": "Hors ligne"
+  },
+  "sidebar": {
+    "main": {
+      "static": {
+        "home": "Accueil",
+        "friends": "Amis",
+        "discover": "Découvrir",
+        "global_search": "Rechercher Adapt...",
+        "quick_access": "Accès rapide",
+        "conversations": "Conversations",
+        "all_servers": "Tous les serveurs"
+      },
+      "quick_access": {
+        "new_messages": "Nouveaux messages",
+        "recently_viewed": "Récemment consulté",
+        "from_dms": "Messages directs",
+        "from_group_dms": "Messages de groupe"
+      },
+      "conversations": {
+        "dms": "Messages directs ({{count}})"
+      },
+      "all_servers": {
+        "servers": "Serveurs ({{count}})"
+      }
+    },
+    "user": {
+      "edit_status": "Changer le statut"
+    }
+  }
+}
