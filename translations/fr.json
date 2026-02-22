@@ -78,7 +78,86 @@
       }
     },
     "user": {
-      "edit_status": "Changer le statut"
+      "edit_status": "Changer le statut",
+      "custom_status": {
+        "header": "Statut personnalisé",
+        "fallback": "Définir un statut personnalisé"
+      },
+      "user_settings": "Paramètres"
+    },
+    "members": {
+      "title": "Membres",
+      "collapse": "Cacher les membres",
+      "expand": "Afficher les membres"
+    },
+    "collapse": "Réduire la barre latérale",
+    "expand": "Afficher la barre latérale",
+    "unknown_header": "inconnu"
+  },
+  "settings": {
+    "user": {
+      "header": "Paramètres",
+      "sections": {
+        "root": "Paramètres utilisateur",
+        "client": "Client",
+        "developers": "Développeurs"
+      },
+      "account": {
+        "header": "Compte",
+        "username": "Nom d'utilisateur",
+        "display_name": "Nom d'affichage",
+        "credentials": "Identifiants",
+        "email": "Email",
+        "show_email": "Afficher l'e-mail",
+        "hide_email": "Cacher l'e-mail"
+      },
+      "language": {
+        "header": "Langue",
+        "description": "Sélectionnez la langue que vous souhaitez utiliser dans Adapt."
+      },
+      "themes": {
+        "header": "Thèmes",
+        "preset": {
+          "header": "Thèmes prédéfinis",
+          "light": "Lumière",
+          "dim": "Obscur",
+          "dark": "Sombre"
+        },
+        "theme_colors": "Couleurs du thème",
+        "custom_css": "CSS personnalisé"
+      },
+      "plugins": {
+        "header": "Extensions"
+      },
+      "bots": {
+        "header": "Bots",
+        "description": "Les bots sont utilisés pour automatiser des tâches et fournir des fonctionnalités supplémentaires dans tout Adapt.",
+        "resources": {
+          "header": "Ressources",
+          "developer_resources": "Ressources pour développeurs",
+          "api_reference": "Référence de l'API Adapt"
+        },
+        "list": {
+          "header": "Mes Bots",
+          "search": "Bots de recherche",
+          "new": "Nouveau Bot"
+        }
+      },
+      "logout": "Se déconnecter",
+      "issue": "Signaler un problème"
+    },
+    "guild": {
+      "channel": {
+        "header": "Paramètres du canal",
+        "delete": "Supprimer le salon"
+      },
+      "header": "Paramètres du serveur",
+      "sections": {
+        "management": "Gestion"
+      },
+      "overview": {
+        "header": "Aperçu"
+      }
     }
   }
 }
