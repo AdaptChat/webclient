@@ -1,6 +1,6 @@
 {
   "loading": {
-    "launching": "Start...",
+    "launching": "Start…",
     "timeout": "Startet Adapt nicht? ",
     "check_status": "Sie können auch einen Blick auf unsere werfen {{link}}.",
     "status_page": "Statusseite"
@@ -33,7 +33,7 @@
     "role_id": {
       "imperative": "Rollen-ID kopieren"
     },
-    "loading": "Kopieren...",
+    "loading": "Kopieren…",
     "error": "Kopieren in die Zwischenablage fehlgeschlagen!"
   },
   "dms": {
@@ -57,7 +57,7 @@
         "home": "Heim",
         "friends": "Freunde",
         "discover": "Entdecken",
-        "global_search": "Suche anpassen...",
+        "global_search": "Suche anpassen…",
         "quick_access": "Schnellzugriff",
         "conversations": "Gespräche",
         "all_servers": "Alle Server"
@@ -162,7 +162,7 @@
           "upload": "Banner hochladen",
           "remove": "Banner entfernen"
         },
-        "description_placeholder_editing": "Geben Sie hier eine Beschreibung ein...",
+        "description_placeholder_editing": "Geben Sie hier eine Beschreibung ein…",
         "description_placeholder_not_editing": "Noch keine Beschreibung!",
         "upload_placeholder": "Hochladen"
       },
@@ -206,7 +206,7 @@
           "description": "Fügen Sie Ihrem Server bis zu 50 benutzerdefinierte Emojis hinzu.",
           "button": "Hochladen",
           "search_results": "Suchergebnisse",
-          "search_placeholder": "Emojis suchen...",
+          "search_placeholder": "Emojis suchen…",
           "created_by": "Erstellt von {{username}}"
         },
         "no_permission": "Sie benötigen die Berechtigung „Emojis verwalten“, um Emojis zu ändern.",
@@ -218,7 +218,7 @@
       "invites": {
         "header": "Lädt ein",
         "description": "Alle aktiven Einladungen für diesen Server anzeigen und verwalten.",
-        "search_placeholder": "Einladungscodes suchen...",
+        "search_placeholder": "Einladungscodes suchen…",
         "columns": {
           "code": "Code",
           "inviter": "Einladender",
@@ -229,15 +229,15 @@
         "expiry_never": "Niemals",
         "expiry_left": "{{delta}} links",
         "all_inviters": "Alle Einladenden",
-        "search_users": "Benutzer suchen...",
+        "search_users": "Benutzer suchen…",
         "count_one": "{{count}} einladen",
         "count_other": "{{count}} lädt ein",
-        "loading": "Laden...",
+        "loading": "Laden…",
         "none_found": "Keine Einladungen gefunden.",
         "copy_link": "Einladungslink kopieren",
         "revoke": "Einladung widerrufen",
         "copying": {
-          "loading": "Einladungslink wird kopiert...",
+          "loading": "Einladungslink wird kopiert…",
           "success": "Einladungslink kopiert!",
           "error": "Der Einladungslink konnte nicht kopiert werden."
         },
@@ -257,8 +257,8 @@
       "members": {
         "header": "Mitglieder",
         "description": "Mitglieder auf Ihrem Server anzeigen und verwalten.",
-        "search_placeholder": "Mitglieder suchen...",
-        "search_roles": "Rollen suchen...",
+        "search_placeholder": "Mitglieder suchen…",
+        "search_roles": "Rollen suchen…",
         "all_roles": "Alle Rollen",
         "showing_all": "Alle anzeigen {{count}} Mitglieder",
         "showing_filtered": "Zeigt {{filtered}} von {{total}} Mitglieder",
@@ -268,7 +268,7 @@
           "created": "Erstellt",
           "joined": "Beigetreten"
         },
-        "roles_updating": "Rollen werden aktualisiert...",
+        "roles_updating": "Rollen werden aktualisiert…",
         "role_removed": "Rolle entfernt",
         "actions": {
           "edit_nickname": "Spitzname bearbeiten",
@@ -505,7 +505,7 @@
     "leave": "Verlassen",
     "upload": "Hochladen",
     "more": "Mehr",
-    "loading": "Laden...",
+    "loading": "Laden…",
     "unknown": "Unbekannt"
   },
   "error": {
@@ -524,7 +524,7 @@
       "remember_me": "Erinnere dich an mich",
       "forgot_password": "Passwort vergessen?",
       "submit": "anmelden",
-      "submitting": "Anmelden..."
+      "submitting": "Anmelden…"
     },
     "register": {
       "title": "Ein Konto erstellen",
@@ -535,14 +535,14 @@
       "username": "Benutzername",
       "remember_me": "Erinnere dich an mich",
       "submit": "Registrieren",
-      "submitting": "Registrieren...",
+      "submitting": "Registrieren…",
       "no_captcha": "Noch kein CAPTCHA-Token",
-      "username_checking": "Verfügbarkeit prüfen...",
+      "username_checking": "Verfügbarkeit prüfen…",
       "username_available": "Benutzername verfügbar!"
     }
   },
   "chat": {
-    "message_input_placeholder": "Senden Sie eine Nachricht...",
+    "message_input_placeholder": "Senden Sie eine Nachricht…",
     "no_permission": "Sie sind nicht berechtigt, Nachrichten in diesem Kanal zu senden.",
     "jump_to_newer": "Zu neueren Nachrichten springen",
     "add_emoji": "Emoji hinzufügen",
@@ -553,20 +553,20 @@
     "mention_when_replying": "Erwähnen @{{name}} beim Antworten",
     "do_not_mention_when_replying": "@ nicht erwähnen{{name}} beim Antworten",
     "bot_badge": "BOT",
-    "typing_one": "{{user}} tippt...",
+    "typing_one": "{{user}} tippt…",
     "typing_other": "",
-    "typing_suffix_is": "tippt...",
-    "typing_suffix_are": "schreibe...",
+    "typing_suffix_is": "tippt…",
+    "typing_suffix_are": "schreibe…",
     "context_menu": {
       "reply": "Antwort",
       "mark_unread": "Als ungelesen markieren",
       "copy_text": "Text kopieren",
-      "copy_text_loading": "Nachrichtentext wird kopiert...",
+      "copy_text_loading": "Nachrichtentext wird kopiert…",
       "copy_text_success": "In Ihre Zwischenablage kopiert!",
       "copy_text_error": "Der Nachrichtentext konnte nicht kopiert werden. Versuchen Sie es später noch einmal.",
       "copy_message_id": "Nachrichten-ID kopieren",
       "copy_message_link": "Nachrichtenlink kopieren",
-      "copy_link_loading": "Nachrichtenlink wird kopiert...",
+      "copy_link_loading": "Nachrichtenlink wird kopiert…",
       "copy_link_success": "In Ihre Zwischenablage kopiert!",
       "copy_link_error": "Der Nachrichtenlink konnte nicht kopiert werden. Versuchen Sie es später noch einmal.",
       "edit_message": "Nachricht bearbeiten",
@@ -598,7 +598,7 @@
     },
     "join_server": {
       "title": "Treten Sie einem Server bei",
-      "placeholder": "Geben Sie einen Einladungscode ein...",
+      "placeholder": "Geben Sie einen Einladungscode ein…",
       "description": "Geben Sie einen Einladungscode ein, um einem bestehenden Server beizutreten.",
       "examples_header": "Beispiele für gültige Einladungscodes:",
       "invalid_code": "Das sieht nicht nach einem gültigen Einladungscode aus.",
@@ -665,13 +665,13 @@
       "title": "Benutzerdefinierter Status",
       "description": "Legen Sie einen benutzerdefinierten Status für Ihr Konto fest.",
       "custom_status_label": "Benutzerdefinierter Status",
-      "custom_status_placeholder": "So schläfrig..."
+      "custom_status_placeholder": "So schläfrig…"
     },
     "edit_nickname": {
       "title": "Spitzname bearbeiten",
       "description": "Du veränderst dich {{username}}'s Spitzname in {{guild}}.",
       "visible_note": "Dies ist für alle Mitglieder auf diesem Server sichtbar.",
-      "placeholder": "Nickname eingeben..."
+      "placeholder": "Nickname eingeben…"
     },
     "edit_roles": {
       "title": "Rollen bearbeiten",
@@ -683,7 +683,7 @@
       "name_label": "Emoji-Name",
       "name_placeholder": "Geben Sie den Emoji-Namen ein",
       "preview_alt": "Emoji-Vorschau",
-      "submitting": "Hochladen...",
+      "submitting": "Hochladen…",
       "success": "Emoji wurde erfolgreich hochgeladen",
       "error": "Emoji konnte nicht hochgeladen werden"
     },

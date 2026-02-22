@@ -1,6 +1,6 @@
 {
   "loading": {
-    "launching": "Iniciando...",
+    "launching": "Iniciando…",
     "timeout": "Adapt não está iniciando? Os servidores Adapt podem estar fora do ar. Volte mais tarde!",
     "check_status": "Você também pode tentar verificar nossa {{link}}.",
     "status_page": "Página de status"
@@ -27,7 +27,7 @@
       "imperative": "Copiar ID da mensagem",
       "success": "ID da mensagem copiada para a área de transferência!"
     },
-    "loading": "Copiando...",
+    "loading": "Copiando…",
     "error": "Falha ao copiar para a área de transferência!"
   },
   "dms": {
@@ -52,7 +52,7 @@
         "home": "Início",
         "friends": "Amigos",
         "discover": "Descubra",
-        "global_search": "Buscar no Adapt...",
+        "global_search": "Buscar no Adapt…",
         "quick_access": "Acesso rápido",
         "conversations": "Conversas",
         "all_servers": "Todos servidores"

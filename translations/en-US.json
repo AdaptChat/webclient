@@ -1,6 +1,6 @@
 {
   "loading": {
-    "launching": "Launching...",
+    "launching": "Launching…",
     "timeout": "Is Adapt not launching? The servers at Adapt might be down. Come back a later time!",
     "check_status": "You can also try checking out our {{link}}.",
     "status_page": "Status Page"
@@ -34,7 +34,7 @@
     "role_id": {
       "imperative": "Copy Role ID"
     },
-    "loading": "Copying...",
+    "loading": "Copying…",
     "error": "Failed to copy to clipboard!"
   },
   "dms": {
@@ -59,7 +59,7 @@
         "home": "Home",
         "friends": "Friends",
         "discover": "Discover",
-        "global_search": "Search Adapt...",
+        "global_search": "Search Adapt…",
         "quick_access": "Quick Access",
         "conversations": "Conversations",
         "all_servers": "All Servers"
@@ -169,7 +169,7 @@
           "upload": "Upload Banner",
           "remove": "Remove Banner"
         },
-        "description_placeholder_editing": "Enter description here...",
+        "description_placeholder_editing": "Enter description here…",
         "description_placeholder_not_editing": "No description yet!",
         "upload_placeholder": "Upload"
       },
@@ -214,7 +214,7 @@
           "description": "Add up to 50 custom emojis to your server.",
           "button": "Upload",
           "search_results": "Search Results",
-          "search_placeholder": "Search emojis...",
+          "search_placeholder": "Search emojis…",
           "created_by": "Created by {{username}}"
         },
         "no_permission": "You need the Manage Emojis permission to modify emojis.",
@@ -226,7 +226,7 @@
       "invites": {
         "header": "Invites",
         "description": "View and manage all active invites for this server.",
-        "search_placeholder": "Search invite codes...",
+        "search_placeholder": "Search invite codes…",
         "columns": {
           "code": "Code",
           "inviter": "Inviter",
@@ -237,15 +237,15 @@
         "expiry_never": "Never",
         "expiry_left": "{{delta}} left",
         "all_inviters": "All inviters",
-        "search_users": "Search users...",
+        "search_users": "Search users…",
         "count_one": "{{count}} invite",
         "count_other": "{{count}} invites",
-        "loading": "Loading...",
+        "loading": "Loading…",
         "none_found": "No invites found.",
         "copy_link": "Copy Invite Link",
         "revoke": "Revoke Invite",
         "copying": {
-          "loading": "Copying invite link...",
+          "loading": "Copying invite link…",
           "success": "Invite link copied!",
           "error": "Failed to copy invite link."
         },
@@ -265,8 +265,8 @@
       "members": {
         "header": "Members",
         "description": "View and manage members in your server.",
-        "search_placeholder": "Search Members...",
-        "search_roles": "Search roles...",
+        "search_placeholder": "Search Members…",
+        "search_roles": "Search roles…",
         "all_roles": "All roles",
         "showing_all": "Showing all {{count}} members",
         "showing_filtered": "Showing {{filtered}} out of {{total}} members",
@@ -276,7 +276,7 @@
           "created": "Created",
           "joined": "Joined"
         },
-        "roles_updating": "Updating roles...",
+        "roles_updating": "Updating roles…",
         "role_removed": "Role removed",
         "actions": {
           "edit_nickname": "Edit Nickname",
@@ -520,7 +520,7 @@
     "more": "More",
     "copied": "Copied!",
     "copy_to_clipboard": "Copy to clipboard",
-    "loading": "Loading...",
+    "loading": "Loading…",
     "unknown": "Unknown"
   },
   "error": {
@@ -539,7 +539,7 @@
       "remember_me": "Remember me",
       "forgot_password": "Forgot your password?",
       "submit": "Sign in",
-      "submitting": "Signing in..."
+      "submitting": "Signing in…"
     },
     "register": {
       "title": "Create an account",
@@ -550,14 +550,14 @@
       "username": "Username",
       "remember_me": "Remember me",
       "submit": "Register",
-      "submitting": "Registering...",
+      "submitting": "Registering…",
       "no_captcha": "No CAPTCHA token yet",
-      "username_checking": "Checking availability...",
+      "username_checking": "Checking availability…",
       "username_available": "Username available!"
     }
   },
   "chat": {
-    "message_input_placeholder": "Send a message...",
+    "message_input_placeholder": "Send a message…",
     "no_permission": "You do not have permission to send messages in this channel.",
     "jump_to_newer": "Jump to Newer Messages",
     "add_emoji": "Add Emoji",
@@ -568,21 +568,21 @@
     "mention_when_replying": "Mention @{{name}} when replying",
     "do_not_mention_when_replying": "Do not mention @{{name}} when replying",
     "bot_badge": "BOT",
-    "typing_one": "{{user}} is typing...",
-    "typing_two": "{{user1}} and {{user2}} are typing...",
-    "typing_many": "{{users}} and {{last}} are typing...",
-    "typing_suffix_is": "is typing...",
-    "typing_suffix_are": "are typing...",
+    "typing_one": "{{user}} is typing…",
+    "typing_two": "{{user1}} and {{user2}} are typing…",
+    "typing_many": "{{users}} and {{last}} are typing…",
+    "typing_suffix_is": "is typing…",
+    "typing_suffix_are": "are typing…",
     "context_menu": {
       "reply": "Reply",
       "mark_unread": "Mark Unread",
       "copy_text": "Copy Text",
-      "copy_text_loading": "Copying message text...",
+      "copy_text_loading": "Copying message text…",
       "copy_text_success": "Copied to your clipboard!",
       "copy_text_error": "Failed to copy message text, try again later.",
       "copy_message_id": "Copy Message ID",
       "copy_message_link": "Copy Message Link",
-      "copy_link_loading": "Copying message link...",
+      "copy_link_loading": "Copying message link…",
       "copy_link_success": "Copied to your clipboard!",
       "copy_link_error": "Failed to copy message link, try again later.",
       "edit_message": "Edit Message",
@@ -614,7 +614,7 @@
     },
     "join_server": {
       "title": "Join a Server",
-      "placeholder": "Enter an invite code...",
+      "placeholder": "Enter an invite code…",
       "description": "Enter an invite code to join an existing server.",
       "examples_header": "Examples of valid invite codes:",
       "invalid_code": "That doesn't look like a valid invite code.",
@@ -698,13 +698,13 @@
       "title": "Custom Status",
       "description": "Set a custom status for your account.",
       "custom_status_label": "Custom Status",
-      "custom_status_placeholder": "So sleepy..."
+      "custom_status_placeholder": "So sleepy…"
     },
     "edit_nickname": {
       "title": "Edit Nickname",
       "description": "You are changing {{username}}'s nickname in {{guild}}.",
       "visible_note": "This will be visible to all members in this server.",
-      "placeholder": "Enter nickname..."
+      "placeholder": "Enter nickname…"
     },
     "edit_roles": {
       "title": "Edit Roles",
@@ -716,7 +716,7 @@
       "name_label": "Emoji Name",
       "name_placeholder": "Enter emoji name",
       "preview_alt": "Emoji preview",
-      "submitting": "Uploading...",
+      "submitting": "Uploading…",
       "success": "Emoji uploaded successfully",
       "error": "Failed to upload emoji"
     },
