@@ -1,1 +1,188 @@
-{}
+{
+  "loading": {
+    "launching": "Başlatılıyor...",
+    "timeout": "Adapt başlatılamıyor mu? Adapt sunucuları çökmüş olabilir. Daha sonra tekrar gelin!",
+    "status_page": "Durum Sayfası"
+  },
+  "not_found": {
+    "header": "Bulunamadı!",
+    "go_back": "Geri Dön"
+  },
+  "copy": {
+    "user_id": {
+      "imperative": "Kullanıcı ID'sini Kopyala",
+      "success": "Kullanıcı ID'si panoya kopyalandı!"
+    },
+    "username": {
+      "imperative": "Kullanıcı İsmini Kopyala",
+      "success": "Kullanıcı ismi panoya kopyalandı!",
+      "error": "Kullanıcı ismi kopyalanırken hata oluştu"
+    },
+    "channel_id": {
+      "imperative": "Kanal ID'sini Kopyala",
+      "category": "Kategori ID'sini Kopyala",
+      "success": "Kanal ID'si panoya kopyalandı!"
+    },
+    "message_id": {
+      "imperative": "Mesaj ID'sini Kopyala",
+      "success": "Mesaj ID'si panoya kopyalandı!"
+    },
+    "server_id": {
+      "imperative": "Sunucu ID'sini Kopyala"
+    },
+    "role_id": {
+      "imperative": "Rol ID'sini Kopyala"
+    },
+    "loading": "Kopyalanıyor...",
+    "error": "Panoya kopyalanamadı!"
+  },
+  "dms": {
+    "delete_group": "Grubu Sil",
+    "leave_group": "Gruptan Ayrıl",
+    "close_dm": "DM'yi Kapat",
+    "group_members_one": "{{count}} Üye",
+    "group_members_other": "{{count}} Üyeler",
+    "no_messages": "Mesaj yok"
+  },
+  "status": {
+    "online": "Çevrim içi",
+    "idle": "Boşta",
+    "dnd": "Rahatsız Etmeyin",
+    "invisible": "Görünmez",
+    "offline": "Çevrim dışı"
+  },
+  "sidebar": {
+    "main": {
+      "static": {
+        "home": "Ev",
+        "friends": "Arkadaşlar",
+        "discover": "Keşfet",
+        "global_search": "Adapt'da Ara...",
+        "quick_access": "Hızlı Erişim",
+        "conversations": "Sohbetler",
+        "all_servers": "Bütün Sunucular"
+      },
+      "quick_access": {
+        "new_messages": "Yeni Mesajlar",
+        "recently_viewed": "Son Görüntülenenler",
+        "from_dms": "Direkt Mesajlar",
+        "from_group_dms": "Grup Mesajları"
+      },
+      "conversations": {
+        "dms": "Direkt Mesajlar {{count}}"
+      },
+      "all_servers": {
+        "servers": "Sunucular ({{count}})"
+      }
+    },
+    "user": {
+      "edit_status": "Durumu Değiştir",
+      "custom_status": {
+        "header": "Özel Durum",
+        "fallback": "Özel durum ayarla"
+      },
+      "user_settings": "Ayarlar"
+    },
+    "members": {
+      "title": "Üyeler",
+      "collapse": "Üyeleri Gizle",
+      "expand": "Üyeleri Göster"
+    },
+    "collapse": "Kenar Çubuğunu Daralt",
+    "expand": "Kenar Çubuğunu Göster",
+    "unknown_header": "Bilinmeyen"
+  },
+  "settings": {
+    "user": {
+      "header": "Ayarlar",
+      "sections": {
+        "root": "Kullanıcı Ayarları",
+        "client": "İstemci",
+        "developers": "Geliştiriciler"
+      },
+      "account": {
+        "header": "Hesap",
+        "username": "Kullanıcı adı",
+        "display_name": "Görünen Ad",
+        "email": "E-posta",
+        "show_email": "E-postayı göster",
+        "hide_email": "E-postayı gizle"
+      },
+      "language": {
+        "header": "Dil"
+      },
+      "themes": {
+        "header": "Temalar",
+        "preset": {
+          "light": "Açık",
+          "dim": "Sönük",
+          "dark": "Karanlık"
+        },
+        "theme_colors": "Tema Renkleri",
+        "custom_css": "Özel CSS"
+      },
+      "plugins": {
+        "header": "Eklentiler"
+      },
+      "bots": {
+        "header": "Botlar",
+        "resources": {
+          "header": "Kaynaklar",
+          "developer_resources": "Geliştirici Kaynakları",
+          "api_reference": "Adapt API Referansı"
+        },
+        "list": {
+          "header": "Benim Botlarım",
+          "search": "Botları Ara",
+          "new": "Yeni Bot"
+        }
+      },
+      "logout": "Çıkış Yap",
+      "issue": "Bir sorun bildir"
+    },
+    "guild": {
+      "channel": {
+        "header": "Kanal Ayarları",
+        "delete": "Kanalı Sil"
+      },
+      "header": "Sunucu Ayarları",
+      "sections": {
+        "management": "Yönetim"
+      },
+      "overview": {
+        "header": "Genel Bakış",
+        "name": "Sunucu İsmi",
+        "description": "Kısa Açıklama",
+        "banner": {
+          "header": "Afiş",
+          "upload": "Afiş Yükle",
+          "remove": "Afişi Kaldır"
+        },
+        "description_placeholder_editing": "Buraya açıklamayı girin...",
+        "description_placeholder_not_editing": "Henüz açıklama yok!",
+        "upload_placeholder": "Yükle"
+      },
+      "roles": {
+        "header": "Roller",
+        "search": "Rolleri Ara",
+        "create": "Rol Oluştur",
+        "members_one": "{{count}} Üye",
+        "members_other": "{{count}} Üyeler",
+        "default": {
+          "large": "Varsayılan İzinleri Düzenle",
+          "small": "Bütün Üyeler",
+          "header": "Varsayılan İzinler"
+        },
+        "role": {
+          "name_label": "Rol İsmi",
+          "color_label": "Rol Rengi",
+          "preview_label": "Önizleme",
+          "pick_color": "Renk Seç",
+          "remove_color": "Kaldır",
+          "dark_theme": "Karanlık Tema",
+          "light_theme": "Açık Tema"
+        }
+      }
+    }
+  }
+}
