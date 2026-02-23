@@ -126,9 +126,22 @@
           "large": "Gerenciar permissões padrão",
           "small": "Todos membros",
           "header": "Permissões padrão"
+        },
+        "role": {
+          "remove_color": "Remover"
         }
       },
-      "delete": "Excluir servidor"
+      "delete": "Excluir servidor",
+      "emojis": {
+        "header": "Emojis"
+      },
+      "invites": {
+        "header": "Convites"
+      },
+      "members": {
+        "header": "Membros",
+        "search_roles": "Buscar cargos"
+      }
     },
     "permissions": {
       "categories": {
