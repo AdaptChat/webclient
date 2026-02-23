@@ -399,7 +399,8 @@
       "title": "Adicionar amigo(a)"
     },
     "new_conversation": {
-      "title": "Nova conversa"
+      "title": "Nova conversa",
+      "submit_dm": "Abrir MD"
     },
     "new_guild": {
       "create_server": {
@@ -417,6 +418,10 @@
     },
     "create_server": {
       "description": "Antes de criarmos seu servidor, vamos o dar um nome."
+    },
+    "set_presence": {
+      "title": "Status personalizado",
+      "custom_status_label": "Status personalizado"
     }
   }
 }
