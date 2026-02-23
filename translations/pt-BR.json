@@ -385,6 +385,9 @@
     },
     "add_friend": {
       "title": "Adicionar amigo"
+    },
+    "new_conversation": {
+      "title": "Conversas"
     }
   }
 }
