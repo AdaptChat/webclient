@@ -350,7 +350,8 @@
     "save": "Salvar",
     "cancel": "Cancelar",
     "back": "Voltar",
-    "wip": "Em progresso!"
+    "wip": "Em progresso!",
+    "unknown": "Desconhecido"
   },
   "error": {
     "header": "Erro: {{message}}",
