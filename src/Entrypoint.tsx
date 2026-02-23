@@ -115,6 +115,11 @@ const Entrypoint: Component = () => {
       ws.connect().then(() => {
         setWs(ws)
         api?.pushNotifications.subscribe()
+
+        // ts workaround bypasses the params context
+        const match = window.location.pathname.match(/^\/guilds\/(\d+)/)
+        const focusedGuildId = match ? BigInt(match[1]) : undefined
+        ws.startBackgroundGuildLoading(focusedGuildId)
       })
       api.ws = ws
     }
@@ -126,8 +131,8 @@ const Entrypoint: Component = () => {
     if (contextMenu.menu() == null || contextMenuRef == null) return
 
     contextMenu.setPos(({ x, y }) => ({
-      x: contextMenuAdjustment(x, contextMenuRef!.offsetWidth, window.innerWidth),
-      y: contextMenuAdjustment(y, contextMenuRef!.offsetHeight, window.innerHeight),
+      x: contextMenuAdjustment(x, (contextMenuRef as any)!.offsetWidth, window.innerWidth),
+      y: contextMenuAdjustment(y, (contextMenuRef as any)!.offsetHeight, window.innerHeight),
     }))
   })
 
@@ -136,7 +141,7 @@ const Entrypoint: Component = () => {
       class="relative font-sans m-0 w-[100vw] h-[100vh] text-fg"
       onClick={(event) => contextMenu.setMenu(prev => {
         if (prev != null && contextMenuRef != null) {
-          if (contextMenuRef.contains(event.target)) return prev
+          if ((contextMenuRef as any).contains(event.target)) return prev
         }
       })}
     >

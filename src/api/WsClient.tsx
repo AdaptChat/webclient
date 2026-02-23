@@ -6,6 +6,7 @@ import {
   ChannelCreateEvent, ChannelDeleteEvent, ChannelUpdateEvent,
   GuildCreateEvent,
   GuildRemoveEvent, GuildUpdateEvent,
+  GuildsAvailableEvent,
   MemberJoinEvent,
   MemberRemoveEvent, MemberUpdateEvent,
   MessageCreateEvent,
@@ -13,7 +14,7 @@ import {
   PresenceUpdateEvent,
   ReadyEvent,
   RelationshipCreateEvent,
-  RelationshipRemoveEvent, RoleCreateEvent, RoleDeleteEvent, RolePositionsUpdateEvent, RoleUpdateEvent,
+  RelationshipRemoveEvent, RequestGuildsPayload, RoleCreateEvent, RoleDeleteEvent, RolePositionsUpdateEvent, RoleUpdateEvent,
   TypingStartEvent,
   TypingStopEvent,
   UpdatePresencePayload,
@@ -49,6 +50,10 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
       ws.api.cache?.updateClientUser(data.after)
 
     ws.api.cache?.updateUser(data.after)
+  },
+  guilds_available(ws: WsClient, data: GuildsAvailableEvent) {
+    for (const guild of data.guilds)
+      ws.api.cache?.updateGuild(guild)
   },
   guild_create(ws: WsClient, data: GuildCreateEvent) {
     ws.api.cache?.updateGuild(data.guild)
@@ -224,9 +229,7 @@ export default class WsClient {
 
   async forceReady() {
     let [guilds, dmChannels, clientUser, relationships] = await Promise.all([
-      this.api.request('GET', '/guilds', {
-        params: { channels: true, members: true, roles: true }
-      }),
+      this.api.request('GET', '/guilds'),
       this.api.request('GET', '/users/me/channels'),
       this.api.request('GET', '/users/me'),
       this.api.request('GET', '/relationships')
@@ -326,6 +329,121 @@ export default class WsClient {
     }))
     // TODO: presence should persist via the backend
     localStorage.setItem('presence', JSON.stringify(presence))
+  }
+
+  /**
+   * Requests full guild data for up to 20 guild IDs. For each requested guild that the client is
+   * a member of, harmony responds with a `guilds_available` event which is handled automatically
+   * by the cache. Returns a promise that resolves once all responses have arrived.
+   */
+  requestGuilds(guildIds: bigint[], nonce?: string): Promise<void> {
+    const resolvedNonce = nonce ?? Math.random().toString(36).slice(2)
+    const payload: RequestGuildsPayload = { guild_ids: guildIds, nonce: resolvedNonce }
+    this.connection?.send(msgpack.encode({ op: 'request_guilds', ...payload }))
+
+    // Mark guilds as loading
+    const cache = this.api.cache
+    if (cache) {
+      for (const id of guildIds) {
+        if (!cache.isGuildLoaded(id))
+          cache.guildLoadingStates.set(id, true)
+      }
+    }
+
+    return new Promise((resolve) => {
+      const remove = this.on('guilds_available', (data: GuildsAvailableEvent, removeListener) => {
+        if (data.nonce !== resolvedNonce) return
+        removeListener()
+        // Clear loading states for guilds that were returned
+        if (cache) {
+          for (const guild of data.guilds)
+            cache.guildLoadingStates.delete(guild.id)
+          // Also clear any that weren't returned (e.g. guild no longer exists)
+          for (const id of guildIds)
+            cache.guildLoadingStates.delete(id)
+        }
+        resolve()
+      })
+      setTimeout(() => {
+        remove()
+        if (cache) {
+          for (const id of guildIds)
+            cache.guildLoadingStates.delete(id)
+        }
+        resolve()
+      }, 10_000)
+    })
+  }
+
+  /**
+   * Ensures that a guild's full data (channels, roles, members, emojis) is loaded. If already
+   * loaded, resolves immediately. If currently loading, waits for it to finish. Otherwise,
+   * sends a request and waits for the response.
+   */
+  ensureGuildLoaded(guildId: bigint): Promise<void> {
+    const cache = this.api.cache
+    if (!cache) return Promise.resolve()
+    if (cache.isGuildLoaded(guildId)) return Promise.resolve()
+
+    if (cache.isGuildLoading(guildId)) {
+      // Wait for the loading to complete by watching guilds_available
+      return new Promise((resolve) => {
+        const remove = this.on('guilds_available', (data: GuildsAvailableEvent) => {
+          if (data.guilds.some(g => g.id === guildId) || !cache.isGuildLoading(guildId)) {
+            remove()
+            resolve()
+          }
+        })
+        setTimeout(() => { remove(); resolve() }, 10_000)
+      })
+    }
+
+    return this.requestGuilds([guildId])
+  }
+
+  /**
+   * Loads all guilds in the background after the ready event, in priority order:
+   * 1. The focused guild (from the current URL, if any)
+   * 2. All remaining guilds sorted by member count (descending)
+   *
+   * Batches up to 20 guilds per request.
+   */
+  async startBackgroundGuildLoading(focusedGuildId?: bigint) {
+    const cache = this.api.cache
+    if (!cache) return
+
+    const allGuildIds = cache.guildList
+
+    // Build priority-ordered list
+    const ordered: bigint[] = []
+    const seen = new Set<bigint>()
+
+    const add = (id: bigint) => {
+      if (!seen.has(id) && !cache.isGuildLoaded(id)) {
+        seen.add(id)
+        ordered.push(id)
+      }
+    }
+
+    // Priority 1: focused guild
+    if (focusedGuildId != null) add(focusedGuildId)
+
+    // Priority 2: remaining guilds sorted by member count desc
+    const remaining = allGuildIds
+      .filter(id => !seen.has(id))
+      .sort((a, b) => {
+        const aCount = cache.guilds.get(a)?.member_count?.total ?? 0
+        const bCount = cache.guilds.get(b)?.member_count?.total ?? 0
+        return bCount - aCount
+      })
+    for (const id of remaining) add(id)
+
+    // Load in batches of up to 20
+    for (let i = 0; i < ordered.length; i += 20) {
+      const batch = ordered.slice(i, i + 20)
+      console.debug('[WS] Background loading guild batch:', batch.map(String))
+      await this.requestGuilds(batch)
+    }
   }
 
   reconnectWithBackoff() {

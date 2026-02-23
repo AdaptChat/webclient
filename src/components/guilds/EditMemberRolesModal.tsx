@@ -20,7 +20,7 @@ export default function EditMemberRolesModal(props: { guildId: bigint, memberId:
   const [selected, setSelected] = createSignal<bigint[]>(currentRoles());
 
   const toggle = (id: bigint) => setSelected(prev => prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]);
-  const unaddable = (position: number) => clientTop().position <= position; // cannot manage equal-or-higher
+  const unaddable = (position: number) => (clientTop()?.position ?? Infinity) <= position; // cannot manage equal-or-higher
 
   const save = async () => {
     const resp = await api.request('PATCH', `/guilds/${props.guildId}/members/${props.memberId}`, { json: { roles: selected() } });

@@ -10,6 +10,7 @@ import Gear from "../../components/icons/svg/Gear";
 import tooltip from "../../directives/tooltip";
 import {type Message} from "../../types/message";
 import {type GuildChannel} from "../../types/channel";
+import {t} from "../../i18n";
 void tooltip
 
 export default function GuildHome() {
@@ -20,18 +21,29 @@ export default function GuildHome() {
     return <NotFound />
 
   const permissions = createMemo(() => api.cache!.getClientPermissions(guild().id))
+  const isLoaded = createMemo(() => api.cache!.isGuildLoaded(guild().id))
 
-  const onlineCount = createMemo(() => api.cache!.memberReactor
-    .get(guild().id)!
-    .reduce((acc, next) => api.cache!.presences.get(next)?.status === 'offline' ? acc : acc + 1, 0)
-  )
+  const onlineCount = createMemo(() => {
+    if (!isLoaded()) return null
+    return api.cache!.memberReactor
+      .get(guild().id)
+      ?.reduce((acc, next) => api.cache!.presences.get(next)?.status === 'offline' ? acc : acc + 1, 0)
+      ?? 0
+  })
 
-  const recentActivity = createMemo(() => guild().channels!
-    .map((channel) => [channel, api.cache!.lastMessages.get(channel.id)] as const)
-    .filter(([, lastMessage]) => lastMessage && 'author_id' in lastMessage)
-    .sort(([, a], [, b]) => Number(b!.id - a!.id))
-    .slice(0, 3) as [GuildChannel, Message][]
-  )
+  const memberCount = createMemo(() => {
+    if (isLoaded()) return api.cache!.memberReactor.get(guild().id)?.length
+    return guild().member_count?.total
+  })
+
+  const recentActivity = createMemo(() => {
+    if (!isLoaded()) return []
+    return (guild().channels ?? [])
+      .map((channel) => [channel, api.cache!.lastMessages.get(channel.id)] as const)
+      .filter(([, lastMessage]) => lastMessage && 'author_id' in lastMessage)
+      .sort(([, a], [, b]) => Number(b!.id - a!.id))
+      .slice(0, 3) as [GuildChannel, Message][]
+  })
 
   return (
     <div class="flex flex-col p-2">
@@ -66,12 +78,21 @@ export default function GuildHome() {
             </h1>
             <span class="text-sm text-fg/60 mt-0.5">{guild().description || 'No description provided'}</span>
             <span class="text-sm text-fg/60 mt-0.5">
-              <div class="w-2 h-2 bg-[#43b581] rounded-full inline-block align-middle" />
-              <span class="align-middle ml-1.5">{onlineCount()} Online</span>
+              <Show when={isLoaded()} fallback={
+                <span class="inline-block w-24 h-3 rounded bg-fg/10 animate-pulse align-middle" />
+              }>
+                <div class="w-2 h-2 bg-[#43b581] rounded-full inline-block align-middle" />
+                <span class="align-middle ml-1.5">{t('guild.home.num_online', { count: onlineCount() })}</span>
+              </Show>
 
               <Icon icon={Users} class="select-none fill-fg/60 w-4 h-4 inline-block align-middle ml-3" />
-              <span class="align-middle ml-1.5">
-                {guild().members?.length} Member{guild().members?.length === 1 ? '' : 's'}</span>
+              <Show when={memberCount() != null} fallback={
+                <span class="inline-block w-16 h-3 rounded bg-fg/10 animate-pulse align-middle ml-1.5" />
+              }>
+                <span class="align-middle ml-1.5">
+                  {t('generic.members', { count: memberCount() })}
+                </span>
+              </Show>
             </span>
           </div>
         </div>

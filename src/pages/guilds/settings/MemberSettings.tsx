@@ -169,7 +169,7 @@ export default function MemberSettings() {
   const canRemoveRole = (memberId: bigint, role: Role) => isOwner()
     || canManageRoles() 
     && (canManageMember(memberId) || isSelf(memberId)) 
-    && role.position < clientTopRole().position
+    && role.position < (clientTopRole()?.position ?? Infinity)
 
   // Small components
   function RoleBadge(props: {

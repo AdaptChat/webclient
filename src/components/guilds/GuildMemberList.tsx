@@ -1,6 +1,6 @@
 import {getApi} from "../../api/Api";
 import {useNavigate, useParams} from "@solidjs/router";
-import {Accessor, createEffect, createMemo, createSignal, For, Show} from "solid-js";
+import {Accessor, createEffect, createMemo, createSignal, For, Index, onMount, Show} from "solid-js";
 import StatusIndicator from "../users/StatusIndicator";
 import SidebarSection from "../ui/SidebarSection";
 import {ReactiveSet} from "@solid-primitives/set";
@@ -45,7 +45,8 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
     <For each={[...props.members]}>
       {(userOrId) => {
         const user_id = typeof userOrId === "bigint" ? userOrId : userOrId.id
-        const user = typeof userOrId === "bigint" ? cache.users.get(userOrId)! : userOrId
+        const user = typeof userOrId === "bigint" ? cache.users.get(userOrId) : userOrId
+        if (!user) return null
         const color = createMemo(() => cache.getMemberColor(guildId(), user_id))
         const viewable = createMemo(() => cache.getMemberPermissions(guildId(), user_id, channelId()).has('VIEW_CHANNEL'))
         const isBot = () => UserFlags.fromValue(user.flags).has('BOT')
@@ -154,12 +155,38 @@ const fuse = function<T>(value: string, index: Accessor<Fuse<T>>, fallback: Acce
     : fallback()
 }
 
+function MemberListSkeleton() {
+  return (
+    <div class="flex flex-col gap-y-1">
+      <Index each={Array(8)}>
+        {(_, i) => (
+          <div class="flex items-center px-2 py-1.5 gap-x-3 animate-pulse" style={{
+            "animation-delay": i * 100 + 'ms'
+          }}>
+            <div class="w-8 h-8 rounded-full bg-fg/10 flex-shrink-0" />
+            <div
+              class="h-6 rounded-full bg-fg/10"
+              style={{ width: `${45 + ((i * 43 + 17) % 20)}%` }}
+            />
+          </div>
+        )}
+      </Index>
+    </div>
+  )
+}
+
 export default function GuildMemberList() {
   const api = getApi()!
   const params = useParams()
   const guildId = () => BigInt(params.guildId!)
   const guildMemo = createMemo(() => api.cache!.guilds.get(guildId()))
   if (!guildMemo()) return
+
+  const isLoaded = createMemo(() => api.cache!.isGuildLoaded(guildId()))
+
+  onMount(() => {
+    api.ws?.ensureGuildLoaded(guildId())
+  })
 
   const online = new ReactiveSet<bigint>()
   const offline = new ReactiveSet<bigint>()
@@ -253,58 +280,60 @@ export default function GuildMemberList() {
 
   return (
     <div class="flex flex-col w-full">
-      <div class="flex bg-bg-2/80 rounded-lg items-center">
-        <Icon icon={MagnifyingGlass} class="w-3.5 h-3.5 fill-fg/50 my-2 ml-2.5" />
-        <input
-          ref={searchRef!}
-          type="text"
-          class="w-full text-sm p-2 outline-none font-medium bg-transparent"
-          placeholder="Search this Server..."
-          value={searchQuery()}
-          onInput={(event) => setSearchQuery(event.currentTarget.value)}
-        />
-        <Show when={searchQuery()}>
-          <Icon
-            icon={Xmark}
-            class="w-4 h-4 fill-fg/50 mr-3 cursor-pointer hover:fill-fg/80 transition duration-200"
-            onClick={() => {
-              setSearchQuery('')
-              searchRef!.focus()
-            }}
+      <Show when={isLoaded()} fallback={<MemberListSkeleton />}>
+        <div class="flex bg-bg-2/80 rounded-lg items-center">
+          <Icon icon={MagnifyingGlass} class="w-3.5 h-3.5 fill-fg/50 my-2 ml-2.5" />
+          <input
+            ref={searchRef!}
+            type="text"
+            class="w-full text-sm p-2 outline-none font-medium bg-transparent"
+            placeholder="Search this Server..."
+            value={searchQuery()}
+            onInput={(event) => setSearchQuery(event.currentTarget.value)}
           />
-        </Show>
-      </div>
-      <Show when={searchQuery()} fallback={
-        <>
-          <For each={groups()}>
-            {(group) => (
-              <Show when={group.members.length}>
-                <SidebarSection badge={() => group.members.length}>
-                  {group.name}
-                </SidebarSection>
-                <GuildMemberGroup members={group.members} />
-              </Show>
-            )}
-          </For>
-          <Show when={noRoles().length} keyed={false}>
-            <SidebarSection badge={() => noRoles().length}>
-              {t('status.online')}
-            </SidebarSection>
-            <GuildMemberGroup members={noRoles()} />
+          <Show when={searchQuery()}>
+            <Icon
+              icon={Xmark}
+              class="w-4 h-4 fill-fg/50 mr-3 cursor-pointer hover:fill-fg/80 transition duration-200"
+              onClick={() => {
+                setSearchQuery('')
+                searchRef!.focus()
+              }}
+            />
           </Show>
-          <Show when={offline.size} keyed={false}>
-            <SidebarSection badge={() => offline.size}>
-              {t('status.offline')}
+        </div>
+        <Show when={searchQuery()} fallback={
+          <>
+            <For each={groups()}>
+              {(group) => (
+                <Show when={group.members.length}>
+                  <SidebarSection badge={() => group.members.length}>
+                    {group.name}
+                  </SidebarSection>
+                  <GuildMemberGroup members={group.members} />
+                </Show>
+              )}
+            </For>
+            <Show when={noRoles().length} keyed={false}>
+              <SidebarSection badge={() => noRoles().length}>
+                {t('status.online')}
+              </SidebarSection>
+              <GuildMemberGroup members={noRoles()} />
+            </Show>
+            <Show when={offline.size} keyed={false}>
+              <SidebarSection badge={() => offline.size}>
+                {t('status.offline')}
+              </SidebarSection>
+              <GuildMemberGroup members={offline} offline />
+            </Show>
+          </>
+        }>
+          <Show when={memberResults()}>
+            <SidebarSection badge={() => memberResults()!.length}>
+              {t('sidebar.members.title')}
             </SidebarSection>
-            <GuildMemberGroup members={offline} offline />
+            <GuildMemberGroup members={memberResults()!} />
           </Show>
-        </>
-      }>
-        <Show when={memberResults()}>
-          <SidebarSection badge={() => memberResults()!.length}>
-            {t('sidebar.members.title')}
-          </SidebarSection>
-          <GuildMemberGroup members={memberResults()!} />
         </Show>
       </Show>
     </div>

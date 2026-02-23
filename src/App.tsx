@@ -256,7 +256,7 @@ function DirectMessageButton({ channelId }: { channelId: bigint }) {
           }}>
             <span class="truncate min-w-0">
               {group
-                ? t('dms.group_members_other', { count: channel().recipient_ids.length })
+                ? t('generic.members', { count: channel().recipient_ids.length })
                 : (
                   lastMessage() ? (
                     (deltaMs()! > 30_000 ? t('time.past', { delta: humanizeTimeDeltaShort(deltaMs()!) }) : t('time.recently'))

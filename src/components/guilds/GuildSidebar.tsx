@@ -1,5 +1,5 @@
 import {A, useNavigate, useParams} from "@solidjs/router";
-import {createMemo, createSignal, For, Match, Show, Switch, onMount, onCleanup} from "solid-js";
+import {createMemo, createSignal, For, Match, Show, Switch, onMount, onCleanup, Index} from "solid-js";
 import {getApi} from "../../api/Api";
 import {GuildChannel} from "../../types/channel";
 import {ModalId, useModal} from "../ui/Modal";
@@ -167,6 +167,26 @@ function GuildMajorLink(props: { icon: IconElement, label: string, href: string,
   )
 }
 
+function ChannelListSkeleton() {
+  return (
+    <div class="flex flex-col gap-y-1 p-2">
+      <Index each={Array(6)}>
+        {(_, i) => (
+          <div class="flex items-center gap-x-2 py-2 animate-pulse" style={{
+            "animation-delay": i * 100 + 'ms',
+          }}>
+            <div class="w-4 h-4 rounded-full bg-fg/10 flex-shrink-0" />
+            <div
+              class="h-3 rounded-full bg-fg/10"
+              style={{ width: `${55 + ((i * 37 + 13) % 35)}%` }}
+            />
+          </div>
+        )}
+      </Index>
+    </div>
+  )
+}
+
 export default function GuildSidebar() {
   const params = useParams()
   const navigate = useNavigate()
@@ -178,6 +198,11 @@ export default function GuildSidebar() {
   const api = getApi()!
   const guild = createMemo(() => api.cache!.guilds.get(guildId())!)
   if (!guild()) return
+
+  // Trigger on-demand loading if guild channels aren't available yet
+  onMount(() => {
+    api.ws?.ensureGuildLoaded(guildId())
+  })
 
   const [dropdownExpanded, setDropdownExpanded] = createSignal(false)
   const isOwner = createMemo(() => guild().owner_id === api.cache?.clientUser?.id)
@@ -421,9 +446,11 @@ export default function GuildSidebar() {
       </div>
       <div class="flex flex-col w-full p-2">
         <GuildMajorLink label="Server Home" href={`/guilds/${guildId()}`} icon={HomeIcon} active={!channelId()} />
-        <For each={[...channels()?.get(null)?.children ?? []]}>
-          {(channel) => <RenderChannel channel={channel} />}
-        </For>
+        <Show when={channels()} fallback={<ChannelListSkeleton />}>
+          <For each={[...channels()!.get(null)?.children ?? []]}>
+            {(channel) => <RenderChannel channel={channel} />}
+          </For>
+        </Show>
       </div>
     </div>
   )

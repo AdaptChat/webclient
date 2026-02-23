@@ -54,6 +54,7 @@ export default function GuildIcon(props: GuildIconProps) {
     if (!id) return
 
     for (const guildId of api!.cache!.guildList) {
+      if (!api!.cache!.isGuildLoaded(guildId)) continue
       const member = api?.cache?.members.get(memberKey(guildId, id))
       if (!member) continue
 

@@ -41,9 +41,6 @@
     "delete_group": "Delete Group",
     "leave_group": "Leave Group",
     "close_dm": "Close DM",
-    "group_members_zero": "No Members",
-    "group_members_one": "{{count}} Member",
-    "group_members_other": "{{count}} Members",
     "no_messages": "No messages"
   },
   "status": {
@@ -521,7 +518,10 @@
     "copied": "Copied!",
     "copy_to_clipboard": "Copy to clipboard",
     "loading": "Loading...",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "members_zero": "No Members",
+    "members_one": "{{count}} Member",
+    "members_other": "{{count}} Members"
   },
   "error": {
     "header": "Error: {{message}}",
@@ -736,6 +736,9 @@
       "leave_server": "Leave Server",
       "create_server": "Create Server",
       "join_server": "Join Server"
+    },
+    "home": {
+      "num_online": "{{count}} Online"
     },
     "new_server": "New Server"
   },

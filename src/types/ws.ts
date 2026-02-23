@@ -5,6 +5,20 @@ import {Presence} from "./presence";
 import {Channel, DmChannel} from "./channel";
 
 /**
+ * Payload sent to harmony to request full guild data for a list of guild IDs.
+ */
+export interface RequestGuildsPayload {
+  /**
+   * The IDs of the guilds to request. At most 20 IDs may be provided at once.
+   */
+  guild_ids: Snowflake[],
+  /**
+   * An optional nonce string echoed back in each corresponding `guilds_available` event.
+   */
+  nonce?: string,
+}
+
+/**
  * Payload sent to harmony to update the client user's presence.
  */
 export interface UpdatePresencePayload {
@@ -30,6 +44,7 @@ export type WsEvent = WsEventMapping<'hello'>
   | WsEventMapping<'ping'>
   | WsEventMapping<'pong'>
   | WsEventMapping<'ready', ReadyEvent>
+  | WsEventMapping<'guilds_available', GuildsAvailableEvent>
   | WsEventMapping<'user_update', UserUpdateEvent>
   | WsEventMapping<'message_create', MessageCreateEvent>
   | WsEventMapping<'message_delete', MessageDeleteEvent>
@@ -59,9 +74,10 @@ export interface ReadyEvent {
    */
   user: ClientUser;
   /**
-   * A list of guilds that the session's user is a member of.
+   * A list of partial guilds that the session's user is a member of. Full guild data (members,
+   * channels, roles) must be requested via `request_guilds`.
    */
-  guilds: Guild[];
+  guilds: PartialGuild[];
   /**
    * A list of DM channels that the session's user is a recipient of.
    */
@@ -82,6 +98,20 @@ export interface ReadyEvent {
     last_message_id: Snowflake | null,
     mentions: Snowflake[],
   }[];
+}
+
+/**
+ * Sent by harmony in response to a `request_guilds` message, carrying full data for all requested guilds.
+ */
+export interface GuildsAvailableEvent {
+  /**
+   * The full guild data for all requested guilds.
+   */
+  guilds: Guild[];
+  /**
+   * The nonce from the originating `request_guilds` message, if any.
+   */
+  nonce?: string;
 }
 
 /**

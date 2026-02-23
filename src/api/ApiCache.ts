@@ -64,6 +64,7 @@ export default class ApiCache {
   guildMentions: ReactiveMap<bigint, ReactiveMap<bigint, bigint[]>>
   dmMentions: ReactiveMap<bigint, bigint[]>
   customEmojis: ReactiveMap<bigint, CustomEmoji>
+  guildLoadingStates: ReactiveMap<bigint, boolean>
 
   constructor(private readonly api: Api) {
     this.clientUserReactor = null as any // lazy
@@ -88,6 +89,7 @@ export default class ApiCache {
     this.guildMentions = new ReactiveMap()
     this.dmMentions = new ReactiveMap()
     this.customEmojis = new ReactiveMap()
+    this.guildLoadingStates = new ReactiveMap()
   }
 
   static fromReadyEvent(api: Api, ready: ReadyEvent): ApiCache {
@@ -99,7 +101,7 @@ export default class ApiCache {
       cache.updateRelationship(relationship)
 
     for (const guild of ready.guilds)
-      cache.updateGuild(guild)
+      cache.updatePartialGuild(guild)
 
     for (const presence of ready.presences)
       cache.updatePresence(presence)
@@ -178,10 +180,28 @@ export default class ApiCache {
         this.updateEmoji(emoji)
   
     this.guildListReactor[1](prev => {
+      // If already in the list (e.g. was added as partial guild), don't add again
+      if (prev.includes(guild.id)) return prev
       // TODO: sort by true order, this is just creation date
       const index = sortedIndex(prev, guild.id)
       const next = [...prev]
       next.splice(index, 0, guild.id)
+      return next
+    })
+  }
+
+  updatePartialGuild(partialGuild: PartialGuild) {
+    const existing = this.guilds.get(partialGuild.id)
+    if (existing) {
+      this.guilds.set(partialGuild.id, { ...existing, ...partialGuild })
+      return
+    }
+
+    this.guilds.set(partialGuild.id, partialGuild as Guild)
+    this.guildListReactor[1](prev => {
+      const index = sortedIndex(prev, partialGuild.id)
+      const next = [...prev]
+      next.splice(index, 0, partialGuild.id)
       return next
     })
   }
@@ -364,7 +384,8 @@ export default class ApiCache {
     const roles = (member.roles ?? []).map(id => this.roles.get(BigInt(id))).filter(role => role != null) as Role[]
 
     const defaultRoleId = snowflakes.withModelType(guildId, snowflakes.ModelType.Role)
-    if (!roles.find(role => role.id === defaultRoleId)) roles.push(this.roles.get(defaultRoleId)!)
+    const defaultRole = this.roles.get(defaultRoleId)
+    if (defaultRole && !roles.find(role => role.id === defaultRoleId)) roles.push(defaultRole)
     return roles
   }
 
@@ -375,7 +396,7 @@ export default class ApiCache {
     if (!member) return Permissions.empty()
 
     const roles = this.getMemberRoles(guildId, userId)
-    const overwrites = channelId && (this.channels.get(channelId) as GuildChannel).overwrites || undefined
+    const overwrites = channelId && (this.channels.get(channelId) as GuildChannel)?.overwrites || undefined
     return calculatePermissions(userId, member.permissions, roles, overwrites)
   }
 
@@ -388,14 +409,17 @@ export default class ApiCache {
     return this.roles.get(defaultRoleId)!
   }
 
-  getMemberTopRole(guildId: bigint, userId: bigint): Role {
+  getMemberTopRole(guildId: bigint, userId: bigint): Role | undefined {
     const roles = this.getMemberRoles(guildId, userId)
     return maxIterator(roles, role => role.position) ?? this.getDefaultRole(guildId)
   }
 
   clientCanManage(guildId: bigint, userId: bigint): boolean {
-    return this.guilds.get(guildId)?.owner_id == this.clientId!
-      || this.getMemberTopRole(guildId, this.clientId!).position > this.getMemberTopRole(guildId, userId).position
+    if (this.guilds.get(guildId)?.owner_id == this.clientId!) return true
+    const clientTop = this.getMemberTopRole(guildId, this.clientId!)
+    const targetTop = this.getMemberTopRole(guildId, userId)
+    if (!clientTop || !targetTop) return false
+    return clientTop.position > targetTop.position
   }
 
   getMemberColor(guildId: bigint, memberId: bigint): ExtendedColor | undefined {
@@ -474,6 +498,16 @@ export default class ApiCache {
     } else {
       registerIn(this.dmMentions)
     }
+  }
+
+  isGuildLoaded(guildId: bigint): boolean {
+    const guild = this.guilds.get(guildId)
+    if (!guild) return false
+    return guild.channels != null && guild.roles != null
+  }
+
+  isGuildLoading(guildId: bigint): boolean {
+    return this.guildLoadingStates.get(guildId) ?? false
   }
 
   countGuildMentionsIn(guildId: bigint, channelId: bigint): number | null {
