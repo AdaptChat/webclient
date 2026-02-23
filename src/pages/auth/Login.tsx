@@ -35,6 +35,7 @@ export default function Login() {
         if (!response.ok) {
           setIsSubmitting(false)
           setError(response.errorJsonOrThrow().message)
+          return
         }
         let { token } = response.ensureOk().jsonOrThrow()
         if (rememberMeRef!.checked) localStorage.setItem("token", token);
