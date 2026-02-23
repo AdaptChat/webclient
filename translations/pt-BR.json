@@ -140,7 +140,10 @@
       },
       "members": {
         "header": "Membros",
-        "search_roles": "Buscar cargos"
+        "search_roles": "Buscar cargos",
+        "columns": {
+          "member": "Membros"
+        }
       }
     },
     "permissions": {
