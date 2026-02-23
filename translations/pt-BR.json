@@ -376,6 +376,15 @@
     },
     "delete_message": {
       "title": "Excluir mensagens em massa"
+    },
+    "delete_server": {
+      "title": "Excluir servidor"
+    },
+    "create_role": {
+      "title": "Criar cargo"
+    },
+    "add_friend": {
+      "title": "Adicionar amigo"
     }
   }
 }
