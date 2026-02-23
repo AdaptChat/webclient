@@ -351,11 +351,17 @@
     "cancel": "Cancelar",
     "back": "Voltar",
     "wip": "Em progresso!",
-    "unknown": "Desconhecido"
+    "unknown": "Desconhecido",
+    "members_one": "{{count}} membro",
+    "members_many": "",
+    "members_other": "{{count}} membro"
   },
   "error": {
     "header": "Erro: {{message}}",
     "open_issue": "Se este erro persistir, por favor {{link}} no repositório da GitHub.",
     "open_issue_link": "abra um problema"
+  },
+  "chat": {
+    "add_reaction": "Adicionar reações"
   }
 }
