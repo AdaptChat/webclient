@@ -40,7 +40,6 @@
     "delete_group": "删除群组",
     "leave_group": "离开群组",
     "close_dm": "关闭私信",
-    "group_members_other": "{{count}} 位成员",
     "no_messages": "没有消息"
   },
   "status": {

@@ -41,9 +41,6 @@
     "delete_group": "Выдаліць групу",
     "leave_group": "Выйсьці з групы",
     "close_dm": "Закрыць ПП",
-    "group_members_one": "{{count}} удзельнік",
-    "group_members_few": "{{count}} удзельніка",
-    "group_members_many": "{{count}} удзельнікаў",
     "no_messages": "Няма паведамленьняў"
   },
   "status": {
