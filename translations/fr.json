@@ -154,6 +154,30 @@
       },
       "overview": {
         "header": "Aperçu"
+      },
+      "members": {
+        "actions": {
+          "add_edit_roles": "Ajouter/Modifier des rôles",
+          "kick": "Expulser le membre",
+          "remove_role": "Supprimer le rôle"
+        },
+        "sort": {
+          "label": "Tri : {{option}}",
+          "name": "Nom",
+          "account_age_asc": "Âge du compte (croissant)",
+          "account_age_desc": "Âge du compte (desc)",
+          "join_date_asc": "Date d'inscription (croissant)",
+          "join_date_desc": "Date d'inscription (desc)"
+        }
+      },
+      "delete": "Supprimer le serveur"
+    },
+    "permissions": {
+      "categories": {
+        "all_channels": "Tous les Salons",
+        "text_channels": "Salons textuels",
+        "voice_channels": "Salons vocaux",
+        "member_customization": "Personnalisation du membre"
       }
     }
   }
