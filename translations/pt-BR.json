@@ -373,6 +373,9 @@
     "delete_channel": {
       "title": "Excluir canal",
       "submit": "Excluir canal"
+    },
+    "delete_message": {
+      "title": "Excluir mensagens em massa"
     }
   }
 }
