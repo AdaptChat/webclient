@@ -368,5 +368,11 @@
       "copy_message_link": "Copiar ID da mensagem",
       "delete_message": "Excluir mensagens em massa"
     }
+  },
+  "modals": {
+    "delete_channel": {
+      "title": "Excluir canal",
+      "submit": "Excluir canal"
+    }
   }
 }
