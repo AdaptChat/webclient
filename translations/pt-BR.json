@@ -365,7 +365,8 @@
     "add_reaction": "Adicionar reações",
     "context_menu": {
       "copy_message_id": "Copiar ID da mensagem",
-      "copy_message_link": "Copiar ID da mensagem"
+      "copy_message_link": "Copiar ID da mensagem",
+      "delete_message": "Excluir mensagens em massa"
     }
   }
 }
