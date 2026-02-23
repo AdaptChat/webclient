@@ -23,7 +23,7 @@ function LocaleOption(props: { localeKey: string }) {
         <img src={getUnicodeEmojiUrl(flag()!)} alt={flag()!} width={20} height={20} class="inline-block" />
         <span class="font-medium">{nativeName()}</span>
       </span>
-      <span class="text-xs opacity-60">
+      <span class="text-xs opacity-60 mobile:hidden">
         {localName()}
       </span>
     </button>
