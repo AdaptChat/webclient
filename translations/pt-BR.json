@@ -142,7 +142,11 @@
         "header": "Membros",
         "search_roles": "Buscar cargos",
         "columns": {
-          "member": "Membros"
+          "member": "Membros",
+          "roles": "Cargos"
+        },
+        "actions": {
+          "kick": "Expulsar membros"
         }
       }
     },
