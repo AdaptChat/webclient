@@ -38,8 +38,8 @@ export default function Login() {
         }
         let { token } = response.ensureOk().jsonOrThrow()
         if (rememberMeRef!.checked) localStorage.setItem("token", token);
-        setApi(new Api(token))
         navigate(redirectTo)
+        setApi(new Api(token))
       }}
     >
       <div class="flex flex-col -space-y-px rounded-md shadow-sm box-border overflow-hidden gap-[3px]">

@@ -60,8 +60,8 @@ export default function Register() {
         }
         let { token } = response.ensureOk().jsonOrThrow()
         if (rememberMeRef!.checked) localStorage.setItem("token", token);
-        setApi(new Api(token))
         navigate(redirectTo)
+        setApi(new Api(token))
       }}
     >
       <div class="-space-y-px">

@@ -54,8 +54,8 @@ export default function GuildChannel() {
         <div class="flex flex-col flex-grow">
           <Header>
             <span class="flex items-center gap-x-2 animate-pulse">
-              <span class="w-4 h-4 rounded bg-fg/10" />
-              <span class="w-32 h-4 rounded bg-fg/10" />
+              <span class="w-4 h-4 rounded-full bg-fg/10" />
+              <span class="w-32 h-4 rounded-full bg-fg/10" />
             </span>
           </Header>
           <div class="flex-grow flex items-center justify-center">
