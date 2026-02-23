@@ -40,8 +40,6 @@
     "delete_group": "Gruppe löschen",
     "leave_group": "Gruppe verlassen",
     "close_dm": "DM schließen",
-    "group_members_one": "{{count}} Mitglied",
-    "group_members_other": "{{count}} Mitglieder",
     "no_messages": "Keine Nachrichten"
   },
   "status": {

@@ -34,9 +34,6 @@
     "delete_group": "Excluir grupo",
     "leave_group": "Sair do grupo",
     "close_dm": "Fechar MD",
-    "group_members_one": "{{count}} membro",
-    "group_members_many": "{{count}} membros",
-    "group_members_other": "{{count}} membros",
     "no_messages": "Nenhuma mensagem"
   },
   "status": {

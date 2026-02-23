@@ -40,8 +40,6 @@
     "delete_group": "Grubu Sil",
     "leave_group": "Gruptan Ayrıl",
     "close_dm": "DM'yi Kapat",
-    "group_members_one": "{{count}} Üye",
-    "group_members_other": "{{count}} Üyeler",
     "no_messages": "Mesaj yok"
   },
   "status": {
