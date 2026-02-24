@@ -65,6 +65,7 @@ export default class ApiCache {
   dmMentions: ReactiveMap<bigint, bigint[]>
   customEmojis: ReactiveMap<bigint, CustomEmoji>
   guildLoadingStates: ReactiveMap<bigint, boolean>
+  pendingUnacked: Map<bigint, { last_message_id: bigint | null, mentions: bigint[] }>
 
   constructor(private readonly api: Api) {
     this.clientUserReactor = null as any // lazy
@@ -90,6 +91,7 @@ export default class ApiCache {
     this.dmMentions = new ReactiveMap()
     this.customEmojis = new ReactiveMap()
     this.guildLoadingStates = new ReactiveMap()
+    this.pendingUnacked = new Map()
   }
 
   static fromReadyEvent(api: Api, ready: ReadyEvent): ApiCache {
@@ -120,7 +122,11 @@ export default class ApiCache {
     for (let { channel_id, last_message_id, mentions } of ready.unacked) {
       cache.lastAckedMessages.set(channel_id, last_message_id)
       let channel = cache.channels.get(channel_id)
-      if (!channel) continue
+      if (!channel) {
+        // channel not yet loaded (guild channels arrive via guilds_available later)
+        cache.pendingUnacked.set(channel_id, { last_message_id, mentions })
+        continue
+      }
       if ('guild_id' in channel) {
         const guildId = BigInt(channel.guild_id)
         if (!cache.guildMentions.has(guildId))
@@ -169,6 +175,17 @@ export default class ApiCache {
         this.updateChannel(channel)
 
       this.guildChannelReactor.set(guild.id, guild.channels.map(channel => channel.id))
+
+      for (const channel of guild.channels) {
+        const pending = this.pendingUnacked.get(channel.id)
+        if (!pending) continue
+        this.pendingUnacked.delete(channel.id)
+
+        if (!this.guildMentions.has(guild.id))
+          this.guildMentions.set(guild.id, new ReactiveMap())
+
+        this.guildMentions.get(guild.id)!.set(channel.id, pending.mentions)
+      }
     }
 
     if (guild.roles)
