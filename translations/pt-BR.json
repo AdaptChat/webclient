@@ -128,7 +128,10 @@
           "header": "Permissões padrão"
         },
         "role": {
-          "remove_color": "Remover"
+          "remove_color": "Remover",
+          "mentionable": {
+            "description": "Permite que todos os membros, independentemente de permissão, mencionar coletivamente todos membros neste cargo"
+          }
         }
       },
       "delete": "Excluir servidor",
@@ -136,17 +139,20 @@
         "header": "Emojis"
       },
       "invites": {
-        "header": "Convites"
+        "header": "Convites",
+        "count_one": "{{count}} convite",
+        "count_many": "{{count}} convites",
+        "count_other": "{{count}} convites"
       },
       "members": {
         "header": "Membros",
-        "search_roles": "Buscar cargos",
+        "search_roles": "Buscar cargos...",
         "columns": {
-          "member": "Membros",
+          "member": "Membro",
           "roles": "Cargos"
         },
         "actions": {
-          "kick": "Expulsar membros"
+          "kick": "Expulsar membro"
         }
       }
     },
@@ -311,7 +317,8 @@
         "description": "Crie, descubra, entre e converse em comunidades que combinam com seus interesses. Você também pode entrar na {{server_link}}.",
         "official_server_name": "Comunidade Adapt"
       }
-    }
+    },
+    "message_not_loaded": "Mensagem ainda não carregada. (Dados da mensagem serão fornecidos em uma atualização futura)"
   },
   "friends": {
     "header": "Amigos",
@@ -351,10 +358,10 @@
     "cancel": "Cancelar",
     "back": "Voltar",
     "wip": "Em progresso!",
-    "unknown": "Desconhecido",
+    "unknown": "Desconhecido(a)",
     "members_one": "{{count}} membro",
-    "members_many": "",
-    "members_other": "{{count}} membro"
+    "members_many": "{{count}} membros",
+    "members_other": "{{count}} membros"
   },
   "error": {
     "header": "Erro: {{message}}",
@@ -362,32 +369,54 @@
     "open_issue_link": "abra um problema"
   },
   "chat": {
-    "add_reaction": "Adicionar reações",
+    "add_reaction": "Adicionar reação",
     "context_menu": {
       "copy_message_id": "Copiar ID da mensagem",
-      "copy_message_link": "Copiar ID da mensagem",
-      "delete_message": "Excluir mensagens em massa"
-    }
+      "copy_message_link": "Copiar endereço da mensagem",
+      "delete_message": "Excluir mensagem"
+    },
+    "typing_one": "{{user}} está digitando...",
+    "typing_many": "{{user}} estão digitando...",
+    "typing_other": "{{user}} estão digitando..."
   },
   "modals": {
     "delete_channel": {
       "title": "Excluir canal",
-      "submit": "Excluir canal"
+      "submit": "Excluir {{channel}}",
+      "description": "Você tem certeza de que deseja excluir {{channel}} em {{guild}}? Você não poderá desfazer esta ação. Todos os dados e mensagens associados com este canal irão ser excluídos e você não poderá recuperá-los no futuro."
     },
     "delete_message": {
-      "title": "Excluir mensagens em massa"
+      "title": "Excluir mensagem"
     },
     "delete_server": {
-      "title": "Excluir servidor"
+      "title": "Excluir servidor",
+      "description": "Você tem certeza de que deseja excluir {{name}}? Você não poderá desfazer esta ação. Todos os dados associados com este servidor irão ser excluídos e você não poderá recuperá-los no futuro."
     },
     "create_role": {
       "title": "Criar cargo"
     },
     "add_friend": {
-      "title": "Adicionar amigo"
+      "title": "Adicionar amigo(a)"
     },
     "new_conversation": {
-      "title": "Conversas"
+      "title": "Nova conversa"
+    },
+    "new_guild": {
+      "create_server": {
+        "description": "Começar uma nova comunidade. Pode ser um lugar para você e seus(as) amigos(as), ou você pode transformá-lo em uma grande comunidade."
+      },
+      "discover_servers": {
+        "description": "Não tem certeza por onde começar? Confira a página de descoberta de servidores onde você pode explorar servidores públicos que você pode estar interessado."
+      }
+    },
+    "delete_role": {
+      "description": "Você tem certeza de que deseja excluir {{role_name}} em {{guild_name}}? Você não poderá desfazer esta ação."
+    },
+    "leave_server": {
+      "description": "Você tem certeza de que deseja sair de {{name}}? Você não poderá entrar novamente, a menos que seja convidado novamente."
+    },
+    "create_server": {
+      "description": "Antes de criarmos seu servidor, vamos o dar um nome."
     }
   }
 }
