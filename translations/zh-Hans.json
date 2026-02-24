@@ -83,7 +83,8 @@
     },
     "members": {
       "collapse": "隐藏成员列表",
-      "expand": "显示成员列表"
+      "expand": "显示成员列表",
+      "title": "成员"
     },
     "collapse": "收起侧边栏",
     "expand": "展开侧边栏",
@@ -484,8 +485,8 @@
     "past": "{{delta}}前",
     "future": "{{delta}}后",
     "yesterday_at": "昨天{{time}}",
-    "weekday_at": "{{weekday}} {{time}}",
-    "date_at": "{{date}} {{time}}"
+    "weekday_at": "{{weekday}}{{time}}",
+    "date_at": "{{date}}{{time}}"
   },
   "generic": {
     "remove": "移除",
@@ -499,7 +500,8 @@
     "upload": "上传",
     "more": "更多",
     "loading": "正在加载…",
-    "unknown": "未知"
+    "unknown": "未知",
+    "members_other": "{{count}}名成员"
   },
   "error": {
     "header": "错误：{{message}}",
@@ -687,6 +689,10 @@
       "handle_placeholder": "my-fancy-bot",
       "handle_description": "标识符用于在 Adapt 中唯一标识您的机器人。",
       "submit": "创建机器人"
+    },
+    "delete_channel": {
+      "description": "您是确定要删除{{guild}}中的{{channel}}吗？此操作无法撤销。与此频道关联的所有数据和消息都将被删除，且将来无法恢复。",
+      "submit": "删除{{channel}}"
     }
   },
   "guild": {
