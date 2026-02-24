@@ -28,7 +28,9 @@ import msgpack from "tiny-msgpack";
 /**
  * WebSocket endpoint
  */
-export const WS_CONNECT_URI: string = 'wss://harmony.adapt.chat?format=msgpack'
+export const WS_CONNECT_URI: string = import.meta.env.DEV
+  ? 'ws://localhost:8076?format=msgpack'
+  : 'wss://harmony.adapt.chat?format=msgpack'
 
 type WsEventHandler = (ws: WsClient, data: any) => any
 type WsEventListener = (data: any, remove: () => void) => any

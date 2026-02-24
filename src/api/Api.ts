@@ -34,7 +34,9 @@ const MAX_RETRIES = 3
 /**
  * Adapt REST API endpoint
  */
-export const BASE_URL = 'https://api.adapt.chat'
+export const BASE_URL = import.meta.env.DEV
+  ? 'http://localhost:8077'
+  : 'https://api.adapt.chat'
 
 /**
  * HTTP request method to use when making a request

@@ -1,18 +1,19 @@
+import {getAnalytics, type Analytics} from "firebase/analytics";
 import {FirebaseApp, initializeApp} from "firebase/app";
 import {getMessaging, getToken, Messaging, onMessage} from "firebase/messaging";
 import Api from "./Api";
 
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyAUwv7mr1FK5BEpzJzqH1Bkb9tSj3e0KXY",
-  authDomain: "adapt-chat.firebaseapp.com",
-  projectId: "adapt-chat",
-  storageBucket: "adapt-chat.appspot.com",
-  messagingSenderId: "464541692865",
-  appId: "1:464541692865:web:651cc571d8c787c0823540",
-  measurementId: "G-W32V7KR3TQ"
+  apiKey: "AIzaSyCLxCU60cABrOneUgs2rQXIzNWl9MehBlQ",
+  authDomain: "adapt-chat-2.firebaseapp.com",
+  projectId: "adapt-chat-2",
+  storageBucket: "adapt-chat-2.firebasestorage.app",
+  messagingSenderId: "516583022231",
+  appId: "1:516583022231:web:84baa083f9e35b5b4ad3d2",
+  measurementId: "G-PRVX9CFT8Q"
 } as const
 
-const VAPID = 'BJ4XIJ_C9AHBXox8b5Ivm7F37ynaKEz0EAui1U9TwUWTs_qgnpz6PD3bVOaFNo9lToqe5dmhLZKT5SYyahpKRow'
+const VAPID = 'BAsaxzVjW2JLuRBkJpAByKG994vxkMrYBX8DLyTYqXT3beoPx2tY9hgEYWME_SsVQweXyAi1nYTUj81CMK0f6dQ'
 
 /**
  * Handles and subscribes to push notifications via Firebase
@@ -20,10 +21,12 @@ const VAPID = 'BJ4XIJ_C9AHBXox8b5Ivm7F37ynaKEz0EAui1U9TwUWTs_qgnpz6PD3bVOaFNo9lT
 export default class PushNotifications {
   app: FirebaseApp
   messaging: Messaging
+  analytics: Analytics
 
   constructor(public api: Api) {
     this.app = initializeApp(FIREBASE_CONFIG)
     this.messaging = getMessaging(this.app)
+    this.analytics = getAnalytics(this.app)
 
     onMessage(this.messaging, (payload) => {
       console.log('[FIREBASE] Message received. ', payload)
