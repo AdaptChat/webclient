@@ -101,35 +101,6 @@ jobs:
         path: |
           src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis
 
-  build-win-i686:
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - uses: Swatinem/rust-cache@v2
-      with:
-        workspaces: "./src-tauri -> target"
-
-    - name: Install tauri CLI
-      run: cargo install tauri-cli@^2
-
-    - name: Install packages
-      run: npm i
-
-    - name: Build
-      uses: nick-fields/retry@v3
-      with:
-        timeout_minutes: 30
-        max_attempts: 3
-        command: rustup target add i686-pc-windows-msvc && cargo tauri build --target i686-pc-windows-msvc
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-windows-i686
-        path: |
-          src-tauri/target/i686-pc-windows-msvc/release/bundle/nsis
 
   build-linux-x86_64:
     runs-on: ubuntu-22.04
@@ -187,7 +158,7 @@ jobs:
       pages: write
       id-token: write
     runs-on: ubuntu-22.04
-    needs: [build-mac-x86_64, build-mac-aarch64, build-win-x86_64, build-win-i686, build-linux-x86_64]
+    needs: [build-mac-x86_64, build-mac-aarch64, build-win-x86_64, build-linux-x86_64]
 
     steps:
       - uses: actions/checkout@v4
@@ -209,12 +180,6 @@ jobs:
         with:
           name: app-windows-86_64
           path: windows-x86_64
-
-      - name: Download windows-i686
-        uses: actions/download-artifact@v4
-        with:
-          name: app-windows-i686
-          path: windows-i686
 
       - name: Download linux-x86_64
         uses: actions/download-artifact@v4
@@ -239,8 +204,6 @@ jobs:
           mv darwin-aarch64/*.dmg darwin-aarch64/Adapt-installer.dmg
           mv windows-x86_64/*-setup.exe windows-x86_64/Adapt-setup.exe
           mv windows-x86_64/*-setup.exe.sig windows-x86_64/Adapt-setup.exe.sig
-          mv windows-i686/*-setup.exe windows-i686/Adapt-setup.exe
-          mv windows-i686/*-setup.exe.sig windows-i686/Adapt-setup.exe.sig
           mv linux-x86_64/*.AppImage linux-x86_64/Adapt.AppImage
           mv linux-x86_64/*.AppImage.tar.gz linux-x86_64/Adapt.AppImage.tar.gz
           mv linux-x86_64/*.AppImage.tar.gz.sig linux-x86_64/Adapt.AppImage.tar.gz.sig
@@ -253,7 +216,6 @@ jobs:
           cp -r darwin-x86_64 download-artifacts
           cp -r darwin-aarch64 download-artifacts
           cp -r windows-x86_64 download-artifacts
-          cp -r windows-i686 download-artifacts
           cp -r linux-x86_64 download-artifacts
           mv download-artifacts webclient
           mkdir download-artifacts
@@ -283,10 +245,6 @@ jobs:
                   "windows-x86_64": {
                     "signature": open('windows-x86_64/Adapt-setup.exe.sig', 'r').read(),
                     "url": "https://download.adapt.chat/webclient/windows-x86_64/Adapt-setup.exe"
-                  },
-                  "windows-i686": {
-                    "signature": open('windows-i686/Adapt-setup.exe.sig', 'r').read(),
-                    "url": "https://download.adapt.chat/webclient/windows-i686/Adapt-setup.exe"
                   },
                   "linux-x86_64": {
                     "signature": open('linux-x86_64/Adapt.AppImage.tar.gz.sig', 'r').read(),
