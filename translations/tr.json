@@ -104,17 +104,20 @@
         "display_name": "Görünen Ad",
         "email": "E-posta",
         "show_email": "E-postayı göster",
-        "hide_email": "E-postayı gizle"
+        "hide_email": "E-postayı gizle",
+        "credentials": "Kimlik Bilgileri"
       },
       "language": {
-        "header": "Dil"
+        "header": "Dil",
+        "description": "Adapt'ta kullanmak istediğiniz dili seçin."
       },
       "themes": {
         "header": "Temalar",
         "preset": {
           "light": "Açık",
           "dim": "Sönük",
-          "dark": "Karanlık"
+          "dark": "Karanlık",
+          "header": "Hazır Temalar"
         },
         "theme_colors": "Tema Renkleri",
         "custom_css": "Özel CSS"
@@ -177,9 +180,219 @@
           "pick_color": "Renk Seç",
           "remove_color": "Kaldır",
           "dark_theme": "Karanlık Tema",
-          "light_theme": "Açık Tema"
+          "light_theme": "Açık Tema",
+          "tabs": {
+            "permissions": "İzinler",
+            "members": "Üyeler",
+            "overview": "Genel Bakış"
+          },
+          "mentionable": {
+            "label": "Herkesin bu rolden bahsetmesine izin ver"
+          }
+        },
+        "locked": "Kilitli",
+        "new_role": "Yeni Rol",
+        "delete_role": "Rolü Sil"
+      },
+      "emojis": {
+        "header": "Emojiler",
+        "upload": {
+          "header": "Emoji Yükle",
+          "button": "Yükle",
+          "search_results": "Arama Sonuçları",
+          "search_placeholder": "Emojileri ara...",
+          "created_by": "{{username}} tarafından oluşturuldu"
+        },
+        "no_permission": "Emojileri değiştirmek için Emojileri Yönet yetkisine sahip olmalısınız.",
+        "failed_delete": "Emoji silinemedi",
+        "deleted": "Emoji başarıyla silindi",
+        "failed_rename": "Emoji ismi değiştirilemedi",
+        "renamed": "Emoji ismi başarıyla değiştirildi"
+      },
+      "invites": {
+        "header": "Davetler",
+        "description": "Bu sunucu için aktif davetleri görüntüle ve yönet.",
+        "search_placeholder": "Davet kodlarını ara...",
+        "columns": {
+          "code": "Kod",
+          "inviter": "Davet Eden",
+          "created": "Oluşturuldu",
+          "expires": "Geçerlilik Süresi",
+          "uses": "Kullanımlar"
+        },
+        "expiry_never": "Asla",
+        "expiry_left": "{{delta}} kaldı",
+        "search_users": "Kullanıcıları ara...",
+        "count_one": "{{count}} davet",
+        "count_other": "{{count}} davetler",
+        "loading": "Yükleniyor...",
+        "copy_link": "Davet Bağlantısını Kopyala",
+        "revoke": "Daveti İptal Et",
+        "copying": {
+          "loading": "Davet bağlantısı kopyalanıyor...",
+          "success": "Davet bağlantısı kopyalandı!",
+          "error": "Davet bağlantısı kopyalanamadı."
+        },
+        "failed_revoke": "Davet iptal edilemedi",
+        "sort": {
+          "label": "Sırala: {{option}}",
+          "code_asc": "Davet bağlantısı (A-Z)",
+          "created_desc": "Oluşturuldu (en yeni)",
+          "created_asc": "Oluşturuldu (en eski)",
+          "uses_desc": "Kullanımlar (en yüksek)",
+          "uses_asc": "Kullanımlar (en düşük)"
         }
+      },
+      "members": {
+        "header": "Üyeler",
+        "description": "Sunucunuzdaki üyeleri görüntüleyin ve yönetin.",
+        "search_placeholder": "Üyeleri Ara...",
+        "search_roles": "Rolleri ara...",
+        "all_roles": "Bütün roller",
+        "columns": {
+          "member": "Üye",
+          "roles": "Roller",
+          "created": "Oluşturuldu",
+          "joined": "Katıldı"
+        },
+        "roles_updating": "Roller güncelleniyor...",
+        "role_removed": "Rol silindi",
+        "actions": {
+          "edit_nickname": "Takma adı düzenle",
+          "edit_roles": "Rolleri Düzenle",
+          "add_edit_roles": "Rolleri Ekle/Düzenle",
+          "kick": "Üyeyi At",
+          "remove_role": "Rolü kaldır"
+        },
+        "sort": {
+          "label": "Sırala: {{option}}",
+          "name": "İsim",
+          "account_age_asc": "Hesap yaşı (artan)",
+          "account_age_desc": "Hesap yaşı (azalan)",
+          "join_date_asc": "Katılma tarihi (artan)",
+          "join_date_desc": "Katılma tarihi (azalan)"
+        }
+      },
+      "delete": "Sunucuyu Sil"
+    },
+    "permissions": {
+      "categories": {
+        "all_channels": "Bütün Kanallar",
+        "text_channels": "Metin Kanalları",
+        "voice_channels": "Ses Kanalları",
+        "member_customization": "Üye Kişiselleştirmesi",
+        "server_management": "Sunucu Yönetimi",
+        "danger_zone": "Tehlikeli Bölge"
+      },
+      "options": {
+        "allow": "İzin Ver",
+        "deny": "Reddet"
+      },
+      "view_channel": {
+        "label": "Kanalları Görüntüle"
+      },
+      "modify_channels": {
+        "label": "Kanalları Değiştir"
+      },
+      "manage_channels": {
+        "label": "Kanalları Yönet"
+      },
+      "view_message_history": {
+        "label": "Mesaj Geçmişini Görüntüle",
+        "description": "Bu izne sahip üyeler mesaj gönderemeseler veya yeni mesaj alamasalar bile metin kanallarının geçmişini görebilir."
+      },
+      "send_messages": {
+        "label": "Mesaj Gönder",
+        "description": "Bu izne sahip üyeler metin bazlı kanallarda mesaj gönderebilir. Kanalları Görüntüle izni gereklidir."
+      },
+      "manage_messages": {
+        "label": "Mesajları Yönet"
+      },
+      "attach_files": {
+        "label": "Dosya Ekle",
+        "description": "Bu izne sahip üyeler metin bazlı kanallardaki mesajlara dosya ekleyebilir."
+      },
+      "use_external_emojis": {
+        "label": "Harici Emojiler Kullan",
+        "description": "Bu izne sahip üyeler diğer sunuculardaki emojileri kullanabilir."
+      },
+      "add_reactions": {
+        "label": "Tepki Ekle",
+        "description": "Bu izne sahip üyeler metin bazlı kanallarda mesajlara yeni tepkiler ekleyebilir."
+      },
+      "pin_messages": {
+        "label": "Mesajları Sabitle",
+        "description": "Bu izne sahip üyeler metin bazlı kanallarda mesajları sabitleyebilir veya sabitlemeleri kaldırabilir."
+      },
+      "star_messages": {
+        "label": "Mesajları Yıldızla",
+        "description": "Bu izne sahip olan üyeler metin bazlı kanallarda mesajlara yıldızlayabilir veya yıldızlamayı kaldırabilir."
+      },
+      "publish_messages": {
+        "label": "Mesajları Yayınla"
+      },
+      "bulk_delete_messages": {
+        "label": "Mesajları Toplu Olarak Sil",
+        "description": "Bu izne sahip olan üyeler metin bazlı kanallarda mesajları toplu olarak temizleyebilir veya silebilir."
+      },
+      "manage_webhooks": {
+        "label": "Webhook'ları Yönet",
+        "description": "Bu izne sahip olan üyeler metin bazlı kanallarda webhooklar oluşturabilir, düzenleyebilir veya silebilir."
+      },
+      "connect": {
+        "label": "Bağlan",
+        "description": "Bu izne sahip olan üyeler ses kanallarına bağlanabilir."
+      },
+      "speak": {
+        "label": "Konuş",
+        "description": "Bu izne sahip olan kullanıcılar ses kanallarında konuşabilir."
+      },
+      "mute_members": {
+        "label": "Üyeleri Sustur",
+        "description": "Bu izne sahip olan üyeler ses kanallarındaki diğer üyeleri susturabilir."
+      },
+      "deafen_members": {
+        "label": "Üyeleri Sağırlaştır",
+        "description": "Bu izne sahip olan üyeler ses kanallarındaki diğer üyeleri sağırlaştırabilir."
+      },
+      "change_nickname": {
+        "label": "Takma ad değiştir",
+        "description": "Bu izne sahip olan üyeler sunucuda kendi takma adlarını değiştirebilirler."
+      },
+      "manage_nicknames": {
+        "label": "Takma adları yönet",
+        "description": "Bu izne sahip olan üyeler sunucudaki diğer üyelerin takma adlarını değiştirebilir."
+      },
+      "manage_emojis": {
+        "label": "Emojileri Yönet",
+        "description": "Bu izne sahip olan üyeler sunucu için emojiler oluşturabilir, düzenleyebilir veya silebilir."
+      },
+      "manage_starboard": {
+        "label": "Yıldız Tablosunu Yönet",
+        "description": "Bu izne sahip olan üyeler sunucu için yıldız tablosu gönderilerini silebilir veya yıldız tablosunu devre dışı bırakabilir."
+      },
+      "manage_guild": {
+        "label": "Sunucuyu Yönet"
+      },
+      "manage_roles": {
+        "label": "Rolleri Yönet",
+        "description": "Bu izne sahip olan üyeler sunucunun rollerini yönetebilir, alt rollerin izinlerini düzenleyebilir, ve diğer üyelerin roller atayabilir/kaldırabilir."
+      },
+      "create_invites": {
+        "label": "Davet Oluştur",
+        "description": "Bu izne sahip olan üyeler sunucuya davetiyeler oluşturabilir."
+      },
+      "manage_invites": {
+        "label": "Davetleri Yönet"
       }
     }
+  },
+  "generic": {
+    "members_one": "{{count}} Üye",
+    "members_other": "{{count}} Üyeler"
+  },
+  "chat": {
+    "typing_one": "{{user}} yazıyor...",
+    "typing_other": ""
   }
 }
