@@ -157,8 +157,7 @@
           "remove": "Afişi Kaldır"
         },
         "description_placeholder_editing": "Buraya açıklamayı girin...",
-        "description_placeholder_not_editing": "Henüz açıklama yok!",
-        "upload_placeholder": "Yükle"
+        "description_placeholder_not_editing": "Henüz açıklama yok!"
       },
       "roles": {
         "header": "Roller",

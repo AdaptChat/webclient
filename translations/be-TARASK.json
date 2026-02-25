@@ -163,8 +163,7 @@
           "remove": "Прыбраць банэр"
         },
         "description_placeholder_editing": "Увядзіце апісаньне...",
-        "description_placeholder_not_editing": "Апісаньня пакуль што няма!",
-        "upload_placeholder": "Запампаваць"
+        "description_placeholder_not_editing": "Апісаньня пакуль што няма!"
       },
       "roles": {
         "header": "Ролі",
