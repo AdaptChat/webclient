@@ -1,9 +1,10 @@
 import Layout, {FormInput, FormSubmit} from "./Layout";
 import Api, {setApi} from "../../api/Api";
 import {LoginResponse} from "../../types/auth";
-import {createEffect, createSignal, Show} from "solid-js";
+import {createSignal, Show} from "solid-js";
 import {useLocation, useNavigate} from "@solidjs/router";
 import {Turnstile, TurnstileRef} from "@nerimity/solid-turnstile";
+import {t} from "../../i18n";
 
 enum UsernameCheckState {
   success,
@@ -17,7 +18,7 @@ export default function Register() {
   let emailRef: HTMLInputElement | null = null
   let passwordRef: HTMLInputElement | null = null
   let rememberMeRef: HTMLInputElement | null = null
-  let turnstileRef: TurnstileRef | null = null
+  let turnstileRef: TurnstileRef | null = null as any
   let [turnstileToken, setTurnstileToken] = createSignal<string>()
 
   let [error, setError] = createSignal<string>()
@@ -30,10 +31,10 @@ export default function Register() {
 
   return (
     <Layout
-      title="Create an account"
+      title={t('auth.register.title')}
       error={error()}
-      switchScreenCondition="Already have an account?"
-      switchScreenLabel="Sign in"
+      switchScreenCondition={t('auth.register.have_account')}
+      switchScreenLabel={t('auth.register.sign_in')}
       switchScreenHref="/"
       redirectTo={redirectTo}
       onSubmit={async () => {
@@ -44,7 +45,7 @@ export default function Register() {
 
         const captcha_token = turnstileToken();
         if (captcha_token == null) {
-          setError('No CAPTCHA token yet')
+          setError(t('auth.register.no_captcha'))
           return
         }
         let response = await Api.requestNoAuth<LoginResponse>('POST', '/users', {
@@ -71,7 +72,7 @@ export default function Register() {
             name="email"
             type="email"
             autocomplete="email"
-            label="Email"
+            label={t('auth.register.email')}
             ref={emailRef!}
             required
           />
@@ -80,7 +81,7 @@ export default function Register() {
             name="password"
             type="password"
             autocomplete="new-password"
-            label="Password"
+            label={t('auth.register.password')}
             ref={passwordRef!}
             required
           />
@@ -89,7 +90,7 @@ export default function Register() {
             name="username"
             type="text"
             autocomplete="username"
-            label="Username"
+            label={t('auth.register.username')}
             ref={usernameRef!}
             required
             onInput={() => setUsernameTimeout(prev => {
@@ -97,14 +98,14 @@ export default function Register() {
               return setTimeout(async () => {
                 const username = usernameRef!.value
                 if (!username) return setUsernameHint(null)
-                setUsernameHint(['Checking availability...', UsernameCheckState.loading])
+                setUsernameHint([t('auth.register.username_available'), UsernameCheckState.loading])
 
                 const endpoint: `/${string}` = `/users/check/${encodeURIComponent(username)}`
                 let response = await Api.requestNoAuth<LoginResponse>('GET', endpoint)
 
                 setUsernameHint(
                   response.ok
-                    ? ['Username available!', UsernameCheckState.success]
+                    ? [t('auth.register.username_available'), UsernameCheckState.success]
                     : [response.errorJsonOrThrow().message.replace(/'(?:\\(')|("))'/, "$1$2"), UsernameCheckState.error]
                 )
               }, 1000)
@@ -133,7 +134,7 @@ export default function Register() {
           ref={rememberMeRef!}
         />
         <label for="remember-me" class="ml-2 block text-sm">
-          Remember me
+          {t('auth.register.remember_me')}
         </label>
       </div>
 
@@ -150,7 +151,7 @@ export default function Register() {
         <FormSubmit
           disabled={isSubmitting() || usernameHint() == null || usernameHint()![1] !== UsernameCheckState.success}
         >
-          {isSubmitting() ? 'Registering...' : 'Register'}
+          {t(isSubmitting() ? 'auth.register.submitting' : 'auth.register.submit')}
         </FormSubmit>
       </Show>
     </Layout>

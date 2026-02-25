@@ -15,7 +15,7 @@ export default function RoleMembers() {
   const cache = api.cache!
 
   const params = useParams()
-  const roleId = createMemo(() => BigInt(params.roleId))
+  const roleId = createMemo(() => BigInt(params.roleId!))
   const [query, setQuery] = createSignal('')
 
   const sortFn = (a: Member, b: Member, secondary: number) => {
@@ -27,8 +27,8 @@ export default function RoleMembers() {
   }
   const members = createMemo(() => {
     const m = cache.memberReactor
-      .get(BigInt(params.guildId))
-      ?.map(u => ({ ...cache.users.get(u)!, ...cache.members.get(memberKey(BigInt(params.guildId), u)) }))
+      .get(BigInt(params.guildId!))
+      ?.map(u => ({ ...cache.users.get(u)!, ...cache.members.get(memberKey(BigInt(params.guildId!), u)) }))
       ?? []
     return m
       .filter((u): u is Member & User => !!u)

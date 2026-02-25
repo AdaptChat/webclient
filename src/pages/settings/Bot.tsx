@@ -114,7 +114,7 @@ export default function Bot() {
             <EditableAvatar setImageData={setImageData}>
               <img
                 src={
-                  (imageData() === undefined ? bot()!.user.avatar  : imageData()) ?? defaultAvatar(BigInt(params.botId))
+                  (imageData() === undefined ? bot()!.user.avatar : imageData()) ?? defaultAvatar(BigInt(params.botId!))
                 }
                 alt="Avatar"
                 class="rounded-full w-24 h-24"

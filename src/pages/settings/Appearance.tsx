@@ -1,19 +1,11 @@
 import {presets, Rgb, Theme, useTheme} from "../../client/themes";
 import ThemePreview from "../../components/settings/ThemePreview";
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-  onMount,
-  ParentProps,
-} from "solid-js";
+import {createMemo, ParentProps} from "solid-js";
 import Icon from "../../components/icons/Icon";
-import PenToSquare from "../../components/icons/svg/PenToSquare";
 import ChevronRight from "../../components/icons/svg/ChevronRight";
 import Header from "../../components/ui/Header";
 import {t} from "../../i18n";
-import iro from "@jaames/iro";
+import ColorPicker from "../../components/ui/ColorPicker";
 
 function rgbToHex(rgb: Rgb): string {
   return '#' + rgb.map(c => c.toString(16).padStart(2, '0')).join('')
@@ -57,91 +49,17 @@ function PaletteColor<Key extends keyof Theme>({
 
   const hex = createMemo(() => rgbToHex(currentColor()))
 
-  const [open, setOpen] = createSignal(false)
-  let containerRef: HTMLDivElement | null = null
-  let pickerRef: HTMLDivElement | null = null
-  let colorPicker: iro.ColorPicker | null = null
-
-  onMount(() => {
-    colorPicker = iro.ColorPicker(pickerRef!, {
-      width: 160,
-      color: hex(),
-      layout: [
-        { component: iro.ui.Box },
-        { component: iro.ui.Slider, options: { sliderType: 'hue' } },
-      ],
-      sliderSize: 12,
-      sliderMargin: 8,
-    })
-
-    colorPicker.on('color:change', (color: iro.Color) => {
-      set(hexToRgb(color.hexString))
-    })
-  })
-
-  createEffect(() => {
-    const h = hex()
-    if (colorPicker && colorPicker.color.hexString.toLowerCase() !== h.toLowerCase()) {
-      colorPicker.setColors([h])
-    }
-  })
-
-  const outsideClickHandler = (e: MouseEvent) => {
-    if (containerRef && !(containerRef as HTMLDivElement).contains(e.target as Node)) {
-      setOpen(false)
-    }
-  }
-  onMount(() => document.addEventListener('click', outsideClickHandler, true))
-  onCleanup(() => document.removeEventListener('click', outsideClickHandler, true))
-
-  const [hexInput, setHexInput] = createSignal(hex())
-  createEffect(() => setHexInput(hex()))
-
-  const fg = createMemo(() => {
-    const [r, g, b] = currentColor()
-    return (r * 0.299 + g * 0.587 + b * 0.114) > 186 ? 'fill-black' : 'fill-white'
-  })
-
   return (
-    <div class="flex flex-col items-center gap-1" ref={containerRef!}>
-      <div class="relative">
-        <button
-          class="group/swatch w-12 h-12 rounded-lg border-2 border-fg/20 hover:border-fg/60 transition flex items-center justify-center flex-shrink-0"
-          style={{ 'background-color': hex() }}
-          onClick={() => setOpen(p => !p)}
-          title={label}
-        >
-          <Icon
-            icon={PenToSquare}
-            class="w-5 h-5 opacity-0 group-hover/swatch:opacity-100 transition-opacity"
-            classList={{ [fg()]: true }}
-          />
-        </button>
-
-        <div
-          class="absolute z-[300] bg-bg-0/90 backdrop-blur rounded-xl p-4 shadow-lg transition-opacity top-full mt-2 left-0"
-          classList={{
-            'opacity-0 pointer-events-none': !open(),
-            'opacity-100': open(),
-          }}
-        >
-          <div ref={pickerRef!} />
-          <input
-            class="mt-3 w-full bg-bg-2 rounded-lg text-sm font-mono py-1 px-2 outline-none focus:ring-2 ring-accent"
-            value={hexInput()}
-            placeholder="#abcdef"
-            onInput={(e) => {
-              let val = e.currentTarget.value
-              setHexInput(val)
-              if (!val.startsWith('#')) val = '#' + val
-              if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
-                set(hexToRgb(val))
-              }
-            }}
-            maxLength={7}
-          />
-        </div>
-      </div>
+    <div class="flex flex-col items-center gap-1">
+      <ColorPicker
+        color={hex()}
+        onChange={(h) => set(hexToRgb(h))}
+        placement="bottom"
+        swatchClass="w-12 h-12"
+        iconClass="opacity-0"
+        title={label}
+        width={160}
+      />
       <span class="text-xs text-fg/60 text-center leading-tight max-w-[3.5rem]">{label}</span>
     </div>
   )
@@ -213,11 +131,11 @@ export default function Appearance() {
       </div>
 
       <Details title={t('settings.user.themes.theme_colors')}>
-        <div
-          class="flex flex-col items-center justify-center h-[min(50vw,400px)] overflow-hidden mx-4 mb-6 py-4 md:py-6
-            bg-bg-0/50 rounded-lg"
-        >
-          <div class="h-full rounded-xl border-2 border-fg/10 overflow-hidden">
+        <div class="flex justify-center mx-4 mb-6 py-4 md:py-6 px-6 bg-bg-0/50 rounded-lg">
+          <div
+            class="rounded-xl border-2 border-fg/10 overflow-hidden"
+            style="width: min(100%, 666px); height: calc(min(100%, 666px) * 3 / 5)"
+          >
             <ThemePreview theme={theme()} />
           </div>
         </div>

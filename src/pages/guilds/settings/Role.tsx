@@ -8,6 +8,7 @@ import {RoleFlags} from "../../../api/Bitflags";
 import Icon from "../../../components/icons/Icon";
 import ChevronLeft from "../../../components/icons/svg/ChevronLeft";
 import Lock from "../../../components/icons/svg/Lock";
+import {t} from "../../../i18n";
 
 function RoleInner(props: ParentProps) {
   const params: any = useParams()
@@ -17,7 +18,7 @@ function RoleInner(props: ParentProps) {
   const guild = createMemo(() => cache.guilds.get(guildId())!)
 
   const defaultRoleId = createMemo(() => snowflakes.withModelType(guildId(), snowflakes.ModelType.Role))
-  const guildRoles = createMemo(() => guild().roles!.filter(r => r.id != defaultRoleId()))
+  const guildRoles = createMemo(() => guild()?.roles?.filter(r => r.id != defaultRoleId()) ?? [])
 
   const originalOrder = createMemo(() => guildRoles().map(r => r.id).reverse())
   const [roleIds, setRoleIds] = createSignal<bigint[]>([])
@@ -28,7 +29,7 @@ function RoleInner(props: ParentProps) {
   const role = createMemo(() => cache.roles.get(roleId())!)
   const roleFlags = createMemo(() => RoleFlags.fromValue(role().flags))
 
-  const managable = createMemo(() => (
+  const managable = createMemo(() => !guild() || (
     guild().owner_id == cache.clientId
       || role().position < maxIterator(mapIterator(cache.getMemberRoles(guildId(), cache.clientId!), r => r.position))!
   ))
@@ -64,10 +65,16 @@ function RoleInner(props: ParentProps) {
         </h2>
         <Show when={!roleFlags().has('DEFAULT')}>
           <div class="flex gap-x-2 mt-2 border-b-[1px] border-fg/10">
-            <RoleSublink href={base()}>Overview</RoleSublink>
-            <RoleSublink href={`${base()}/permissions`}>Permissions</RoleSublink>
+            <RoleSublink href={base()}>
+              {t('settings.guild.roles.role.tabs.overview')}
+            </RoleSublink>
+            <RoleSublink href={`${base()}/permissions`}>
+              {t('settings.guild.roles.role.tabs.permissions')}
+            </RoleSublink>
             <Show when={roleId() != defaultRoleId()}>
-              <RoleSublink href={`${base()}/members`}>Members</RoleSublink>
+              <RoleSublink href={`${base()}/members`}>
+                {t('settings.guild.roles.role.tabs.members')}
+              </RoleSublink>
             </Show>
           </div>
         </Show>

@@ -11,7 +11,7 @@ export default function RolePermissions() {
   const api = getApi()!
   const cache = api.cache!
 
-  const roleId = createMemo(() => BigInt(params.roleId))
+  const roleId = createMemo(() => BigInt(params.roleId!))
   const role = createMemo(() => cache.roles.get(roleId())!)
 
   const [allow, setAllow] = createSignal<Permissions>(Permissions.empty())

@@ -6,6 +6,7 @@ import Chat from "../../components/messaging/Chat";
 import {type DmChannel as DmChannelType, GroupDmChannel} from "../../types/channel";
 import {displayName} from "../../utils";
 import Header from "../../components/ui/Header";
+import {tJsx}  from "../../i18n";
 
 export function getDmChannelName(channel: DmChannelType) {
   const cache = getApi()!.cache!
@@ -27,7 +28,6 @@ export default function DmChannel() {
   if (!channel()) return <NotFound />
   const name = createMemo(() => getDmChannelName(channel()!))
 
-  // TODO: right sidebar
   return (
     <>
       <Header>{name()}</Header>
@@ -35,7 +35,9 @@ export default function DmChannel() {
         channelId={channel()!.id}
         title={name()}
         startMessage={
-          <>This is the start of the conversation {channel()!.type == 'group' ? 'in' : 'with'} <b>{name()}</b>.</>
+          channel()!.type == 'group'
+            ? tJsx('channel.text.start_of_conversation', { channel: <b>{name()}</b> })
+            : tJsx('channel.dm.start_of_conversation', { user: <b>{name()}</b> })
         }
       />
     </>

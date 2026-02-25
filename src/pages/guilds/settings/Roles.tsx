@@ -182,7 +182,7 @@ export function SortableRoles(props: Props) {
   const [roleIds, setRoleIds] = props.roleIds
 
   const guild = createMemo(() => cache.guilds.get(props.guildId)!)
-  const topRolePosition = createMemo(() => guild().owner_id == cache.clientId
+  const topRolePosition = createMemo(() => !guild() || guild().owner_id == cache.clientId
     ? -1
     : maxIterator(mapIterator(cache.getMemberRoles(props.guildId, cache.clientId!), r => r.position))!
   )
@@ -301,7 +301,7 @@ export function SortableRoles(props: Props) {
           </div>
         )}
         <SortableProvider ids={roleIds().map(r => r.toString())}>
-          <For each={queryResults()}>
+          <For each={queryResults().filter(id => cache.roles.has(id))}>
             {roleId => (
               <Component
                 {...baseParams()}
@@ -350,7 +350,7 @@ export function SortableRoles(props: Props) {
         )}
       </div>
       <DragOverlay>
-        <Show when={activeRole()}>
+        <Show when={activeRole() && cache.roles.has(BigInt(activeRole()!))}>
           <Component
             {...baseParams()}
             role={cache.roles.get(BigInt(activeRole()!))!}
@@ -376,7 +376,7 @@ export default function Roles() {
   const guild = createMemo(() => api.cache!.guilds.get(guildId())!)
 
   const defaultRoleId = createMemo(() => snowflakes.withModelType(guildId(), snowflakes.ModelType.Role))
-  const guildRoles = createMemo(() => guild().roles!.filter(r => r.id != defaultRoleId()))
+  const guildRoles = createMemo(() => guild()?.roles?.filter(r => r.id != defaultRoleId()) ?? [])
 
   const originalOrder = createMemo(() => guildRoles().map(r => r.id).reverse())
   const [roleIds, setRoleIds] = createSignal<bigint[]>([])

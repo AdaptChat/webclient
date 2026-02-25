@@ -3,6 +3,7 @@ import Api, {setApi} from "../../api/Api";
 import {LoginResponse} from "../../types/auth";
 import {createSignal} from "solid-js";
 import {useLocation, useNavigate} from "@solidjs/router";
+import {t} from "../../i18n";
 
 export default function Login() {
   let emailRef: HTMLInputElement | null = null
@@ -17,10 +18,10 @@ export default function Login() {
 
   return (
     <Layout
-      title="Sign in to your account"
+      title={t('auth.login.title')}
       error={error()}
-      switchScreenCondition="Don't have an account?"
-      switchScreenLabel="Sign up"
+      switchScreenCondition={t('auth.login.no_account')}
+      switchScreenLabel={t('auth.login.sign_up')}
       switchScreenHref="/register"
       redirectTo={redirectTo}
       onSubmit={async () => {
@@ -49,7 +50,7 @@ export default function Login() {
           name="email"
           type="email"
           autocomplete="email"
-          label="Email"
+          label={t('auth.login.email')}
           ref={emailRef!}
           required
         />
@@ -58,7 +59,7 @@ export default function Login() {
           name="password"
           type="password"
           autocomplete="current-password"
-          label="Password"
+          label={t('auth.login.password')}
           ref={passwordRef!}
           required
         />
@@ -75,19 +76,19 @@ export default function Login() {
             ref={rememberMeRef!}
           />
           <label for="remember-me" class="ml-2 block text-sm">
-            Remember me
+            {t('auth.login.remember_me')}
           </label>
         </div>
 
         <div class="text-sm">
           <a href="#" class="font-medium text-link text-opacity-80 hover:text-opacity-100 transition-all">
-            Forgot your password?
+            {t('auth.login.forgot_password')}
           </a>
         </div>
       </div>
 
       <FormSubmit disabled={isSubmitting()}>
-        {isSubmitting() ? "Signing in..." : "Sign in"}
+        {t(isSubmitting() ? "auth.login.submitting" : "auth.login.submit")}
       </FormSubmit>
     </Layout>
   )

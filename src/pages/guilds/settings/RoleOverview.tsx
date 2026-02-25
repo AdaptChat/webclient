@@ -3,22 +3,16 @@ import {
   createMemo,
   createSignal,
   on,
-  onCleanup,
-  onMount,
   ParentProps,
-  Show,
   Signal
 } from "solid-js";
 import {useNavigate, useParams} from "@solidjs/router";
 import {getApi} from "../../../api/Api";
 import {useSaveTask} from "../../settings/SettingsLayout";
 import {t} from "../../../i18n";
-import iro from "@jaames/iro";
-import Icon from "../../../components/icons/Icon";
-import PenToSquare from "../../../components/icons/svg/PenToSquare";
-import Palette from "../../../components/icons/svg/Palette";
 import {RoleFlags} from "../../../api/Bitflags";
 import {MessageHeader} from "../../../components/messaging/Chat";
+import ColorPicker from "../../../components/ui/ColorPicker";
 
 const PRESETS = [
   ['#EF4444', '#F97316', '#EAB308', '#84CC16', '#10B981', '#06B6D4', '#3B82F6', '#A855F7', '#EC4899'],
@@ -53,48 +47,6 @@ export default function RoleOverview() {
   })
   const [roleColor, setRoleColor] = createSignal<string | null>(null)
   createEffect(() => setRoleColor(originalRoleColor()))
-
-  let colorPickerRef: HTMLDivElement | null = null
-  const [colorPicker, setColorPicker] = createSignal<iro.ColorPicker>()
-  onMount(() => {
-    setColorPicker(iro.ColorPicker(colorPickerRef!, {
-      width: 150,
-      color: roleColor() ?? '#000000',
-      layout: [
-        {component: iro.ui.Box},
-        {component: iro.ui.Slider, options: {sliderType: 'hue'}},
-      ],
-      sliderSize: 12,
-      sliderMargin: 8,
-    }))
-  })
-  createEffect(() => {
-    const picker = colorPicker()
-    if (picker) picker.setColors([roleColor() ?? '#000000'])
-  })
-
-  const colorPickerHandler = (color: iro.Color) => {
-    setRoleColor(color.hexString)
-  }
-  createEffect(() => colorPicker()?.on('color:change', colorPickerHandler))
-  onCleanup(() => colorPicker()?.off('color:change', colorPickerHandler))
-
-  const fg = createMemo(() => {
-    roleColor() // reactivity
-    const picker = colorPicker()
-    if (!picker) return 'fill-fg'
-
-    const {r, g, b} = picker.color.rgb
-    return (r * 0.299 + g * 0.587 + b * 0.114) > 186 ? 'fill-black' : 'fill-white'
-  })
-
-  let pickerAreaRef: HTMLDivElement | null = null
-  const [showColorPicker, setShowColorPicker] = createSignal(false)
-  const listener = (e: MouseEvent) => {
-    if (pickerAreaRef && !(pickerAreaRef as any).contains(e.target as Node)) setShowColorPicker(false)
-  }
-  onMount(() => document.addEventListener('click', listener))
-  onCleanup(() => document.removeEventListener('click', listener))
 
   const [setChanged, error] = useSaveTask(
     async () => {
@@ -140,53 +92,22 @@ export default function RoleOverview() {
       />
       <h2 class="font-bold uppercase text-fg/60 text-sm mt-6 mb-2">{t('settings.guild.roles.role.color_label')}</h2>
       <div class="flex">
-        <div ref={pickerAreaRef!} class="flex flex-col items-center self-start relative">
-          <button
-            class="rounded-xl w-16 h-16 border-2 border-fg/20 group flex items-center justify-center"
-            style={{ "background-color": roleColor() ?? 'transparent' }}
-            onClick={() => setShowColorPicker(p => !p)}
-          >
-            <Icon
-              icon={roleColor() ? PenToSquare : Palette}
-              class="w-6 h-6 transition-opacity group-hover:opacity-100"
-              classList={{ [fg()]: true, [roleColor() == null ? 'opacity-70' : 'opacity-25']: true }}
-              title={t('settings.guild.roles.role.pick_color')}
-            />
-          </button>
-          <Show when={roleColor() != null}>
-            <button class="text-sm text-fg/50 hover:text-fg/100 transition mt-1" onClick={() => setRoleColor(null)}>
-              {t('settings.guild.roles.role.remove_color')}
-            </button>
-          </Show>
-          <div
-            class="bg-bg-0/80 backdrop-blur rounded-xl p-4 absolute z-[200] left-full top-0 mx-2 transition-opacity"
-            classList={{
-              "opacity-0 pointer-events-none": !showColorPicker(),
-              "opacity-100": showColorPicker(),
-            }}
-          >
-            <div ref={colorPickerRef!} />
-            <input
-              class="mt-2 w-full bg-0 rounded-lg text-sm font-light py-1 px-2 outline-none focus:ring-2 ring-accent"
-              value={roleColor() ?? ""}
-              placeholder="#abcdef"
-              onInput={(e) => {
-                let candidate = e.currentTarget.value
-                if (!candidate.startsWith('#')) candidate = '#' + candidate
-
-                if (/^#[0-9A-Fa-f]{3,6}$/.test(candidate)) setRoleColor(candidate)
-              }}
-              maxLength={7}
-            />
-          </div>
-        </div>
+        <ColorPicker
+          nullable
+          color={roleColor()}
+          onChange={setRoleColor}
+          placement="right"
+          swatchClass="w-16 h-16"
+          title={t('settings.guild.roles.role.pick_color')}
+          removeLabel={t('settings.guild.roles.role.remove_color')}
+        />
         <div class="flex flex-col ml-2 gap-y-1">
-          {PRESETS.map((preset) => (
+          {PRESETS.map((row: string[]) => (
             <div class="flex gap-x-1">
-              {preset.map((color) => (
+              {row.map((color: string) => (
                 <button
                   class="w-[30px] h-[30px] mobile:w-6 mobile:h-6 rounded-lg border-2 border-fg/20 hover:border-fg transition"
-                  style={{ "background-color": color }}
+                  style={{"background-color": color}}
                   onClick={() => setRoleColor(color)}
                 />
               ))}

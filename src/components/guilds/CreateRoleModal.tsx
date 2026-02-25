@@ -1,13 +1,11 @@
 import {ModalTemplate, useModal} from "../ui/Modal";
-import {createMemo, createSignal, Show} from "solid-js";
-import {Rgb} from "../../client/themes";
-import PenToSquare from "../icons/svg/PenToSquare";
+import {createSignal, Show} from "solid-js";
 import Icon from "../icons/Icon";
 import Plus from "../icons/svg/Plus";
 import {getApi} from "../../api/Api";
-import Palette from "../icons/svg/Palette";
 import {useNavigate} from "@solidjs/router";
 import {t} from "../../i18n";
+import ColorPicker from "../ui/ColorPicker";
 
 interface Props {
   guildId: bigint
@@ -16,28 +14,7 @@ interface Props {
 export default function CreateRoleModal(props: Props) {
   const {hideModal} = useModal()
   const [currentName, setCurrentName] = createSignal<string>("")
-
-  let actualColorInput: HTMLInputElement | null = null
-  const [currentColor, setCurrentColor] = createSignal<Rgb>()
-
-  const computeColor = (color: string): Rgb => {
-    const [r, g, b] = color.match(/\w\w/g)!.map(c => parseInt(c, 16))
-    return [r, g, b]
-  }
-  const fg = createMemo(() => {
-    const color = currentColor()
-    if (!color)
-      return 'fill-fg'
-
-    const [red, green, blue] = color
-    return (red * 0.299 + green * 0.587 + blue * 0.114) > 186 ? 'fill-black' : 'fill-white'
-  })
-  const hex = createMemo(() => {
-    const color = currentColor()
-    return color
-      ? `#${color.map(c => c.toString(16).padStart(2, '0')).join('')}`
-      : '#000000'
-  })
+  const [currentColor, setCurrentColor] = createSignal<string | null>(null)
 
   const api = getApi()!
   const [error, setError] = createSignal<string>("")
@@ -53,7 +30,7 @@ export default function CreateRoleModal(props: Props) {
     const json: Record<string, any> = { name }
 
     if (color != null)
-      json.color = { type: 'solid', 'color': (color[0] << 16) + (color[1] << 8) + color[2] }
+      json.color = { type: 'solid', color: parseInt(color.slice(1), 16) }
 
     setSubmitting(true)
     const response = await api.request('POST', `/guilds/${props.guildId}/roles`, { json })
@@ -70,27 +47,14 @@ export default function CreateRoleModal(props: Props) {
     <ModalTemplate title={t("modals.create_role.title")}>
       <form onSubmit={onSubmit} class="flex flex-col gap-y-2 pt-6">
         <div class="flex items-center gap-x-2">
-          <div
-            class="group/palette rounded-lg overflow-hidden w-14 h-14 relative hover:cursor-pointer outline outline-fg/20"
-            style={{ "background-color": currentColor() ? `rgb(${currentColor()?.join(' ')})` : 'transparent' }}
-            onClick={() => actualColorInput!.click()}
-          >
-            <input
-              ref={actualColorInput!}
-              type="color"
-              class="absolute invisible inset-0 w-full h-full"
-              value={hex()}
-              onInput={e => setCurrentColor(computeColor(e.currentTarget.value))}
-            />
-            <div
-              classList={{
-                "absolute inset-0 transition flex items-center justify-center group-hover/palette:opacity-100": true,
-                [currentColor() ? "opacity-0" : "opacity-60"]: true,
-              }}
-            >
-              <Icon icon={currentColor() ? PenToSquare : Palette} class={`w-6 h-6 ${fg()}`} title="Edit Color" />
-            </div>
-          </div>
+          <ColorPicker
+            nullable
+            color={currentColor()}
+            onChange={setCurrentColor}
+            placement="right"
+            title={t('settings.guild.roles.role.pick_color')}
+            removeLabel={t('settings.guild.roles.role.remove_color')}
+          />
           <div class="flex flex-col flex-grow gap-y-1">
             <label class="text-fg/60 text-xs font-bold uppercase">
               {t("modals.create_role.name_label")}

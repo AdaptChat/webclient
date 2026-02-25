@@ -7,6 +7,7 @@ import {type GuildChannel as GuildChannelType} from "../../types/channel";
 import Header from "../../components/ui/Header";
 import Icon from "../../components/icons/Icon";
 import {getIcon} from "../../components/channels/CreateChannelModal";
+import {t, tJsx} from "../../i18n";
 
 export default function GuildChannel() {
   const params = useParams()
@@ -44,9 +45,9 @@ export default function GuildChannel() {
             channelId={channel().id}
             guildId={channel().guild_id}
             title={`#${channel().name}`}
-            startMessage={
-              <>This is the start of the conversation in <b>#{channel().name}</b>.</>
-            }
+            startMessage={tJsx('channel.text.start_of_conversation', {
+              channel: <b>#{channel().name}</b>
+            })}
           />
         </>
       </Match>
@@ -59,7 +60,9 @@ export default function GuildChannel() {
             </span>
           </Header>
           <div class="flex-grow flex items-center justify-center">
-            <span class="text-fg/40 text-sm">Loading channel...</span>
+            <span class="text-fg/40 text-sm">
+              {t('channel.loading')}
+            </span>
           </div>
         </div>
       </Match>

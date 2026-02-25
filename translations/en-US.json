@@ -167,8 +167,7 @@
           "remove": "Remove Banner"
         },
         "description_placeholder_editing": "Enter description here...",
-        "description_placeholder_not_editing": "No description yet!",
-        "upload_placeholder": "Upload"
+        "description_placeholder_not_editing": "No description yet!"
       },
       "roles": {
         "header": "Roles",
@@ -198,6 +197,11 @@
           "mentionable": {
             "label": "Allow everyone to mention this role",
             "description": "Allows all members, regardless of permission, to collectively mention all members in this role"
+          },
+          "tabs": {
+            "overview": "Overview",
+            "permissions": "Permissions",
+            "members": "Members"
           }
         },
         "locked": "Locked",
@@ -729,6 +733,15 @@
       "handle_description": "Bot handles are used to uniquely identify your bot in Adapt.",
       "submit": "Create Bot"
     }
+  },
+  "channel": {
+    "text": {
+      "start_of_conversation": "This is the start of the conversation in {{channel}}."
+    },
+    "dm": {
+      "start_of_conversation": "This is the start of the conversation with {{user}}."
+    },
+    "loading": "Loading channel..."
   },
   "guild": {
     "actions": {
