@@ -161,8 +161,7 @@
           "remove": "Banner entfernen"
         },
         "description_placeholder_editing": "Geben Sie hier eine Beschreibung ein...",
-        "description_placeholder_not_editing": "Noch keine Beschreibung!",
-        "upload_placeholder": "Hochladen"
+        "description_placeholder_not_editing": "Noch keine Beschreibung!"
       },
       "roles": {
         "header": "Rollen",

@@ -162,8 +162,7 @@
           "remove": "移除横幅"
         },
         "description_placeholder_editing": "在此输入描述…",
-        "description_placeholder_not_editing": "暂无描述！",
-        "upload_placeholder": "上传"
+        "description_placeholder_not_editing": "暂无描述！"
       },
       "roles": {
         "header": "身份组",
