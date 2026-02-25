@@ -154,6 +154,46 @@ export interface Invite {
   max_age: number;
 }
 
+/**
+ * Represents a ban entry in a guild. The banned user's data is flattened into this object;
+ * `id` is always present, and the remaining user fields (`username`, `display_name`, `avatar`,
+ * etc.) are present when the full user object was resolved.
+ */
+export interface GuildBan {
+  /**
+   * The ID of the guild the ban is in.
+   */
+  guild_id: Snowflake;
+  /**
+   * The ID of the banned user. Always present.
+   */
+  id: Snowflake;
+  /**
+   * The username of the banned user. Present when the user was resolved.
+   */
+  username?: string;
+  /**
+   * The display name of the banned user. Present when the user was resolved.
+   */
+  display_name?: string | null;
+  /**
+   * The avatar URL of the banned user. Present when the user was resolved.
+   */
+  avatar?: string | null;
+  /**
+   * The ID of the moderator that issued the ban.
+   */
+  moderator_id: Snowflake;
+  /**
+   * The reason for the ban, if any.
+   */
+  reason?: string;
+  /**
+   * The timestamp of when the ban was issued.
+   */
+  banned_at: string;
+}
+
 export type ExtendedColor = {
   type: 'solid',
   color: number

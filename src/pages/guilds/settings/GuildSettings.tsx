@@ -11,6 +11,7 @@ import Envelope from "../../../components/icons/svg/Envelope";
 import {ModalId, useModal} from "../../../components/ui/Modal";
 import FaceSmile from "../../../components/icons/svg/FaceSmile";
 import Users from "../../../components/icons/svg/Users";
+import Gavel from "../../../components/icons/svg/Gavel";
 import {t} from "../../../i18n";
 
 function GuildSettingsSidebar() {
@@ -51,6 +52,9 @@ function GuildSettingsSidebar() {
       </SidebarButton>
       <SidebarButton large href={root() + '/members'} svg={Users}>
         {t('settings.guild.members.header')}
+      </SidebarButton>
+      <SidebarButton large href={root() + '/bans'} svg={Gavel} disabled={!perms().has('BAN_MEMBERS')}>
+        Bans
       </SidebarButton>
 
       <Show when={guild().owner_id == api.cache!.clientId}>

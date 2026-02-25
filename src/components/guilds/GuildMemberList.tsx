@@ -3,8 +3,7 @@ import {useNavigate, useParams} from "@solidjs/router";
 import {Accessor, createEffect, createMemo, createSignal, For, Index, onMount, Show} from "solid-js";
 import StatusIndicator from "../users/StatusIndicator";
 import SidebarSection from "../ui/SidebarSection";
-import {ReactiveSet} from "@solid-primitives/set";
-import {displayName, extendedColor, maxIterator, setDifference} from "../../utils";
+import {displayName, extendedColor, maxIterator} from "../../utils";
 import useContextMenu from "../../hooks/useContextMenu";
 import ContextMenu, {ContextMenuButton, DangerContextMenuButton} from "../ui/ContextMenu";
 import UserPlus from "../icons/svg/UserPlus";
@@ -23,6 +22,7 @@ import Crown from "../icons/svg/Crown";
 import Robot from "../icons/svg/Robot";
 import UserMinus from "../icons/svg/UserMinus";
 import {t} from "../../i18n";
+import Gavel from "../icons/svg/Gavel";
 
 export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offline?: boolean }) {
   const api = getApi()!
@@ -38,6 +38,11 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
 
   const kickMember = async (id: bigint) => {
     const response = await api.request('DELETE', `/guilds/${guildId()}/members/${id}`)
+    if (!response.ok) throw new Error(response.errorJsonOrThrow().message)
+  }
+
+  const banMember = async (id: bigint) => {
+    const response = await api.request('PUT', `/guilds/${guildId()}/bans/${id}`)
     if (!response.ok) throw new Error(response.errorJsonOrThrow().message)
   }
 
@@ -96,6 +101,20 @@ export function GuildMemberGroup(props: { members: Iterable<User | bigint>, offl
                       {
                         loading: 'Kicking user...',
                         success: 'User kicked.',
+                        error: (err) => err.message,
+                      }
+                    )}
+                  />
+                </Show>
+                <Show when={!isSelf() && canManage() && permissions().has('BAN_MEMBERS')}>
+                  <DangerContextMenuButton
+                    icon={Gavel}
+                    label="Ban Member"
+                    onClick={() => toast.promise(
+                      banMember(user_id),
+                      {
+                        loading: 'Banning user...',
+                        success: 'User banned.',
                         error: (err) => err.message,
                       }
                     )}
@@ -180,7 +199,6 @@ export default function GuildMemberList() {
   const params = useParams()
   const guildId = () => BigInt(params.guildId!)
   const guildMemo = createMemo(() => api.cache!.guilds.get(guildId()))
-  if (!guildMemo()) return
 
   const isLoaded = createMemo(() => api.cache!.isGuildLoaded(guildId()))
 
@@ -188,48 +206,30 @@ export default function GuildMemberList() {
     api.ws?.ensureGuildLoaded(guildId())
   })
 
-  const online = new ReactiveSet<bigint>()
-  const offline = new ReactiveSet<bigint>()
+  const membersMemo = createMemo(() => {
+    const guild = guildMemo()
+    return guild ? (api.cache!.memberReactor.get(guild.id) ?? []) : []
+  })
 
-  const membersMemo = createMemo(() => api.cache!.memberReactor.get(guildMemo()!.id))
-  createEffect<Set<bigint> | undefined>((tracked) => {
-    const members = membersMemo()
-    if (members == null) return
-
-    for (const member of members) {
-      if (tracked?.has(member)) continue
-      tracked?.add(member)
-
-      createEffect((prev) => {
-        const status = api.cache!.presences.get(member)?.status
-        if (prev != null && (prev === 'offline') === (status === 'offline'))
-          return status
-
-        if (status === 'offline' || !status) {
-          online.delete(member);
-          offline.add(member)
-        } else {
-          offline.delete(member);
-          online.add(member)
-        }
-        return status
-      })
+  const onlineOffline = createMemo(() => {
+    const online: bigint[] = []
+    const offline: bigint[] = []
+    for (const member of membersMemo()) {
+      const status = api.cache!.presences.get(member)?.status
+      if (status && status !== 'offline') online.push(member)
+      else offline.push(member)
     }
-    const updated = new Set(members)
-    if (tracked) for (const removed of setDifference(tracked, updated)) {
-      online.delete(removed)
-      offline.delete(removed)
-    }
-    return updated
-  }, new Set<bigint>())
+    return { online, offline }
+  })
+  const online = () => onlineOffline().online
+  const offline = () => onlineOffline().offline
 
-  // TODO: probably inefficient to have this reevaluate every time member presence changes
   const roleGroups = createMemo(() => {
     const roles = api.cache!.roles
     const groups = new Map<bigint, { name: string, position: number, members: bigint[] }>()
     const noRoles = [] as bigint[]
 
-    for (const member of online) {
+    for (const member of online()) {
       const memberRoles = api.cache!.members.get(memberKey(guildId(), member))?.roles?.map(BigInt) ?? []
       const resolved = memberRoles
         .map(r => roles.get(r))
@@ -314,17 +314,17 @@ export default function GuildMemberList() {
                 </Show>
               )}
             </For>
-            <Show when={noRoles().length} keyed={false}>
+            <Show when={noRoles().length}>
               <SidebarSection badge={() => noRoles().length}>
                 {t('status.online')}
               </SidebarSection>
               <GuildMemberGroup members={noRoles()} />
             </Show>
-            <Show when={offline.size} keyed={false}>
-              <SidebarSection badge={() => offline.size}>
+            <Show when={offline().length}>
+              <SidebarSection badge={() => offline().length}>
                 {t('status.offline')}
               </SidebarSection>
-              <GuildMemberGroup members={offline} offline />
+              <GuildMemberGroup members={offline()} offline />
             </Show>
           </>
         }>

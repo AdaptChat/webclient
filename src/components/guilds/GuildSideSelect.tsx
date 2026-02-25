@@ -105,8 +105,8 @@ export default function GuildSideSelect() {
           }}
         </For>
         <Separator />
-        <For each={Array.from(cache.guildList.map(g => api.cache!.guilds.get(g)!))}>
-          {(guild: Guild) => guild && (
+        <For each={cache.guildList.map(g => api.cache!.guilds.get(g)).filter(g => !!g)}>
+          {(guild: Guild) => (
             <A href={`/guilds/${guild.id}`} class="flex" onContextMenu={contextMenu.getHandler(
               <GuildContextMenu guild={guild} />
             )}>

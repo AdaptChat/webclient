@@ -25,6 +25,7 @@ import ChevronDown from "../../../components/icons/svg/ChevronDown";
 import tooltip from "../../../directives/tooltip";
 import Plus from "../../../components/icons/svg/Plus";
 import UserTag from "../../../components/icons/svg/UserTag";
+import Gavel from "../../../components/icons/svg/Gavel";
 void tooltip;
 
 // Helpers
@@ -127,7 +128,7 @@ export default function MemberSettings() {
   const canManageRoles = createMemo(() => permissions().has("MANAGE_ROLES"));
   const canManageNicks = createMemo(() => permissions().has("MANAGE_NICKNAMES"));
   const canKick = createMemo(() => permissions().has("KICK_MEMBERS"));
-  // moderation actions like ban/timeout are WIP and hidden here
+  const canBan = createMemo(() => permissions().has("BAN_MEMBERS"));
 
   const defaultRoleId = createMemo(() => (cache.guilds.get(guildId())?.roles ?? []).find(r => r.position === 0)?.id);
 
@@ -144,9 +145,12 @@ export default function MemberSettings() {
     if (!resp.ok) throw new Error(resp.errorJsonOrThrow().message);
   };
 
+  const banMember = async (userId: bigint) => {
+    const resp = await api.request("PUT", `/guilds/${guildId()}/bans/${userId}`);
+    if (!resp.ok) throw new Error(resp.errorJsonOrThrow().message);
+  };
+
   const { showModal } = useModal();
-  
-  // TODO: ban/timeout
 
   let searchRef: HTMLInputElement | null = null;
 
@@ -165,6 +169,7 @@ export default function MemberSettings() {
     isSelf(id) && canManageRoles()
   )
   const canKickMember = (id: bigint) => canKick() && canManageMember(id) && !isSelf(id)
+  const canBanMember = (id: bigint) => canBan() && canManageMember(id) && !isSelf(id)
   const clientTopRole = createMemo(() => cache.getMemberTopRole(guildId(), cache.clientId!))
   const canRemoveRole = (memberId: bigint, role: Role) => isOwner()
     || canManageRoles() 
@@ -447,8 +452,13 @@ export default function MemberSettings() {
                         </button>
                       </Show>
                       <Show when={canKickMember(m.id)}>
-                        <button class="group/inner p-1" onClick={() => kickMember(m.id)}>
+                        <button class="group/inner p-1" onClick={() => toast.promise(kickMember(m.id), { loading: 'Kicking...', success: 'User kicked.', error: (e) => (e as Error).message })}>
                           <Icon icon={UserMinus} class="w-4 h-4 fill-fg/70 group-hover:fill-fg/100 group-hover/inner:!fill-danger" tooltip="Kick Member" />
+                        </button>
+                      </Show>
+                      <Show when={canBanMember(m.id)}>
+                        <button class="group/inner p-1" onClick={() => toast.promise(banMember(m.id), { loading: 'Banning...', success: 'User banned.', error: (e) => (e as Error).message })}>
+                          <Icon icon={Gavel} class="w-4 h-4 fill-fg/70 group-hover:fill-fg/100 group-hover/inner:!fill-danger" tooltip="Ban Member" />
                         </button>
                       </Show>
                       <button class="group p-1 mobile:flex hidden" onClick={useContextMenu()!.getHandler(

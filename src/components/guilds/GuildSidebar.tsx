@@ -1,5 +1,5 @@
 import {A, useNavigate, useParams} from "@solidjs/router";
-import {createMemo, createSignal, For, Match, Show, Switch, onMount, onCleanup, Index} from "solid-js";
+import {createEffect, createMemo, createSignal, For, Match, Show, Switch, onMount, onCleanup, Index} from "solid-js";
 import {getApi} from "../../api/Api";
 import {GuildChannel} from "../../types/channel";
 import {ModalId, useModal} from "../ui/Modal";
@@ -196,16 +196,14 @@ export default function GuildSidebar() {
   const {showModal} = useModal()
 
   const api = getApi()!
-  const guild = createMemo(() => api.cache!.guilds.get(guildId())!)
-  if (!guild()) return
-
-  // Trigger on-demand loading if guild channels aren't available yet
-  onMount(() => {
-    api.ws?.ensureGuildLoaded(guildId())
+  const guild = createMemo(() => api.cache!.guilds.get(guildId()))
+  createEffect(() => {
+    if (!guild()) navigate('/')
   })
+  onMount(() => api.ws?.ensureGuildLoaded(guildId()))
 
   const [dropdownExpanded, setDropdownExpanded] = createSignal(false)
-  const isOwner = createMemo(() => guild().owner_id === api.cache?.clientUser?.id)
+  const isOwner = createMemo(() => guild()?.owner_id === api.cache?.clientUser?.id)
 
   let dropdownRef: HTMLUListElement | undefined
   let toggleRef: HTMLDivElement | undefined
@@ -231,7 +229,7 @@ export default function GuildSidebar() {
         icon={UserPlus}
         label="Invite People"
         buttonClass="hover:bg-accent"
-        onClick={() => showModal(ModalId.CreateInvite, guild())}
+        onClick={() => showModal(ModalId.CreateInvite, guild()!)}
       />
     </Show>
   )
@@ -332,6 +330,7 @@ export default function GuildSidebar() {
   }
 
   return (
+    <Show when={guild()}>
     <div
       class="flex flex-col items-center flex-grow"
       onContextMenu={contextMenu.getHandler(
@@ -356,14 +355,14 @@ export default function GuildSidebar() {
         ref={toggleRef}
         class="box-border flex flex-col justify-end border-b-[1px] border-fg/5
           group hover:bg-2 transition-all duration-200 cursor-pointer relative w-full"
-        classList={{ 'min-h-[150px]': !!guild().banner }}
+        classList={{ 'min-h-[150px]': !!guild()!.banner }}
         onClick={() => setDropdownExpanded(prev => !prev)}
       >
-        <Show when={guild().banner}>
+        <Show when={guild()!.banner}>
           <figure
             class="absolute inset-0 z-0"
             style={{
-              "background-image": `url(${guild().banner})`,
+              "background-image": `url(${guild()!.banner})`,
               "background-size": "cover",
               "background-position": "center",
               "mask-image": "linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0))",
@@ -372,10 +371,10 @@ export default function GuildSidebar() {
         </Show>
         <div classList={{
           "flex justify-between items-center px-3 mt-3": true,
-          "pb-3": !guild().description,
+          "pb-3": !guild()!.description,
         }}>
           <span class="inline-block font-title font-bold text-base truncate min-w-0 pr-2">
-            {guild().name}
+            {guild()!.name}
           </span>
           <label tabIndex={0} classList={{
             "cursor-pointer transition-transform transform": true,
@@ -389,9 +388,9 @@ export default function GuildSidebar() {
             />
           </label>
         </div>
-        {guild().description && (
+        {guild()!.description && (
           <div class="card-body px-3 pt-1 pb-3">
-            <p class="text-xs text-fg/50 truncate min-w-0">{guild().description}</p>
+            <p class="text-xs text-fg/50 truncate min-w-0">{guild()!.description}</p>
           </div>
         )}
         <Show when={dropdownExpanded()}>
@@ -405,7 +404,7 @@ export default function GuildSidebar() {
                 icon={UserPlus}
                 label="Invite People"
                 svgClass="fill-fg"
-                onClick={() => showModal(ModalId.CreateInvite, guild())}
+                onClick={() => showModal(ModalId.CreateInvite, guild()!)}
               />
             </Show>
             <Show when={guildPermissions()?.has('MANAGE_CHANNELS')}>
@@ -438,7 +437,7 @@ export default function GuildSidebar() {
                 groupHoverColor="danger"
                 svgClass="fill-danger group-hover/gdb:fill-fg"
                 labelClass="text-danger group-hover/gdb:text-fg"
-                onClick={() => showModal(ModalId.LeaveGuild, guild())}
+                onClick={() => showModal(ModalId.LeaveGuild, guild()!)}
               />
             </Show>
           </ul>
@@ -453,5 +452,6 @@ export default function GuildSidebar() {
         </Show>
       </div>
     </div>
+    </Show>
   )
 }
