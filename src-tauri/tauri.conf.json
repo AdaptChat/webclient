@@ -1,67 +1,48 @@
 {
+  "productName": "Adapt",
+  "version": "0.1.0",
+  "identifier": "chat.adapt",
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run serve",
-    "devPath": "http://localhost:3000",
-    "distDir": "../dist"
+    "devUrl": "http://localhost:3000",
+    "frontendDist": "../dist"
   },
-  "package": {
-    "productName": "Adapt",
-    "version": "0.1.0"
+  "bundle": {
+    "active": true,
+    "category": "DeveloperTool",
+    "copyright": "AGPL-3.0, Adapt Chat",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "macOS": {
+      "entitlements": null,
+      "exceptionDomain": "",
+      "frameworks": [],
+      "providerShortName": null,
+      "signingIdentity": null
+    },
+    "targets": "all",
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    }
   },
-  "tauri": {
-    "allowlist": {
-      "dialog": {
-        "all": true
-      },
-      "notification": {
-        "all": true
-      }
-    },
-    "bundle": {
-      "active": true,
-      "category": "DeveloperTool",
-      "copyright": "AGPL-3.0, Adapt Chat",
-      "deb": {
-        "depends": []
-      },
-      "externalBin": [],
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "identifier": "com.adapt.chat",
-      "longDescription": "",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
-      "resources": [],
-      "shortDescription": "",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
-    },
-    "security": {
-      "csp": null
-    },
+  "plugins": {
     "updater": {
-      "active": true,
       "endpoints": [
         "https://download.adapt.chat/webclient/webclient-latest.json"
       ],
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEUwQUM3NTA2MDU0RkJEQjAKUldTd3ZVOEZCbldzNENLb0dYMFo4WTYwR3g3dHc3ckR2Sjh3UmlSMGZtTE5GK3F6bzMxOGhFZ24K"
-    },
+    }
+  },
+  "app": {
     "windows": [
       {
         "fullscreen": false,
@@ -70,6 +51,9 @@
         "title": "Adapt",
         "width": 800
       }
-    ]
+    ],
+    "security": {
+      "csp": null
+    }
   }
 }

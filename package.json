@@ -11,7 +11,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@tauri-apps/cli": "^1.2.3",
+    "@tauri-apps/cli": "^2",
     "@types/node": "^18.11.18",
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4",
@@ -23,6 +23,11 @@
   },
   "dependencies": {
     "@jaames/iro": "^5.5.2",
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-dialog": "^2",
+    "@tauri-apps/plugin-notification": "^2",
+    "@tauri-apps/plugin-updater": "^2",
+    "@tauri-apps/plugin-process": "^2",
     "@nerimity/solid-turnstile": "^1.1.0",
     "@solid-primitives/map": "^0.3.2",
     "@solid-primitives/media": "^2.1.1",

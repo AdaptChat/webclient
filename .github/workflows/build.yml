@@ -1,14 +1,14 @@
 name: Build
 
 on:
-  push: 
+  push:
     branches: ['main']
   workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
-  TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-  TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+  TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+  TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
 jobs:
   build-mac-x86_64:
@@ -22,14 +22,14 @@ jobs:
         workspaces: "./src-tauri -> target"
 
     - name: Install tauri CLI
-      run: cargo install tauri-cli@^1
+      run: cargo install tauri-cli@^2
 
     - name: Install packages
       run: npm i
 
     - name: Build
-      run: cargo tauri build --target x86_64-apple-darwin
-    
+      run: rustup target add x86_64-apple-darwin && cargo tauri build --target x86_64-apple-darwin
+
     - name: Upload artifact x86_64
       uses: actions/upload-artifact@v4
       with:
@@ -42,14 +42,14 @@ jobs:
     runs-on: macos-26
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - uses: Swatinem/rust-cache@v2
       with:
         workspaces: "./src-tauri -> target"
 
     - name: Install tauri CLI
-      run: cargo install tauri-cli@^1
+      run: cargo install tauri-cli@^2
 
     - name: Install packages
       run: npm i
@@ -64,7 +64,7 @@ jobs:
         path: |
           src-tauri/target/aarch64-apple-darwin/release/bundle/macos
           src-tauri/target/aarch64-apple-darwin/release/bundle/dmg
-  
+
   build-win-x86_64:
     runs-on: windows-latest
 
@@ -76,14 +76,14 @@ jobs:
         workspaces: "./src-tauri -> target"
 
     - name: Install tauri CLI
-      run: cargo install tauri-cli@^1
+      run: cargo install tauri-cli@^2
 
     - name: Install packages
       run: npm i
 
     - name: Build
       run: cargo tauri build --target x86_64-pc-windows-msvc
-    
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
@@ -102,14 +102,14 @@ jobs:
         workspaces: "./src-tauri -> target"
 
     - name: Install tauri CLI
-      run: cargo install tauri-cli@^1
+      run: cargo install tauri-cli@^2
 
     - name: Install packages
       run: npm i
 
     - name: Build
       run: rustup target add i686-pc-windows-msvc && cargo tauri build --target i686-pc-windows-msvc
-    
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
@@ -128,15 +128,15 @@ jobs:
           workspaces: "./src-tauri -> target"
 
       - name: Install tauri CLI
-        run: cargo install tauri-cli@^1
+        run: cargo install tauri-cli@^2
 
       - name: Install packages
         run: npm i
-      
+
       - name: Install build deps
         run: |
           sudo apt update
-          sudo apt install libwebkit2gtk-4.0-dev \
+          sudo apt install libwebkit2gtk-4.1-dev \
               build-essential \
               curl \
               wget \
@@ -147,7 +147,7 @@ jobs:
 
       - name: Build
         run: cargo tauri build --target x86_64-unknown-linux-gnu
-      
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -183,25 +183,25 @@ jobs:
         with:
           name: app-darwin-86_64
           path: darwin-x86_64
-      
+
       - name: Download darwin-aarch64
         uses: actions/download-artifact@v4
         with:
           name: app-darwin-aarch64
           path: darwin-aarch64
-      
+
       - name: Download windows-x86_64
         uses: actions/download-artifact@v4
         with:
           name: app-windows-86_64
           path: windows-x86_64
-      
+
       - name: Download windows-i686
         uses: actions/download-artifact@v4
         with:
           name: app-windows-i686
           path: windows-i686
-      
+
       - name: Download linux-x86_64
         uses: actions/download-artifact@v4
         with:
@@ -213,7 +213,7 @@ jobs:
         with:
           name: app-linux-x86_64-deb
           path: linux-x86_64
-      
+
       - name: Change paths
         run: |
           mv darwin-x86_64/macos/* darwin-x86_64
@@ -240,7 +240,7 @@ jobs:
           mv linux-x86_64/*.AppImage.tar.gz.sig linux-x86_64/Adapt.AppImage.tar.gz.sig
           mv linux-x86_64/*.deb linux-x86_64/Adapt.deb
           rm -rf linux-x86_64/*_amd64
-      
+
       - name: Copy to artifacts dir
         run: |
           mkdir download-artifacts
@@ -290,7 +290,7 @@ jobs:
               })
             )
         shell: python
-      
+
       - name: Show artifacts
         run: ls -R download-artifacts
 
