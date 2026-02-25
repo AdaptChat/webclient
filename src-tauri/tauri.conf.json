@@ -27,6 +27,7 @@
       "signingIdentity": null
     },
     "targets": "all",
+    "createUpdaterArtifacts": true,
     "windows": {
       "certificateThumbprint": null,
       "digestAlgorithm": "sha256",

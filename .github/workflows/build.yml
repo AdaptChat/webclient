@@ -30,6 +30,9 @@ jobs:
     - name: Build
       run: rustup target add x86_64-apple-darwin && cargo tauri build --target x86_64-apple-darwin
 
+    - name: Codesign
+      run: codesign --force --deep --sign - src-tauri/target/x86_64-apple-darwin/release/bundle/macos/Adapt.app
+
     - name: Upload artifact x86_64
       uses: actions/upload-artifact@v4
       with:
@@ -56,6 +59,9 @@ jobs:
 
     - name: Build
       run: rustup target add aarch64-apple-darwin && cargo tauri build --target aarch64-apple-darwin
+
+    - name: Codesign
+      run: codesign --force --deep --sign - src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Adapt.app
 
     - name: Upload artifact aarch64
       uses: actions/upload-artifact@v4
@@ -221,20 +227,12 @@ jobs:
           mv darwin-aarch64/macos/* darwin-aarch64
           mv darwin-aarch64/dmg/* darwin-aarch64
           rm -rf darwin-*/macos darwin-*/dmg darwin-*/*.sh darwin-*/*.icns darwin-*/support
-          cd darwin-x86_64/Adapt.app
-          zip -r ../Adapt.app.zip .
-          cd ../../darwin-aarch64/Adapt.app
-          zip -r ../Adapt.app.zip .
-          cd ../..
-          rm -rf darwin-x86_64/Adapt.app darwin-aarch64/Adapt.app
           mv darwin-x86_64/*.dmg darwin-x86_64/Adapt-installer.dmg
           mv darwin-aarch64/*.dmg darwin-aarch64/Adapt-installer.dmg
           mv windows-x86_64/*-setup.exe windows-x86_64/Adapt-setup.exe
-          mv windows-x86_64/*.nsis.zip windows-x86_64/Adapt-nsis.zip
-          mv windows-x86_64/*.nsis.zip.sig windows-x86_64/Adapt-nsis.zip.sig
+          mv windows-x86_64/*-setup.exe.sig windows-x86_64/Adapt-setup.exe.sig
           mv windows-i686/*-setup.exe windows-i686/Adapt-setup.exe
-          mv windows-i686/*.nsis.zip windows-i686/Adapt-nsis.zip
-          mv windows-i686/*.nsis.zip.sig windows-i686/Adapt-nsis.zip.sig
+          mv windows-i686/*-setup.exe.sig windows-i686/Adapt-setup.exe.sig
           mv linux-x86_64/*.AppImage linux-x86_64/Adapt.AppImage
           mv linux-x86_64/*.AppImage.tar.gz linux-x86_64/Adapt.AppImage.tar.gz
           mv linux-x86_64/*.AppImage.tar.gz.sig linux-x86_64/Adapt.AppImage.tar.gz.sig
@@ -275,12 +273,12 @@ jobs:
                     "url": "https://download.adapt.chat/webclient/darwin-aarch64/Adapt.app.tar.gz"
                   },
                   "windows-x86_64": {
-                    "signature": open('windows-x86_64/Adapt-nsis.zip.sig', 'r').read(),
-                    "url": "https://download.adapt.chat/webclient/windows-x86_64/Adapt-nsis.zip"
+                    "signature": open('windows-x86_64/Adapt-setup.exe.sig', 'r').read(),
+                    "url": "https://download.adapt.chat/webclient/windows-x86_64/Adapt-setup.exe"
                   },
                   "windows-i686": {
-                    "signature": open('windows-i686/Adapt-nsis.zip.sig', 'r').read(),
-                    "url": "https://download.adapt.chat/webclient/windows-i686/Adapt-nsis.zip"
+                    "signature": open('windows-i686/Adapt-setup.exe.sig', 'r').read(),
+                    "url": "https://download.adapt.chat/webclient/windows-i686/Adapt-setup.exe"
                   },
                   "linux-x86_64": {
                     "signature": open('linux-x86_64/Adapt.AppImage.tar.gz.sig', 'r').read(),
