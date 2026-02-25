@@ -205,8 +205,8 @@ jobs:
           mv windows-x86_64/*-setup.exe windows-x86_64/Adapt-setup.exe
           mv windows-x86_64/*-setup.exe.sig windows-x86_64/Adapt-setup.exe.sig
           mv linux-x86_64/*.AppImage linux-x86_64/Adapt.AppImage
-          mv linux-x86_64/*.AppImage.tar.gz linux-x86_64/Adapt.AppImage.tar.gz
-          mv linux-x86_64/*.AppImage.tar.gz.sig linux-x86_64/Adapt.AppImage.tar.gz.sig
+          mv linux-x86_64/*.AppImage.tar.zst linux-x86_64/Adapt.AppImage.tar.zst
+          mv linux-x86_64/*.AppImage.tar.zst.sig linux-x86_64/Adapt.AppImage.tar.zst.sig
           mv linux-x86_64/*.deb linux-x86_64/Adapt.deb
           rm -rf linux-x86_64/*_amd64
 
@@ -247,8 +247,8 @@ jobs:
                     "url": "https://download.adapt.chat/webclient/windows-x86_64/Adapt-setup.exe"
                   },
                   "linux-x86_64": {
-                    "signature": open('linux-x86_64/Adapt.AppImage.tar.gz.sig', 'r').read(),
-                    "url": "https://download.adapt.chat/webclient/linux-x86_64/Adapt.AppImage.tar.gz"
+                    "signature": open('linux-x86_64/Adapt.AppImage.tar.zst.sig', 'r').read(),
+                    "url": "https://download.adapt.chat/webclient/linux-x86_64/Adapt.AppImage.tar.zst"
                   }
                 }
               })
