@@ -51,6 +51,7 @@ export type WsEvent = WsEventMapping<'hello'>
   | WsEventMapping<'channel_create', ChannelCreateEvent>
   | WsEventMapping<'channel_delete', ChannelDeleteEvent>
   | WsEventMapping<'channel_ack', ChannelAckEvent>
+  | WsEventMapping<'guild_channel_positions_update', GuildChannelPositionsUpdateEvent>
   | WsEventMapping<'guild_create', GuildCreateEvent>
   | WsEventMapping<'guild_remove', GuildRemoveEvent>
   | WsEventMapping<'member_join', MemberJoinEvent>
@@ -266,6 +267,38 @@ export interface RoleUpdateEvent {
 export interface RolePositionsUpdateEvent {
   guild_id: Snowflake
   role_ids: bigint[]
+}
+
+/**
+ * A single channel's updated position information.
+ */
+export interface GuildChannelPosition {
+  /**
+   * The ID of the channel.
+   */
+  channel_id: Snowflake;
+  /**
+   * The new position of the channel.
+   */
+  position: number;
+  /**
+   * The new parent category ID of the channel, if any.
+   */
+  parent_id: Snowflake | null;
+}
+
+/**
+ * Sent by harmony when guild channel positions are updated.
+ */
+export interface GuildChannelPositionsUpdateEvent {
+  /**
+   * The ID of the guild that the channel positions were updated in.
+   */
+  guild_id: Snowflake;
+  /**
+   * The updated positioning information for each changed channel.
+   */
+  positions: GuildChannelPosition[];
 }
 
 export interface RoleDeleteEvent {

@@ -82,7 +82,7 @@ export type GuildChannel = GuildChannelInfo & {
    * The ID of the parent category of the channel. This is `undefined` if the channel is not in a
    * category.
    */
-  parent_id?: number,
+  parent_id?: bigint,
 }
 
 /**

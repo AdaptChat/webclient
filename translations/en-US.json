@@ -83,6 +83,15 @@
       "user_settings": "Settings"
     },
     "guild": {
+      "create_channel": "Create Channel",
+      "edit_channel": "Edit Channel",
+      "delete_channel": "Delete Channel",
+      "create_category": "Create Category",
+      "delete_category": "Delete Category",
+      "edit_channel_order": "Edit Channel Order",
+      "save_channel_order": "Save Order",
+      "empty_category": "Empty Category",
+      "server_settings": "Server Settings"
     },
     "members": {
       "title": "Members",
@@ -511,6 +520,7 @@
   "generic": {
     "remove": "Remove",
     "save": "Save",
+    "saving": "Saving...",
     "cancel": "Cancel",
     "back": "Back",
     "wip": "Work in progress!",

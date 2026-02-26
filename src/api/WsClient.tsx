@@ -3,18 +3,29 @@ import ApiCache, {memberKey} from "./ApiCache";
 import Backoff from "./Backoff";
 import {
   ChannelAckEvent,
-  ChannelCreateEvent, ChannelDeleteEvent, ChannelUpdateEvent,
+  ChannelCreateEvent,
+  ChannelDeleteEvent,
+  ChannelUpdateEvent,
   GuildCreateEvent,
-  GuildRemoveEvent, GuildUpdateEvent,
+  GuildRemoveEvent,
+  GuildUpdateEvent,
   GuildsAvailableEvent,
   MemberJoinEvent,
-  MemberRemoveEvent, MemberUpdateEvent,
+  MemberRemoveEvent,
+  MemberUpdateEvent,
   MessageCreateEvent,
-  MessageDeleteEvent, MessageUpdateEvent,
+  MessageDeleteEvent, 
+  MessageUpdateEvent,
   PresenceUpdateEvent,
   ReadyEvent,
   RelationshipCreateEvent,
-  RelationshipRemoveEvent, RequestGuildsPayload, RoleCreateEvent, RoleDeleteEvent, RolePositionsUpdateEvent, RoleUpdateEvent,
+  RelationshipRemoveEvent,
+  RequestGuildsPayload,
+  RoleCreateEvent,
+  RoleDeleteEvent, 
+  RolePositionsUpdateEvent, 
+  RoleUpdateEvent, 
+  GuildChannelPositionsUpdateEvent,
   TypingStartEvent,
   TypingStopEvent,
   UpdatePresencePayload,
@@ -164,6 +175,18 @@ export const WsEventHandlers: Record<string, WsEventHandler> = {
   },
   role_delete(ws: WsClient, data: RoleDeleteEvent) {
     ws.api.cache?.deleteRole(data.role_id)
+  },
+  guild_channel_positions_update(ws: WsClient, data: GuildChannelPositionsUpdateEvent) {
+    for (const { channel_id, position, parent_id } of data.positions) {
+      const channel = ws.api.cache?.channels.get(channel_id)
+      if (channel && 'guild_id' in channel) {
+        ws.api.cache?.channels.set(channel_id, {
+          ...channel,
+          position,
+          parent_id: parent_id ?? undefined,
+        })
+      }
+    }
   },
   relationship_create(ws: WsClient, data: RelationshipCreateEvent) {
     const prev = ws.api.cache?.relationships.get(data.relationship.user.id)
