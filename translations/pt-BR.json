@@ -77,7 +77,8 @@
     },
     "members": {
       "collapse": "Esconder membros",
-      "expand": "Mostrar membros"
+      "expand": "Mostrar membros",
+      "title": "Membros"
     },
     "collapse": "Recolher barra lateral",
     "expand": "Mostrar barra lateral",
@@ -131,6 +132,10 @@
           "remove_color": "Remover",
           "mentionable": {
             "description": "Permite que todos os membros, independentemente de permissão, mencionar coletivamente todos membros neste cargo"
+          },
+          "tabs": {
+            "overview": "Visão geral",
+            "members": "Membros"
           }
         }
       },
@@ -142,7 +147,8 @@
         "header": "Convites",
         "count_one": "{{count}} convite",
         "count_many": "{{count}} convites",
-        "count_other": "{{count}} convites"
+        "count_other": "{{count}} convites",
+        "search_users": "Buscar cargos..."
       },
       "members": {
         "header": "Membros",
