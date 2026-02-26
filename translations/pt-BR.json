@@ -93,7 +93,25 @@
         "developers": "Desenvolvedores"
       },
       "logout": "Sair da sessão",
-      "issue": "Relatar problema"
+      "issue": "Relatar problema",
+      "account": {
+        "header": "Conta",
+        "username": "Nome de usuário",
+        "credentials": "Credenciais",
+        "email": "Email"
+      },
+      "language": {
+        "header": "Idioma"
+      },
+      "themes": {
+        "header": "Temas",
+        "preset": {
+          "light": "Claro"
+        }
+      },
+      "bots": {
+        "header": "Robôs"
+      }
     },
     "guild": {
       "channel": {
@@ -135,20 +153,25 @@
           },
           "tabs": {
             "overview": "Visão geral",
-            "members": "Membros"
+            "members": "Membros",
+            "permissions": "Permissões"
           }
-        }
+        },
+        "new_role": "Novo cargo"
       },
       "delete": "Excluir servidor",
       "emojis": {
-        "header": "Emojis"
+        "header": "Emojis",
+        "upload": {
+          "header": "Enviar emojis"
+        }
       },
       "invites": {
         "header": "Convites",
         "count_one": "{{count}} convite",
         "count_many": "{{count}} convites",
         "count_other": "{{count}} convites",
-        "search_users": "Buscar cargos..."
+        "search_users": "Buscar usuários..."
       },
       "members": {
         "header": "Membros",
@@ -302,6 +325,9 @@
       "administrator": {
         "label": "Administrador",
         "description": "Membros com esta permissão têm a habilidade de substituir todas as permissões e qualquer canal no servidor."
+      },
+      "options": {
+        "allow": "Permitir"
       }
     },
     "save": "Salvar alterações?"
@@ -367,7 +393,14 @@
     "unknown": "Desconhecido(a)",
     "members_one": "{{count}} membro",
     "members_many": "{{count}} membros",
-    "members_other": "{{count}} membros"
+    "members_other": "{{count}} membros",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "leave": "Sair",
+    "upload": "Enviar",
+    "loading": "Carregando...",
+    "more": "Mais",
+    "copied": "Copiado(a)!"
   },
   "error": {
     "header": "Erro: {{message}}",
@@ -379,11 +412,15 @@
     "context_menu": {
       "copy_message_id": "Copiar ID da mensagem",
       "copy_message_link": "Copiar endereço da mensagem",
-      "delete_message": "Excluir mensagem"
+      "delete_message": "Excluir mensagem",
+      "reply": "Responder"
     },
     "typing_one": "{{user}} está digitando...",
     "typing_many": "{{user}} estão digitando...",
-    "typing_other": "{{user}} estão digitando..."
+    "typing_other": "{{user}} estão digitando...",
+    "send": "Enviar",
+    "reply": "Responder",
+    "bot_badge": "ROBÔ"
   },
   "modals": {
     "delete_channel": {
@@ -396,13 +433,15 @@
     },
     "delete_server": {
       "title": "Excluir servidor",
-      "description": "Você tem certeza de que deseja excluir {{name}}? Você não poderá desfazer esta ação. Todos os dados associados com este servidor irão ser excluídos e você não poderá recuperá-los no futuro."
+      "description": "Você tem certeza de que deseja excluir {{name}}? Você não poderá desfazer esta ação. Todos os dados associados com este servidor irão ser excluídos e você não poderá recuperá-los no futuro.",
+      "password_placeholder": "Senha"
     },
     "create_role": {
       "title": "Criar cargo"
     },
     "add_friend": {
-      "title": "Adicionar amigo(a)"
+      "title": "Adicionar amigo(a)",
+      "username_placeholder": "Nome de usuário"
     },
     "new_conversation": {
       "title": "Nova conversa",
@@ -428,6 +467,35 @@
     "set_presence": {
       "title": "Status personalizado",
       "custom_status_label": "Status personalizado"
+    },
+    "create_channel": {
+      "types": {
+        "text": {
+          "name": "Texto"
+        },
+        "voice": {
+          "name": "Voz"
+        }
+      }
+    },
+    "upload_emoji": {
+      "submitting": "Enviando..."
+    },
+    "create_bot": {
+      "name_label": "Nome"
+    }
+  },
+  "auth": {
+    "login": {
+      "email": "Email",
+      "password": "Senha"
+    },
+    "register": {
+      "email": "Email",
+      "password": "Senha",
+      "username": "Nome de usuário",
+      "submit": "Registrar",
+      "submitting": "Registrando..."
     }
   }
 }
