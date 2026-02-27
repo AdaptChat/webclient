@@ -532,7 +532,8 @@
       "type_label": "Que tipo de canal deseja criar?"
     },
     "upload_emoji": {
-      "submitting": "Enviando..."
+      "submitting": "Enviando...",
+      "title": "Enviar emojis"
     },
     "create_bot": {
       "name_label": "Nome"
