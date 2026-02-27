@@ -82,7 +82,11 @@
     },
     "collapse": "Recolher barra lateral",
     "expand": "Mostrar barra lateral",
-    "unknown_header": "Desconhecido"
+    "unknown_header": "Desconhecido",
+    "guild": {
+      "delete_channel": "Excluir canal",
+      "server_settings": "Configurações do servidor"
+    }
   },
   "settings": {
     "user": {
@@ -170,7 +174,8 @@
         "header": "Emoji",
         "upload": {
           "header": "Enviar emoji",
-          "description": "Adicione até 50 emoji customizados ao seu servidor."
+          "description": "Adicione até 50 emoji customizados ao seu servidor.",
+          "button": "Enviar"
         },
         "no_permission": "Você precisa da permissão Gerenciar emoji para modificar emoji."
       },
@@ -186,8 +191,9 @@
         },
         "columns": {
           "code": "Código",
-          "inviter": "Convidador"
-        }
+          "inviter": "Convites"
+        },
+        "loading": "Carregando..."
       },
       "members": {
         "header": "Membros",
@@ -200,7 +206,11 @@
           "kick": "Expulsar membro"
         },
         "description": "Ver e gerenciar membros em seu servidor.",
-        "showing_filtered": "Mostrando {{filtered}} de {{total}} membros"
+        "showing_filtered": "Mostrando {{filtered}} de {{total}} membros",
+        "search_placeholder": "Buscar usuários...",
+        "sort": {
+          "name": "Nome"
+        }
       }
     },
     "permissions": {
