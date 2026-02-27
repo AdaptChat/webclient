@@ -89,7 +89,11 @@
     },
     "collapse": "Згарнуць бакавую панэль",
     "expand": "Паказаць бакавую панэль",
-    "unknown_header": "Невядома"
+    "unknown_header": "Невядома",
+    "guild": {
+      "delete_channel": "Выдаліць канал",
+      "server_settings": "Налады сэрвэра"
+    }
   },
   "settings": {
     "user": {
@@ -278,7 +282,8 @@
         "roles_updating": "Абнаўленьне роляў…",
         "role_removed": "Роля прыбраная",
         "actions": {
-          "edit_nickname": "Рэдагаваць псэўданім"
+          "edit_nickname": "Рэдагаваць псэўданім",
+          "kick": "Выганяць удзельнікаў"
         }
       }
     },
