@@ -92,7 +92,14 @@
     "unknown_header": "Невядома",
     "guild": {
       "delete_channel": "Выдаліць канал",
-      "server_settings": "Налады сэрвэра"
+      "server_settings": "Налады сэрвэра",
+      "create_channel": "Стварыць канал",
+      "edit_channel": "Рэдагаваць канал",
+      "create_category": "Стварыць катэґорыю",
+      "delete_category": "Выдаліць катэґорыю",
+      "edit_channel_order": "Зьмяніць парадак каналаў",
+      "save_channel_order": "Захаваць парадак",
+      "empty_category": "Пустая катэґорыя"
     }
   },
   "settings": {
@@ -271,7 +278,7 @@
         "search_placeholder": "Пошук удзельнікаў…",
         "search_roles": "Пошук роляў…",
         "all_roles": "Усе ролі",
-        "showing_all": "Паказ усіх {{count}} роляў",
+        "showing_all": "Паказ усіх {{count}} удзельнікаў",
         "showing_filtered": "Паказ {{filtered}} з {{total}} удзельнікаў",
         "columns": {
           "member": "Удзельнік",
@@ -283,7 +290,17 @@
         "role_removed": "Роля прыбраная",
         "actions": {
           "edit_nickname": "Рэдагаваць псэўданім",
-          "kick": "Выганяць удзельнікаў"
+          "kick": "Выгнаць удзельніка",
+          "edit_roles": "Рэдагаваць ролі",
+          "add_edit_roles": "Дадаваньне/рэдагаваньне роляў",
+          "remove_role": "Адабраць ролю"
+        },
+        "sort": {
+          "name": "Імя",
+          "account_age_asc": "Узрост уліковага запісу (узр.)",
+          "account_age_desc": "Узрост уліковага запісу (убы.)",
+          "join_date_asc": "Дата далучэньня (узр.)",
+          "join_date_desc": "Дата далучэньня (убы.)"
         }
       }
     },
@@ -427,6 +444,11 @@
       "administrator": {
         "label": "Адміністратар",
         "description": "Ва ўдзельнікаў з гэтым дазволам ёсьць права перавызначаць усе дазволы ў абы-якім канале на сэрвэры."
+      },
+      "options": {
+        "allow": "Дазваляць",
+        "inherit": "Не мяняць",
+        "deny": "Абмяжоўваць"
       }
     },
     "save": "Захаваць зьмены?"
