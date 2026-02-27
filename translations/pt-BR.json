@@ -101,7 +101,8 @@
         "email": "Email"
       },
       "language": {
-        "header": "Idioma"
+        "header": "Idioma",
+        "description": "Selecione o idioma que você quer usar em Adapt."
       },
       "themes": {
         "header": "Temas",
@@ -110,7 +111,8 @@
         }
       },
       "bots": {
-        "header": "Robôs"
+        "header": "Robôs",
+        "description": "Robôs são usados para automatizar tarefas e fornecem funcionalidade adicional em todo Adapt."
       }
     },
     "guild": {
@@ -149,29 +151,43 @@
         "role": {
           "remove_color": "Remover",
           "mentionable": {
-            "description": "Permite que todos os membros, independentemente de permissão, mencionar coletivamente todos membros neste cargo"
+            "description": "Permite que todos os membros, independentemente de permissão, mencionar coletivamente todos membros neste cargo",
+            "label": "Permitir que todos mencionem este cargo"
           },
           "tabs": {
             "overview": "Visão geral",
             "members": "Membros",
             "permissions": "Permissões"
+          },
+          "hoist": {
+            "description": "Mostrar membros com este cargo separadamente na lista de membros"
           }
         },
         "new_role": "Novo cargo"
       },
       "delete": "Excluir servidor",
       "emojis": {
-        "header": "Emojis",
+        "header": "Emoji",
         "upload": {
-          "header": "Enviar emojis"
-        }
+          "header": "Enviar emoji",
+          "description": "Adicione até 50 emoji customizados ao seu servidor."
+        },
+        "no_permission": "Você precisa da permissão Gerenciar emoji para modificar emoji."
       },
       "invites": {
         "header": "Convites",
         "count_one": "{{count}} convite",
         "count_many": "{{count}} convites",
         "count_other": "{{count}} convites",
-        "search_users": "Buscar usuários..."
+        "search_users": "Buscar usuários...",
+        "description": "Ver e gerenciar todos convites ativos para este servidor.",
+        "copying": {
+          "error": "Falha ao copiar endereço de convite."
+        },
+        "columns": {
+          "code": "Código",
+          "inviter": "Convidador"
+        }
       },
       "members": {
         "header": "Membros",
@@ -182,7 +198,9 @@
         },
         "actions": {
           "kick": "Expulsar membro"
-        }
+        },
+        "description": "Ver e gerenciar membros em seu servidor.",
+        "showing_filtered": "Mostrando {{filtered}} de {{total}} membros"
       }
     },
     "permissions": {
@@ -224,11 +242,11 @@
       },
       "send_embeds": {
         "label": "Enviar prévias",
-        "description": "Membros com esta permissão podem enviar integrações ou ter prévias de links aparecer automaticamente em canais de texto."
+        "description": "Membros com esta permissão podem enviar integrações ou ter prévias de endereços aparecer automaticamente em canais de texto."
       },
       "use_external_emojis": {
-        "label": "Usar emojis externos",
-        "description": "Membros com esta permissão podem usar emojis de outros servidores."
+        "label": "Usar emoji externos",
+        "description": "Membros com esta permissão podem usar emoji de outros servidores."
       },
       "add_reactions": {
         "label": "Adicionar reações",
@@ -283,8 +301,8 @@
         "description": "Membros com esta permissão podem alterar os apelidos de outros membros no servidor."
       },
       "manage_emojis": {
-        "label": "Gerenciar emojis",
-        "description": "Membros com esta permissão podem criar, editar e excluir emojis para o servidor."
+        "label": "Gerenciar emoji",
+        "description": "Membros com esta permissão podem criar, editar e excluir emoji para o servidor."
       },
       "manage_starboard": {
         "label": "Gerenciar mural",
@@ -374,6 +392,10 @@
         "decline": "Negar pedido",
         "revoke": "Negar pedido"
       }
+    },
+    "no_requests": "Atualmente você não tem pedidos de amizade recebidos ou enviados.",
+    "no_friends": {
+      "remark": "Você atualmente não tem amigos (assim como Cryptex)."
     }
   },
   "time": {
@@ -413,14 +435,18 @@
       "copy_message_id": "Copiar ID da mensagem",
       "copy_message_link": "Copiar endereço da mensagem",
       "delete_message": "Excluir mensagem",
-      "reply": "Responder"
+      "reply": "Responder",
+      "copy_text_error": "Falha ao copiar texto da mensagem, tente novamente mais tarde.",
+      "copy_link_error": "Falha ao copiar endereço da mensagem, tente novamente mais tarde."
     },
     "typing_one": "{{user}} está digitando...",
     "typing_many": "{{user}} estão digitando...",
     "typing_other": "{{user}} estão digitando...",
     "send": "Enviar",
     "reply": "Responder",
-    "bot_badge": "ROBÔ"
+    "bot_badge": "ROBÔ",
+    "no_permission": "Você não tem permissão para enviar mensagens neste canal.",
+    "do_not_mention_when_replying": "Não mencionar @{{name}} ao responder"
   },
   "modals": {
     "delete_channel": {
@@ -429,23 +455,29 @@
       "description": "Você tem certeza de que deseja excluir {{channel}} em {{guild}}? Você não poderá desfazer esta ação. Todos os dados e mensagens associados com este canal irão ser excluídos e você não poderá recuperá-los no futuro."
     },
     "delete_message": {
-      "title": "Excluir mensagem"
+      "title": "Excluir mensagem",
+      "description": "Tem certeza de que deseja excluir esta mensagem?"
     },
     "delete_server": {
       "title": "Excluir servidor",
       "description": "Você tem certeza de que deseja excluir {{name}}? Você não poderá desfazer esta ação. Todos os dados associados com este servidor irão ser excluídos e você não poderá recuperá-los no futuro.",
-      "password_placeholder": "Senha"
+      "password_placeholder": "Senha",
+      "name_label": "Digite o nome do servidor para confirmar"
     },
     "create_role": {
       "title": "Criar cargo"
     },
     "add_friend": {
       "title": "Adicionar amigo(a)",
-      "username_placeholder": "Nome de usuário"
+      "username_placeholder": "Nome de usuário",
+      "description": "Peça ao seu(ua) amigo(a) para fornecer seu nome de usuário único e insira-o abaixo.",
+      "invalid_username": "Formato de nome de usuário inválido. Certifique-se de que este é o nome de usuário (não o nome exibido).",
+      "requested_to_add": "Solicitado para adicionar {{username}} como amigo(a)."
     },
     "new_conversation": {
       "title": "Nova conversa",
-      "submit_dm": "Abrir MD"
+      "submit_dm": "Abrir MD",
+      "description": "Selecione amigos(as) para iniciar uma nova conversa."
     },
     "new_guild": {
       "create_server": {
@@ -453,6 +485,9 @@
       },
       "discover_servers": {
         "description": "Não tem certeza por onde começar? Confira a página de descoberta de servidores onde você pode explorar servidores públicos que você pode estar interessado."
+      },
+      "join_server": {
+        "description": "Insira um código de convite para entrar em um servidor existente."
       }
     },
     "delete_role": {
@@ -462,27 +497,53 @@
       "description": "Você tem certeza de que deseja sair de {{name}}? Você não poderá entrar novamente, a menos que seja convidado novamente."
     },
     "create_server": {
-      "description": "Antes de criarmos seu servidor, vamos o dar um nome."
+      "description": "Antes de criarmos seu servidor, vamos o dar um nome.",
+      "description_note": "Você sempre pode mudar isto mais tarde."
     },
     "set_presence": {
       "title": "Status personalizado",
-      "custom_status_label": "Status personalizado"
+      "custom_status_label": "Status personalizado",
+      "description": "Configurar um status customizado para sua conta."
     },
     "create_channel": {
       "types": {
         "text": {
-          "name": "Texto"
+          "name": "Texto",
+          "description": "Envie mensagens e comunique-se em um clássico canal baseado em texto."
         },
         "voice": {
-          "name": "Voz"
+          "name": "Voz",
+          "description": "Fale e compartilhe sua tela com voz e vídeo em um canal de voz.",
+          "unsupported": "Canais de voz ainda não são suportados."
         }
-      }
+      },
+      "name_label": "Como você quer chamar este canal?",
+      "description": "Canais são onde seus membros se comunicam.",
+      "type_label": "Que tipo de canal deseja criar?"
     },
     "upload_emoji": {
       "submitting": "Enviando..."
     },
     "create_bot": {
       "name_label": "Nome"
+    },
+    "invite_people": {
+      "description": "Convide pessoas para entrar em {{name}} enviando-as este endereço:"
+    },
+    "edit_nickname": {
+      "visible_note": "Isto será visível para todos membros neste servidor.",
+      "description": "Você está alterando o apelido de {{username}} em {{guild}}."
+    },
+    "join_server": {
+      "invalid_code": "Isto não parece como um código de convite válido.",
+      "description": "Insira um código de convite para entrar em um servidor existente."
+    },
+    "create_category": {
+      "name_label": "Como você quer chamar esta categoria?"
+    },
+    "edit_roles": {
+      "description": "Você está editando cargos para {{username}} em {{guild}}.",
+      "save_note": "Cargos serão atualizados assim que você apertar em \"Salvar\"."
     }
   },
   "auth": {
@@ -496,6 +557,14 @@
       "username": "Nome de usuário",
       "submit": "Registrar",
       "submitting": "Registrando..."
+    }
+  },
+  "channel": {
+    "text": {
+      "start_of_conversation": "Este é o início da conversa em {{channel}}."
+    },
+    "dm": {
+      "start_of_conversation": "Este é o início da conversa com {{user}}."
     }
   }
 }
