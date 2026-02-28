@@ -21,14 +21,21 @@
     },
     "channel_id": {
       "imperative": "Copiar ID do canal",
-      "success": "ID do canal copiada para a área de transferência!"
+      "success": "ID do canal copiada para a área de transferência!",
+      "category": "Copiar ID da categoria"
     },
     "message_id": {
       "imperative": "Copiar ID da mensagem",
       "success": "ID da mensagem copiada para a área de transferência!"
     },
     "loading": "Copiando...",
-    "error": "Falha ao copiar para a área de transferência!"
+    "error": "Falha ao copiar para a área de transferência!",
+    "server_id": {
+      "imperative": "Copiar ID do servidor"
+    },
+    "role_id": {
+      "imperative": "Copiar ID do cargo"
+    }
   },
   "dms": {
     "delete_group": "Excluir grupo",
@@ -85,7 +92,14 @@
     "unknown_header": "Desconhecido",
     "guild": {
       "delete_channel": "Excluir canal",
-      "server_settings": "Configurações do servidor"
+      "server_settings": "Configurações do servidor",
+      "create_channel": "Criar canal",
+      "edit_channel": "Editar canal",
+      "create_category": "Criar categoria",
+      "delete_category": "Excluir categoria",
+      "empty_category": "Categoria vazia",
+      "save_channel_order": "Salvar ordem",
+      "edit_channel_order": "Editar ordem de canais"
     }
   },
   "settings": {
@@ -102,7 +116,10 @@
         "header": "Conta",
         "username": "Nome de usuário",
         "credentials": "Credenciais",
-        "email": "Email"
+        "email": "Email",
+        "display_name": "Nome exibido",
+        "show_email": "Mostrar email",
+        "hide_email": "Esconder email"
       },
       "language": {
         "header": "Idioma",
@@ -111,12 +128,29 @@
       "themes": {
         "header": "Temas",
         "preset": {
-          "light": "Claro"
-        }
+          "light": "Claro",
+          "dim": "Escuro",
+          "dark": "Retinto",
+          "header": "Temas predefinidos"
+        },
+        "theme_colors": "Cores do tema",
+        "custom_css": "CSS customizada"
       },
       "bots": {
         "header": "Robôs",
-        "description": "Robôs são usados para automatizar tarefas e fornecem funcionalidade adicional em todo Adapt."
+        "description": "Robôs são usados para automatizar tarefas e fornecem funcionalidade adicional em todo Adapt.",
+        "resources": {
+          "header": "Recursos",
+          "developer_resources": "Recursos de desenvolvedor"
+        },
+        "list": {
+          "new": "Novo robô",
+          "header": "Meus robôs",
+          "search": "Buscar robôs"
+        }
+      },
+      "plugins": {
+        "header": "Extensões"
       }
     },
     "guild": {
@@ -137,7 +171,9 @@
           "description": "Isto será exibido no topo da barra lateral do canal e na página inicial do servidor.",
           "upload": "Enviar bâner",
           "remove": "Remover bâner"
-        }
+        },
+        "description_placeholder_editing": "Insira a descrição aqui...",
+        "description_placeholder_not_editing": "Nenhuma descrição ainda!"
       },
       "roles": {
         "header": "Cargos",
@@ -165,9 +201,16 @@
           },
           "hoist": {
             "description": "Mostrar membros com este cargo separadamente na lista de membros"
-          }
+          },
+          "preview_label": "Pré-visualização",
+          "dark_theme": "Tema escuro",
+          "light_theme": "Tema claro",
+          "name_label": "Nome do cargo",
+          "color_label": "Cor do cargo",
+          "pick_color": "Escolher cor"
         },
-        "new_role": "Novo cargo"
+        "new_role": "Novo cargo",
+        "delete_role": "Excluir cargo"
       },
       "delete": "Excluir servidor",
       "emojis": {
@@ -175,9 +218,16 @@
         "upload": {
           "header": "Enviar emoji",
           "description": "Adicione até 50 emoji customizados ao seu servidor.",
-          "button": "Enviar"
+          "button": "Enviar",
+          "search_results": "Resultados de busca",
+          "search_placeholder": "Buscar emoji...",
+          "created_by": "Criado por {{username}}"
         },
-        "no_permission": "Você precisa da permissão Gerenciar emoji para modificar emoji."
+        "no_permission": "Você precisa da permissão Gerenciar emoji para modificar emoji.",
+        "deleted": "Emoji excluído com sucesso",
+        "renamed": "Emoji renomeado com sucesso",
+        "failed_delete": "Falha ao excluir emoji",
+        "failed_rename": "Falha ao renomear emoji"
       },
       "invites": {
         "header": "Convites",
@@ -187,30 +237,68 @@
         "search_users": "Buscar usuários...",
         "description": "Ver e gerenciar todos convites ativos para este servidor.",
         "copying": {
-          "error": "Falha ao copiar endereço de convite."
+          "error": "Falha ao copiar endereço de convite.",
+          "loading": "Copiando endereço de convite...",
+          "success": "Endereço de convite copiado!"
         },
         "columns": {
           "code": "Código",
-          "inviter": "Convites"
+          "inviter": "Convidador",
+          "created": "Criado",
+          "expires": "Expira",
+          "uses": "Usos"
         },
-        "loading": "Carregando..."
+        "loading": "Carregando...",
+        "expiry_never": "Nunca",
+        "all_inviters": "Todos convidadores",
+        "revoke": "Revogar convite",
+        "sort": {
+          "label": "Classificar: {{option}}",
+          "code_asc": "Código de convite (A-Z)",
+          "created_desc": "Criado (mais novo primeiro)",
+          "created_asc": "Criado (mais antigo primeiro)",
+          "expiry_asc": "Expiração (mais cedo primeiro)",
+          "expiry_desc": "Expiração (último primeiro)",
+          "uses_desc": "Usos (mais primeiro)",
+          "uses_asc": "Usos (menos primeiro)"
+        },
+        "search_placeholder": "Buscar códigos de convite...",
+        "none_found": "Nenhum convite encontrado.",
+        "copy_link": "Copiar endereço de convite",
+        "failed_fetch": "Falha ao carregar convites",
+        "failed_revoke": "Falha ao revogar convite"
       },
       "members": {
         "header": "Membros",
         "search_roles": "Buscar cargos...",
         "columns": {
           "member": "Membro",
-          "roles": "Cargos"
+          "roles": "Cargos",
+          "created": "Criado",
+          "joined": "Entrou"
         },
         "actions": {
-          "kick": "Expulsar membro"
+          "kick": "Expulsar membro",
+          "edit_nickname": "Editar apelido",
+          "edit_roles": "Editar cargos",
+          "add_edit_roles": "Adicionar/editar cargos",
+          "remove_role": "Remover cargo"
         },
         "description": "Ver e gerenciar membros em seu servidor.",
         "showing_filtered": "Mostrando {{filtered}} de {{total}} membros",
         "search_placeholder": "Buscar usuários...",
         "sort": {
-          "name": "Nome"
-        }
+          "name": "Nome",
+          "label": "Classificar: {{option}}",
+          "account_age_asc": "Idade da conta (ascendente)",
+          "account_age_desc": "Idade da conta (descendente)",
+          "join_date_asc": "Data de entrada (ascendente)",
+          "join_date_desc": "Data de entrada (descendente)"
+        },
+        "all_roles": "Todos cargos",
+        "roles_updating": "Atualizando cargos...",
+        "role_removed": "Cargo removido",
+        "showing_all": "Mostrando todos {{count}} membros"
       }
     },
     "permissions": {
@@ -355,10 +443,12 @@
         "description": "Membros com esta permissão têm a habilidade de substituir todas as permissões e qualquer canal no servidor."
       },
       "options": {
-        "allow": "Permitir"
+        "allow": "Permitir",
+        "deny": "Negar"
       }
     },
-    "save": "Salvar alterações?"
+    "save": "Salvar alterações?",
+    "exit": "Sair das configurações"
   },
   "home": {
     "welcome": "Bem-vindo, {{username}}!",
@@ -378,14 +468,17 @@
         "official_server_name": "Comunidade Adapt"
       }
     },
-    "message_not_loaded": "Mensagem ainda não carregada. (Dados da mensagem serão fornecidos em uma atualização futura)"
+    "message_not_loaded": "Mensagem ainda não carregada. (Dados da mensagem serão fornecidos em uma atualização futura)",
+    "all_friends": "Todos(as) amigos(as)",
+    "active_now": "Ativos(as) agora"
   },
   "friends": {
     "header": "Amigos",
     "tabs": {
       "all": "Amigos",
       "pending": "Pedidos",
-      "blocked": "Bloqueados"
+      "blocked": "Bloqueados",
+      "pending_short": "Ped."
     },
     "add": "Adicionar amigo",
     "dividers": {
@@ -405,7 +498,8 @@
     },
     "no_requests": "Atualmente você não tem pedidos de amizade recebidos ou enviados.",
     "no_friends": {
-      "remark": "Você atualmente não tem amigos (assim como Cryptex)."
+      "remark": "Você atualmente não tem amigos (assim como Cryptex).",
+      "action": "Adicionar alguns(mas)?"
     }
   },
   "time": {
@@ -432,12 +526,15 @@
     "upload": "Enviar",
     "loading": "Carregando...",
     "more": "Mais",
-    "copied": "Copiado(a)!"
+    "copied": "Copiado(a)!",
+    "saving": "Salvando...",
+    "copy_to_clipboard": "Copiar para a área de transferência"
   },
   "error": {
     "header": "Erro: {{message}}",
     "open_issue": "Se este erro persistir, por favor {{link}} no repositório da GitHub.",
-    "open_issue_link": "abra um problema"
+    "open_issue_link": "abra um problema",
+    "something_went_wrong": "Algo deu errado!"
   },
   "chat": {
     "add_reaction": "Adicionar reação",
@@ -447,7 +544,14 @@
       "delete_message": "Excluir mensagem",
       "reply": "Responder",
       "copy_text_error": "Falha ao copiar texto da mensagem, tente novamente mais tarde.",
-      "copy_link_error": "Falha ao copiar endereço da mensagem, tente novamente mais tarde."
+      "copy_link_error": "Falha ao copiar endereço da mensagem, tente novamente mais tarde.",
+      "mark_unread": "Marcar como não lida",
+      "copy_text": "Copiar texto",
+      "edit_message": "Editar mensagem",
+      "copy_text_loading": "Copiando texto da mensagem...",
+      "copy_link_loading": "Copiando endereço da mensagem...",
+      "copy_text_success": "Copiado para sua área de transferência!",
+      "copy_link_success": "Copiado para sua área de transferência!"
     },
     "typing_one": "{{user}} está digitando...",
     "typing_many": "{{user}} estão digitando...",
@@ -456,7 +560,14 @@
     "reply": "Responder",
     "bot_badge": "ROBÔ",
     "no_permission": "Você não tem permissão para enviar mensagens neste canal.",
-    "do_not_mention_when_replying": "Não mencionar @{{name}} ao responder"
+    "do_not_mention_when_replying": "Não mencionar @{{name}} ao responder",
+    "add_emoji": "Adicionar emoji",
+    "unknown_message": "Mensagem desconhecida",
+    "typing_suffix_is": "está digitando...",
+    "typing_suffix_are": "estão digitando...",
+    "message_input_placeholder": "Enviar uma mensagem...",
+    "jump_to_newer": "Pular para mensagens mais novas",
+    "mention_when_replying": "Mencionar @{{name}} ao responder"
   },
   "modals": {
     "delete_channel": {
@@ -472,48 +583,65 @@
       "title": "Excluir servidor",
       "description": "Você tem certeza de que deseja excluir {{name}}? Você não poderá desfazer esta ação. Todos os dados associados com este servidor irão ser excluídos e você não poderá recuperá-los no futuro.",
       "password_placeholder": "Senha",
-      "name_label": "Digite o nome do servidor para confirmar"
+      "name_label": "Digite o nome do servidor para confirmar",
+      "password_label": "Insira sua senha"
     },
     "create_role": {
-      "title": "Criar cargo"
+      "title": "Criar cargo",
+      "name_label": "Nome do cargo",
+      "name_placeholder": "Nome do cargo",
+      "edit_color": "Editar cor"
     },
     "add_friend": {
       "title": "Adicionar amigo(a)",
       "username_placeholder": "Nome de usuário",
       "description": "Peça ao seu(ua) amigo(a) para fornecer seu nome de usuário único e insira-o abaixo.",
       "invalid_username": "Formato de nome de usuário inválido. Certifique-se de que este é o nome de usuário (não o nome exibido).",
-      "requested_to_add": "Solicitado para adicionar {{username}} como amigo(a)."
+      "requested_to_add": "Solicitado para adicionar {{username}} como amigo(a).",
+      "your_username_is": "Seu nome de usuário é {{username}}."
     },
     "new_conversation": {
       "title": "Nova conversa",
       "submit_dm": "Abrir MD",
-      "description": "Selecione amigos(as) para iniciar uma nova conversa."
+      "description": "Selecione amigos(as) para iniciar uma nova conversa.",
+      "group_name": "Nome do grupo",
+      "submit": "Iniciar conversa",
+      "submit_group": "Criar grupo"
     },
     "new_guild": {
       "create_server": {
-        "description": "Começar uma nova comunidade. Pode ser um lugar para você e seus(as) amigos(as), ou você pode transformá-lo em uma grande comunidade."
+        "description": "Começar uma nova comunidade. Pode ser um lugar para você e seus(as) amigos(as), ou você pode transformá-lo em uma grande comunidade.",
+        "label": "Criar um servidor"
       },
       "discover_servers": {
-        "description": "Não tem certeza por onde começar? Confira a página de descoberta de servidores onde você pode explorar servidores públicos que você pode estar interessado."
+        "description": "Não tem certeza por onde começar? Confira a página de descoberta de servidores onde você pode explorar servidores públicos que você pode estar interessado.",
+        "label": "Descobrir servidores"
       },
       "join_server": {
-        "description": "Insira um código de convite para entrar em um servidor existente."
-      }
+        "description": "Insira um código de convite para entrar em um servidor existente.",
+        "label": "Entrar em um servidor"
+      },
+      "title": "Novo servidor"
     },
     "delete_role": {
-      "description": "Você tem certeza de que deseja excluir {{role_name}} em {{guild_name}}? Você não poderá desfazer esta ação."
+      "description": "Você tem certeza de que deseja excluir {{role_name}} em {{guild_name}}? Você não poderá desfazer esta ação.",
+      "title": "Excluir cargo"
     },
     "leave_server": {
-      "description": "Você tem certeza de que deseja sair de {{name}}? Você não poderá entrar novamente, a menos que seja convidado novamente."
+      "description": "Você tem certeza de que deseja sair de {{name}}? Você não poderá entrar novamente, a menos que seja convidado novamente.",
+      "title": "Sair do servidor"
     },
     "create_server": {
       "description": "Antes de criarmos seu servidor, vamos o dar um nome.",
-      "description_note": "Você sempre pode mudar isto mais tarde."
+      "description_note": "Você sempre pode mudar isto mais tarde.",
+      "submit": "Criar servidor",
+      "title": "Criar um servidor"
     },
     "set_presence": {
       "title": "Status personalizado",
       "custom_status_label": "Status personalizado",
-      "description": "Configurar um status customizado para sua conta."
+      "description": "Configurar um status customizado para sua conta.",
+      "custom_status_placeholder": "Tão sonolento..."
     },
     "create_channel": {
       "types": {
@@ -529,17 +657,31 @@
       },
       "name_label": "Como você quer chamar este canal?",
       "description": "Canais são onde seus membros se comunicam.",
-      "type_label": "Que tipo de canal deseja criar?"
+      "type_label": "Que tipo de canal deseja criar?",
+      "title": "Criar canal",
+      "submit": "Criar canal"
     },
     "upload_emoji": {
       "submitting": "Enviando...",
-      "title": "Enviar emojis"
+      "title": "Enviar emoji",
+      "name_label": "Nome do emoji",
+      "preview_alt": "Pré-visualização do emoji",
+      "name_placeholder": "Insira o nome do emoji",
+      "success": "Emoji enviado com sucesso",
+      "error": "Falha ao enviar emoji"
     },
     "create_bot": {
-      "name_label": "Nome"
+      "name_label": "Nome",
+      "handle_placeholder": "meu-robô-chique",
+      "title": "Criar robô",
+      "submit": "Criar robô",
+      "name_placeholder": "Meu robô chique",
+      "handle_label": "Identificador",
+      "handle_description": "Identificadores de robôs são usados para identificar seu robô unicamente em Adapt."
     },
     "invite_people": {
-      "description": "Convide pessoas para entrar em {{name}} enviando-as este endereço:"
+      "description": "Convide pessoas para entrar em {{name}} enviando-as este endereço:",
+      "title": "Convidar pessoas"
     },
     "edit_nickname": {
       "visible_note": "Isto será visível para todos membros neste servidor.",
@@ -547,27 +689,46 @@
     },
     "join_server": {
       "invalid_code": "Isto não parece como um código de convite válido.",
-      "description": "Insira um código de convite para entrar em um servidor existente."
+      "description": "Insira um código de convite para entrar em um servidor existente.",
+      "title": "Entrar em um servidor",
+      "placeholder": "Insira um código de convite...",
+      "submit": "Entrar no servidor",
+      "examples_header": "Exemplos de códigos de convite válidos:"
     },
     "create_category": {
-      "name_label": "Como você quer chamar esta categoria?"
+      "name_label": "Como você quer chamar esta categoria?",
+      "title": "Criar categoria",
+      "submit": "Criar categoria"
     },
     "edit_roles": {
       "description": "Você está editando cargos para {{username}} em {{guild}}.",
-      "save_note": "Cargos serão atualizados assim que você apertar em \"Salvar\"."
+      "save_note": "Cargos serão atualizados assim que você apertar em \"Salvar\".",
+      "title": "Editar cargos"
     }
   },
   "auth": {
     "login": {
       "email": "Email",
-      "password": "Senha"
+      "password": "Senha",
+      "sign_up": "Registrar",
+      "remember_me": "Lembre de mim",
+      "submit": "Entrar",
+      "submitting": "Entrando...",
+      "forgot_password": "Esqueceu sua senha?",
+      "no_account": "Não tem uma conta?"
     },
     "register": {
       "email": "Email",
       "password": "Senha",
       "username": "Nome de usuário",
       "submit": "Registrar",
-      "submitting": "Registrando..."
+      "submitting": "Registrando...",
+      "sign_in": "Entrar",
+      "remember_me": "Lembre de mim",
+      "username_checking": "Verificando disponibilidade...",
+      "username_available": "Nome de usuário disponível!",
+      "title": "Criar uma conta",
+      "have_account": "Já tem uma conta?"
     }
   },
   "channel": {
@@ -576,6 +737,19 @@
     },
     "dm": {
       "start_of_conversation": "Este é o início da conversa com {{user}}."
+    },
+    "loading": "Carregando canal..."
+  },
+  "guild": {
+    "new_server": "Novo servidor",
+    "actions": {
+      "invite_people": "Convidar pessoas",
+      "leave_server": "Sair do servidor",
+      "create_server": "Criar servidor",
+      "join_server": "Entrar em um servidor"
     }
+  },
+  "avatar": {
+    "edit_title": "Editar avatar"
   }
 }
