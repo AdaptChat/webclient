@@ -685,7 +685,9 @@
     },
     "edit_nickname": {
       "visible_note": "Isto será visível para todos membros neste servidor.",
-      "description": "Você está alterando o apelido de {{username}} em {{guild}}."
+      "description": "Você está alterando o apelido de {{username}} em {{guild}}.",
+      "title": "Editar apelido",
+      "placeholder": "Insira um apelido..."
     },
     "join_server": {
       "invalid_code": "Isto não parece como um código de convite válido.",
@@ -715,7 +717,8 @@
       "submit": "Entrar",
       "submitting": "Entrando...",
       "forgot_password": "Esqueceu sua senha?",
-      "no_account": "Não tem uma conta?"
+      "no_account": "Não tem uma conta?",
+      "title": "Entrar em sua conta"
     },
     "register": {
       "email": "Email",
