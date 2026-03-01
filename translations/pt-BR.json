@@ -119,7 +119,10 @@
         "email": "Email",
         "display_name": "Nome exibido",
         "show_email": "Mostrar email",
-        "hide_email": "Esconder email"
+        "hide_email": "Esconder email",
+        "change_email": "Mudar email",
+        "not_verified": "(Não verificado)",
+        "verify_email": "Verificar email"
       },
       "language": {
         "header": "Idioma",
@@ -470,7 +473,8 @@
     },
     "message_not_loaded": "Mensagem ainda não carregada. (Dados da mensagem serão fornecidos em uma atualização futura)",
     "all_friends": "Todos(as) amigos(as)",
-    "active_now": "Ativos(as) agora"
+    "active_now": "Ativos(as) agora",
+    "ongoing_conversations": "Conversas em andamento"
   },
   "friends": {
     "header": "Amigos",
@@ -706,6 +710,30 @@
       "description": "Você está editando cargos para {{username}} em {{guild}}.",
       "save_note": "Cargos serão atualizados assim que você apertar em \"Salvar\".",
       "title": "Editar cargos"
+    },
+    "verify_email": {
+      "confirm": {
+        "submitting": "Enviando...",
+        "description": "Enviaremos um código de verificação para seu endereço de email\nEste é o email correto?",
+        "accept": "Sim, enviar código",
+        "deny": "Isto não está certo"
+      },
+      "code": {
+        "submitting": "Verificando...",
+        "submit": "Verificar",
+        "description": "Enviamos um código de 6 dígitos para {{recipient}}."
+      },
+      "title": {
+        "change": "Mudar email",
+        "verify": "Verificar email"
+      },
+      "new_email": {
+        "label": "Novo email",
+        "current_password": "Senha atual",
+        "submit": "Enviar código",
+        "description_verify": "Insira o endereço de email que deseja usar.",
+        "description_change": "Insira o novo endereço de email e sua senha atual."
+      }
     }
   },
   "auth": {
