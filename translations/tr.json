@@ -96,7 +96,9 @@
       "delete_category": "Kategoriyi Sil",
       "edit_channel_order": "Kanal Sırasını Düzenle",
       "save_channel_order": "Sırayı Kaydet",
-      "empty_category": "Boş Kategori"
+      "empty_category": "Boş Kategori",
+      "delete_channel": "Kanalı Sil",
+      "server_settings": "Sunucu Ayarları"
     }
   },
   "settings": {
