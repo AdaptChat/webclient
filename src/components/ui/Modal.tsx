@@ -36,6 +36,7 @@ import EmojiUploadModal from "../guilds/EmojiUploadModal";
 import EditNicknameModal from "../guilds/EditNicknameModal";
 import EditMemberRolesModal from "../guilds/EditMemberRolesModal";
 import NewConversationModal from "../friends/NewConversationModal";
+import EmailVerificationModal from "../settings/EmailVerificationModal";
 
 export enum ModalId {
   NewGuild,
@@ -57,6 +58,7 @@ export enum ModalId {
   EditNickname,
   EditMemberRoles,
   NewConversation,
+  EmailVerification,
 }
 
 type ModalMapping = {
@@ -83,6 +85,7 @@ type ModalMapping = {
   [ModalId.EditNickname]: { guildId: bigint, memberId: bigint, current: string },
   [ModalId.EditMemberRoles]: { guildId: bigint, memberId: bigint },
   [ModalId.NewConversation]: undefined,
+  [ModalId.EmailVerification]: undefined,
 }
 
 type ModalDataPair = {
@@ -236,6 +239,9 @@ export function ModalProvider(props: ParentProps) {
           </Match>
           <Match when={context.id === ModalId.NewConversation}>
             <NewConversationModal />
+          </Match>
+          <Match when={context.id === ModalId.EmailVerification}>
+            <EmailVerificationModal />
           </Match>
         </Switch>
       </ModalContainer>

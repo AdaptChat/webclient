@@ -149,7 +149,7 @@ export default class ApiCache {
     return this.clientUser?.id
   }
 
-  updateClientUser(user: User) {
+  updateClientUser(user: Partial<ClientUser>) {
     this.clientUserReactor?.[1](prev => ({ ...prev, ...user }))
   }
 

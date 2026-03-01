@@ -3,6 +3,7 @@ import tooltip from "../../directives/tooltip";
 import {noop, snowflakes} from "../../utils";
 import {Accessor, createEffect, createMemo, createSignal, createUniqueId, on, Setter, Show} from "solid-js";
 import Icon, {IconElement} from "../../components/icons/Icon";
+import {ModalId, useModal} from "../../components/ui/Modal";
 import PenToSquare from "../../components/icons/svg/PenToSquare";
 import Check from "../../components/icons/svg/Check";
 import Xmark from "../../components/icons/svg/Xmark";
@@ -19,6 +20,7 @@ import EyeSlash from "../../components/icons/svg/EyeSlash";
 import {defaultAvatar} from "../../api/ApiCache";
 import CakeCandles from "../../components/icons/svg/CakeCandles";
 import {t} from "../../i18n";
+import { UserFlags } from "../../api/Bitflags";
 noop(tooltip)
 
 export enum EditingState {
@@ -63,6 +65,9 @@ export default function Account() {
 
   const [usernameValue, setUsernameValue] = createSignal(clientUser().username)
   const [showEmail, setShowEmail] = createSignal(false)
+  const {showModal} = useModal()
+
+  const isVerified = () => UserFlags.fromValue(clientUser().flags).has('VERIFIED')
 
   const submitEdit = async (e: Event) => {
     e.preventDefault()
@@ -172,23 +177,37 @@ export default function Account() {
       <h2 class="pt-6 pb-3 px-2 font-title font-bold text-xl">
         {t("settings.user.account.credentials")}
       </h2>
-      <div class="flex items-center">
-        <div class="p-4 rounded-full bg-bg-0/80">
-          <Icon icon={Envelope} class="w-6 h-6 fill-fg/80" />
+      <div class="flex justify-center mobile:flex-col gap-2">
+        <div class="flex items-center flex-grow">
+          <div class="p-4 rounded-full bg-bg-0/80">
+            <Icon icon={Envelope} class="w-6 h-6 fill-fg/80" />
+          </div>
+          <div class="flex flex-col">
+            <h3 class="px-2 font-bold text-sm uppercase">
+              <span class="text-fg/60">{t("settings.user.account.email")}</span>
+              &nbsp;
+              <Show when={!isVerified()}>
+                <span class="text-danger">{t("settings.user.account.not_verified")}</span>
+              </Show>
+            </h3>
+            <p class="px-2 text-fg/80 flex gap-x-2 items-center">
+              {showEmail() ? clientUser().email : '********' + clientUser().email?.slice(clientUser().email?.lastIndexOf('@'))}
+              <Icon
+                icon={showEmail() ? Eye : EyeSlash}
+                tooltip={t(showEmail() ? 'settings.user.account.hide_email' : 'settings.user.account.show_email')}
+                class="w-5 h-5 fill-fg/50 cursor-pointer"
+                onClick={() => setShowEmail(p => !p)}
+              />
+            </p>
+          </div>
         </div>
-        <div class="flex flex-col flex-grow">
-          <h3 class="px-2 font-bold text-sm uppercase text-fg/60">
-            {t("settings.user.account.email")}
-          </h3>
-          <p class="px-2 text-fg/80 flex gap-x-2 items-center">
-            {showEmail() ? clientUser().email : '********' + clientUser().email?.slice(clientUser().email?.lastIndexOf('@'))}
-            <Icon
-              icon={showEmail() ? Eye : EyeSlash}
-              tooltip={t(showEmail() ? 'settings.user.account.hide_email' : 'settings.user.account.show_email')}
-              class="w-5 h-5 fill-fg/50 cursor-pointer"
-              onClick={() => setShowEmail(p => !p)}
-            />
-          </p>
+        <div class="flex gap-2 items-center">
+          <button
+            class="btn"
+            onClick={() => showModal(ModalId.EmailVerification)}
+          >
+            {t(isVerified() ? 'settings.user.account.change_email' : 'settings.user.account.verify_email')}
+          </button>
         </div>
       </div>
     </div>

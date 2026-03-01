@@ -144,6 +144,7 @@ export type PrivacyConfiguration = _Extract<typeof PrivacyConfiguration>
 
 export const UserFlags = generateBitflags({
   BOT: 1 << 0,
+  VERIFIED: 1 << 1,
 })
 export type UserFlags = _Extract<typeof UserFlags>
 

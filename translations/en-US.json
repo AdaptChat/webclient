@@ -117,7 +117,10 @@
         "credentials": "Credentials",
         "email": "Email",
         "show_email": "Show Email",
-        "hide_email": "Hide Email"
+        "hide_email": "Hide Email",
+        "not_verified": "(Not Verified)",
+        "verify_email": "Verify Email",
+        "change_email": "Change Email"
       },
       "language": {
         "header": "Language",
@@ -742,6 +745,30 @@
       "handle_placeholder": "my-fancy-bot",
       "handle_description": "Bot handles are used to uniquely identify your bot in Adapt.",
       "submit": "Create Bot"
+    },
+    "verify_email": {
+      "title": {
+        "change": "Change Email",
+        "verify": "Verify Email"
+      },
+      "confirm": {
+        "description": "We'll send a verification code to your email address.\nIs this the correct email?",
+        "accept": "Yes, send code",
+        "deny": "That's not right",
+        "submitting": "Sending..."
+      },
+      "new_email": {
+        "description_verify": "Enter the email address you want to use.",
+        "description_change": "Enter the new email address and your current password.",
+        "label": "New email",
+        "current_password": "Current password",
+        "submit": "Send code"
+      },
+      "code": {
+        "description": "We sent a 6-digit code to {{recipient}}.",
+        "submitting": "Verifying...",
+        "submit": "Verify"
+      }
     }
   },
   "channel": {
