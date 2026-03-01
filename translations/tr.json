@@ -88,7 +88,16 @@
     },
     "collapse": "Kenar Çubuğunu Daralt",
     "expand": "Kenar Çubuğunu Göster",
-    "unknown_header": "Bilinmeyen"
+    "unknown_header": "Bilinmeyen",
+    "guild": {
+      "create_channel": "Kanal Oluştur",
+      "edit_channel": "Kanalı Düzenle",
+      "create_category": "Kategori Oluştur",
+      "delete_category": "Kategoriyi Sil",
+      "edit_channel_order": "Kanal Sırasını Düzenle",
+      "save_channel_order": "Sırayı Kaydet",
+      "empty_category": "Boş Kategori"
+    }
   },
   "settings": {
     "user": {
@@ -105,7 +114,10 @@
         "email": "E-posta",
         "show_email": "E-postayı göster",
         "hide_email": "E-postayı gizle",
-        "credentials": "Kimlik Bilgileri"
+        "credentials": "Kimlik Bilgileri",
+        "not_verified": "(Doğrulanmadı)",
+        "verify_email": "E-postayı Doğrula",
+        "change_email": "E-postayı Değiştir"
       },
       "language": {
         "header": "Dil",
@@ -384,6 +396,14 @@
       },
       "manage_invites": {
         "label": "Davetleri Yönet"
+      },
+      "kick_members": {
+        "label": "Üyeleri At",
+        "description": "Bu izne sahip olan üyeler kendinden düşük roldeki bir üyeyi sunucudan atma yetkisine sahiptir."
+      },
+      "ban_members": {
+        "label": "Üyeleri Yasakla",
+        "description": "Bu izne sahip olan üyeler kendisinden düşük roldeki üyeleri sunucudan yasaklayabilir veya yasağını kaldırabilir."
       }
     }
   },
