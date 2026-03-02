@@ -203,7 +203,8 @@
             "permissions": "Permissões"
           },
           "hoist": {
-            "description": "Mostrar membros com este cargo separadamente na lista de membros"
+            "description": "Mostrar membros com este cargo separadamente na lista de membros",
+            "label": "Elevar membros com este cargo"
           },
           "preview_label": "Pré-visualização",
           "dark_theme": "Tema escuro",
@@ -588,7 +589,8 @@
       "description": "Você tem certeza de que deseja excluir {{name}}? Você não poderá desfazer esta ação. Todos os dados associados com este servidor irão ser excluídos e você não poderá recuperá-los no futuro.",
       "password_placeholder": "Senha",
       "name_label": "Digite o nome do servidor para confirmar",
-      "password_label": "Insira sua senha"
+      "password_label": "Insira sua senha",
+      "name_mismatch": "Nome da guilda não correspondente"
     },
     "create_role": {
       "title": "Criar cargo",
@@ -759,7 +761,8 @@
       "username_checking": "Verificando disponibilidade...",
       "username_available": "Nome de usuário disponível!",
       "title": "Criar uma conta",
-      "have_account": "Já tem uma conta?"
+      "have_account": "Já tem uma conta?",
+      "no_captcha": "Nenhuma token CAPTCHA ainda"
     }
   },
   "channel": {
