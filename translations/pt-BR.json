@@ -144,7 +144,8 @@
         "description": "Robôs são usados para automatizar tarefas e fornecem funcionalidade adicional em todo Adapt.",
         "resources": {
           "header": "Recursos",
-          "developer_resources": "Recursos de desenvolvedor"
+          "developer_resources": "Recursos de desenvolvedor",
+          "api_reference": "Referência da API de Adapt"
         },
         "list": {
           "new": "Novo robô",
@@ -214,7 +215,8 @@
           "pick_color": "Escolher cor"
         },
         "new_role": "Novo cargo",
-        "delete_role": "Excluir cargo"
+        "delete_role": "Excluir cargo",
+        "locked": "Bloqueado"
       },
       "delete": "Excluir servidor",
       "emojis": {
@@ -270,7 +272,8 @@
         "none_found": "Nenhum convite encontrado.",
         "copy_link": "Copiar endereço de convite",
         "failed_fetch": "Falha ao carregar convites",
-        "failed_revoke": "Falha ao revogar convite"
+        "failed_revoke": "Falha ao revogar convite",
+        "expiry_left": "{{delta}} restantes"
       },
       "members": {
         "header": "Membros",
@@ -448,7 +451,8 @@
       },
       "options": {
         "allow": "Permitir",
-        "deny": "Negar"
+        "deny": "Negar",
+        "inherit": "Herdar"
       }
     },
     "save": "Salvar alterações?",
@@ -736,7 +740,8 @@
         "description_verify": "Insira o endereço de email que deseja usar.",
         "description_change": "Insira o novo endereço de email e sua senha atual."
       }
-    }
+    },
+    "close": "Fechar modal"
   },
   "auth": {
     "login": {
